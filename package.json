@@ -1,0 +1,25 @@
+{
+  "scripts": {
+    "dev": "vite --open",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@shoelace-style/shoelace": "^2.0.0-beta.83",
+    "@webwriter/lit": "latest",
+    "cytoscape": "^3.23.0",
+    "lit": "^2.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4",
+    "vite": "^3.1.6"
+  },
+  "name": "computer-network",
+  "version": "0.1.0",
+  "description": "a computer network widget",
+  "keywords": [
+    "webwriter",
+    "computer network"
+  ],
+  "author": "Van Dao <van.dao@rwth-aachen.de>",
+  "license": "MIT"
+}
