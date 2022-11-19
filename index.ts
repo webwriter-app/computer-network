@@ -6,18 +6,9 @@ import "@shoelace-style/shoelace/dist/themes/light.css"
 import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
 import { SlAnimation, SlDetails, SlInput, SlTextarea, registerIconLibrary, SlButton } from "@shoelace-style/shoelace"
+import { addNode, removeNode, toggleDrawMode } from "./network-manipulation/component-manipulation"
 
 cytoscape.use(edgehandles);
-
-class NodeData {
-  data: {
-    id: String;
-    name: String;
-    backgroundPath: String;
-    color: String;
-  }
-}
-
 
 @customElement("computer-network")
 export class ComputerNetwork extends LitElementWw {
@@ -40,8 +31,7 @@ export class ComputerNetwork extends LitElementWw {
 
   @property({ type: Boolean, reflect: true })
   networkAvailable: Boolean = false;
-
-  private objectIconMap: Map<String, String> = new Map<string, string>([
+  objectIconMap: Map<String, String> = new Map<string, string>([
     ["pc", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/pc-display-horizontal.svg"],
     ["switch", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/hdd.svg"],
     ["hub", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/hdd.svg"],
@@ -167,17 +157,19 @@ export class ComputerNetwork extends LitElementWw {
         display: none;
         position: absolute;
         background-color: LightBlue;
-        font-size: 1vmax;
+        font-size: 1.2vmax;
         font-family: Sans-serif;
-        min-width: 10vw;
+        min-width: 8vw;
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
         z-index: 1;
       }
       .dropdown-content a {
         color: black;
-        padding: 12px 16px;
+        padding: 1vh 1vw;
         text-decoration: none;
         display: block;
+        padding: 1vh 0;
+        border: dashed transparent;
       }
       #cy {
         height: 100%;
@@ -225,8 +217,9 @@ export class ComputerNetwork extends LitElementWw {
       <button class="btn" id="edge">
         <sl-icon name="share"></sl-icon>
         <div class="dropdown-content">
-          <a id="switch" @click="${() => this.edgeType = "wire"}">Wire</a>
-          <a id="hub" @click="${() => this.edgeType = "wireless"}">Wireless</a>
+          <a id="switch" @click="${() => this.edgeType = "wire"}"><sl-icon name="arrow-left-right"></a>
+          <a id="hub" @click="${() => this.edgeType = "wire"}"><sl-icon name="arrow-right"></a>
+          <a id="hub" @click="${() => this.edgeType = "wireless"}"><sl-icon name="broadcast-pin"></a>
         </div>
       </button>
     </div>
@@ -242,9 +235,9 @@ export class ComputerNetwork extends LitElementWw {
       </div>
 
       <div class="addOption">
-          <button class="addBtn" @click="${this.addNode}"><sl-icon name="plus"></sl-icon></button>
-          <button class="addBtn" @click="${this.removeNode}"><sl-icon name="dash"></sl-icon></button>
-          <button class="addBtn" id="drawBtn" @click="${this.toggleDrawMode}"><sl-icon id="drawMode" name="play"></sl-icon></button>
+          <button class="addBtn" @click="${() => addNode(this)}"><sl-icon name="plus"></sl-icon></button>
+          <button class="addBtn" @click="${() => removeNode(this)}"><sl-icon name="dash"></sl-icon></button>
+          <button class="addBtn" id="drawBtn" @click="${() => toggleDrawMode(this)}"><sl-icon id="drawMode" name="play"></sl-icon></button>
       </div>
 
     </div>
@@ -276,126 +269,5 @@ export class ComputerNetwork extends LitElementWw {
     });
     (this.renderRoot.querySelector('#' + this.currentColor) as HTMLElement).style.border = "dashed rgb(80,80,80)";
   }
-
-  private addNode(): void {
-    if (this.currentNodeToAdd == "" || this.currentNodeToAdd == null) {
-      return;
-    }
-    let name: String = (this.renderRoot.querySelector('#inputName') as HTMLInputElement).value.trim();
-
-    if (name == null || name == "") {
-      name = this.currentNodeToAdd + this.counter.toString();
-    }
-
-    this.counter++;
-
-    if (!this.networkAvailable) {
-      this.networkAvailable = true;
-      this.initNetwork();
-    }
-    this._graph.add({
-      group: 'nodes',
-      data: {
-        id: this.currentNodeToAdd + this.counter.toString(),
-        name: name,
-        backgroundPath: this.objectIconMap.get(this.currentNodeToAdd),
-        color: this.currentColor
-      },
-      position: { x: 10, y: 10 },
-    });
-
-  }
-
-  private removeNode(): void {
-    this._graph.$('#' + this.selectedNode).remove();
-  }
-
-  private toggleDrawMode(): void {
-    //TODO: create wireless "edge"
-    if(this.edgeType != "wire"){
-      return;
-    }
-    if (!this.drawModeOn) {
-      this._edgeHandles.enableDrawMode();
-      (this.renderRoot.querySelector('#drawMode') as SlButton).name = "pause";
-      (this.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "SteelBlue";
-    }
-    else {
-      this._edgeHandles.disableDrawMode();
-      (this.renderRoot.querySelector('#drawMode') as SlButton).name = "play";
-      (this.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "DodgerBlue";
-    }
-    this.drawModeOn = !this.drawModeOn;
-  }
-
-  private initNetwork(): void {
-    this._graph = cytoscape({
-      container: this._cy,
-
-      boxSelectionEnabled: false,
-      autounselectify: true,
-
-      style: cytoscape.stylesheet()
-        .selector('node')
-        .css({
-          "shape": "round-rectangle",
-          "label": "data(name)",
-          "height": 20,
-          "width": 20,
-          'background-image': "data(backgroundPath)",
-          'background-color': "data(color)",
-          'font-size': 15,
-
-        })
-        .selector(':selected')
-        .css({
-          'background-color': 'grey',
-          'line-color': 'black',
-          'target-arrow-color': 'black',
-          'source-arrow-color': 'black',
-          'text-outline-color': 'black'
-        })
-      ,
-      layout: {
-        name: 'grid',
-        padding: 2
-      },
-      // initial viewport state:
-      zoom: 5,
-      pan: { x: 0, y: 0 },
-      minZoom: 3,
-      maxZoom: 1e50,
-    });
-
-    this._graph.on('tap', 'node', (e: any) => {
-      var node = e.target;
-      console.log('tapped ' + node.id());
-      this.selectedNode = node.id();
-    });
-
-
-    // the default values of each option are outlined below:
-    let defaults = {
-      canConnect: function (sourceNode, targetNode) {
-        // whether an edge can be created between source and target
-        return !sourceNode.same(targetNode); // e.g. disallow loops
-      },
-      edgeParams: function (sourceNode, targetNode) {
-        // for edges between the specified source and target
-        // return element object to be passed to cy.add() for edge
-        return {};
-      },
-      hoverDelay: 150, // time spent hovering over a target node before it is considered selected
-      snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
-      snapThreshold: 50, // the target node must be less than or equal to this many pixels away from the cursor/finger
-      snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
-      noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
-      disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
-    };
-
-    //register edge handles
-    this._edgeHandles = this._graph.edgehandles(defaults);
-  }
-
 
 }
