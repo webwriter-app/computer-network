@@ -6,8 +6,15 @@ import "@shoelace-style/shoelace/dist/themes/light.css"
 import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
 import { SlAnimation, SlDetails, SlInput, SlTextarea, registerIconLibrary, SlButton } from "@shoelace-style/shoelace"
-import { addNode, removeNode, toggleDrawMode } from "./network-manipulation/component-manipulation"
+import { addNode, removeComponent, toggleDrawMode, toggleResetColor } from "./network-manipulation/component-manipulation"
+import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
 
+// import CSS as well
+import 'cytoscape-context-menus/cytoscape-context-menus.css';
+
+
+// register extension
+cytoscape.use(contextMenus);
 cytoscape.use(edgehandles);
 
 @customElement("computer-network")
@@ -40,10 +47,10 @@ export class ComputerNetwork extends LitElementWw {
   ]);
 
   @property({ type: Number, reflect: true })
-  counter: number = 0;
+  nodeCounter: number = 0;
 
-  @property({ type: String, reflect: true })
-  selectedNode: String = "";
+  @property({ type: Number, reflect: true })
+  edgeCounter: number = 0;
 
   @property({ type: String, reflect: true })
   edgeType: String = "";
@@ -51,20 +58,32 @@ export class ComputerNetwork extends LitElementWw {
   @property()
   _edgeHandles;
 
+  @property()
+  _instance;
+
   @property({ type: Boolean, reflect: true })
   drawModeOn: boolean = false;
+
+  @property({ type: Boolean, reflect: true })
+  resetColorModeOn: boolean = false;
+
+  @property({
+    type: Boolean,
+    reflect: true
+  })
+  editable: boolean = true;
 
 
   static styles =
     css`
-      .base {
-        display: flex;
-        width: calc(85vw + 1px);
-        height: calc(22vh - 10px);
-        margin-bottom: 2vh;
-        background-color: LightBlue;
-      }
-      .btn {
+    .base {
+      display: flex;
+      width: calc(85vw + 1px);
+      height: calc(22vh - 10px);
+      margin-bottom: 2vh;
+      background-color: LightBlue;
+    }
+    .btn {
         border-radius: 1vh;
         background-color: DodgerBlue;
         border: dashed transparent;
@@ -75,18 +94,18 @@ export class ComputerNetwork extends LitElementWw {
         cursor: pointer;
         width: 8vh;
         height: 8vh;
-      }
-      .btn:hover {
+    }
+    .btn:hover {
         background-color: SteelBlue;
-      }
-      .addOption {
-        margin-left: auto; 
+    }
+    .addOption {
+        margin-left: auto;
         margin-right: 0;
         right: 0;
         width: 10vh;
         height: calc(22vh - 10px);
-      }
-      .addBtn {
+    }
+    .addBtn {
         border-radius: 1vh;
         background-color: DodgerBlue;
         border: dashed transparent;
@@ -97,17 +116,17 @@ export class ComputerNetwork extends LitElementWw {
         cursor: pointer;
         width: 5vh;
         height: 5vh;
-      }
-      .addBtn:hover {
+    }
+    .addBtn:hover {
         background-color: SteelBlue;
-      }
-      .colorPalette {
+    }
+    .colorPalette {
         position: fixed;
         right: calc(15vw + 10vh);
         width: 20vh;
         height: calc(22vh - 10px);
-      }
-      .colorButton {
+    }
+    .colorButton {
         flex-wrap: wrap;
         border-radius: 1vh;
         border: dashed transparent;
@@ -115,15 +134,15 @@ export class ComputerNetwork extends LitElementWw {
         cursor: pointer;
         width: 3vh;
         height: 3vh;
-      }
-      #myCanvas {
+    }
+    #myCanvas {
         position: fixed;
         bottom: 1vh;
         width: 85vw;
         height: 75vh;
         border: 1px solid SteelBlue;
-      }
-      input {
+    }
+    input {
         margin: 1vh;
         border-radius: 1vh;
         border: LightGrey;
@@ -131,61 +150,108 @@ export class ComputerNetwork extends LitElementWw {
         height: 3vh;
         display: inline-block;
         float: right;
-      }
-      .nameBox {
+    }
+    .nameBox {
         position: fixed;
         right: calc(15vw + 30vh);
         width: 20vw;
         height: calc(22vh - 10px);
-        display:grid;
+        display: grid;
         grid-template-columns: max-content max-content;
-        grid-gap:5px;
+        grid-gap: 5px;
         align-items: center;
-      }
-      .nameBox label       { 
-        text-align:right; 
+    }
+    .nameBox label {
+        text-align: right;
         font-size: 1vmax;
         font-family: Sans-serif;
-      }
-      .nameBox label:after { content: ":"; }
-
-      .dropdown {
+    }
+    .nameBox label:after {
+        content: ":";
+    }
+    .dropdown {
         position: relative;
         display: inline-block;
-      }
-      .dropdown-content {
+    }
+    .dropdown-content {
         display: none;
         position: absolute;
         background-color: LightBlue;
         font-size: 1.2vmax;
         font-family: Sans-serif;
         min-width: 8vw;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 1;
-      }
-      .dropdown-content a {
+    }
+    .dropdown-content a {
         color: black;
         padding: 1vh 1vw;
         text-decoration: none;
         display: block;
         padding: 1vh 0;
         border: dashed transparent;
-      }
-      #cy {
+    }
+    #cy {
         height: 100%;
         width: 100%;
         position: absolute;
         left: 0;
         top: 0;
-      }
+    }
+    .dropdown-content a:hover {
+        background-color: SteelBlue;
+    }
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+    .dropdown:hover .dropbtn {
+        background-color: #3e8e41;
+    }
+    .rainbowBtn {
+        display: inline-block;
+        background: linear-gradient(#faceca, #fae1ca, #ecfaca, #cafae4), linear-gradient(#faceca, #fae1ca, #ecfaca, #cafae4);
+        color: white;
+        background-clip:  border-box, text;
+        background-position: center center;
+        box-shadow:inset 0 0 0 100px DodgerBlue;
+        background-size:  110% 110%;
 
-      .dropdown-content a:hover {background-color: SteelBlue;}
-
-      .dropdown:hover .dropdown-content {display: block;}
-
-      .dropdown:hover .dropbtn {background-color: #3e8e41;}
-
-    `;
+        border-radius: 1vh;
+        border: dashed transparent;
+        align-items: center;
+        margin: 1vh 1vw;
+        font-size: 1.8vh;
+        cursor: pointer;
+        width: 5vh;
+        height: 5vh;
+      
+    }
+  
+    /** CONTEXTUAL MENU **/
+    .custom-menu-item {
+        border: none !important;
+        height: 32px !important;
+        width: 170px !important;
+        padding-left: 24px !important;
+        color: rgb(0, 0, 0, 0.87) !important;
+        background-color: #fafafa !important;
+        font-weight: normal !important;
+        font-size: 13px !important;
+        text-align: left !important;
+        box-shadow: none !important;
+    }
+    .custom-menu-item:hover {
+        background-color: #c8c8c8 !important;
+    }
+    .custom-context-menu {
+        border: none !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        background-color: #fafafa !important;
+        box-shadow: 0px 0px 8px 0px rgb(0, 0, 0, 0.12),
+            0px 8px 8px 0px rgb(0, 0, 0, 0.24) !important;
+    }
+`;
   render() {
     const colorOptions = [];
     for (const color of this.colors) {
@@ -235,9 +301,13 @@ export class ComputerNetwork extends LitElementWw {
       </div>
 
       <div class="addOption">
-          <button class="addBtn" @click="${() => addNode(this)}"><sl-icon name="plus"></sl-icon></button>
-          <button class="addBtn" @click="${() => removeNode(this)}"><sl-icon name="dash"></sl-icon></button>
-          <button class="addBtn" id="drawBtn" @click="${() => toggleDrawMode(this)}"><sl-icon id="drawMode" name="play"></sl-icon></button>
+          <button class="addBtn" @click="${() => addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
+          <button class="addBtn" id="drawBtn" @click="${() => toggleDrawMode(this)}" style="font-size: 1.6vh;">
+            <sl-icon id="drawMode" name="share"></sl-icon>
+          </button>
+          <button class="rainbowBtn" id="resetColorBtn" @click="${() => toggleResetColor(this)}">
+            <sl-icon id="changeColorMode" name="eyedropper"></sl-icon>
+          </button>
       </div>
 
     </div>

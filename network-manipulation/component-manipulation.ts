@@ -9,10 +9,10 @@ export function addNode(network: ComputerNetwork): void {
     let name: String = (network.renderRoot.querySelector('#inputName') as HTMLInputElement).value.trim();
 
     if (name == null || name == "") {
-        name = network.currentNodeToAdd + network.counter.toString();
+        name = network.currentNodeToAdd + network.nodeCounter.toString();
     }
 
-    network.counter++;
+    network.nodeCounter++;
 
     if (!network.networkAvailable) {
         network.networkAvailable = true;
@@ -21,7 +21,7 @@ export function addNode(network: ComputerNetwork): void {
     network._graph.add({
         group: 'nodes',
         data: {
-            id: network.currentNodeToAdd + network.counter.toString(),
+            id: network.currentNodeToAdd + network.nodeCounter.toString(),
             name: name,
             backgroundPath: network.objectIconMap.get(network.currentNodeToAdd),
             color: network.currentColor
@@ -31,8 +31,8 @@ export function addNode(network: ComputerNetwork): void {
 
 }
 
-export function removeNode(network: ComputerNetwork): void {
-    network._graph.$('#' + network.selectedNode).remove();
+export function removeComponent(network: ComputerNetwork, componentId: String): void {
+    network._graph.$('#' + componentId).remove();
 }
 
 export function toggleDrawMode(network: ComputerNetwork): void {
@@ -44,11 +44,37 @@ export function toggleDrawMode(network: ComputerNetwork): void {
         network._edgeHandles.enableDrawMode();
         (network.renderRoot.querySelector('#drawMode') as SlButton).name = "pause";
         (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "SteelBlue";
+        (network.renderRoot.querySelector('#resetColorBtn') as HTMLButtonElement).disabled = true;
     }
     else {
         network._edgeHandles.disableDrawMode();
-        (network.renderRoot.querySelector('#drawMode') as SlButton).name = "play";
+        (network.renderRoot.querySelector('#drawMode') as SlButton).name = "share";
         (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "DodgerBlue";
+        (network.renderRoot.querySelector('#resetColorBtn') as HTMLButtonElement).disabled = false;
     }
     network.drawModeOn = !network.drawModeOn;
+}
+
+
+export function toggleResetColor(network: ComputerNetwork): void {
+
+    let changeColorHandler = function(event: any) {
+        let node = event.target;
+        node._private.data.color = network.currentColor;
+    }
+
+    if (!network.resetColorModeOn) {
+        network._graph.on('tap', changeColorHandler);
+        (network.renderRoot.querySelector('#changeColorMode') as SlButton).name = "pause";
+        (network.renderRoot.querySelector('.rainbowBtn') as HTMLElement).style.boxShadow = "inset 0 0 0 100px SteelBlue";
+        (network.renderRoot.querySelector('#drawBtn') as HTMLButtonElement).disabled = true;
+    }
+    else {
+        // just remove handler
+        network._graph.removeListener('tap');
+        (network.renderRoot.querySelector('#changeColorMode') as SlButton).name = "eyedropper";
+        (network.renderRoot.querySelector('.rainbowBtn') as HTMLElement).style.boxShadow = "inset 0 0 0 100px DodgerBlue";
+        (network.renderRoot.querySelector('#drawBtn') as HTMLButtonElement).disabled = false;
+    }
+    network.resetColorModeOn = !network.resetColorModeOn;
 }
