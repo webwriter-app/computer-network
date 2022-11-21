@@ -6,7 +6,7 @@ import "@shoelace-style/shoelace/dist/themes/light.css"
 import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
 import { SlAnimation, SlDetails, SlInput, SlTextarea, registerIconLibrary, SlButton } from "@shoelace-style/shoelace"
-import { addNode, removeComponent, toggleDrawMode, toggleResetColor } from "./network-manipulation/component-manipulation"
+import { addNode, toggleDrawMode, toggleResetColor } from "./network-manipulation/component-manipulation"
 import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
 
 // import CSS as well
@@ -251,6 +251,24 @@ export class ComputerNetwork extends LitElementWw {
         box-shadow: 0px 0px 8px 0px rgb(0, 0, 0, 0.12),
             0px 8px 8px 0px rgb(0, 0, 0, 0.24) !important;
     }
+
+
+    /** INFO DIALOG **/
+    .label-on-left::part(form-control) {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+  
+    .label-on-left::part(form-control-label) {
+      flex: 0 0 auto;
+      width: 60px;
+      text-align: right;
+    }
+  
+    .label-on-left::part(form-control-input) {
+      flex: 1 1 auto;
+    }
 `;
   render() {
     const colorOptions = [];
@@ -301,17 +319,20 @@ export class ComputerNetwork extends LitElementWw {
       </div>
 
       <div class="addOption">
-          <button class="addBtn" @click="${() => addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
-          <button class="addBtn" id="drawBtn" @click="${() => toggleDrawMode(this)}" style="font-size: 1.6vh;">
+          <button class="addBtn" title="Add component" @click="${() => addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
+          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => toggleDrawMode(this)}" style="font-size: 1.6vh;">
             <sl-icon id="drawMode" name="share"></sl-icon>
           </button>
-          <button class="rainbowBtn" id="resetColorBtn" @click="${() => toggleResetColor(this)}">
+          <button class="rainbowBtn" title="Change color" id="resetColorBtn" @click="${() => toggleResetColor(this)}">
             <sl-icon id="changeColorMode" name="eyedropper"></sl-icon>
           </button>
       </div>
 
     </div>
-    
+
+    <sl-dialog label="Component details" id="testDialog">
+    <sl-button slot="footer" variant="primary">Close</sl-button></sl-dialog>
+
     <network-simulator></network-simulator>
     `
   }

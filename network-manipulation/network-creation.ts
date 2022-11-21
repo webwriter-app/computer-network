@@ -7,6 +7,8 @@ import NodeSingular from "cytoscape";
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { removeComponent } from "./component-manipulation";
+import { SlDialog } from "@shoelace-style/shoelace";
+import { generateDialog, InputData } from "../dialog/dialog-content";
 
 
 // register extension
@@ -71,8 +73,28 @@ export function initNetwork(network: ComputerNetwork): void {
                 id: "details",
                 content: "View Details...",
                 tooltipText: "View Details",
-                selector: "node, edge",
-                onClickFunction: function (event) { },
+                selector: "node",
+                onClickFunction: function (event) {
+                    let node = event.target;
+
+                    //pass data of current node into the dialog
+                    let inputFields2 = generateDialog(new Map<string, InputData>([
+                        ["name", new InputData("Name", "The name of this component", node._private.data.name, true)],
+                        ["mac", new InputData("MAC", "The MAC-Address of this component", "", true)],
+                        ["ip", new InputData("IP", "The IP-Address of this component", "", true)],
+                    ]));
+
+                    
+                    let dialog = (network.renderRoot.querySelector('#testDialog') as SlDialog);
+
+                    //TODO: how to appendChild here???
+                    //dialog.innerHTML = inputFields.toString();
+                    inputFields2.forEach(e => dialog.appendChild(e));
+                    dialog.show();
+
+                    const closeButton = dialog.querySelector('sl-button[slot="footer"]');
+                    closeButton.addEventListener('click', () => dialog.hide());
+                },
                 hasTrailingDivider: true
             },
             {
