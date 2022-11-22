@@ -2,6 +2,7 @@ import { ComputerNetwork } from "..";
 import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
 import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
+import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop/cytoscape-compound-drag-and-drop.js';
 import NodeSingular from "cytoscape";
 
 // import CSS as well
@@ -9,11 +10,13 @@ import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { removeComponent } from "./component-manipulation";
 import { SlDialog } from "@shoelace-style/shoelace";
 import { generateDialog, InputData } from "../dialog/dialog-content";
+import { generateNewSubnet, onDragInACompound } from "../adressing/subnetting-controller";
 
 
 // register extension
 cytoscape.use(contextMenus);
 cytoscape.use(edgehandles);
+cytoscape.use(compoundDragAndDrop);
 
 
 export function initNetwork(network: ComputerNetwork): void {
@@ -27,13 +30,13 @@ export function initNetwork(network: ComputerNetwork): void {
             .selector('node')
             .css({
                 "shape": "round-rectangle",
-                "label": "data(name)",
                 "height": 20,
                 "width": 20,
-                'background-image': "data(backgroundPath)",
-                'background-color': "data(color)",
                 'font-size': 15,
-
+            })
+            .selector('[name]')
+            .css({
+                "label": "data(name)",
             })
             .selector(':selected')
             .css({
@@ -47,11 +50,35 @@ export function initNetwork(network: ComputerNetwork): void {
             .selector('edge')
             .css({
                 width: 1,
-                "line-color": "data(color)",
                 'curve-style': 'bezier',
                 label: ""
             })
-
+            .selector('.color-edge')
+            .css({
+                "line-color": "data(color)",
+            })
+            //COMPONENT STYLE
+            .selector('.element-label')
+            .css({
+                "text-valign": "bottom",
+                "text-halign": "center",
+                "font-size": 10,
+                "text-wrap": "wrap",
+                'background-color': "data(color)",
+                'background-image': "data(backgroundPath)",
+                "font-family": "system-ui",
+            })
+            //COMPOUND STYLE
+            .selector('.compound-label')
+            .css({
+                "text-valign": "top",
+                "text-halign": "center",
+                "font-size": 8,
+                "text-wrap": "wrap",
+                "font-family": "system-ui",
+                "background-opacity": 0.4,
+                'background-color': "data(color)"
+            })
         ,
         layout: {
             name: 'grid',
@@ -78,18 +105,16 @@ export function initNetwork(network: ComputerNetwork): void {
                     let node = event.target;
 
                     //pass data of current node into the dialog
-                    let inputFields2 = generateDialog(new Map<string, InputData>([
+                    let inputFields = generateDialog(new Map<string, InputData>([
                         ["name", new InputData("Name", "The name of this component", node._private.data.name, true)],
-                        ["mac", new InputData("MAC", "The MAC-Address of this component", "", true)],
-                        ["ip", new InputData("IP", "The IP-Address of this component", "", true)],
+                        ["mac", new InputData("MAC", "The MAC-Address of this component", node._private.data.mac, true)],
+                        ["ip", new InputData("IP", "The IP-Address of this component", node._private.data.ip, true)],
                     ]));
 
                     
-                    let dialog = (network.renderRoot.querySelector('#testDialog') as SlDialog);
-
-                    //TODO: how to appendChild here???
-                    //dialog.innerHTML = inputFields.toString();
-                    inputFields2.forEach(e => dialog.appendChild(e));
+                    let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
+                    dialog.innerHTML = "";
+                    inputFields.forEach(e => dialog.appendChild(e));
                     dialog.show();
 
                     const closeButton = dialog.querySelector('sl-button[slot="footer"]');
@@ -101,7 +126,6 @@ export function initNetwork(network: ComputerNetwork): void {
                 id: 'remove', // ID of menu item
                 content: 'Remove', // Display content of menu item
                 tooltipText: 'Remove this component', // Tooltip text for menu item
-                image: { src: "/node_modules/@shoelace-style/shoelace/dist/assets/icons/trash.svg", width: 12, height: 12, x: 100, y: 52 }, // menu icon
                 // Filters the elements to have this menu item on cxttap
                 // If the selector is not truthy no elements will have this menu item on cxttap
                 selector: "node, edge",
@@ -130,7 +154,7 @@ export function initNetwork(network: ComputerNetwork): void {
             // for edges between the specified source and target
             // return element object to be passed to cy.add() for edge
             // NB: i indicates edge index in case of edgeType: 'node'
-            let edge = { group: 'edges', data: { id: 'e' + network.edgeCounter, source: sourceNode.data("id"), target: targetNode.data("id"), color: network.currentColor } };
+            let edge = { group: 'edges', data: { id: 'e' + network.edgeCounter, source: sourceNode.data("id"), target: targetNode.data("id"), color: network.currentColor }, classes: "color-edge" };
             network.edgeCounter++;
             return edge;
         },
@@ -150,10 +174,31 @@ export function initNetwork(network: ComputerNetwork): void {
         disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     };
 
+
+    //options for drap-and-drop compound nodes
+    const compoundOptions = {
+        grabbedNode: node => true, // filter function to specify which nodes are valid to grab and drop into other nodes
+        dropTarget: (dropTarget, grabbedNode) => true, // filter function to specify which parent nodes are valid drop targets
+        dropSibling: (dropSibling, grabbedNode) => true, // filter function to specify which orphan nodes are valid drop siblings
+        newParentNode: (grabbedNode, dropSibling) => (generateNewSubnet(network, grabbedNode, dropSibling)), // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
+        boundingBoxOptions: { // same as https://js.cytoscape.org/#eles.boundingBox, used when calculating if one node is dragged over another
+          includeOverlays: false,
+          includeLabels: true
+        },
+        overThreshold: 10, // make dragging over a drop target easier by expanding the hit area by this amount on all sides
+        outThreshold: 10 // make dragging out of a drop target a bit harder by expanding the hit area by this amount on all sides
+      };
+
     //register edge handles
     network._edgeHandles = network._graph.edgehandles(edgehandlesOptions);
 
     //register context menu
     network._instance = network._graph.contextMenus(menuOptions);
+
+    network._cdnd = network._graph.compoundDragAndDrop(compoundOptions);
+    network._cdnd.disable();
+
+
+    network._graph.on('cdnddrop', (event, compound, dropSibling) => onDragInACompound(event, compound));
 
 }
