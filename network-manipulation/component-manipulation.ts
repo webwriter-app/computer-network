@@ -1,12 +1,16 @@
 import { ComputerNetwork } from "..";
-import { initNetwork } from "./network-creation";
+import { initNetwork } from "./network-config";
 import { SlButton } from "@shoelace-style/shoelace"
+import { generateIpAddress, generateMacAddress } from "../adressing/generate-address";
 
 export function addNode(network: ComputerNetwork): void {
     if (network.currentNodeToAdd == "" || network.currentNodeToAdd == null) {
         return;
     }
     let name: String = (network.renderRoot.querySelector('#inputName') as HTMLInputElement).value.trim();
+    
+    let mac: string = generateMacAddress();
+    let ip: string = generateIpAddress();
 
     if (name == null || name == "") {
         name = network.currentNodeToAdd + network.nodeCounter.toString();
@@ -24,9 +28,12 @@ export function addNode(network: ComputerNetwork): void {
             id: network.currentNodeToAdd + network.nodeCounter.toString(),
             name: name,
             backgroundPath: network.objectIconMap.get(network.currentNodeToAdd),
-            color: network.currentColor
+            color: network.currentColor,
+            mac: mac,
+            ip: ip
         },
         position: { x: 10, y: 10 },
+        classes: 'element-label'
     });
 
 }
