@@ -4,7 +4,7 @@ import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
 import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
-import { SlAnimation, SlDetails, SlInput, SlTextarea, registerIconLibrary, SlButton, SlMenu, SlMenuLabel, SlMenuItem, SlDivider } from "@shoelace-style/shoelace"
+import { SlAnimation, SlDetails, SlInput, SlTextarea, registerIconLibrary, SlButton, SlMenu, SlMenuLabel, SlMenuItem, SlDivider, SlCheckbox } from "@shoelace-style/shoelace"
 import { addNode, toggleDrawMode, toggleResetColor } from "./network-manipulation/component-manipulation"
 import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
 
@@ -38,6 +38,7 @@ export class ComputerNetwork extends LitElementWw {
 
   @property({ type: Boolean, reflect: true })
   networkAvailable: Boolean = false;
+
   objectIconMap: Map<String, String> = new Map<string, string>([
     ["pc", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/pc-display-horizontal.svg"],
     ["switch", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/hdd.svg"],
@@ -76,13 +77,12 @@ export class ComputerNetwork extends LitElementWw {
   })
   editable: boolean = true;
 
-
   static styles =
     css`
     .base {
       display: flex;
       width: calc(85vw + 1px);
-      height: calc(22vh - 10px);
+      height: calc(22vh - 4px);
       margin-bottom: 2vh;
       background-color: LightBlue;
     }
@@ -273,6 +273,20 @@ export class ComputerNetwork extends LitElementWw {
       flex: 1 1 auto;
     }
 
+    /** additional info next to Node **/
+    .element-info-box {
+      margin: auto;
+      border-radius: 0.5vh;
+      border: solid 0.1vh gray;
+      font-size: 0.3vw;
+      font-family: monospace;
+      background: white;
+      display: inline-flex;
+
+      margin-top: 10px;
+      padding: 0.5vh;
+    }
+
     network-simulator {
       position: absolute;
       bottom: 5px;
@@ -281,6 +295,7 @@ export class ComputerNetwork extends LitElementWw {
       height: calc(100vh - 10px);
       background-color: LightBlue;
     }
+    
 `;
   render() {
     const colorOptions = [];
@@ -342,6 +357,10 @@ export class ComputerNetwork extends LitElementWw {
 
 
     <div class="canvas" id="myCanvas">
+    <sl-alert id="alert-no-ip-available" variant="warning" closable style="--width:60vw;">
+      <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
+        This sub-network is out of IP address available, please insert your component to another subnet or change the sub-network ID.
+    </sl-alert>
     <div id="cy"></div>
     </div>
 
@@ -350,11 +369,20 @@ export class ComputerNetwork extends LitElementWw {
 
     <network-simulator>
       <sl-menu style="background-color: LightBlue; border: transparent;">
-        <sl-menu-label>Subnetting extension</sl-menu-label>
-        <sl-menu-item @click="${(event) => toggleSubnetting(event, this)}">Activate Draw-and-drop</sl-menu-item>
-        <sl-menu-item>etc</sl-menu-item>
-        <sl-menu-item>etc</sl-menu-item>
+        <sl-menu-label>Labeling</sl-menu-label>
+        <sl-menu-item><sl-checkbox id="IpCheckBox">Show IP</sl-checkbox></sl-menu-item>
+        <sl-menu-item><sl-checkbox id="IpBinCheckBox">Show IP binary</sl-checkbox></sl-menu-item>
+        <sl-menu-item><sl-checkbox id="MacCheckBox">Show MAC</sl-checkbox></sl-menu-item>
+
         <sl-divider style="--width: 1vh; --color: white"></sl-divider>
+
+        <sl-menu-label>Subnetting extension</sl-menu-label>
+        <sl-menu-item @click="${(event) => toggleSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
+        <sl-menu-item>Manual IP</sl-menu-item>
+        <sl-menu-item>etc</sl-menu-item>
+
+        <sl-divider style="--width: 1vh; --color: white"></sl-divider>
+
         <sl-menu-label>Firewall extension</sl-menu-label>
         <sl-menu-item>etc</sl-menu-item>
         <sl-menu-item>etc</sl-menu-item>

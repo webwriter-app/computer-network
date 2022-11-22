@@ -1,22 +1,27 @@
 import { ComputerNetwork } from "..";
 import { initNetwork } from "./network-config";
 import { SlButton } from "@shoelace-style/shoelace"
-import { generateIpAddress, generateMacAddress } from "../adressing/generate-address";
+import { generateIpAddress, generateMacAddress, getBinIp, validateManualIp, validateManualMac } from "../adressing/generate-address";
 
 export function addNode(network: ComputerNetwork): void {
     if (network.currentNodeToAdd == "" || network.currentNodeToAdd == null) {
         return;
     }
-    let name: String = (network.renderRoot.querySelector('#inputName') as HTMLInputElement).value.trim();
+    let name: string = (network.renderRoot.querySelector('#inputName') as HTMLInputElement).value.trim();
+
+    let inputIp: string = (network.renderRoot.querySelector('#inputIP') as HTMLInputElement).value.trim();
+
+    let inputMac: string = (network.renderRoot.querySelector('#inputMAC') as HTMLInputElement).value.trim();
     
-    let mac: string = generateMacAddress();
-    let ip: string = generateIpAddress();
+    
+    let ip: string = validateManualIp(inputIp) ? inputIp : generateIpAddress();
+    let ipBin: string = getBinIp(ip);
+
+    let mac: string = validateManualMac(inputMac) ? inputMac : generateMacAddress();
 
     if (name == null || name == "") {
         name = network.currentNodeToAdd + network.nodeCounter.toString();
     }
-
-    network.nodeCounter++;
 
     if (!network.networkAvailable) {
         network.networkAvailable = true;
@@ -30,12 +35,14 @@ export function addNode(network: ComputerNetwork): void {
             backgroundPath: network.objectIconMap.get(network.currentNodeToAdd),
             color: network.currentColor,
             mac: mac,
-            ip: ip
+            ip: ip,
+            ipBin: ipBin,
         },
         position: { x: 10, y: 10 },
         classes: 'element-label'
     });
 
+    network.nodeCounter++;
 }
 
 export function removeComponent(network: ComputerNetwork, componentId: String): void {

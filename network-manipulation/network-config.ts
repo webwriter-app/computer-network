@@ -3,20 +3,24 @@ import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
 import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop/cytoscape-compound-drag-and-drop.js';
+import nodeHtmlLabel from 'cytoscape-node-html-label/dist/cytoscape-node-html-label.min.js'
 import NodeSingular from "cytoscape";
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { removeComponent } from "./component-manipulation";
-import { SlDialog } from "@shoelace-style/shoelace";
+import { SlAlert, SlCheckbox, SlDialog } from "@shoelace-style/shoelace";
 import { generateDialog, InputData } from "../dialog/dialog-content";
 import { generateNewSubnet, onDragInACompound } from "../adressing/subnetting-controller";
+
 
 
 // register extension
 cytoscape.use(contextMenus);
 cytoscape.use(edgehandles);
 cytoscape.use(compoundDragAndDrop);
+cytoscape.use(nodeHtmlLabel);
+
 
 
 export function initNetwork(network: ComputerNetwork): void {
@@ -26,60 +30,72 @@ export function initNetwork(network: ComputerNetwork): void {
         boxSelectionEnabled: false,
         autounselectify: true,
 
-        style: cytoscape.stylesheet()
-            .selector('node')
-            .css({
-                "shape": "round-rectangle",
-                "height": 20,
-                "width": 20,
-                'font-size': 15,
-            })
-            .selector('[name]')
-            .css({
-                "label": "data(name)",
-            })
-            .selector(':selected')
-            .css({
-                'background-color': 'grey',
-                'line-color': 'black',
-                'target-arrow-color': 'black',
-                'source-arrow-color': 'black',
-                'text-outline-color': 'black'
-            })
-            //EDGE
-            .selector('edge')
-            .css({
-                width: 1,
-                'curve-style': 'bezier',
-                label: ""
-            })
-            .selector('.color-edge')
-            .css({
-                "line-color": "data(color)",
-            })
-            //COMPONENT STYLE
-            .selector('.element-label')
-            .css({
-                "text-valign": "bottom",
-                "text-halign": "center",
-                "font-size": 10,
-                "text-wrap": "wrap",
-                'background-color': "data(color)",
-                'background-image': "data(backgroundPath)",
-                "font-family": "system-ui",
-            })
-            //COMPOUND STYLE
-            .selector('.compound-label')
-            .css({
-                "text-valign": "top",
-                "text-halign": "center",
-                "font-size": 8,
-                "text-wrap": "wrap",
-                "font-family": "system-ui",
-                "background-opacity": 0.4,
-                'background-color': "data(color)"
-            })
-        ,
+        style: [
+            {
+                "selector": "node",
+                "style": {
+                    "shape": "round-rectangle",
+                    "height": 20,
+                    "width": 20,
+                    "font-size": 15
+                }
+            },
+            {
+                "selector": "[name]",
+                "style": {
+                    "label": "data(name)"
+                }
+            },
+            {
+                "selector": ":selected",
+                "style": {
+                    "background-color": "grey",
+                    "line-color": "black",
+                    "target-arrow-color": "black",
+                    "source-arrow-color": "black",
+                    "text-outline-color": "black"
+                }
+            },
+            {
+                "selector": "edge",
+                "style": {
+                    "width": 1,
+                    "curve-style": "bezier",
+                    "label": ""
+                }
+            },
+            {
+                "selector": ".color-edge",
+                "style": {
+                    "line-color": "data(color)"
+                }
+            },
+            {
+                "selector": ".element-label",
+                "style": {
+                    "text-valign": "bottom",
+                    "text-halign": "center",
+                    "font-size": 10,
+                    "text-wrap": "wrap",
+                    "background-color": "data(color)",
+                    "background-image": "data(backgroundPath)",
+                    "font-family": "system-ui"
+                }
+            },
+            {
+                "selector": ".compound-label",
+                "style": {
+                    "text-valign": "top",
+                    "text-halign": "center",
+                    "font-size": 8,
+                    "text-wrap": "wrap",
+                    "font-family": "system-ui",
+                    "background-opacity": 0.4,
+                    "background-color": "data(color)"
+                }
+            }
+        ],
+
         layout: {
             name: 'grid',
             padding: 2
@@ -109,16 +125,14 @@ export function initNetwork(network: ComputerNetwork): void {
                         ["name", new InputData("Name", "The name of this component", node._private.data.name, true)],
                         ["mac", new InputData("MAC", "The MAC-Address of this component", node._private.data.mac, true)],
                         ["ip", new InputData("IP", "The IP-Address of this component", node._private.data.ip, true)],
+                        ["ipBin", new InputData("IP(2)", "The IP-Address of this component (binary)", node._private.data.ipBin, true)],
                     ]));
 
-                    
+
                     let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
                     dialog.innerHTML = "";
                     inputFields.forEach(e => dialog.appendChild(e));
                     dialog.show();
-
-                    const closeButton = dialog.querySelector('sl-button[slot="footer"]');
-                    closeButton.addEventListener('click', () => dialog.hide());
                 },
                 hasTrailingDivider: true
             },
@@ -178,16 +192,45 @@ export function initNetwork(network: ComputerNetwork): void {
     //options for drap-and-drop compound nodes
     const compoundOptions = {
         grabbedNode: node => true, // filter function to specify which nodes are valid to grab and drop into other nodes
-        dropTarget: (dropTarget, grabbedNode) => true, // filter function to specify which parent nodes are valid drop targets
+        dropTarget: (dropTarget, grabbedNode) => {
+
+            if(dropTarget._private.data.id.includes('compound')){
+                if(dropTarget._private.children.length >= Math.pow(2, 32-parseInt(dropTarget._private.data.ip.split('/')[1]))){
+
+                    let isChild: boolean = false;
+
+                    dropTarget._private.children.forEach(child => {
+                        //if grabbed node is child of the network, then fire no alert
+
+                        console.log(child._private.data.id);
+                        console.log(grabbedNode._private.data.id);
+                        if(child._private.data.id == grabbedNode._private.data.id){
+                            isChild = true;
+                            return true;
+                        }
+                    });
+
+                    if(!isChild){
+                      (network.renderRoot.querySelector('#alert-no-ip-available') as SlAlert).open = true;  
+                    }
+                    return false;
+                }
+            }
+            return true;
+        }, // filter function to specify which parent nodes are valid drop targets
+
+
+
+
         dropSibling: (dropSibling, grabbedNode) => true, // filter function to specify which orphan nodes are valid drop siblings
         newParentNode: (grabbedNode, dropSibling) => (generateNewSubnet(network, grabbedNode, dropSibling)), // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
         boundingBoxOptions: { // same as https://js.cytoscape.org/#eles.boundingBox, used when calculating if one node is dragged over another
-          includeOverlays: false,
-          includeLabels: true
+            includeOverlays: false,
+            includeLabels: true
         },
         overThreshold: 10, // make dragging over a drop target easier by expanding the hit area by this amount on all sides
         outThreshold: 10 // make dragging out of a drop target a bit harder by expanding the hit area by this amount on all sides
-      };
+    };
 
     //register edge handles
     network._edgeHandles = network._graph.edgehandles(edgehandlesOptions);
@@ -201,4 +244,51 @@ export function initNetwork(network: ComputerNetwork): void {
 
     network._graph.on('cdnddrop', (event, compound, dropSibling) => onDragInACompound(event, compound));
 
+    //TODO: custom badge for extensions (e.g. firewall)
+    network._graph.nodeHtmlLabel([
+        {
+            query: ".element-label",
+            valign: "bottom",
+            halign: "center",
+            halignBox: 'center',
+            valignBox: 'bottom',
+            tpl: function (data) {
+                let showIp: boolean = (network.renderRoot.querySelector('#IpCheckBox') as SlCheckbox).checked;
+                let showBinIp: boolean = (network.renderRoot.querySelector('#IpBinCheckBox') as SlCheckbox).checked;
+                let showMac: boolean = (network.renderRoot.querySelector('#MacCheckBox') as SlCheckbox).checked;
+
+                //if no data needed to be shown
+                if (!showIp && !showBinIp && !showMac) {
+                    return "";
+                }
+
+                let additionalLabel = "";
+
+                let hasPre: boolean = false;
+
+                additionalLabel += `<div><span class="element-info-box"><p>`;
+
+                if(showIp){
+                    additionalLabel += `IP: ${data.ip}`;
+                    hasPre = true;
+                }
+
+                if(showMac){
+                    if(hasPre){
+                        additionalLabel += `<br>`;
+                    }
+                    additionalLabel += `MAC: ${data.mac}`;
+                    hasPre = true;
+                }
+
+                if(showBinIp){
+                    if(hasPre){
+                        additionalLabel += `<br>`;
+                    }
+                    additionalLabel += `IP(2): ${data.ipBin}`;
+                }
+                return additionalLabel + `</p></div>`;
+            }
+        }
+    ]);
 }

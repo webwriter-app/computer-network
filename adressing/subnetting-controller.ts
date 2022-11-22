@@ -1,5 +1,5 @@
 import { ComputerNetwork } from "..";
-import { calculateNetworkId, generateNewIpProvidedSubnetMask} from "./generate-address";
+import { calculateNetworkId, generateNewIpProvidedCidr} from "./generate-address";
 
 let compoundCounter = 0;
 
@@ -20,6 +20,7 @@ export function toggleSubnetting(event: any, network: ComputerNetwork) {
  * 'cdnddrop': Emitted on a grabbed node when it is dropped (freed)
  */
 export function onDragInACompound(event, compound): void {
+    
     if (!compound._private.data) {
         return;
     }
@@ -27,13 +28,13 @@ export function onDragInACompound(event, compound): void {
 
     let networkId = compound._private.data.ip;
     let prefix = networkId.split("/")[0].slice(0, -1);
-    let submask = parseInt(networkId.split("/")[1]);
+    let cidr = parseInt(networkId.split("/")[1]);
 
-    node._private.data.ip = generateNewIpProvidedSubnetMask(node._private.data.ip, prefix, submask);
+    node._private.data.ip = generateNewIpProvidedCidr(node._private.data.ip, prefix, cidr);
 }
 
 /**
- * Create new "parent" (a compound with submask)
+ * Create new "parent" (a compound - network)
  * @param grabbedNode 
  * @param dropSibling 
  */
