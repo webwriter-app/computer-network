@@ -1,16 +1,16 @@
 import { LitElementWw } from "@webwriter/lit"
 import { css, html } from "lit"
 import { customElement, property, query } from "lit/decorators.js"
-import "./simulators/simulators.ts"
 import "@shoelace-style/shoelace/dist/themes/light.css"
 import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
-import { SlAnimation, SlDetails, SlInput, SlTextarea, registerIconLibrary, SlButton } from "@shoelace-style/shoelace"
+import { SlAnimation, SlDetails, SlInput, SlTextarea, registerIconLibrary, SlButton, SlMenu, SlMenuLabel, SlMenuItem, SlDivider } from "@shoelace-style/shoelace"
 import { addNode, toggleDrawMode, toggleResetColor } from "./network-manipulation/component-manipulation"
 import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
+import { toggleSubnetting } from "./adressing/subnetting-controller";
 
 
 // register extension
@@ -56,10 +56,13 @@ export class ComputerNetwork extends LitElementWw {
   edgeType: String = "";
 
   @property()
-  _edgeHandles;
+  _edgeHandles; //controller for edgehandles extension
 
   @property()
-  _instance;
+  _instance; //controller for menu extension
+
+  @property()
+  _cdnd; //controller for drag-and-drop compound nodes extension
 
   @property({ type: Boolean, reflect: true })
   drawModeOn: boolean = false;
@@ -164,7 +167,7 @@ export class ComputerNetwork extends LitElementWw {
     .nameBox label {
         text-align: right;
         font-size: 1vmax;
-        font-family: Sans-serif;
+        font-family: system-ui;
     }
     .nameBox label:after {
         content: ":";
@@ -178,7 +181,7 @@ export class ComputerNetwork extends LitElementWw {
         position: absolute;
         background-color: LightBlue;
         font-size: 1.2vmax;
-        font-family: Sans-serif;
+        font-family: system-ui;
         min-width: 8vw;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 1;
@@ -194,7 +197,7 @@ export class ComputerNetwork extends LitElementWw {
     #cy {
         height: 100%;
         width: 100%;
-        position: absolute;
+        position: flex;
         left: 0;
         top: 0;
     }
@@ -227,7 +230,7 @@ export class ComputerNetwork extends LitElementWw {
       
     }
   
-    /** CONTEXTUAL MENU **/
+    /** CONTEXTUAL MENU - cytoscape **/
     .custom-menu-item {
         border: none !important;
         height: 32px !important;
@@ -269,6 +272,15 @@ export class ComputerNetwork extends LitElementWw {
     .label-on-left::part(form-control-input) {
       flex: 1 1 auto;
     }
+
+    network-simulator {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      width: calc(14vw - 10px);
+      height: calc(100vh - 10px);
+      background-color: LightBlue;
+    }
 `;
   render() {
     const colorOptions = [];
@@ -277,9 +289,7 @@ export class ComputerNetwork extends LitElementWw {
     }
 
     return html`
-    <div class="canvas" id="myCanvas">
-    <div id="cy"></div>
-    </div>
+    
 
     <div class="base">
       <button class="btn" id="pc" @click="${this.clickOnNode}"><sl-icon name="pc-display-horizontal"></sl-icon></button>
@@ -330,10 +340,27 @@ export class ComputerNetwork extends LitElementWw {
 
     </div>
 
-    <sl-dialog label="Component details" id="testDialog">
+
+    <div class="canvas" id="myCanvas">
+    <div id="cy"></div>
+    </div>
+
+    <sl-dialog label="Component details" id="infoDialog">
     <sl-button slot="footer" variant="primary">Close</sl-button></sl-dialog>
 
-    <network-simulator></network-simulator>
+    <network-simulator>
+      <sl-menu style="background-color: LightBlue; border: transparent;">
+        <sl-menu-label>Subnetting extension</sl-menu-label>
+        <sl-menu-item @click="${(event) => toggleSubnetting(event, this)}">Activate Draw-and-drop</sl-menu-item>
+        <sl-menu-item>etc</sl-menu-item>
+        <sl-menu-item>etc</sl-menu-item>
+        <sl-divider style="--width: 1vh; --color: white"></sl-divider>
+        <sl-menu-label>Firewall extension</sl-menu-label>
+        <sl-menu-item>etc</sl-menu-item>
+        <sl-menu-item>etc</sl-menu-item>
+        <sl-menu-item>etc</sl-menu-item>
+      </sl-menu>
+    </network-simulator>
     `
   }
 
