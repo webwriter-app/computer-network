@@ -357,15 +357,11 @@ export class ComputerNetwork extends LitElementWw {
 
 
     <div class="canvas" id="myCanvas">
-    <sl-alert id="alert-no-ip-available" variant="warning" closable style="--width:60vw;">
-      <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
-        This sub-network is out of IP address available, please insert your component to another subnet or change the sub-network ID.
-    </sl-alert>
     <div id="cy"></div>
     </div>
 
     <sl-dialog label="Component details" id="infoDialog">
-    <sl-button slot="footer" variant="primary">Close</sl-button></sl-dialog>
+    </sl-dialog>
 
     <network-simulator>
       <sl-menu style="background-color: LightBlue; border: transparent;">

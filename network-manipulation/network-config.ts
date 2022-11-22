@@ -9,8 +9,8 @@ import NodeSingular from "cytoscape";
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { removeComponent } from "./component-manipulation";
-import { SlAlert, SlCheckbox, SlDialog } from "@shoelace-style/shoelace";
-import { generateDialog, InputData } from "../dialog/dialog-content";
+import { SlAlert, SlCheckbox } from "@shoelace-style/shoelace";
+import { handleChangesInDialog } from "../dialog/dialog-content";
 import { generateNewSubnet, onDragInACompound } from "../adressing/subnetting-controller";
 
 
@@ -119,20 +119,9 @@ export function initNetwork(network: ComputerNetwork): void {
                 selector: "node",
                 onClickFunction: function (event) {
                     let node = event.target;
+                    let id = node._private.data.id;
 
-                    //pass data of current node into the dialog
-                    let inputFields = generateDialog(new Map<string, InputData>([
-                        ["name", new InputData("Name", "The name of this component", node._private.data.name, true)],
-                        ["mac", new InputData("MAC", "The MAC-Address of this component", node._private.data.mac, true)],
-                        ["ip", new InputData("IP", "The IP-Address of this component", node._private.data.ip, true)],
-                        ["ipBin", new InputData("IP(2)", "The IP-Address of this component (binary)", node._private.data.ipBin, true)],
-                    ]));
-
-
-                    let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
-                    dialog.innerHTML = "";
-                    inputFields.forEach(e => dialog.appendChild(e));
-                    dialog.show();
+                    handleChangesInDialog(id, node, network);
                 },
                 hasTrailingDivider: true
             },
@@ -194,8 +183,8 @@ export function initNetwork(network: ComputerNetwork): void {
         grabbedNode: node => true, // filter function to specify which nodes are valid to grab and drop into other nodes
         dropTarget: (dropTarget, grabbedNode) => {
 
-            if(dropTarget._private.data.id.includes('compound')){
-                if(dropTarget._private.children.length >= Math.pow(2, 32-parseInt(dropTarget._private.data.ip.split('/')[1]))){
+            if (dropTarget._private.data.id.includes('compound')) {
+                if (dropTarget._private.children.length >= Math.pow(2, 32 - parseInt(dropTarget._private.data.ip.split('/')[1]))) {
 
                     let isChild: boolean = false;
 
@@ -204,14 +193,22 @@ export function initNetwork(network: ComputerNetwork): void {
 
                         console.log(child._private.data.id);
                         console.log(grabbedNode._private.data.id);
-                        if(child._private.data.id == grabbedNode._private.data.id){
+                        if (child._private.data.id == grabbedNode._private.data.id) {
                             isChild = true;
                             return true;
                         }
                     });
 
-                    if(!isChild){
-                      (network.renderRoot.querySelector('#alert-no-ip-available') as SlAlert).open = true;  
+                    if (!isChild) {
+                        let alert = new SlAlert;
+                        alert.variant = "danger";
+                        alert.closable = true;
+                        alert.innerHTML = `
+                            <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
+                            <strong>This subnet has no available IP address.</strong><br />
+                            Please drag your component onto another subnet, or change the target subnet's ID!`
+                        alert.toast();
+
                     }
                     return false;
                 }
@@ -268,21 +265,21 @@ export function initNetwork(network: ComputerNetwork): void {
 
                 additionalLabel += `<div><span class="element-info-box"><p>`;
 
-                if(showIp){
+                if (showIp) {
                     additionalLabel += `IP: ${data.ip}`;
                     hasPre = true;
                 }
 
-                if(showMac){
-                    if(hasPre){
+                if (showMac) {
+                    if (hasPre) {
                         additionalLabel += `<br>`;
                     }
                     additionalLabel += `MAC: ${data.mac}`;
                     hasPre = true;
                 }
 
-                if(showBinIp){
-                    if(hasPre){
+                if (showBinIp) {
+                    if (hasPre) {
                         additionalLabel += `<br>`;
                     }
                     additionalLabel += `IP(2): ${data.ipBin}`;
