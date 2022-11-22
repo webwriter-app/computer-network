@@ -33,7 +33,8 @@ export function generateDialog(inputs: Map<string, InputData>): SlInput[] {
     dialogContent.push(input);
 
   });
-  console.log("run generateDialog2");
+
+  //TODO: a button SAVE --> change data of node on click
 
   return dialogContent;
 }
