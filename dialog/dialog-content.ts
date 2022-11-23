@@ -110,13 +110,14 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
       noti.variant = "success";
       noti.innerHTML = "<sl-icon slot=\"icon\" name=\"check2-circle\"></sl-icon>Your changes have been successfully saved.";
       noti.toast();
+
+      if (node._private.parent.length > 0) {
+        let newID = adaptSubnetInformationOnIpChanges(node, newIp);
+        network._graph.$('#' + node._private.parent._private.data.id).data("ip", newID);
+        network._graph.$('#' + node._private.parent._private.data.id).data("name", newID);
+      }
     }
 
-    if (node._private.parent.length > 0) {
-      let newID = adaptSubnetInformationOnIpChanges(node, newIp);
-      network._graph.$('#'+node._private.parent._private.data.id).data("ip", newID);
-      network._graph.$('#'+node._private.parent._private.data.id).data("name", newID);
-    }
   });
 
   let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);

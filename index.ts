@@ -128,6 +128,7 @@ export class ComputerNetwork extends LitElementWw {
         right: calc(15vw + 10vh);
         width: 20vh;
         height: calc(22vh - 10px);
+        margin-top: 0.5vh;
     }
     .colorButton {
         flex-wrap: wrap;
@@ -159,18 +160,7 @@ export class ComputerNetwork extends LitElementWw {
         right: calc(15vw + 30vh);
         width: 20vw;
         height: calc(22vh - 10px);
-        display: grid;
-        grid-template-columns: max-content max-content;
-        grid-gap: 5px;
-        align-items: center;
-    }
-    .nameBox label {
-        text-align: right;
-        font-size: 1vmax;
-        font-family: system-ui;
-    }
-    .nameBox label:after {
-        content: ":";
+        top: 3vh;
     }
     .dropdown {
         position: relative;
@@ -257,20 +247,30 @@ export class ComputerNetwork extends LitElementWw {
 
 
     /** INFO DIALOG **/
+    
+
+    .label-on-left {
+      --label-width: 5vw;
+      --gap-width: 1rem;
+    }
+  
+    .label-on-left + .label-on-left {
+      margin-top: var(--sl-spacing-medium);
+    }
     .label-on-left::part(form-control) {
-      display: flex;
+      display: grid;
+      grid: auto / var(--label-width) 1fr;
+      gap: var(--sl-spacing-3x-small) var(--gap-width);
       align-items: center;
-      gap: 1rem;
     }
   
     .label-on-left::part(form-control-label) {
-      flex: 0 0 auto;
-      width: 60px;
       text-align: right;
     }
   
-    .label-on-left::part(form-control-input) {
-      flex: 1 1 auto;
+    .label-on-left::part(form-control-help-text) {
+      grid-column: span 2;
+      padding-left: calc(var(--label-width) + var(--gap-width));
     }
 
     /** additional info next to Node **/
@@ -334,9 +334,9 @@ export class ComputerNetwork extends LitElementWw {
     </div>
 
       <div class="nameBox">
-        <label>Name</label><input id="inputName" type="text" placeholder="Name">
-        <label>IP-Address</label><input id="inputIP" type="text" placeholder="IP-Address">
-        <label>MAC-Address</label><input id="inputMAC" type="text" placeholder="MAC-Address">
+        <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
+        <sl-input class="label-on-left" label="IP-Address" id="inputIP" placeholder="IP-Address"></sl-input>
+        <sl-input class="label-on-left" label="MAC-Address" id="inputMAC" placeholder="MAC-Address"></sl-input>
       </div>
 
       <div class="colorPalette">
@@ -344,13 +344,19 @@ export class ComputerNetwork extends LitElementWw {
       </div>
 
       <div class="addOption">
+        <sl-tooltip content="Click to add your component" placement="right" style="--max-width: 7vw;">
           <button class="addBtn" title="Add component" @click="${() => addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
+        </sl-tooltip>
+        <sl-tooltip content="Click to draw connecting links" placement="right" style="--max-width: 7vw;">
           <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => toggleDrawMode(this)}" style="font-size: 1.6vh;">
             <sl-icon id="drawMode" name="share"></sl-icon>
           </button>
-          <button class="rainbowBtn" title="Change color" id="resetColorBtn" @click="${() => toggleResetColor(this)}">
+        </sl-tooltip>
+        <sl-tooltip content="Click to change color of existing components" placement="right" style="--max-width: 9vw;">
+          <button class="rainbowBtn" id="resetColorBtn" @click="${() => toggleResetColor(this)}">
             <sl-icon id="changeColorMode" name="eyedropper"></sl-icon>
           </button>
+        </sl-tooltip>
       </div>
 
     </div>
@@ -374,7 +380,7 @@ export class ComputerNetwork extends LitElementWw {
 
         <sl-menu-label>Subnetting extension</sl-menu-label>
         <sl-menu-item @click="${(event) => toggleSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
-        <sl-menu-item>Manual IP</sl-menu-item>
+        <sl-menu-item>etc</sl-menu-item>
         <sl-menu-item>etc</sl-menu-item>
 
         <sl-divider style="--width: 1vh; --color: white"></sl-divider>

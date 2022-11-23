@@ -10,7 +10,7 @@ import NodeSingular from "cytoscape";
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { removeComponent } from "./component-manipulation";
 import { SlAlert, SlCheckbox } from "@shoelace-style/shoelace";
-import { adaptSubnetInformationOnIpChanges, handleChangesInDialog } from "../dialog/dialog-content";
+import { handleChangesInDialog } from "../dialog/dialog-content";
 import { generateNewSubnet, onDragInACompound } from "../adressing/subnetting-controller";
 
 
@@ -116,7 +116,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 id: "details",
                 content: "View Details...",
                 tooltipText: "View Details",
-                selector: "node",
+                selector: ".element-label",
                 onClickFunction: function (event) {
                     let node = event.target;
                     let id = node._private.data.id;
