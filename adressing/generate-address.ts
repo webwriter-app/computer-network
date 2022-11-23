@@ -99,6 +99,7 @@ export function calculateNetworkId(ips: string[]): string {
 }
 
 export function generateNewIpProvidedCidr(oldIp: string, compoundId: string, cidr: number): string {
+    //TODO: fix bug here: bug for subnet with cidr = 24
 
     if(matchesNetworkCidr(oldIp, compoundId, cidr)){
         return oldIp;
@@ -108,13 +109,7 @@ export function generateNewIpProvidedCidr(oldIp: string, compoundId: string, cid
 
     let binaryArray = [];
     decimalArray.forEach(octet => {
-        let temp = parseInt(octet).toString(2);
-        let result = temp;
-        while (result.length != 8) {
-            result = result + "0";
-        }
-        binaryArray.push(result);
-
+        binaryArray.push(numTo8BitBinary(parseInt(octet)));
     });
 
     let newIp = binaryArray.join('').slice(0, cidr);
@@ -125,8 +120,10 @@ export function generateNewIpProvidedCidr(oldIp: string, compoundId: string, cid
         candidateIp += randomBetween(0, 1);
     }
 
-    let binaryNew = [newIp.slice(0, 8), newIp.slice(8, 16), newIp.slice(16, 24), newIp.slice(24, 32)];
+    let binaryNew = [candidateIp.slice(0, 8), candidateIp.slice(8, 16), candidateIp.slice(16, 24), candidateIp.slice(24, 32)];
+
     let decimalNew = [parseInt(binaryNew[0], 2), parseInt(binaryNew[1], 2), parseInt(binaryNew[2], 2), parseInt(binaryNew[3], 2)];
+
     let ip = decimalNew.join('.');
 
     console.log("oldIp: " + oldIp + "   " + existingIp.get(oldIp).ipBinary.toString());
@@ -173,6 +170,9 @@ let getLongestMatch = (first: string, second: string): string => {
 }
 
 let numTo8BitBinary = (num: number): string => {
+    if(num==undefined || num==0){
+        return "00000000";
+    }
     let binary = num.toString(2);
     let result = binary;
 
