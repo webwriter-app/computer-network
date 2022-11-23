@@ -146,15 +146,6 @@ export class ComputerNetwork extends LitElementWw {
         height: 75vh;
         border: 1px solid SteelBlue;
     }
-    input {
-        margin: 1vh;
-        border-radius: 1vh;
-        border: LightGrey;
-        width: 10vw;
-        height: 3vh;
-        display: inline-block;
-        float: right;
-    }
     .nameBox {
         position: fixed;
         right: calc(15vw + 30vh);
@@ -217,7 +208,9 @@ export class ComputerNetwork extends LitElementWw {
         cursor: pointer;
         width: 5vh;
         height: 5vh;
-      
+    }
+    .rainbowBtn:hover {
+        box-shadow: inset 0 0 0 100px SteelBlue;
     }
   
     /** CONTEXTUAL MENU - cytoscape **/
@@ -245,15 +238,11 @@ export class ComputerNetwork extends LitElementWw {
             0px 8px 8px 0px rgb(0, 0, 0, 0.24) !important;
     }
 
-
-    /** INFO DIALOG **/
-    
-
+    /** SL-INPUT **/
     .label-on-left {
       --label-width: 5vw;
       --gap-width: 1rem;
     }
-  
     .label-on-left + .label-on-left {
       margin-top: var(--sl-spacing-medium);
     }
@@ -263,11 +252,9 @@ export class ComputerNetwork extends LitElementWw {
       gap: var(--sl-spacing-3x-small) var(--gap-width);
       align-items: center;
     }
-  
     .label-on-left::part(form-control-label) {
       text-align: right;
     }
-  
     .label-on-left::part(form-control-help-text) {
       grid-column: span 2;
       padding-left: calc(var(--label-width) + var(--gap-width));
