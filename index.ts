@@ -4,13 +4,13 @@ import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
 import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
-import { SlAnimation, SlDetails, SlInput, SlTextarea, registerIconLibrary, SlButton, SlMenu, SlMenuLabel, SlMenuItem, SlDivider, SlCheckbox } from "@shoelace-style/shoelace"
 import { addNode, toggleDrawMode, toggleResetColor } from "./network-manipulation/component-manipulation"
 import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { toggleSubnetting } from "./adressing/subnetting-controller";
+import { SlDrawer } from "@shoelace-style/shoelace";
 
 
 // register extension
@@ -81,77 +81,70 @@ export class ComputerNetwork extends LitElementWw {
     css`
     .base {
       display: flex;
-      width: calc(85vw + 1px);
-      height: calc(22vh - 4px);
-      margin-bottom: 2vh;
+      width: 96vw;
+      height: 14vw;
+      margin: 1vw auto;
       background-color: LightBlue;
     }
     .btn {
-        border-radius: 1vh;
+        border-radius: 0.5vw;
         background-color: DodgerBlue;
         border: dashed transparent;
         color: white;
         align-items: center;
-        margin: 6vh 2vw;
+        margin: auto 1vw;
         font-size: 2vmin;
         cursor: pointer;
-        width: 8vh;
-        height: 8vh;
+        width: 4vw;
+        height: 4vw;
     }
     .btn:hover {
         background-color: SteelBlue;
     }
     .addOption {
-        margin-left: auto;
-        margin-right: 0;
-        right: 0;
-        width: 10vh;
-        height: calc(22vh - 10px);
+        margin: auto;
+        width: 6vw;
     }
     .addBtn {
-        border-radius: 1vh;
+        border-radius: 0.5vw;
         background-color: DodgerBlue;
         border: dashed transparent;
         color: white;
         align-items: center;
-        margin: 1vh 1vw;
-        font-size: 2vh;
+        margin: 0.5vw 1vw;
+        font-size: 1vw;
         cursor: pointer;
-        width: 5vh;
-        height: 5vh;
+        width: 3vw;
+        height: 3vw;
     }
     .addBtn:hover {
         background-color: SteelBlue;
     }
     .colorPalette {
-        position: fixed;
-        right: calc(15vw + 10vh);
-        width: 20vh;
-        height: calc(22vh - 10px);
-        margin-top: 0.5vh;
+        position: flex;
+        width: 12vw;
+        margin: auto;
     }
     .colorButton {
         flex-wrap: wrap;
-        border-radius: 1vh;
+        border-radius: 0.5vw;
         border: dashed transparent;
-        margin: 1vh;
+        margin: 0.5vw;
         cursor: pointer;
-        width: 3vh;
-        height: 3vh;
+        width: 1.9vw;
+        height: 1.9vw;
     }
     #myCanvas {
-        position: fixed;
-        bottom: 1vh;
-        width: 85vw;
-        height: 75vh;
+        position: flex;
+        width: 96vw;
+        height: 50vw;
         border: 1px solid SteelBlue;
+        margin: auto;
     }
     .nameBox {
-        position: fixed;
-        right: calc(15vw + 30vh);
+        position: flex;
         width: 20vw;
-        height: calc(22vh - 10px);
-        top: 3vh;
+        margin: auto;
     }
     .dropdown {
         position: relative;
@@ -169,10 +162,10 @@ export class ComputerNetwork extends LitElementWw {
     }
     .dropdown-content a {
         color: black;
-        padding: 1vh 1vw;
+        padding: 0.5vw 1vw;
         text-decoration: none;
         display: block;
-        padding: 1vh 0;
+        padding: 0.5vw 0;
         border: dashed transparent;
     }
     #cy {
@@ -200,14 +193,14 @@ export class ComputerNetwork extends LitElementWw {
         box-shadow:inset 0 0 0 100px DodgerBlue;
         background-size:  110% 110%;
 
-        border-radius: 1vh;
+        border-radius: 0.5vw;
         border: dashed transparent;
         align-items: center;
-        margin: 1vh 1vw;
-        font-size: 1.8vh;
+        margin: 0.5vw 1vw;
+        font-size: 1vw;
         cursor: pointer;
-        width: 5vh;
-        height: 5vh;
+        width: 3vw;
+        height: 3vw;
     }
     .rainbowBtn:hover {
         box-shadow: inset 0 0 0 100px SteelBlue;
@@ -216,13 +209,12 @@ export class ComputerNetwork extends LitElementWw {
     /** CONTEXTUAL MENU - cytoscape **/
     .custom-menu-item {
         border: none !important;
-        height: 32px !important;
-        width: 170px !important;
-        padding-left: 24px !important;
-        color: rgb(0, 0, 0, 0.87) !important;
-        background-color: #fafafa !important;
+        height: 3vw !important;
+        width: 10vw !important;
+        color: black !important;
+        background-color: white !important;
         font-weight: normal !important;
-        font-size: 13px !important;
+        font-size: 1vw !important;
         text-align: left !important;
         box-shadow: none !important;
     }
@@ -231,17 +223,15 @@ export class ComputerNetwork extends LitElementWw {
     }
     .custom-context-menu {
         border: none !important;
-        padding-top: 8px !important;
-        padding-bottom: 8px !important;
-        background-color: #fafafa !important;
+        background-color: white !important;
         box-shadow: 0px 0px 8px 0px rgb(0, 0, 0, 0.12),
             0px 8px 8px 0px rgb(0, 0, 0, 0.24) !important;
     }
 
     /** SL-INPUT **/
     .label-on-left {
-      --label-width: 5vw;
-      --gap-width: 1rem;
+      --label-width: 2vw;
+      --gap-width: 1.5rem;
     }
     .label-on-left + .label-on-left {
       margin-top: var(--sl-spacing-medium);
@@ -263,24 +253,14 @@ export class ComputerNetwork extends LitElementWw {
     /** additional info next to Node **/
     .element-info-box {
       margin: auto;
-      border-radius: 0.5vh;
-      border: solid 0.1vh gray;
+      border-radius: 0.2vw;
+      border: solid 0.1vw gray;
       font-size: 0.3vw;
       font-family: monospace;
       background: white;
       display: inline-flex;
-
       margin-top: 10px;
-      padding: 0.5vh;
-    }
-
-    network-simulator {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-      width: calc(14vw - 10px);
-      height: calc(100vh - 10px);
-      background-color: LightBlue;
+      padding: 0.5vw;
     }
     
 `;
@@ -294,6 +274,8 @@ export class ComputerNetwork extends LitElementWw {
     
 
     <div class="base">
+
+    <div style="margin: auto;">
       <button class="btn" id="pc" @click="${this.clickOnNode}"><sl-icon name="pc-display-horizontal"></sl-icon></button>
       
       <div class="dropdown">
@@ -320,22 +302,40 @@ export class ComputerNetwork extends LitElementWw {
       </button>
     </div>
 
+    </div>
+
+    <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
+
       <div class="nameBox">
         <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
-        <sl-input class="label-on-left" label="IP-Address" id="inputIP" placeholder="IP-Address"></sl-input>
-        <sl-input class="label-on-left" label="MAC-Address" id="inputMAC" placeholder="MAC-Address"></sl-input>
+        <sl-input class="label-on-left" label="IP" id="inputIP" placeholder="IP-Address"></sl-input>
+        <sl-input class="label-on-left" label="MAC" id="inputMAC" placeholder="MAC-Address"></sl-input>
       </div>
+
+      <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
 
       <div class="colorPalette">
         ${colorOptions}
       </div>
 
+      <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
+
+      <div style="margin: auto;">
+        <sl-menu-label>Labeling</sl-menu-label>
+        <sl-menu-item><sl-checkbox id="IpCheckBox">Show IP</sl-checkbox></sl-menu-item>
+        <sl-menu-item><sl-checkbox id="IpBinCheckBox">Show IP binary</sl-checkbox></sl-menu-item>
+        <sl-menu-item><sl-checkbox id="MacCheckBox">Show MAC</sl-checkbox></sl-menu-item>
+      </div>
+
+      <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
+
       <div class="addOption">
+
         <sl-tooltip content="Click to add your component" placement="right" style="--max-width: 7vw;">
           <button class="addBtn" title="Add component" @click="${() => addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
         </sl-tooltip>
         <sl-tooltip content="Click to draw connecting links" placement="right" style="--max-width: 7vw;">
-          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => toggleDrawMode(this)}" style="font-size: 1.6vh;">
+          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => toggleDrawMode(this)}" style="font-size: 1vw;">
             <sl-icon id="drawMode" name="share"></sl-icon>
           </button>
         </sl-tooltip>
@@ -346,6 +346,7 @@ export class ComputerNetwork extends LitElementWw {
         </sl-tooltip>
       </div>
 
+      <sl-icon-button name="puzzle" @click="${() => (this.renderRoot.querySelector('#extensions-drawer') as SlDrawer).show()}"></sl-icon-button>
     </div>
 
 
@@ -356,28 +357,21 @@ export class ComputerNetwork extends LitElementWw {
     <sl-dialog label="Component details" id="infoDialog">
     </sl-dialog>
 
-    <network-simulator>
+    <sl-drawer id="extensions-drawer">
       <sl-menu style="background-color: LightBlue; border: transparent;">
-        <sl-menu-label>Labeling</sl-menu-label>
-        <sl-menu-item><sl-checkbox id="IpCheckBox">Show IP</sl-checkbox></sl-menu-item>
-        <sl-menu-item><sl-checkbox id="IpBinCheckBox">Show IP binary</sl-checkbox></sl-menu-item>
-        <sl-menu-item><sl-checkbox id="MacCheckBox">Show MAC</sl-checkbox></sl-menu-item>
-
-        <sl-divider style="--width: 1vh; --color: white"></sl-divider>
-
         <sl-menu-label>Subnetting extension</sl-menu-label>
         <sl-menu-item @click="${(event) => toggleSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
         <sl-menu-item>etc</sl-menu-item>
         <sl-menu-item>etc</sl-menu-item>
 
-        <sl-divider style="--width: 1vh; --color: white"></sl-divider>
+        <sl-divider style="--width: 0.5vw; --color: white"></sl-divider>
 
         <sl-menu-label>Firewall extension</sl-menu-label>
         <sl-menu-item>etc</sl-menu-item>
         <sl-menu-item>etc</sl-menu-item>
         <sl-menu-item>etc</sl-menu-item>
       </sl-menu>
-    </network-simulator>
+    </sl-drawer>
     `
   }
 
