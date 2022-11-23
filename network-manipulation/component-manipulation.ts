@@ -108,7 +108,7 @@ export function toggleDrawMode(network: ComputerNetwork): void {
     if (!network.drawModeOn) {
         network._edgeHandles.enableDrawMode();
         (network.renderRoot.querySelector('#drawMode') as SlButton).name = "pause";
-        (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "SteelBlue";
+        (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "rgb(2, 132, 199)";
         (network.renderRoot.querySelector('#resetColorBtn') as HTMLButtonElement).disabled = true;
     }
     else {
@@ -131,7 +131,7 @@ export function toggleResetColor(network: ComputerNetwork): void {
     if (!network.resetColorModeOn) {
         network._graph.on('tap', changeColorHandler);
         (network.renderRoot.querySelector('#changeColorMode') as SlButton).name = "pause";
-        (network.renderRoot.querySelector('.rainbowBtn') as HTMLElement).style.boxShadow = "inset 0 0 0 100px SteelBlue";
+        (network.renderRoot.querySelector('.rainbowBtn') as HTMLElement).style.boxShadow = "inset 0 0 0 100px rgb(2, 132, 199)";
         (network.renderRoot.querySelector('#drawBtn') as HTMLButtonElement).disabled = true;
     }
     else {

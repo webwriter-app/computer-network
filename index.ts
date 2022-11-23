@@ -91,7 +91,7 @@ export class ComputerNetwork extends LitElementWw {
         height: 4vw;
     }
     .btn:hover {
-        background-color: SteelBlue;
+        background-color: rgb(2, 132, 199);
     }
     .addOption {
         margin: auto;
@@ -110,7 +110,7 @@ export class ComputerNetwork extends LitElementWw {
         height: 3vw;
     }
     .addBtn:hover {
-        background-color: SteelBlue;
+        background-color: rgb(2, 132, 199);
     }
     .colorPalette {
         position: flex;
@@ -139,41 +139,10 @@ export class ComputerNetwork extends LitElementWw {
         width: 20vw;
         margin: auto;
     }
-    .dropdown {
-        position: relative;
-        display: inline-block;
-    }
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: LightBlue;
-        font-size: 1.2vmax;
-        font-family: system-ui;
-        min-width: 8vw;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-    }
-    .dropdown-content a {
-        color: black;
-        padding: 0.5vw 1vw;
-        text-decoration: none;
-        display: block;
-        padding: 0.5vw 0;
-        border: dashed transparent;
-    }
     #cy {
         height: 100%;
         width: 100%;
         position: absolute;
-    }
-    .dropdown-content a:hover {
-        background-color: SteelBlue;
-    }
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
-    .dropdown:hover .dropbtn {
-        background-color: #3e8e41;
     }
     .rainbowBtn {
         display: inline-block;
@@ -194,27 +163,32 @@ export class ComputerNetwork extends LitElementWw {
         height: 3vw;
     }
     .rainbowBtn:hover {
-        box-shadow: inset 0 0 0 100px SteelBlue;
+        box-shadow: inset 0 0 0 100px rgb(2, 132, 199);
     }
   
     /** CONTEXTUAL MENU - cytoscape **/
     .custom-menu-item {
         border: none !important;
         height: 3vw !important;
-        width: 10vw !important;
+        width: 8vw !important;
+        padding-left: 1vw !important;
         color: black !important;
         background-color: white !important;
+        font-family: --sl-font-sans !important;
         font-weight: normal !important;
-        font-size: 1vw !important;
+        font-size: 0.8vw !important;
         text-align: left !important;
         box-shadow: none !important;
     }
     .custom-menu-item:hover {
-        background-color: #c8c8c8 !important;
+        background-color: LightBlue !important;
     }
     .custom-context-menu {
         border: none !important;
-        background-color: white !important;
+        padding-top: 0.5vw !important;
+        padding-bottom: 0.5vw !important;
+        border-radius: 0.2vw !important;
+        background-color: #fafafa !important;
         box-shadow: 0px 0px 8px 0px rgb(0, 0, 0, 0.12),
             0px 8px 8px 0px rgb(0, 0, 0, 0.24) !important;
     }
@@ -268,30 +242,27 @@ export class ComputerNetwork extends LitElementWw {
 
     <div style="margin: auto;">
       <button class="btn" id="pc" @click="${this.clickOnNode}"><sl-icon name="pc-display-horizontal"></sl-icon></button>
-      
-      <div class="dropdown">
-        <button class="btn" id="hdd">
-          <sl-icon name="hdd"></sl-icon>
-          <div class="dropdown-content">
-            <a id="switch" @click="${this.clickOnNode}">Switch</a>
-            <a id="hub" @click="${this.clickOnNode}">Hub</a>
-            <a id="router" @click="${this.clickOnNode}">Router</a>
-          </div>
-        </button>
-      </div>
+
+      <sl-dropdown placement="bottom">
+        <button class="btn" id="hdd" slot="trigger"><sl-icon name="hdd"></sl-icon></button>
+        <sl-menu>
+          <sl-menu-item id="switch" @click="${this.clickOnNode}">Switch</sl-menu-item>
+          <sl-menu-item id="hub" @click="${this.clickOnNode}">Hub</sl-menu-item>
+          <sl-menu-item id="router" @click="${this.clickOnNode}">Router</sl-menu-item>
+        </sl-menu>
+      </sl-dropdown>
 
       <button id="cloud" class="btn" @click="${this.clickOnNode}"><sl-icon name="cloudy"></sl-icon></button>
 
-      <div class="dropdown">
-      <button class="btn" id="edge">
-        <sl-icon name="share"></sl-icon>
-        <div class="dropdown-content">
-          <a id="switch" @click="${() => this.edgeType = "wire"}"><sl-icon name="arrow-left-right"></a>
-          <a id="hub" @click="${() => this.edgeType = "wire"}"><sl-icon name="arrow-right"></a>
-          <a id="hub" @click="${() => this.edgeType = "wireless"}"><sl-icon name="broadcast-pin"></a>
-        </div>
-      </button>
-    </div>
+
+      <sl-dropdown placement="bottom">
+      <button class="btn" id="edge" slot="trigger"><sl-icon name="share"></sl-icon></button>
+        <sl-menu>
+          <sl-menu-item id="nondirected-wire" @click="${() => this.edgeType = "wire"}"><sl-icon name="arrow-left-right"></sl-menu-item>
+          <sl-menu-item id="directed-wire" @click="${() => this.edgeType = "wire"}"><sl-icon name="arrow-right"></sl-menu-item>
+          <sl-menu-item id="wireless" @click="${() => this.edgeType = "wireless"}"><sl-icon name="broadcast-pin"></sl-menu-item>
+        </sl-menu>
+      </sl-dropdown>
 
     </div>
 

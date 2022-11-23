@@ -79,7 +79,7 @@ export function initNetwork(network: ComputerNetwork): void {
                     "text-wrap": "wrap",
                     "background-color": "data(color)",
                     "background-image": "data(backgroundPath)",
-                    "font-family": "system-ui"
+                    "font-family": "monospace",
                 }
             },
             {
@@ -89,7 +89,7 @@ export function initNetwork(network: ComputerNetwork): void {
                     "text-halign": "center",
                     "font-size": 8,
                     "text-wrap": "wrap",
-                    "font-family": "system-ui",
+                    "font-family": "monospace",
                     "background-opacity": 0.4,
                     "background-color": "data(color)"
                 }
