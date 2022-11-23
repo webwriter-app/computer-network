@@ -1,6 +1,6 @@
 import { ComputerNetwork } from "..";
 import { initNetwork } from "./network-config";
-import { SlAlert, SlButton } from "@shoelace-style/shoelace"
+import { SlAlert, SlButton, SlCheckbox } from "@shoelace-style/shoelace"
 import { generateIpAddress, generateMacAddress, getBinIp, validateManualIp, validateManualMac } from "../adressing/generate-address";
 
 export function addNode(network: ComputerNetwork): void {
@@ -13,53 +13,60 @@ export function addNode(network: ComputerNetwork): void {
 
     let inputMac: string = (network.renderRoot.querySelector('#inputMAC') as HTMLInputElement).value.trim();
 
+    let autoAdressing: boolean = (network.renderRoot.querySelector('#autoAdressing') as SlCheckbox).checked;
 
     let ip: string;
     let mac: string;
-    let errorInput: boolean = false;
 
-    const alert = new SlAlert();
-    alert.closable = true;
-
-    if (validateManualIp(inputIp)) {
-        ip = inputIp;
-    }
-    else {
-        console.log("auto ip");
+    if (autoAdressing) {
         ip = generateIpAddress();
-        errorInput = true;
-
-        if(inputIp==""){
-            alert.innerHTML += `<li>No IP address is given,  automatically generate another IP Address.</li>`;
-        }
-        else{
-            alert.innerHTML += `<li>The inserted IP Address <strong>` + inputIp + `</strong> is not valid,  automatically generate another IP Address.</li>`;
-        }
-    }
-
-    if (validateManualMac(inputMac)) {
-        mac = inputMac;
+        mac = generateMacAddress();
     }
     else {
-        console.log("auto mac");
-        mac = generateMacAddress();
-        errorInput = true;
+        let errorInput: boolean = false;
 
-        if(inputMac==""){
-            alert.innerHTML += `<li>No MAC address is given, automatically generate another MAC Address.</li>`;
+        const alert = new SlAlert();
+        alert.closable = true;
+
+        if (validateManualIp(inputIp)) {
+            ip = inputIp;
         }
-        else{
-            alert.innerHTML += `<li>The inserted MAC Address <strong>` + inputMac + `</strong> is not valid, automatically generate another MAC Address.</li>`;
+        else {
+            ip = generateIpAddress();
+            errorInput = true;
+
+            if (inputIp == "") {
+                alert.innerHTML += `<li>No IP address is given,  automatically generate another IP Address.</li>`;
+            }
+            else {
+                alert.innerHTML += `<li>The inserted IP Address <strong>` + inputIp + `</strong> is not valid,  automatically generate another IP Address.</li>`;
+            }
+        }
+
+        if (validateManualMac(inputMac)) {
+            mac = inputMac;
+        }
+        else {
+            mac = generateMacAddress();
+            errorInput = true;
+
+            if (inputMac == "") {
+                alert.innerHTML += `<li>No MAC address is given, automatically generate another MAC Address.</li>`;
+            }
+            else {
+                alert.innerHTML += `<li>The inserted MAC Address <strong>` + inputMac + `</strong> is not valid, automatically generate another MAC Address.</li>`;
+            }
+        }
+
+        if (errorInput) {
+            alert.variant = "warning";
+            alert.innerHTML = `<sl-icon slot=\"icon\" name=\"exclamation-triangle\"></sl-icon>` + alert.innerHTML;
+            alert.toast();
+            errorInput = false;
+
         }
     }
 
-    if (errorInput) {
-        alert.variant = "warning";
-        alert.innerHTML = `<sl-icon slot=\"icon\" name=\"exclamation-triangle\"></sl-icon>` + alert.innerHTML;
-        alert.toast();
-        errorInput = false;
-
-    }
 
     let ipBin: string = getBinIp(ip);
 

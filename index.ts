@@ -299,8 +299,9 @@ export class ComputerNetwork extends LitElementWw {
 
       <div class="nameBox">
         <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
-        <sl-input class="label-on-left" label="IP" id="inputIP" placeholder="IP-Address"></sl-input>
-        <sl-input class="label-on-left" label="MAC" id="inputMAC" placeholder="MAC-Address"></sl-input>
+        <sl-input class="label-on-left" label="IPv4" id="inputIP" placeholder="0.0.0.0"></sl-input>
+        <sl-input class="label-on-left" label="MAC" id="inputMAC" placeholder="XX:XX:XX:XX:XX:XX"></sl-input>
+        <sl-checkbox id="autoAdressing" style="padding-top: 1vw;">Auto addressing</sl-checkbox>
       </div>
 
       <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>

@@ -190,9 +190,6 @@ export function initNetwork(network: ComputerNetwork): void {
 
                     dropTarget._private.children.forEach(child => {
                         //if grabbed node is child of the network, then fire no alert
-
-                        console.log(child._private.data.id);
-                        console.log(grabbedNode._private.data.id);
                         if (child._private.data.id == grabbedNode._private.data.id) {
                             isChild = true;
                             return true;
