@@ -1,6 +1,6 @@
 import { ComputerNetwork } from "..";
 import { initNetwork } from "./network-config";
-import { SlButton } from "@shoelace-style/shoelace"
+import { SlAlert, SlButton } from "@shoelace-style/shoelace"
 import { generateIpAddress, generateMacAddress, getBinIp, validateManualIp, validateManualMac } from "../adressing/generate-address";
 
 export function addNode(network: ComputerNetwork): void {
@@ -12,12 +12,56 @@ export function addNode(network: ComputerNetwork): void {
     let inputIp: string = (network.renderRoot.querySelector('#inputIP') as HTMLInputElement).value.trim();
 
     let inputMac: string = (network.renderRoot.querySelector('#inputMAC') as HTMLInputElement).value.trim();
-    
-    
-    let ip: string = validateManualIp(inputIp) ? inputIp : generateIpAddress();
-    let ipBin: string = getBinIp(ip);
 
-    let mac: string = validateManualMac(inputMac) ? inputMac : generateMacAddress();
+
+    let ip: string;
+    let mac: string;
+    let errorInput: boolean = false;
+
+    const alert = new SlAlert();
+    alert.closable = true;
+
+    if (validateManualIp(inputIp)) {
+        ip = inputIp;
+    }
+    else {
+        console.log("auto ip");
+        ip = generateIpAddress();
+        errorInput = true;
+
+        if(inputIp==""){
+            alert.innerHTML += `<li>No IP address is given,  automatically generate another IP Address.</li>`;
+        }
+        else{
+            alert.innerHTML += `<li>The inserted IP Address <strong>` + inputIp + `</strong> is not valid,  automatically generate another IP Address.</li>`;
+        }
+    }
+
+    if (validateManualMac(inputMac)) {
+        mac = inputMac;
+    }
+    else {
+        console.log("auto mac");
+        mac = generateMacAddress();
+        errorInput = true;
+
+        if(inputMac==""){
+            alert.innerHTML += `<li>No MAC address is given, automatically generate another MAC Address.</li>`;
+        }
+        else{
+            alert.innerHTML += `<li>The inserted MAC Address <strong>` + inputMac + `</strong> is not valid, automatically generate another MAC Address.</li>`;
+        }
+    }
+
+    if (errorInput) {
+        alert.variant = "warning";
+        alert.innerHTML = `<sl-icon slot=\"icon\" name=\"exclamation-triangle\"></sl-icon>` + alert.innerHTML;
+        alert.toast();
+        errorInput = false;
+
+    }
+
+    let ipBin: string = getBinIp(ip);
 
     if (name == null || name == "") {
         name = network.currentNodeToAdd + network.nodeCounter.toString();
@@ -72,7 +116,7 @@ export function toggleDrawMode(network: ComputerNetwork): void {
 
 export function toggleResetColor(network: ComputerNetwork): void {
 
-    let changeColorHandler = function(event: any) {
+    let changeColorHandler = function (event: any) {
         let node = event.target;
         node._private.data.color = network.currentColor;
     }

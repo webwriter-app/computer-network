@@ -2,20 +2,12 @@ import { LitElementWw } from "@webwriter/lit"
 import { css, html } from "lit"
 import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
-import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
-import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
 import { addNode, toggleDrawMode, toggleResetColor } from "./network-manipulation/component-manipulation"
-import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
-
-// import CSS as well
-import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { toggleSubnetting } from "./adressing/subnetting-controller";
 import { SlDrawer } from "@shoelace-style/shoelace";
 
+import 'cytoscape-context-menus/cytoscape-context-menus.css';
 
-// register extension
-cytoscape.use(contextMenus);
-cytoscape.use(edgehandles);
 
 @customElement("computer-network")
 export class ComputerNetwork extends LitElementWw {
@@ -135,9 +127,10 @@ export class ComputerNetwork extends LitElementWw {
         height: 1.9vw;
     }
     #myCanvas {
-        position: flex;
+        position: relative;
         width: 96vw;
-        height: 50vw;
+        height: calc(100vh - 17vw);
+        max-height: 50vw;
         border: 1px solid SteelBlue;
         margin: auto;
     }
@@ -171,9 +164,7 @@ export class ComputerNetwork extends LitElementWw {
     #cy {
         height: 100%;
         width: 100%;
-        position: flex;
-        left: 0;
-        top: 0;
+        position: absolute;
     }
     .dropdown-content a:hover {
         background-color: SteelBlue;
@@ -258,9 +249,9 @@ export class ComputerNetwork extends LitElementWw {
       font-size: 0.3vw;
       font-family: monospace;
       background: white;
-      display: inline-flex;
+      display: block;
+      padding: 0 0.2vw;
       margin-top: 10px;
-      padding: 0.5vw;
     }
     
 `;
@@ -331,27 +322,29 @@ export class ComputerNetwork extends LitElementWw {
 
       <div class="addOption">
 
-        <sl-tooltip content="Click to add your component" placement="right" style="--max-width: 7vw;">
+        <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7vw;">
           <button class="addBtn" title="Add component" @click="${() => addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
         </sl-tooltip>
-        <sl-tooltip content="Click to draw connecting links" placement="right" style="--max-width: 7vw;">
+        <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7vw;">
           <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => toggleDrawMode(this)}" style="font-size: 1vw;">
             <sl-icon id="drawMode" name="share"></sl-icon>
           </button>
         </sl-tooltip>
-        <sl-tooltip content="Click to change color of existing components" placement="right" style="--max-width: 9vw;">
+        <sl-tooltip content="Click to change color of existing components" placement="left" style="--max-width: 9vw;">
           <button class="rainbowBtn" id="resetColorBtn" @click="${() => toggleResetColor(this)}">
             <sl-icon id="changeColorMode" name="eyedropper"></sl-icon>
           </button>
         </sl-tooltip>
       </div>
 
-      <sl-icon-button name="puzzle" @click="${() => (this.renderRoot.querySelector('#extensions-drawer') as SlDrawer).show()}"></sl-icon-button>
+      <sl-tooltip content="Extensions" placement="left-start" style="--max-width: 7vw;">
+      <sl-icon-button name="puzzle" @click="${() => (this.renderRoot.querySelector('#extensions-drawer') as SlDrawer).show()}" style="font-size: 1.5vw;"></sl-icon-button>
+      </sl-tooltip>
     </div>
 
 
     <div class="canvas" id="myCanvas">
-    <div id="cy"></div>
+      <div id="cy"></div>
     </div>
 
     <sl-dialog label="Component details" id="infoDialog">
