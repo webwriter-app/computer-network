@@ -10,7 +10,7 @@ import NodeSingular from "cytoscape";
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { removeComponent } from "./component-manipulation";
 import { SlAlert, SlCheckbox } from "@shoelace-style/shoelace";
-import { handleChangesInDialog } from "../dialog/dialog-content";
+import { adaptSubnetInformationOnIpChanges, handleChangesInDialog } from "../dialog/dialog-content";
 import { generateNewSubnet, onDragInACompound } from "../adressing/subnetting-controller";
 
 

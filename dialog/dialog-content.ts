@@ -1,6 +1,6 @@
 import { SlAlert, SlButton, SlDialog, SlInput } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "..";
-import { getBinIp, validateManualIp, validateManualMac } from "../adressing/generate-address";
+import { calculateNetworkId, getBinIp, validateManualIp, validateManualMac } from "../adressing/generate-address";
 
 export class InputData {
   label: string;
@@ -39,6 +39,7 @@ let generateDialog = (id: string, inputs: Map<string, InputData>): SlInput[] => 
 }
 
 export function handleChangesInDialog(id: string, node: any, network: ComputerNetwork) {
+
   //pass data of current node into the dialog
   let inputFields = generateDialog(
     id,
@@ -110,6 +111,12 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
       noti.innerHTML = "<sl-icon slot=\"icon\" name=\"check2-circle\"></sl-icon>Your changes have been successfully saved.";
       noti.toast();
     }
+
+    if (node._private.parent.length > 0) {
+      let newID = adaptSubnetInformationOnIpChanges(node, newIp);
+      network._graph.$('#'+node._private.parent._private.data.id).data("ip", newID);
+      network._graph.$('#'+node._private.parent._private.data.id).data("name", newID);
+    }
   });
 
   let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
@@ -117,6 +124,27 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
   inputFields.forEach(e => dialog.appendChild(e));
   dialog.appendChild(saveButton);
   dialog.show();
+}
+
+
+export function adaptSubnetInformationOnIpChanges(node: any, newIp): string {
+  let compound = node._private.parent._private;
+  let siblings = compound.children;
+
+  let oldIp = node._private.data.ip;
+
+  let ips: string[] = [];
+
+  siblings.forEach(child => {
+    let ip = child._private.data.ip;
+    if (ip == oldIp) {
+      ips.push(newIp);
+    }
+    else {
+      ips.push(child._private.data.ip);
+    }
+  });
+  return calculateNetworkId(ips);
 }
 
 
