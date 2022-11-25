@@ -84,11 +84,11 @@ export class ComputerNetwork extends LitElementWw {
         border: dashed transparent;
         color: white;
         align-items: center;
-        margin: auto 1vw;
         font-size: 2vmin;
         cursor: pointer;
         width: 4vw;
         height: 4vw;
+        margin: auto;
     }
     .btn:hover {
         background-color: rgb(2, 132, 199);
@@ -96,6 +96,10 @@ export class ComputerNetwork extends LitElementWw {
     .addOption {
         margin: auto;
         width: 6vw;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25vw;
+        margin: auto;
     }
     .addBtn {
         border-radius: 0.5vw;
@@ -103,7 +107,6 @@ export class ComputerNetwork extends LitElementWw {
         border: dashed transparent;
         color: white;
         align-items: center;
-        margin: 0.5vw 1vw;
         font-size: 1vw;
         cursor: pointer;
         width: 3vw;
@@ -116,12 +119,13 @@ export class ComputerNetwork extends LitElementWw {
         position: flex;
         width: 12vw;
         margin: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.4vw;
     }
     .colorButton {
-        flex-wrap: wrap;
         border-radius: 0.5vw;
         border: dashed transparent;
-        margin: 0.5vw;
         cursor: pointer;
         width: 1.9vw;
         height: 1.9vw;
@@ -129,15 +133,18 @@ export class ComputerNetwork extends LitElementWw {
     #myCanvas {
         position: relative;
         width: 96vw;
-        height: calc(100vh - 17vw);
-        max-height: 50vw;
+        height: calc(100vh - 18vw);
         border: 1px solid SteelBlue;
         margin: auto;
+        flex-grow: 1;
     }
     .nameBox {
         position: flex;
         width: 20vw;
+        display: flex;
+        flex-direction: column;
         margin: auto;
+        gap: 0.5vw;
     }
     #cy {
         height: 100%;
@@ -156,7 +163,6 @@ export class ComputerNetwork extends LitElementWw {
         border-radius: 0.5vw;
         border: dashed transparent;
         align-items: center;
-        margin: 0.5vw 1vw;
         font-size: 1vw;
         cursor: pointer;
         width: 3vw;
@@ -195,24 +201,37 @@ export class ComputerNetwork extends LitElementWw {
 
     /** SL-INPUT **/
     .label-on-left {
-      --label-width: 2vw;
-      --gap-width: 1.5rem;
+      --label-width: 3vw;
+      --gap-width: 2vw;
+      margin: auto;
     }
-    .label-on-left + .label-on-left {
-      margin-top: var(--sl-spacing-medium);
+    sl-input::part(base), sl-input::part(input) {
+      border: none;
+      font-size: 1vw;
+			height: 2.5vw;
     }
     .label-on-left::part(form-control) {
       display: grid;
       grid: auto / var(--label-width) 1fr;
-      gap: var(--sl-spacing-3x-small) var(--gap-width);
+      gap: 1vw;
       align-items: center;
     }
     .label-on-left::part(form-control-label) {
       text-align: right;
+      font-size: 1.2vw;
     }
     .label-on-left::part(form-control-help-text) {
       grid-column: span 2;
       padding-left: calc(var(--label-width) + var(--gap-width));
+    }
+
+    sl-checkbox::part(base), sl-checkbox::part(label) {
+      font-size: 1.2vw;
+      height: 2.5vw;
+    }
+    sl-menu-item::part(base), sl-menu-item::part(label) {
+      font-size: 1.2vw;
+      height: 2.5vw;
     }
 
     /** additional info next to Node **/
@@ -227,6 +246,7 @@ export class ComputerNetwork extends LitElementWw {
       padding: 0 0.2vw;
       margin-top: 10px;
     }
+
     
 `;
   render() {
@@ -236,11 +256,10 @@ export class ComputerNetwork extends LitElementWw {
     }
 
     return html`
-    
 
     <div class="base">
 
-    <div style="margin: auto;">
+    <div style="width: 22vw; display: flex; margin: auto;">
       <button class="btn" id="pc" @click="${this.clickOnNode}"><sl-icon name="pc-display-horizontal"></sl-icon></button>
 
       <sl-dropdown placement="bottom">
@@ -337,6 +356,7 @@ export class ComputerNetwork extends LitElementWw {
         <sl-menu-item>etc</sl-menu-item>
       </sl-menu>
     </sl-drawer>
+
     `
   }
 
