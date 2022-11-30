@@ -1,12 +1,19 @@
 import { ComputerNetwork } from "..";
 import { initNetwork } from "./network-config";
 import { SlAlert, SlButton, SlCheckbox } from "@shoelace-style/shoelace"
-import { generateIpAddress, generateMacAddress, getBinIp, validateManualIp, validateManualMac } from "../adressing/generate-address";
+import { MacAddress } from "../adressing/addressTypes/MacAddress";
+import { IpAddress } from "../adressing/addressTypes/IpAddress";
+import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from "../components/physicalNodes/Connector";
+import { Computer, Mobile } from "../components/physicalNodes/Host";
+import { WiredEdge, WirelessEdge } from "../components/GraphEdge";
 
-export function addNode(network: ComputerNetwork): void {
-    if (network.currentNodeToAdd == "" || network.currentNodeToAdd == null) {
+export class GraphNodeFactory {
+
+addNode(network: ComputerNetwork): void {
+    if (network.currentComponentToAdd == "" || network.currentComponentToAdd == null) {
         return;
     }
+
     let name: string = (network.renderRoot.querySelector('#inputName') as HTMLInputElement).value.trim();
 
     let inputIp: string = (network.renderRoot.querySelector('#inputIP') as HTMLInputElement).value.trim();
@@ -15,8 +22,64 @@ export function addNode(network: ComputerNetwork): void {
 
     let autoAdressing: boolean = (network.renderRoot.querySelector('#autoAdressing') as SlCheckbox).checked;
 
-    let ip: string;
-    let mac: string;
+    let data;
+
+    switch(network.currentComponentToAdd){ 
+        //connectors
+
+        //layer 1
+        case "repeater": 
+            //create new Node, add to network._graph in data: GraphNode, error warning if needed?
+            //e.g. repeater is on layer one, therefore doesn't have an IP nor MAC.
+            data = new Repeater();
+        break; 
+        case "hub":
+            data = new Hub();
+        break;
+
+        //layer 2
+        case "switch":
+            data = new Switch();
+        break;
+        case "bridge":
+            data = new Bridge();
+        break;
+        case "access-point":
+            data = new AccessPoint();
+        break;
+
+        //layer 3
+        case "router": 
+            data = new Router(); 
+        break;
+
+        //host
+        case "computer": 
+            data = new Computer();
+        break;
+
+        case "mobile":
+            data = new Mobile();
+        break;
+
+
+        //edge
+        case "WiredEdge":
+            data = new WiredEdge();
+        break;
+
+        case "WirelessEdge":
+            data = new WirelessEdge();
+        break;
+        
+        default: 
+        break;   
+    }
+
+    let ip: IpAddress;
+    let mac: MacAddress;
+
+
 
     if (autoAdressing) {
         ip = generateIpAddress();
@@ -142,4 +205,7 @@ export function toggleResetColor(network: ComputerNetwork): void {
         (network.renderRoot.querySelector('#drawBtn') as HTMLButtonElement).disabled = false;
     }
     network.resetColorModeOn = !network.resetColorModeOn;
+}
+
+
 }

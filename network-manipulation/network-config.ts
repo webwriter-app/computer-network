@@ -60,7 +60,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 "selector": "edge",
                 "style": {
                     "width": 1,
-                    "curve-style": "bezier",
+                    "curve-style": "taxi",
                     "label": ""
                 }
             },

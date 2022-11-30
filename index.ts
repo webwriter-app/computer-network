@@ -7,6 +7,8 @@ import { toggleSubnetting } from "./adressing/subnetting-controller";
 import { SlDrawer } from "@shoelace-style/shoelace";
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
+import { IpAddress } from "./adressing/addressTypes/IpAddress"
+import { MacAddress } from "./adressing/addressTypes/MacAddress"
 
 
 @customElement("computer-network")
@@ -20,7 +22,7 @@ export class ComputerNetwork extends LitElementWw {
   _graph;
 
   @property({ type: String, reflect: true })
-  currentNodeToAdd: String = "";
+  currentComponentToAdd: String = "";
 
   @property({ type: String, reflect: true })
   currentColor: String = "white";
@@ -31,34 +33,16 @@ export class ComputerNetwork extends LitElementWw {
   @property({ type: Boolean, reflect: true })
   networkAvailable: Boolean = false;
 
-  objectIconMap: Map<String, String> = new Map<string, string>([
-    ["pc", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/pc-display-horizontal.svg"],
-    ["switch", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/hdd.svg"],
-    ["hub", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/hdd.svg"],
-    ["router", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/hdd.svg"],
-    ["cloud", "/node_modules/@shoelace-style/shoelace/dist/assets/icons/cloudy.svg"]
-  ]);
-
-  @property({ type: Number, reflect: true })
-  nodeCounter: number = 0;
-
-  @property({ type: Number, reflect: true })
-  edgeCounter: number = 0;
-
-  @property({ type: String, reflect: true })
-  edgeType: String = "";
-
   @property()
   _edgeHandles; //controller for edgehandles extension
+  @property({ type: Boolean, reflect: true })
+  drawModeOn: boolean = false;
 
   @property()
   _instance; //controller for menu extension
 
   @property()
   _cdnd; //controller for drag-and-drop compound nodes extension
-
-  @property({ type: Boolean, reflect: true })
-  drawModeOn: boolean = false;
 
   @property({ type: Boolean, reflect: true })
   resetColorModeOn: boolean = false;
@@ -68,6 +52,9 @@ export class ComputerNetwork extends LitElementWw {
     reflect: true
   })
   editable: boolean = true;
+
+  ipDatabase : Map<string, IpAddress> = new Map<string, IpAddress>();
+  macDatabase : Map<string, MacAddress> = new Map<string, MacAddress>();
 
   static styles =
     css`
@@ -260,28 +247,38 @@ export class ComputerNetwork extends LitElementWw {
     <div class="base">
 
     <div style="width: 22vw; display: flex; margin: auto;">
-      <button class="btn" id="pc" @click="${this.clickOnNode}"><sl-icon name="pc-display-horizontal"></sl-icon></button>
-
+      
       <sl-dropdown placement="bottom">
-        <button class="btn" id="hdd" slot="trigger"><sl-icon name="hdd"></sl-icon></button>
+        <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
         <sl-menu>
-          <sl-menu-item id="switch" @click="${this.clickOnNode}">Switch</sl-menu-item>
-          <sl-menu-item id="hub" @click="${this.clickOnNode}">Hub</sl-menu-item>
-          <sl-menu-item id="router" @click="${this.clickOnNode}">Router</sl-menu-item>
+          <sl-menu-item id="computer" @click="${this.clickOnComponentButton}"><sl-icon name="pc-display-horizontal"></sl-icon></sl-menu-item>
+          <sl-menu-item id="mobile" @click="${this.clickOnComponentButton}"><sl-icon name="phone"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
 
-      <button id="cloud" class="btn" @click="${this.clickOnNode}"><sl-icon name="cloudy"></sl-icon></button>
+      <sl-dropdown placement="bottom">
+        <button class="btn" id="connector" slot="trigger"><sl-icon name="hdd"></sl-icon></button>
+        <sl-menu>
+          <sl-menu-item id="router" @click="${this.clickOnComponentButton}"><sl-icon name="router">Router</sl-menu-item>
+          <sl-menu-item id="access-point" @click="${this.clickOnComponentButton}"><sl-icon name="broadcast-pin">Access Point</sl-menu-item>
+          <sl-menu-item id="repeater" @click="${this.clickOnComponentButton}"><sl-icon name="hdd">Repeater</sl-menu-item>
+          <sl-menu-item id="hub" @click="${this.clickOnComponentButton}"><sl-icon name="hdd">Hub</sl-menu-item>
+          <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}"><sl-icon name="hdd">Bridge</sl-menu-item>
+          <sl-menu-item id="switch" @click="${this.clickOnComponentButton}"><sl-icon name="hdd">Switch</sl-menu-item>
+        </sl-menu>
+      </sl-dropdown>
 
+      <button id="internet" class="btn" @click="${this.clickOnComponentButton}"><sl-icon name="cloudy"></sl-icon></button>
 
       <sl-dropdown placement="bottom">
       <button class="btn" id="edge" slot="trigger"><sl-icon name="share"></sl-icon></button>
         <sl-menu>
-          <sl-menu-item id="nondirected-wire" @click="${() => this.edgeType = "wire"}"><sl-icon name="arrow-left-right"></sl-menu-item>
-          <sl-menu-item id="directed-wire" @click="${() => this.edgeType = "wire"}"><sl-icon name="arrow-right"></sl-menu-item>
-          <sl-menu-item id="wireless" @click="${() => this.edgeType = "wireless"}"><sl-icon name="broadcast-pin"></sl-menu-item>
+          <sl-menu-item id="nondirected-wire" @click="${this.clickOnComponentButton}"><sl-icon name="arrow-left-right"></sl-menu-item>
+          <sl-menu-item id="wireless" @click="${this.clickOnComponentButton}"><sl-icon name="wifi"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
+
+      <sl-checkbox id="wifi" style="padding-top: 1vw;">Make your chosen component wireless</sl-checkbox>
 
     </div>
 
@@ -360,17 +357,19 @@ export class ComputerNetwork extends LitElementWw {
     `
   }
 
-  private clickOnNode(e: Event): void {
-    this.currentNodeToAdd = (e.target as HTMLElement).getAttribute('id')!;
+  private clickOnComponentButton(e: Event): void {
+    this.currentComponentToAdd = (e.target as HTMLElement).getAttribute('id')!;
     this.renderRoot.querySelectorAll('.btn').forEach(e => {
       (e as HTMLElement).style.border = "dashed transparent";
     });
-    switch (this.currentNodeToAdd) {
-      case 'pc': case 'cloud':
-        (this.renderRoot.querySelector('#' + this.currentNodeToAdd) as HTMLElement).style.border = "dashed rgb(50,50,50)";
+
+    //highlight the chosen component
+    switch (this.currentComponentToAdd) {
+      case 'computer': case 'mobile':
+        (this.renderRoot.querySelector('#host') as HTMLElement).style.border = "dashed rgb(50,50,50)";
         break;
-      case 'switch': case 'hub': case 'router':
-        (this.renderRoot.querySelector('#hdd') as HTMLElement).style.border = "dashed rgb(50,50,50)";
+      case 'router': case 'access-point': case 'hub': case 'repeater': case 'bridge': case 'switch':
+        (this.renderRoot.querySelector('#connector') as HTMLElement).style.border = "dashed rgb(50,50,50)";
         break;
       default: break;
     }

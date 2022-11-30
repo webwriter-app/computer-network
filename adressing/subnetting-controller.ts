@@ -1,5 +1,4 @@
 import { ComputerNetwork } from "..";
-import { calculateNetworkId, generateNewIpProvidedCidr} from "./generate-address";
 
 let compoundCounter = 0;
 
