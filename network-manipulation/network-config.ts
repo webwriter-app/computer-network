@@ -8,10 +8,11 @@ import NodeSingular from "cytoscape";
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { removeComponent } from "./component-manipulation";
 import { SlAlert, SlCheckbox } from "@shoelace-style/shoelace";
-import { handleChangesInDialog } from "../dialog/dialog-content";
-import { generateNewSubnet, onDragInACompound } from "../adressing/subnetting-controller";
+import { handleChangesInDialog } from "../event-handlers/dialog/dialog-content";
+import { generateNewSubnet, onDragInACompound } from "../event-handlers/subnetting-controller";
+import { WiredEdge } from "../components/GraphEdge";
+import { GraphNodeFactory } from "../event-handlers/component-manipulation";
 
 
 
@@ -134,7 +135,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 selector: "node, edge",
                 onClickFunction: (event) => { // The function to be executed on click
                     let component = event.target;
-                    removeComponent(network, component.id());
+                    GraphNodeFactory.removeComponent(network, component.id());
                 },
                 disabled: false, // Whether the item will be created as disabled
                 show: true, // Whether the item will be shown or not
@@ -157,8 +158,8 @@ export function initNetwork(network: ComputerNetwork): void {
             // for edges between the specified source and target
             // return element object to be passed to cy.add() for edge
             // NB: i indicates edge index in case of edgeType: 'node'
-            let edge = { group: 'edges', data: { id: 'e' + network.edgeCounter, source: sourceNode.data("id"), target: targetNode.data("id"), color: network.currentColor }, classes: "color-edge" };
-            network.edgeCounter++;
+            let data = new WiredEdge(network.currentColor, sourceNode, targetNode);
+            let edge = { group: 'edges', data: data, classes: data.cssClass };
             return edge;
         },
         preview: true, // whether to show added edges preview before releasing selection

@@ -8,7 +8,18 @@ export class Host extends PhysicalNode {
     mac: MacAddress;
 
     constructor(color: string, ip: IpAddress, mac: MacAddress, mobile: boolean, wifiEnabled?: boolean, name?: string, wifiRange?: Wifi) {
-        super(color, 2, wifiEnabled, name, wifiRange);
+        super(color, 2, wifiEnabled, wifiRange);
+
+        this.id = 'host'+Host.counter;
+        Host.counter++;
+        
+        if (name != null && this.name!=undefined && this.name!="") {
+            this.name = name;
+        }
+        else {
+            this.name = this.id;
+        }
+
         this.ip = ip;
         this.mac = mac;
         this.cssClass.push('host-node');

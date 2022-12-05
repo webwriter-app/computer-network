@@ -1,10 +1,11 @@
 import { ComputerNetwork } from "..";
-import { initNetwork } from "./network-config";
+import { initNetwork } from "../network-manipulation/network-config";
 import { SlAlert, SlButton, SlCheckbox } from "@shoelace-style/shoelace"
 import { MacAddress } from "../adressing/addressTypes/MacAddress";
 import { IpAddress } from "../adressing/addressTypes/IpAddress";
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
+import { GraphNode } from "../components/GraphNode";
 
 export class GraphNodeFactory {
 
@@ -21,36 +22,36 @@ export class GraphNodeFactory {
 
         let autoAdressing: boolean = (network.renderRoot.querySelector('#autoAdressing') as SlCheckbox).checked;
 
-        let data;
+        let component: GraphNode;
 
         //TODO: wifi enabled button
+        console.log(network.currentComponentToAdd);
 
         switch (network.currentComponentToAdd) {
             //connectors
-
             //layer 1
             case "repeater":
-                data = new Repeater(network.currentColor, false, name);
+                component = new Repeater(network.currentColor, false, name);
                 break;
             case "hub":
                 //TODO: input fields for number of input/ output ports
-                data = new Hub(network.currentColor, false, 2, 2, name);
+                component = new Hub(network.currentColor, false, 2, 2, name);
                 break;
 
             //layer 2
             case "switch":
-                data = new Switch(network.currentColor, 2, 2, name);
+                component = new Switch(network.currentColor, 2, 2, name);
                 break;
             case "bridge":
-                data = new Bridge(network.currentColor, false, 2, 2, name);
+                component = new Bridge(network.currentColor, false, 2, 2, name);
                 break;
             case "access-point":
-                data = new AccessPoint(network.currentColor, 2, 2, name);
+                component = new AccessPoint(network.currentColor, 2, 2, name);
                 break;
 
             //layer 3
             case "router":
-                data = new Router(network.currentColor, false, 2, 2, name);
+                component = new Router(network.currentColor, false, 2, 2, name);
                 break;
 
             //host 
@@ -99,7 +100,7 @@ export class GraphNodeFactory {
                         }
                     }
 
-                    data = new Host(network.currentColor, ip, mac, false, false, name);
+                    component = new Host(network.currentColor, ip, mac, false, false, name);
 
                     if (errorInput) {
                         alert.variant = "warning";
@@ -109,14 +110,6 @@ export class GraphNodeFactory {
 
                     }
                 }
-            // //edge
-            // case "WiredEdge":
-            //     data = new WiredEdge();
-            // break;
-
-            // case "WirelessEdge":
-            //     data = new WirelessEdge();
-            // break;
             default:
                 break;
         }
@@ -125,14 +118,20 @@ export class GraphNodeFactory {
             network.networkAvailable = true;
             initNetwork(network);
         }
+        console.log(component);
 
         network._graph.add({
             group: 'nodes',
-            data: data,
+            data: component,
             position: { x: 10, y: 10 },
-            classes: data.cssClass,
+            classes: component.cssClass,
         });
     }
+
+    static removeComponent(network: ComputerNetwork, componentId: String): void {
+        network._graph.$('#' + componentId).remove();
+    }
+    
 
     static toggleDrawMode(network: ComputerNetwork): void {
         //TODO: create wireless "edge"

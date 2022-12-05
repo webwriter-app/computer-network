@@ -1,6 +1,8 @@
 import { IpAddress } from "../../adressing/addressTypes/IpAddress";
 import { AddressingHelper } from "../../utils/Helper";
+import { GraphNode } from "../GraphNode";
 import { Router } from "../physicalNodes/Connector";
+import { LogicalNode } from "./LogicalNode";
 
 export class Subnet extends LogicalNode {
     cidr: number;
@@ -9,15 +11,15 @@ export class Subnet extends LogicalNode {
     subnetMask: string;
     devices: GraphNode[];
 
-    constructor(color: string, name?: string) { 
-        super(color, name);
+    constructor(color: string) { 
+        super(color);
         this.id = 'subnet' + Subnet.counter;
         Subnet.counter++;
         this.cssClass.push('subnet-node');
     }
 
 
-    static calculateSubnetNumber(ips: IpAddress[]): string {
+    calculateSubnetNumber(ips: IpAddress[]): void {
         let matrix: string[][] = [];
         ips.forEach(ip => {
             matrix.push(ip.binaryOctets);
@@ -67,6 +69,10 @@ export class Subnet extends LogicalNode {
         });
     
         id = id.slice(0, -1) + " /" + count;
-        return id;
+
+        this.subnetNum = id.slice(0, -1);
+        this.cidr = count;
+        this.name = this.subnetNum + " /" + this.cidr;
+        //TODO: this.subnetMask also
     }
 }

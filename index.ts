@@ -2,13 +2,13 @@ import { LitElementWw } from "@webwriter/lit"
 import { css, html } from "lit"
 import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
-import { toggleSubnetting } from "./adressing/subnetting-controller";
+import { toggleSubnetting } from "./event-handlers/subnetting-controller";
 import { SlDrawer } from "@shoelace-style/shoelace";
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { IpAddress } from "./adressing/addressTypes/IpAddress"
 import { MacAddress } from "./adressing/addressTypes/MacAddress"
-import { GraphNodeFactory } from "./network-manipulation/component-manipulation";
+import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 
 
 @customElement("computer-network")
@@ -22,7 +22,7 @@ export class ComputerNetwork extends LitElementWw {
   _graph;
 
   @property({ type: String, reflect: true })
-  currentComponentToAdd: String = "";
+  currentComponentToAdd: string = "";
 
   @property({ type: String, reflect: true })
   currentColor: string = "white";
@@ -246,6 +246,7 @@ export class ComputerNetwork extends LitElementWw {
 
     <div class="base">
 
+    <div style="position:relative; width: 22vw; display: flex; margin: auto;">
     <div style="width: 22vw; display: flex; margin: auto;">
       
       <sl-dropdown placement="bottom">
@@ -268,8 +269,6 @@ export class ComputerNetwork extends LitElementWw {
         </sl-menu>
       </sl-dropdown>
 
-      <button id="internet" class="btn" @click="${this.clickOnComponentButton}"><sl-icon name="cloudy"></sl-icon></button>
-
       <sl-dropdown placement="bottom">
       <button class="btn" id="edge" slot="trigger"><sl-icon name="share"></sl-icon></button>
         <sl-menu>
@@ -277,8 +276,9 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item id="wireless" @click="${this.clickOnComponentButton}"><sl-icon name="wifi"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
+      </div>
 
-      <sl-checkbox id="wifi" style="padding-top: 1vw;">Make your chosen component wireless</sl-checkbox>
+      <sl-checkbox id="wifi" style="padding-top: 1vw; position:relative;">Make your chosen component wireless</sl-checkbox>
 
     </div>
 

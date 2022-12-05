@@ -1,3 +1,4 @@
+import { GraphNode } from "../GraphNode";
 import { Wifi } from "../logicalNodes/Wifi";
 
 export abstract class PhysicalNode extends GraphNode {
@@ -8,10 +9,8 @@ export abstract class PhysicalNode extends GraphNode {
     name: string;
 
 
-    constructor(color: string, layer: number, wifiEnabled: boolean, name?: string, wifiRange?: Wifi){
-        super(color, name);
-        this.id = 'physicalNode' + PhysicalNode.counter;
-        PhysicalNode.counter++;
+    constructor(color: string, layer: number, wifiEnabled: boolean, wifiRange?: Wifi){
+        super(color);
 
         this.cssClass.push('physical-node');
         this.layer = layer;

@@ -1,8 +1,7 @@
 import { SlAlert, SlButton, SlDialog, SlInput } from "@shoelace-style/shoelace";
-import { ComputerNetwork } from "..";
-import { IpAddress } from "../adressing/addressTypes/IpAddress";
-import { MacAddress } from "../adressing/addressTypes/MacAddress";
-import { AddressingHelper } from "../utils/Helper";
+import { ComputerNetwork } from "../..";
+import { IpAddress } from "../../adressing/addressTypes/IpAddress";
+import { MacAddress } from "../../adressing/addressTypes/MacAddress";
 
 
 export class InputData {
@@ -83,15 +82,18 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
       alert.innerHTML += "The inserted MAC Address <strong>" + newMac + "</strong> is not valid.\n";
     }
 
+    let ip: IpAddress = null;
     if (newIp == "") {
       //do not change anything if no input is given
     }
-    else if (IpAddress.validateAddress(newIp, network.ipDatabase)) {
-      node._private.data.ipAddress = IpAddress.validateAddress(newIp, network.ipDatabase);
-    }
     else {
-      error = true;
-      alert.innerHTML += "The inserted IP Address <strong>" + newIp + "</strong> is not valid.\n";
+      ip = IpAddress.validateAddress(newIp, network.ipDatabase);
+      if (ip != null) {
+        node._private.data.ipAddress = ip;
+      } else {
+        error = true;
+        alert.innerHTML += "The inserted IP Address <strong>" + newIp + "</strong> is not valid.\n";
+      }
     }
 
     if (newName == "" && newIp == "" && newMac == "") {
@@ -113,42 +115,42 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
       noti.variant = "success";
       noti.innerHTML = "<sl-icon slot=\"icon\" name=\"check2-circle\"></sl-icon>Your changes have been successfully saved.";
       noti.toast();
-
-      if (node._private.parent.length > 0) {
-        let newID:  = adaptSubnetInformationOnIpChanges(node, newIp);
-        network._graph.$('#' + node._private.parent._private.data.id).data("ip", newID);
-        network._graph.$('#' + node._private.parent._private.data.id).data("name", newID);
-      }
     }
 
+    if (node._private.parent.length > 0) {
+      adaptSubnetInformationOnIpChanges(network._graph.$('#' + node._private.parent._private), ip);
+    }
+
+
+
+    let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
+    dialog.innerHTML = "";
+    inputFields.forEach(e => dialog.appendChild(e));
+    dialog.appendChild(saveButton);
+    dialog.show();
   });
 
-  let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
-  dialog.innerHTML = "";
-  inputFields.forEach(e => dialog.appendChild(e));
-  dialog.appendChild(saveButton);
-  dialog.show();
 }
 
 
-export function adaptSubnetInformationOnIpChanges(node: any, newIp): IpAddress {
+export function adaptSubnetInformationOnIpChanges(node: any, newIp: IpAddress): void {
   let compound = node._private.parent._private;
   let siblings = compound.children;
 
-  let oldIp = node._private.data.ip;
+  let oldIp = node._private.data.ipAddress;
 
-  let ips: string[] = [];
+  let ips: IpAddress[] = [];
 
   siblings.forEach(child => {
-    let ip = child._private.data.ip;
-    if (ip == oldIp) {
+    let ip = child._private.data.ipAddress;
+    if (ip.address == oldIp.address) {
       ips.push(newIp);
     }
     else {
-      ips.push(child._private.data.ip);
+      ips.push(child._private.data.ipAddress);
     }
   });
-  return IpAddress.generateNewIpForSubnet(ips);
+  node.data.calculateSubnetNumber(ips);
 }
 
 

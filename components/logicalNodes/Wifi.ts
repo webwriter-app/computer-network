@@ -1,10 +1,9 @@
+import { LogicalNode } from "./LogicalNode";
+
 export class Wifi extends LogicalNode {
 
-  
-    static counter: number = 0;
-
-    constructor(color: string, name?: string) { 
-        super(color, name);
+    constructor(color: string) { 
+        super(color);
         this.id = 'wifi' + Wifi.counter;
         Wifi.counter++;
         this.cssClass.push('wifi-node');
@@ -12,8 +11,7 @@ export class Wifi extends LogicalNode {
 
 
     static initWifiRange(color: string) : Wifi {
-        let newWifi : Wifi = new Wifi('wifi'+Wifi.counter, color);
-        Wifi.counter++;
+        let newWifi : Wifi = new Wifi(color);
         return newWifi;
     }
   

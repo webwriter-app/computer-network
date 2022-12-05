@@ -1,9 +1,9 @@
-abstract class LogicalNode extends GraphNode { 
+import { GraphNode } from "../GraphNode";
+
+export abstract class LogicalNode extends GraphNode { 
     
-    constructor(color: string, name?: string) { 
-        super(color, name);
-        this.id = 'logicalNode' + LogicalNode.counter;
-        LogicalNode.counter++;
+    constructor(color: string) { 
+        super(color);
         this.cssClass.push('logical-node');
     }
 }
