@@ -2,6 +2,7 @@ import { SlAlert, SlButton, SlDialog, SlInput } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "../..";
 import { IpAddress } from "../../adressing/addressTypes/IpAddress";
 import { MacAddress } from "../../adressing/addressTypes/MacAddress";
+import { Host } from "../../components/physicalNodes/Host";
 
 
 export class InputData {
@@ -40,16 +41,18 @@ let generateDialog = (id: string, inputs: Map<string, InputData>): SlInput[] => 
   return dialogContent;
 }
 
-export function handleChangesInDialog(id: string, node: any, network: ComputerNetwork) {
+export function handleChangesInDialogForHost(id: string, node: any, network: ComputerNetwork) {
+
+  let host: Host = node._private.data;
 
   //pass data of current node into the dialog
   let inputFields = generateDialog(
     id,
     new Map<string, InputData>([
-      ["name", new InputData("Name", "The name of this component", node._private.data.name, true)],
-      ["mac", new InputData("MAC", "The MAC-Address of this component", node._private.data.mac, true)],
-      ["ip", new InputData("IP", "The IP-Address of this component", node._private.data.ip, true)],
-      ["ipBin", new InputData("IP(2)", "The IP-Address of this component (binary)", node._private.data.ipBin, true)],
+      ["name", new InputData("Name", "The name of this component", host.name, true)],
+      ["mac", new InputData("MAC", "The MAC-Address of this component", host.mac.address, true)],
+      ["ip", new InputData("IP", "The IP-Address of this component", host.ip.address, true)],
+      ["ipBin", new InputData("IP(2)", "The IP-Address of this component (binary)", host.ip.binaryOctets.join("."), true)],
     ]));
 
   const saveButton = new SlButton();
@@ -70,30 +73,29 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
     //todo: update with binary IP?
     let newIpBin = (network.renderRoot.querySelector('#' + id + "ipBin") as SlInput).value.trim();
 
-    node._private.data.name = newName;
+    host.name = newName;
+    let newMacAddress: MacAddress = MacAddress.validateAddress(newMac, network.macDatabase);
     if (newMac == "") {
-      //do not change anything if no input is given
-    }
-    else if (MacAddress.validateAddress(newMac, network.macDatabase)) {
-      node._private.data.macAddress = MacAddress.validateAddress(newMac, network.macDatabase);
+      //do nothing if no input is given
+    } else if (newMacAddress != null) {
+      host.mac = newMacAddress;
     }
     else {
       error = true;
       alert.innerHTML += "The inserted MAC Address <strong>" + newMac + "</strong> is not valid.\n";
     }
 
-    let ip: IpAddress = null;
+    let newIpAddress: IpAddress = IpAddress.validateAddress(newIp, network.ipDatabase);
     if (newIp == "") {
-      //do not change anything if no input is given
+      //do nothing if no input is given
+    }
+    else if (newIpAddress != null) {
+      host.ip = newIpAddress;
     }
     else {
-      ip = IpAddress.validateAddress(newIp, network.ipDatabase);
-      if (ip != null) {
-        node._private.data.ipAddress = ip;
-      } else {
-        error = true;
-        alert.innerHTML += "The inserted IP Address <strong>" + newIp + "</strong> is not valid.\n";
-      }
+      error = true;
+      alert.innerHTML += "The inserted IP Address <strong>" + newIp + "</strong> is not valid.\n";
+
     }
 
     if (newName == "" && newIp == "" && newMac == "") {
@@ -118,18 +120,14 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
     }
 
     if (node._private.parent.length > 0) {
-      adaptSubnetInformationOnIpChanges(network._graph.$('#' + node._private.parent._private), ip);
+      adaptSubnetInformationOnIpChanges(network._graph.$('#' + node._private.parent._private), newIpAddress);
     }
-
-
-
-    let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
-    dialog.innerHTML = "";
-    inputFields.forEach(e => dialog.appendChild(e));
-    dialog.appendChild(saveButton);
-    dialog.show();
   });
-
+  let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
+  dialog.innerHTML = "";
+  inputFields.forEach(e => dialog.appendChild(e));
+  dialog.appendChild(saveButton);
+  dialog.show();
 }
 
 

@@ -2,7 +2,7 @@ import { AddressingHelper } from "../../utils/Helper";
 import { Address } from "./Address";
 
 export class MacAddress extends Address {
-    regex: RegExp = new RegExp("/^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/");
+    static regex: RegExp = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
 
     constructor(macAddress: string, stringOctets: string[]) {
         super(2);

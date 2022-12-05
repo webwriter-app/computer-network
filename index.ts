@@ -260,12 +260,12 @@ export class ComputerNetwork extends LitElementWw {
       <sl-dropdown placement="bottom">
         <button class="btn" id="connector" slot="trigger"><sl-icon name="hdd"></sl-icon></button>
         <sl-menu>
-          <sl-menu-item id="router" @click="${this.clickOnComponentButton}"><sl-icon name="router">Router</sl-menu-item>
-          <sl-menu-item id="access-point" @click="${this.clickOnComponentButton}"><sl-icon name="broadcast-pin">Access Point</sl-menu-item>
-          <sl-menu-item id="repeater" @click="${this.clickOnComponentButton}"><sl-icon name="hdd">Repeater</sl-menu-item>
-          <sl-menu-item id="hub" @click="${this.clickOnComponentButton}"><sl-icon name="hdd">Hub</sl-menu-item>
-          <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}"><sl-icon name="hdd">Bridge</sl-menu-item>
-          <sl-menu-item id="switch" @click="${this.clickOnComponentButton}"><sl-icon name="hdd">Switch</sl-menu-item>
+          <sl-menu-item id="router" @click="${this.clickOnComponentButton}">Router <sl-icon name="router"></sl-menu-item>
+          <sl-menu-item id="access-point" @click="${this.clickOnComponentButton}">Access Point <sl-icon name="broadcast-pin"></sl-menu-item>
+          <sl-menu-item id="repeater" @click="${this.clickOnComponentButton}">Repeater <sl-icon name="hdd"></sl-menu-item>
+          <sl-menu-item id="hub" @click="${this.clickOnComponentButton}">Hub <sl-icon name="hdd"></sl-menu-item>
+          <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}">Bridge <sl-icon name="hdd"></sl-menu-item>
+          <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon name="hdd"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
 
@@ -370,6 +370,9 @@ export class ComputerNetwork extends LitElementWw {
         break;
       case 'router': case 'access-point': case 'hub': case 'repeater': case 'bridge': case 'switch':
         (this.renderRoot.querySelector('#connector') as HTMLElement).style.border = "dashed rgb(50,50,50)";
+        break;
+      case "nondirected-wire": case "wireless":
+        (this.renderRoot.querySelector('#edge') as HTMLElement).style.border = "dashed rgb(50,50,50)";
         break;
       default: break;
     }

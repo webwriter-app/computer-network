@@ -25,7 +25,6 @@ export class GraphNodeFactory {
         let component: GraphNode;
 
         //TODO: wifi enabled button
-        console.log(network.currentComponentToAdd);
 
         switch (network.currentComponentToAdd) {
             //connectors
@@ -100,7 +99,7 @@ export class GraphNodeFactory {
                         }
                     }
 
-                    component = new Host(network.currentColor, ip, mac, false, false, name);
+                    
 
                     if (errorInput) {
                         alert.variant = "warning";
@@ -110,6 +109,9 @@ export class GraphNodeFactory {
 
                     }
                 }
+                component = new Host(network.currentColor, ip, mac, false, false, name);
+                break;
+
             default:
                 break;
         }
@@ -118,7 +120,6 @@ export class GraphNodeFactory {
             network.networkAvailable = true;
             initNetwork(network);
         }
-        console.log(component);
 
         network._graph.add({
             group: 'nodes',
@@ -135,7 +136,7 @@ export class GraphNodeFactory {
 
     static toggleDrawMode(network: ComputerNetwork): void {
         //TODO: create wireless "edge"
-        if (network.currentComponentToAdd != "WiredEdge") {
+        if (network.currentComponentToAdd != "nondirected-wire") {
             return;
         }
         if (!network.drawModeOn) {

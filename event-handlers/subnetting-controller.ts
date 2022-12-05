@@ -29,7 +29,7 @@ export function onDragInACompound(event, compound): void {
     let prefix = networkId.split("/")[0].slice(0, -1);
     let cidr = parseInt(networkId.split("/")[1]);
 
-    node._private.data.ip = generateNewIpProvidedCidr(node._private.data.ip, prefix, cidr);
+    //node._private.data.ip = generateNewIpProvidedCidr(node._private.data.ip, prefix, cidr);
 }
 
 /**

@@ -1,7 +1,6 @@
 export abstract class Address {
     layer: number;
     address: string;
-    static regex: RegExp;
     octets: string[];
 
 

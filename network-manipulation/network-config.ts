@@ -9,7 +9,7 @@ import NodeSingular from "cytoscape";
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { SlAlert, SlCheckbox } from "@shoelace-style/shoelace";
-import { handleChangesInDialog } from "../event-handlers/dialog/dialog-content";
+import { handleChangesInDialogForHost } from "../event-handlers/dialog/dialog-content";
 import { generateNewSubnet, onDragInACompound } from "../event-handlers/subnetting-controller";
 import { WiredEdge } from "../components/GraphEdge";
 import { GraphNodeFactory } from "../event-handlers/component-manipulation";
@@ -114,15 +114,16 @@ export function initNetwork(network: ComputerNetwork): void {
         evtType: "cxttap",
         menuItems: [
             {
-                id: "details",
+                id: "details-for-host",
                 content: "View Details...",
                 tooltipText: "View Details",
-                selector: ".element-label",
+                selector: ".host-node",
                 onClickFunction: function (event) {
                     let node = event.target;
                     let id = node._private.data.id;
 
-                    handleChangesInDialog(id, node, network);
+
+                    handleChangesInDialogForHost(id, node, network);
                 },
                 hasTrailingDivider: true
             },
@@ -158,7 +159,7 @@ export function initNetwork(network: ComputerNetwork): void {
             // for edges between the specified source and target
             // return element object to be passed to cy.add() for edge
             // NB: i indicates edge index in case of edgeType: 'node'
-            let data = new WiredEdge(network.currentColor, sourceNode, targetNode);
+            let data = new WiredEdge(network.currentColor, sourceNode._private.data, targetNode._private.data);
             let edge = { group: 'edges', data: data, classes: data.cssClass };
             return edge;
         },
@@ -242,7 +243,7 @@ export function initNetwork(network: ComputerNetwork): void {
     //TODO: custom badge for extensions (e.g. firewall)
     network._graph.nodeHtmlLabel([
         {
-            query: ".element-label",
+            query: ".host-node",
             valign: "bottom",
             halign: "center",
             halignBox: 'center',
@@ -264,7 +265,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 additionalLabel += `<div><span class="element-info-box"><p>`;
 
                 if (showIp) {
-                    additionalLabel += `IP: ${data.ip}`;
+                    additionalLabel += `IP: ${data.ip.address}`;
                     hasPre = true;
                 }
 
@@ -272,7 +273,7 @@ export function initNetwork(network: ComputerNetwork): void {
                     if (hasPre) {
                         additionalLabel += `<br>`;
                     }
-                    additionalLabel += `MAC: ${data.mac}`;
+                    additionalLabel += `MAC: ${data.mac.address}`;
                     hasPre = true;
                 }
 
@@ -280,7 +281,7 @@ export function initNetwork(network: ComputerNetwork): void {
                     if (hasPre) {
                         additionalLabel += `<br>`;
                     }
-                    additionalLabel += `IP(2): ${data.ipBin}`;
+                    additionalLabel += `IP(2): ${data.ip.binaryOctets.join(".")}`;
                 }
                 return additionalLabel + `</p></div>`;
             }

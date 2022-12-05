@@ -5,7 +5,6 @@ import { Address } from "./Address";
 export class IpAddress extends Address {
     binaryOctets: string[];
     decimalOctets: number[];
-    regex: RegExp = new RegExp("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$");
 
     constructor(ipAddress: string, stringOctets: string[], binaryOctets: string[], decimalOctets: number[]) {
         super(3);
