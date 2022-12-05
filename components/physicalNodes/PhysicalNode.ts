@@ -8,8 +8,12 @@ export abstract class PhysicalNode extends GraphNode {
     name: string;
 
 
-    constructor(id: string, color: string, cssClass: string, layer: number, wifiEnabled: boolean, wifiRange?: Wifi){
-        super(id, color, cssClass);
+    constructor(color: string, layer: number, wifiEnabled: boolean, name?: string, wifiRange?: Wifi){
+        super(color, name);
+        this.id = 'physicalNode' + PhysicalNode.counter;
+        PhysicalNode.counter++;
+
+        this.cssClass.push('physical-node');
         this.layer = layer;
         this.wifiEnabled = wifiEnabled;
         if (this.wifiEnabled) {

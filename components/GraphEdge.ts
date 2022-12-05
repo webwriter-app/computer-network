@@ -7,9 +7,10 @@ export abstract class GraphEdge {
     from: PhysicalNode;
     to: PhysicalNode;
     mtu?: number;
+    static counter = 0;
 
-    constructor(id: string, color: string, cssClass: string, from: PhysicalNode, to: PhysicalNode, mtu?: number){
-        this.id = id;
+    constructor(color: string, cssClass: string, from: PhysicalNode, to: PhysicalNode, mtu?: number){
+        this.id = 'graphEdge' + GraphEdge.counter;
         this.color = color;
         this.cssClass = cssClass;
         this.from = from;

@@ -3,13 +3,18 @@ import { AddressingHelper } from "../../utils/Helper";
 import { Router } from "../physicalNodes/Connector";
 
 export class Subnet extends LogicalNode {
-
-
-
     cidr: number;
     gateway: Router;
     subnetNum: string;
     subnetMask: string;
+    devices: GraphNode[];
+
+    constructor(color: string, name?: string) { 
+        super(color, name);
+        this.id = 'subnet' + Subnet.counter;
+        Subnet.counter++;
+        this.cssClass.push('subnet-node');
+    }
 
 
     static calculateSubnetNumber(ips: IpAddress[]): string {

@@ -1,6 +1,9 @@
 abstract class LogicalNode extends GraphNode { 
     
-    constructor(id: string, color: string, cssClass: string) { 
-        super(id, color, cssClass);
+    constructor(color: string, name?: string) { 
+        super(color, name);
+        this.id = 'logicalNode' + LogicalNode.counter;
+        LogicalNode.counter++;
+        this.cssClass.push('logical-node');
     }
 }

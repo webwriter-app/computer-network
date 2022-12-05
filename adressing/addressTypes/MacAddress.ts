@@ -2,45 +2,50 @@ import { AddressingHelper } from "../../utils/Helper";
 import { Address } from "./Address";
 
 export class MacAddress extends Address {
+    regex: RegExp = new RegExp("/^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/");
 
-    constructor(macAddress: string, stringOctets: string[]){
+    constructor(macAddress: string, stringOctets: string[]) {
         super(2);
         this.address = macAddress;
         this.octets = stringOctets;
     }
 
     /**
-     * * TODO: chua nhet vao database
      * @param database 
      * @returns 
      */
-    override generateRandomAddress(database: Map<string, MacAddress>): MacAddress {
-            let macArray: string[] = [AddressingHelper.randomHex(), AddressingHelper.randomHex(), AddressingHelper.randomHex(), 
-                AddressingHelper.randomHex(), AddressingHelper.randomHex(), AddressingHelper.randomHex()];
-            let newMac: string = macArray.join(':');
-        
-            //get a new randomized MAC address if the generated one exists
-            while (database.has(newMac)) {
-                let randomAgain = AddressingHelper.randomBetween(0, 5);
-                macArray[randomAgain] = AddressingHelper.randomHex();
-                newMac = macArray.join(':');
-            }
+    static override generateRandomAddress(database: Map<string, MacAddress>): MacAddress {
+        let macArray: string[] = [AddressingHelper.randomHex(), AddressingHelper.randomHex(), AddressingHelper.randomHex(),
+        AddressingHelper.randomHex(), AddressingHelper.randomHex(), AddressingHelper.randomHex()];
+        let newMac: string = macArray.join(':');
 
-            return new MacAddress(newMac, macArray);
+        //get a new randomized MAC address if the generated one exists
+        while (database.has(newMac)) {
+            let randomAgain = AddressingHelper.randomBetween(0, 5);
+            macArray[randomAgain] = AddressingHelper.randomHex();
+            newMac = macArray.join(':');
         }
-    
+
+        let result = new MacAddress(newMac, macArray);
+        database.set(newMac, result);
+
+        return result;
+    }
 
 
-    override validateAddress(mac: string, database: Map<string, MacAddress>): boolean{
+    static override validateAddress(mac: string, database: Map<string, MacAddress>): MacAddress {
         if (database.has(mac)) {
-            return false;
+            return null;
         }
 
-        if (this.regex.test(mac)) {
-            return true;
+        if (MacAddress.regex.test(mac)) {
+            let macArray: string[] = mac.split(':');
+            let result = new MacAddress(mac, macArray);
+            database.set(mac, result);
+            return result;
         }
         else {
-            return false;
+            return null;
         }
     }
 

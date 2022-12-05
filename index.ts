@@ -2,13 +2,13 @@ import { LitElementWw } from "@webwriter/lit"
 import { css, html } from "lit"
 import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
-import { addNode, toggleDrawMode, toggleResetColor } from "./network-manipulation/component-manipulation"
 import { toggleSubnetting } from "./adressing/subnetting-controller";
 import { SlDrawer } from "@shoelace-style/shoelace";
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { IpAddress } from "./adressing/addressTypes/IpAddress"
 import { MacAddress } from "./adressing/addressTypes/MacAddress"
+import { GraphNodeFactory } from "./network-manipulation/component-manipulation";
 
 
 @customElement("computer-network")
@@ -25,7 +25,7 @@ export class ComputerNetwork extends LitElementWw {
   currentComponentToAdd: String = "";
 
   @property({ type: String, reflect: true })
-  currentColor: String = "white";
+  currentColor: string = "white";
 
   @property() colors = ['AntiqueWhite', 'Lavender', 'LemonChiffon', 'LavenderBlush', 'LightCoral', 'LightPink', 'LightGreen', 'LightSalmon', 'PaleTurquoise', 'Tomato',
     'Plum', 'Aquamarine', 'Chartreuse', 'LightGrey', 'GreenYellow', 'LightSeaGreen'];
@@ -311,15 +311,15 @@ export class ComputerNetwork extends LitElementWw {
       <div class="addOption">
 
         <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7vw;">
-          <button class="addBtn" title="Add component" @click="${() => addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
+          <button class="addBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
         </sl-tooltip>
         <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7vw;">
-          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => toggleDrawMode(this)}" style="font-size: 1vw;">
+          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => GraphNodeFactory.toggleDrawMode(this)}" style="font-size: 1vw;">
             <sl-icon id="drawMode" name="share"></sl-icon>
           </button>
         </sl-tooltip>
         <sl-tooltip content="Click to change color of existing components" placement="left" style="--max-width: 9vw;">
-          <button class="rainbowBtn" id="resetColorBtn" @click="${() => toggleResetColor(this)}">
+          <button class="rainbowBtn" id="resetColorBtn" @click="${() => GraphNodeFactory.toggleResetColor(this)}">
             <sl-icon id="changeColorMode" name="eyedropper"></sl-icon>
           </button>
         </sl-tooltip>

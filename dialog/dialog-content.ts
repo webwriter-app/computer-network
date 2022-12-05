@@ -1,6 +1,9 @@
 import { SlAlert, SlButton, SlDialog, SlInput } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "..";
-import { calculateNetworkId, getBinIp, validateManualIp, validateManualMac } from "../adressing/generate-address";
+import { IpAddress } from "../adressing/addressTypes/IpAddress";
+import { MacAddress } from "../adressing/addressTypes/MacAddress";
+import { AddressingHelper } from "../utils/Helper";
+
 
 export class InputData {
   label: string;
@@ -65,14 +68,15 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
     let newName = (network.renderRoot.querySelector('#' + id + "name") as SlInput).value.trim();
     let newMac = (network.renderRoot.querySelector('#' + id + "mac") as SlInput).value.trim();
     let newIp = (network.renderRoot.querySelector('#' + id + "ip") as SlInput).value.trim();
+    //todo: update with binary IP?
     let newIpBin = (network.renderRoot.querySelector('#' + id + "ipBin") as SlInput).value.trim();
 
     node._private.data.name = newName;
     if (newMac == "") {
       //do not change anything if no input is given
     }
-    else if (validateManualMac(newMac)) {
-      node._private.data.mac = newMac;
+    else if (MacAddress.validateAddress(newMac, network.macDatabase)) {
+      node._private.data.macAddress = MacAddress.validateAddress(newMac, network.macDatabase);
     }
     else {
       error = true;
@@ -82,9 +86,8 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
     if (newIp == "") {
       //do not change anything if no input is given
     }
-    else if (validateManualIp(newIp)) {
-      node._private.data.ip = newIp;
-      node._private.data.ipBin = getBinIp(newIp);
+    else if (IpAddress.validateAddress(newIp, network.ipDatabase)) {
+      node._private.data.ipAddress = IpAddress.validateAddress(newIp, network.ipDatabase);
     }
     else {
       error = true;
@@ -112,7 +115,7 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
       noti.toast();
 
       if (node._private.parent.length > 0) {
-        let newID = adaptSubnetInformationOnIpChanges(node, newIp);
+        let newID:  = adaptSubnetInformationOnIpChanges(node, newIp);
         network._graph.$('#' + node._private.parent._private.data.id).data("ip", newID);
         network._graph.$('#' + node._private.parent._private.data.id).data("name", newID);
       }
@@ -128,7 +131,7 @@ export function handleChangesInDialog(id: string, node: any, network: ComputerNe
 }
 
 
-export function adaptSubnetInformationOnIpChanges(node: any, newIp): string {
+export function adaptSubnetInformationOnIpChanges(node: any, newIp): IpAddress {
   let compound = node._private.parent._private;
   let siblings = compound.children;
 
@@ -145,7 +148,7 @@ export function adaptSubnetInformationOnIpChanges(node: any, newIp): string {
       ips.push(child._private.data.ip);
     }
   });
-  return calculateNetworkId(ips);
+  return IpAddress.generateNewIpForSubnet(ips);
 }
 
 
