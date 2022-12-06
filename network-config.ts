@@ -1,27 +1,30 @@
-import { ComputerNetwork } from "..";
+import { ComputerNetwork } from ".";
 import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
 import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop/cytoscape-compound-drag-and-drop.js';
 import nodeHtmlLabel from 'cytoscape-node-html-label/dist/cytoscape-node-html-label.min.js'
+import nodeEditing from 'cytoscape-node-editing/cytoscape-node-editing.js'
 import NodeSingular from "cytoscape";
+import konva from 'konva/konva.min.js';
+import jquery from 'jquery/dist/jquery.js';
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { SlAlert, SlCheckbox } from "@shoelace-style/shoelace";
-import { handleChangesInDialogForHost } from "../event-handlers/dialog/dialog-content";
-import { generateNewSubnet, onDragInACompound } from "../event-handlers/subnetting-controller";
-import { WiredEdge } from "../components/GraphEdge";
-import { GraphNodeFactory } from "../event-handlers/component-manipulation";
-
+import { handleChangesInDialogForConnector, handleChangesInDialogForHost } from "./event-handlers/dialog-content";
+import { generateNewSubnet, onDragInACompound } from "./event-handlers/subnetting-controller";
+import { WiredEdge } from "./components/GraphEdge";
+import { GraphNodeFactory } from "./event-handlers/component-manipulation";
+import { createHtmlLabelingForHost } from "./event-handlers/labeling";
 
 
 // register extension
+nodeEditing(cytoscape, jquery, konva);
 cytoscape.use(contextMenus);
 cytoscape.use(edgehandles);
 cytoscape.use(compoundDragAndDrop);
 cytoscape.use(nodeHtmlLabel);
-
 
 
 export function initNetwork(network: ComputerNetwork): void {
@@ -122,8 +125,21 @@ export function initNetwork(network: ComputerNetwork): void {
                     let node = event.target;
                     let id = node._private.data.id;
 
-
                     handleChangesInDialogForHost(id, node, network);
+                },
+                hasTrailingDivider: true
+            },
+            {
+                id: "details-for-connector",
+                content: "View Details...",
+                tooltipText: "View Details",
+                selector: ".connector-node",
+                onClickFunction: function (event) {
+                    let node = event.target;
+                    let id = node._private.data.id;
+                    console.log(node);
+
+                    handleChangesInDialogForConnector(id, node, network);
                 },
                 hasTrailingDivider: true
             },
@@ -248,43 +264,105 @@ export function initNetwork(network: ComputerNetwork): void {
             halign: "center",
             halignBox: 'center',
             valignBox: 'bottom',
-            tpl: function (data) {
+            tpl: function (host) {
                 let showIp: boolean = (network.renderRoot.querySelector('#IpCheckBox') as SlCheckbox).checked;
                 let showBinIp: boolean = (network.renderRoot.querySelector('#IpBinCheckBox') as SlCheckbox).checked;
                 let showMac: boolean = (network.renderRoot.querySelector('#MacCheckBox') as SlCheckbox).checked;
-
-                //if no data needed to be shown
-                if (!showIp && !showBinIp && !showMac) {
-                    return "";
-                }
-
-                let additionalLabel = "";
-
-                let hasPre: boolean = false;
-
-                additionalLabel += `<div><span class="element-info-box"><p>`;
-
-                if (showIp) {
-                    additionalLabel += `IP: ${data.ip.address}`;
-                    hasPre = true;
-                }
-
-                if (showMac) {
-                    if (hasPre) {
-                        additionalLabel += `<br>`;
-                    }
-                    additionalLabel += `MAC: ${data.mac.address}`;
-                    hasPre = true;
-                }
-
-                if (showBinIp) {
-                    if (hasPre) {
-                        additionalLabel += `<br>`;
-                    }
-                    additionalLabel += `IP(2): ${data.ip.binaryOctets.join(".")}`;
-                }
-                return additionalLabel + `</p></div>`;
+                return createHtmlLabelingForHost(showIp, showBinIp, showMac, host);
             }
         }
     ]);
+
+
+    let nodeEditingOptions = {
+        padding: 5, // spacing between node and grapples/rectangle
+        undoable: true, // and if cy.undoRedo exists
+
+        grappleSize: 8, // size of square dots
+        grappleColor: "green", // color of grapples
+        inactiveGrappleStroke: "inside 1px blue",               
+        boundingRectangleLineDash: [4, 8], // line dash of bounding rectangle
+        boundingRectangleLineColor: "red",
+        boundingRectangleLineWidth: 1.5,
+        zIndex: 999,
+
+        minWidth: function (node) {
+            var data = node.data("resizeMinWidth");
+            return data ? data : 15;
+        }, // a function returns min width of node
+        minHeight: function (node) {
+            var data = node.data("resizeMinHeight");
+            return data ? data : 15;
+        }, // a function returns min height of node
+
+        // Getters for some style properties the defaults returns ele.css('property-name')
+        // you are encouraged to override these getters
+        getCompoundMinWidth: function(node) { 
+          return node.css('min-width'); 
+        },
+        getCompoundMinHeight: function(node) { 
+          return node.css('min-height'); 
+        },
+        getCompoundMinWidthBiasRight: function(node) {
+          return node.css('min-width-bias-right');
+        },
+        getCompoundMinWidthBiasLeft: function(node) { 
+          return node.css('min-width-bias-left');
+        },
+        getCompoundMinHeightBiasTop: function(node) {
+          return node.css('min-height-bias-top');
+        },
+        getCompoundMinHeightBiasBottom: function(node) { 
+          return node.css('min-height-bias-bottom');
+        },
+
+        // These optional functions will be executed to set the width/height of a node in this extension
+        // Using node.css() is not a recommended way (http://js.cytoscape.org/#eles.style) to do this. Therefore,
+        // overriding these defaults so that a data field or something like that will be used to set node dimentions
+        // instead of directly calling node.css() is highly recommended (Of course this will require a proper 
+        // setting in the stylesheet).
+        setWidth: function(node, width) { 
+            node.css('width', width);
+        },
+        setHeight: function(node, height) {
+            node.css('height', height);
+        },
+
+        isFixedAspectRatioResizeMode: function (node) { return node.is(".wifi-enabled") },// with only 4 active grapples (at corners)
+        isNoResizeMode: function (node) { return node.is(".not-wifi") }, // no active grapples
+        isNoControlsMode: function (node) { return node.is(".not-wifi") }, // no controls - do not draw grapples
+
+        cursors: { // See http://www.w3schools.com/cssref/tryit.asp?filename=trycss_cursor
+            // May take any "cursor" css property
+            default: "default", // to be set after resizing finished or mouseleave
+            inactive: "not-allowed",
+            nw: "nw-resize",
+            n: "n-resize",
+            ne: "ne-resize",
+            e: "e-resize",
+            se: "se-resize",
+            s: "s-resize",
+            sw: "sw-resize",
+            w: "w-resize"
+        },
+
+        // enable resize content cue according to the node
+        resizeToContentCueEnabled: function (node) {
+          return false;
+        },
+        // handle resize to content with given function
+        // default function resizes node according to the label
+        resizeToContentFunction: undefined,
+        // select position of the resize to content cue
+        // options: 'top-left', 'top-right', 'bottom-left', 'bottom-right'
+        resizeToContentCuePosition: 'bottom-right',
+        // relative path of the resize to content cue image
+        resizeToContentCueImage: '/node_modules/cytoscape-node-editing/resizeCue.svg',
+        enableMovementWithArrowKeys: true,
+        autoRemoveResizeToContentCue: false,
+     };
+    //node editing extension for wifi-range
+    //TODO: fix bug
+    //network._graph.nodeEditing(nodeEditingOptions);
+
 }

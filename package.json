@@ -10,7 +10,9 @@
     "cytoscape-compound-drag-and-drop": "^1.1.0",
     "cytoscape-context-menus": "^4.1.0",
     "cytoscape-edgehandles": "^4.0.1",
+    "cytoscape-node-editing": "^4.1.0",
     "cytoscape-node-html-label": "^1.2.2",
+    "konva": "^8.3.14",
     "lit": "^2.4.0"
   },
   "devDependencies": {

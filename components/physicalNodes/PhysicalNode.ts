@@ -16,12 +16,10 @@ export abstract class PhysicalNode extends GraphNode {
         this.layer = layer;
         this.wifiEnabled = wifiEnabled;
         if (this.wifiEnabled) {
-            if(wifiRange){
-               this.wifiRange = wifiRange; 
-            }
-            else {
-                this.wifiRange = Wifi.initWifiRange(color);
-            }
+            this.cssClass.push('wifi-enabled');
+        }
+        else{
+            this.cssClass.push('not-wifi');
         }
     }
 

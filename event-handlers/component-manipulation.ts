@@ -1,11 +1,12 @@
 import { ComputerNetwork } from "..";
-import { initNetwork } from "../network-manipulation/network-config";
-import { SlAlert, SlButton, SlCheckbox } from "@shoelace-style/shoelace"
+import { initNetwork } from "../network-config";
+import { SlAlert, SlButton, SlCheckbox, SlInput } from "@shoelace-style/shoelace"
 import { MacAddress } from "../adressing/addressTypes/MacAddress";
 import { IpAddress } from "../adressing/addressTypes/IpAddress";
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
 import { GraphNode } from "../components/GraphNode";
+import { Address } from "../adressing/addressTypes/Address";
 
 export class GraphNodeFactory {
 
@@ -22,6 +23,14 @@ export class GraphNodeFactory {
 
         let autoAdressing: boolean = (network.renderRoot.querySelector('#autoAdressing') as SlCheckbox).checked;
 
+        let wifiEnabled: boolean = (network.renderRoot.querySelector('#wifi') as SlCheckbox).checked;
+
+        let inputInPort: number = +(network.renderRoot.querySelector('#inputPorts') as SlInput).value.trim();
+        let inputOutPort: number = +(network.renderRoot.querySelector('#outputPorts') as SlInput).value.trim();
+
+        let inPortNum: number = inputInPort != 0 ? +inputInPort : 1;
+        let outPortNum: number = inputOutPort != 0 ? +inputOutPort : 1;
+
         let component: GraphNode;
 
         //TODO: wifi enabled button
@@ -30,27 +39,38 @@ export class GraphNodeFactory {
             //connectors
             //layer 1
             case "repeater":
-                component = new Repeater(network.currentColor, false, name);
+                component = new Repeater(network.currentColor, wifiEnabled, name);
                 break;
             case "hub":
-                //TODO: input fields for number of input/ output ports
-                component = new Hub(network.currentColor, false, 2, 2, name);
+                component = new Hub(network.currentColor, wifiEnabled, inPortNum, outPortNum, name);
                 break;
 
             //layer 2
-            case "switch":
-                component = new Switch(network.currentColor, 2, 2, name);
-                break;
-            case "bridge":
-                component = new Bridge(network.currentColor, false, 2, 2, name);
-                break;
-            case "access-point":
-                component = new AccessPoint(network.currentColor, 2, 2, name);
-                break;
+            case "switch": case "bridge": case "access-point":
+                let macAddresses: MacAddress[] = [];
+                for (let i = 0; i < inPortNum + outPortNum; i++) {
+                    macAddresses.push(MacAddress.generateRandomAddress(network.macDatabase));
+                }
 
+                switch (network.currentComponentToAdd) {
+                    case "switch":
+                        component = new Switch(network.currentColor, inPortNum, outPortNum, name, macAddresses);
+                        break;
+                    case "bridge":
+                        component = new Bridge(network.currentColor, wifiEnabled, inPortNum, outPortNum, name, macAddresses);
+                        break;
+                    case "access-point": component = new AccessPoint(network.currentColor, inPortNum, outPortNum, name, macAddresses);
+                        break;
+                }
+                break;
             //layer 3
             case "router":
-                component = new Router(network.currentColor, false, 2, 2, name);
+                let mixedAddresses: Address[] = [];
+                for (let i = 0; i < inPortNum + outPortNum; i++) {
+                    mixedAddresses.push(MacAddress.generateRandomAddress(network.macDatabase));
+                    mixedAddresses.push(IpAddress.generateRandomAddress(network.ipDatabase));
+                }
+                component = new Router(network.currentColor, wifiEnabled, inPortNum, outPortNum, name, mixedAddresses);
                 break;
 
             //host 
@@ -66,7 +86,6 @@ export class GraphNodeFactory {
 
                     const alert = new SlAlert();
                     alert.closable = true;
-
 
 
                     if (IpAddress.validateAddress(inputIp, network.ipDatabase) != null) {
@@ -99,8 +118,6 @@ export class GraphNodeFactory {
                         }
                     }
 
-                    
-
                     if (errorInput) {
                         alert.variant = "warning";
                         alert.innerHTML = `<sl-icon slot=\"icon\" name=\"exclamation-triangle\"></sl-icon>` + alert.innerHTML;
@@ -109,7 +126,7 @@ export class GraphNodeFactory {
 
                     }
                 }
-                component = new Host(network.currentColor, ip, mac, false, false, name);
+                component = new Host(network.currentColor, ip, mac, network.currentComponentToAdd == "mobile", wifiEnabled, name);
                 break;
 
             default:
@@ -132,7 +149,7 @@ export class GraphNodeFactory {
     static removeComponent(network: ComputerNetwork, componentId: String): void {
         network._graph.$('#' + componentId).remove();
     }
-    
+
 
     static toggleDrawMode(network: ComputerNetwork): void {
         //TODO: create wireless "edge"

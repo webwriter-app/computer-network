@@ -125,14 +125,6 @@ export class ComputerNetwork extends LitElementWw {
         margin: auto;
         flex-grow: 1;
     }
-    .nameBox {
-        position: flex;
-        width: 20vw;
-        display: flex;
-        flex-direction: column;
-        margin: auto;
-        gap: 0.5vw;
-    }
     #cy {
         height: 100%;
         width: 100%;
@@ -194,8 +186,8 @@ export class ComputerNetwork extends LitElementWw {
     }
     sl-input::part(base), sl-input::part(input) {
       border: none;
-      font-size: 1vw;
-			height: 2.5vw;
+      font-size: 0.8vw;
+			height: 1.5vw;
     }
     .label-on-left::part(form-control) {
       display: grid;
@@ -205,7 +197,7 @@ export class ComputerNetwork extends LitElementWw {
     }
     .label-on-left::part(form-control-label) {
       text-align: right;
-      font-size: 1.2vw;
+      font-size: 0.8vw;
     }
     .label-on-left::part(form-control-help-text) {
       grid-column: span 2;
@@ -213,12 +205,12 @@ export class ComputerNetwork extends LitElementWw {
     }
 
     sl-checkbox::part(base), sl-checkbox::part(label) {
-      font-size: 1.2vw;
-      height: 2.5vw;
+      font-size: 0.8vw;
+      height: 1.5vw;
     }
     sl-menu-item::part(base), sl-menu-item::part(label) {
-      font-size: 1.2vw;
-      height: 2.5vw;
+      font-size: 0.8vw;
+      height: 1.5vw;
     }
 
     /** additional info next to Node **/
@@ -234,6 +226,20 @@ export class ComputerNetwork extends LitElementWw {
       margin-top: 10px;
     }
 
+    sl-split-panel {
+      --divider-width: 1px;
+    }
+  
+    sl-split-panel::part(divider) {
+      background-color: black;
+    }
+
+    sl-dropdown {
+      display:flex;
+      justify-content: space-between;
+      margin: auto;
+    }
+
     
 `;
   render() {
@@ -246,8 +252,8 @@ export class ComputerNetwork extends LitElementWw {
 
     <div class="base">
 
-    <div style="position:relative; width: 22vw; display: flex; margin: auto;">
-    <div style="width: 22vw; display: flex; margin: auto;">
+    <div style="position:relative; width: 22vw;">
+      <div style="height: 9.5vw; display: flex; flex-direction: row; margin: auto; padding: auto;">
       
       <sl-dropdown placement="bottom">
         <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
@@ -278,18 +284,30 @@ export class ComputerNetwork extends LitElementWw {
       </sl-dropdown>
       </div>
 
-      <sl-checkbox id="wifi" style="padding-top: 1vw; position:relative;">Make your chosen component wireless</sl-checkbox>
-
+      <div style="position:relative;  width: 22vw; display: flex; flex-direction: column; margin: auto;">
+      <sl-checkbox id="wifi" style="padding-left:1vw;">Make your chosen component wireless</sl-checkbox>
+      </div>
     </div>
 
     <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
 
-      <div class="nameBox">
+    <sl-split-panel vertical>
+      <div slot="start" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <sl-menu-label>Host</sl-menu-label>
         <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
         <sl-input class="label-on-left" label="IPv4" id="inputIP" placeholder="0.0.0.0"></sl-input>
         <sl-input class="label-on-left" label="MAC" id="inputMAC" placeholder="XX:XX:XX:XX:XX:XX"></sl-input>
-        <sl-checkbox id="autoAdressing" style="padding-top: 1vw;">Auto addressing</sl-checkbox>
+        <sl-checkbox id="autoAdressing" style="padding-left:1vw;">Auto addressing</sl-checkbox>
       </div>
+      <div slot="end" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <sl-menu-label>Connector</sl-menu-label>
+        <sl-input class="label-on-left" label="Input Ports" id="inputPorts" placeholder="Number of input ports" type='number'></sl-input>
+        <sl-input class="label-on-left" label="Output Ports" id="outputPorts" placeholder="Number of output ports" type='number'></sl-input>
+      </div>
+    </sl-split-panel>
+
+
+      
 
       <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
 
