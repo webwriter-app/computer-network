@@ -1,12 +1,12 @@
 import { ComputerNetwork } from "..";
 import { initNetwork } from "../network-config";
 import { SlAlert, SlButton, SlCheckbox, SlInput } from "@shoelace-style/shoelace"
-import { MacAddress } from "../adressing/addressTypes/MacAddress";
-import { IpAddress } from "../adressing/addressTypes/IpAddress";
+import { MacAddress } from "../adressing/MacAddress";
+import { IpAddress } from "../adressing/IpAddress";
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
 import { GraphNode } from "../components/GraphNode";
-import { Address } from "../adressing/addressTypes/Address";
+import { Address } from "../adressing/Address";
 
 export class GraphNodeFactory {
 
@@ -87,9 +87,10 @@ export class GraphNodeFactory {
                     const alert = new SlAlert();
                     alert.closable = true;
 
-
-                    if (IpAddress.validateAddress(inputIp, network.ipDatabase) != null) {
-                        ip = IpAddress.validateAddress(inputIp, network.ipDatabase);
+                    let newIpAddress = IpAddress.validateAddress(inputIp, network.ipDatabase);
+                    let newMacAddress = MacAddress.validateAddress(inputMac, network.macDatabase);
+                    if (newIpAddress != null && newIpAddress!=undefined) {
+                        ip = newIpAddress;
                     }
                     else {
                         ip = IpAddress.generateRandomAddress(network.ipDatabase);
@@ -103,8 +104,8 @@ export class GraphNodeFactory {
                         }
                     }
 
-                    if (MacAddress.validateAddress(inputMac, network.macDatabase) != null) {
-                        mac = MacAddress.validateAddress(inputMac, network.macDatabase);
+                    if (newMacAddress != null && newMacAddress!=undefined) {
+                        mac = newMacAddress;
                     }
                     else {
                         mac = MacAddress.generateRandomAddress(network.macDatabase);
@@ -152,11 +153,10 @@ export class GraphNodeFactory {
 
 
     static toggleDrawMode(network: ComputerNetwork): void {
-        //TODO: create wireless "edge"
-        if (network.currentComponentToAdd != "nondirected-wire") {
-            return;
-        }
         if (!network.drawModeOn) {
+            if (network.currentComponentToAdd != "nondirected-edge" && network.currentComponentToAdd !="directed-edge") {
+                return;
+            }
             network._edgeHandles.enableDrawMode();
             (network.renderRoot.querySelector('#drawMode') as SlButton).name = "pause";
             (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "rgb(2, 132, 199)";

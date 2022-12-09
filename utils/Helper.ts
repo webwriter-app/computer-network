@@ -41,5 +41,11 @@ export class AddressingHelper{
         let hexRef = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
         return hexRef[this.randomBetween(0, 15)] + hexRef[this.randomBetween(0, 15)];
     }
+
+    static replaceAt(origin: string, index: number, replacement: string): string {
+        return origin.substring(0, index) + replacement + origin.substring(index + replacement.length);
+    }
 }
+
+
 

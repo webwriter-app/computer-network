@@ -10,10 +10,6 @@ export abstract class Address {
         }
     }
 
-    static generateRandomAddress(database: Map<string, Address>): Address {
-        return null;
-    }
-
     static validateAddress(address: string, database: Map<string, Address>): Address {
         return null;
     }

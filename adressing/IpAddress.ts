@@ -1,5 +1,5 @@
-import { Subnet } from "../../components/logicalNodes/Subnet";
-import { AddressingHelper } from "../../utils/Helper";
+import { Subnet } from "../components/logicalNodes/Subnet";
+import { AddressingHelper } from "../utils/Helper";
 import { Address } from "./Address";
 
 export class IpAddress extends Address {
@@ -14,29 +14,9 @@ export class IpAddress extends Address {
         this.decimalOctets = decimalOctets;
     }
 
-    /**
-     * @param database 
-     * @returns 
-     */
-    static override generateRandomAddress(database: Map<string, IpAddress>): IpAddress {
-        let ipArray: number[] = [AddressingHelper.randomBetween(0, 255), AddressingHelper.randomBetween(0, 255), AddressingHelper.randomBetween(0, 255), AddressingHelper.randomBetween(0, 255)];
-        let newIp: string = ipArray.join('.');
-
-        //get a new randomized IP address if the generated one exists
-        while (database.has(newIp)) {
-            let randomAgain = AddressingHelper.randomBetween(0, 3);
-            ipArray[randomAgain] = AddressingHelper.randomBetween(0, 255);
-            newIp = ipArray.join('.');
-        }
-
-        let newIpAddress = new IpAddress(newIp,
-            [ipArray[0].toString(), ipArray[1].toString(), ipArray[2].toString(), ipArray[3].toString()],
-            [AddressingHelper.numTo8BitBinary(ipArray[0]), AddressingHelper.numTo8BitBinary(ipArray[1]), AddressingHelper.numTo8BitBinary(ipArray[2]), AddressingHelper.numTo8BitBinary(ipArray[3])],
-            ipArray);
-
-        database.set(newIp, newIpAddress);
-
-        return newIpAddress;
+    static getLoopBackAddress(): IpAddress{
+        //the octets are set as null cause there's no computation needed for loopback address
+        return new IpAddress("127.0.0.1", null, null, null);
     }
 
 
@@ -80,13 +60,7 @@ export class IpAddress extends Address {
         if (oldIp.matchesNetworkCidr(subnet)) {
             return oldIp;
         }
-
-        let decimalArray = subnet.subnetNum.split(".");
-
-        let binaryArray = [];
-        decimalArray.forEach(octet => {
-            binaryArray.push(AddressingHelper.numTo8BitBinary(parseInt(octet)));
-        });
+        let binaryArray = subnet.networkAddress.binaryOctets;
 
         let newIp = binaryArray.join('').slice(0, subnet.cidr);
 
@@ -129,14 +103,7 @@ export class IpAddress extends Address {
     }
 
     matchesNetworkCidr(subnet: Subnet): boolean {
-
-        //ip: string, compoundId: string, cidr: number
-        let decimalCompoundArray = subnet.subnetNum.split(".");
-
-        let binaryCompoundArray = [AddressingHelper.numTo8BitBinary(parseInt(decimalCompoundArray[0])),
-        AddressingHelper.numTo8BitBinary(parseInt(decimalCompoundArray[1])),
-        AddressingHelper.numTo8BitBinary(parseInt(decimalCompoundArray[2])),
-        AddressingHelper.numTo8BitBinary(parseInt(decimalCompoundArray[3]))];
+        let binaryCompoundArray = subnet.networkAddress.binaryOctets;
 
         let binaryNodeArray = this.binaryOctets;
 

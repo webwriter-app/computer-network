@@ -1,7 +1,8 @@
 import { SlAlert, SlButton, SlDialog, SlInput } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "..";
-import { IpAddress } from "../adressing/addressTypes/IpAddress";
-import { MacAddress } from "../adressing/addressTypes/MacAddress";
+import { IpAddress } from "../adressing/IpAddress";
+import { MacAddress } from "../adressing/MacAddress";
+import { Subnet } from "../components/logicalNodes/Subnet";
 import { Connector } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
 
@@ -126,9 +127,10 @@ export function handleChangesInDialogForHost(id: string, node: any, network: Com
       noti.toast();
     }
 
-    if (node._private.parent.length > 0) {
-      adaptSubnetInformationOnIpChanges(network._graph.$('#' + node._private.parent._private), newIpAddress);
-    }
+    //TODO: adapt IP on dragOntoNewSubnet
+    // if (node._private.parent.length > 0) {
+    //   adaptSubnetInformationOnIpChanges(network._graph.$('#' + node._private.parent._private), newIpAddress);
+    // }
   });
   let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
   dialog.innerHTML = "";
@@ -237,6 +239,28 @@ export function handleChangesInDialogForConnector(id: string, node: any, network
   //dialog.appendChild(saveButton);
   dialog.show();
 }
+
+export function handleChangesInDialogForSubnet(id: string, node: any, network: ComputerNetwork) {
+
+  let subnet: Subnet = node._private.data;
+
+  let fields: Map<string, InputData> = new Map();
+
+  fields.set("networkAddress", new InputData("Network Address", "", subnet.networkAddress.address, true));
+  fields.set("cidr", new InputData("CIDR", "", subnet.cidr.toString(), true));
+  fields.set("subnetmask", new InputData("Subnet mask", "", subnet.subnetMask, true));
+  fields.set("subnetmask", new InputData("Gateway", "", subnet.gateway.getIpAddresses.toString(), true));
+
+
+  //pass data of current subnet into the dialog
+  let inputFields = generateDialog(id, fields);
+  let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
+  dialog.innerHTML = "";
+  inputFields.forEach(e => dialog.appendChild(e));
+  //dialog.appendChild(saveButton);
+  dialog.show();
+}
+
 
 
 export function adaptSubnetInformationOnIpChanges(node: any, newIp: IpAddress): void {

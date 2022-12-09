@@ -1,4 +1,4 @@
-import { AddressingHelper } from "../../utils/Helper";
+import { AddressingHelper } from "../utils/Helper";
 import { Address } from "./Address";
 
 export class MacAddress extends Address {
@@ -14,7 +14,7 @@ export class MacAddress extends Address {
      * @param database 
      * @returns 
      */
-    static override generateRandomAddress(database: Map<string, MacAddress>): MacAddress {
+    static generateRandomAddress(database: Map<string, MacAddress>): MacAddress {
         let macArray: string[] = [AddressingHelper.randomHex(), AddressingHelper.randomHex(), AddressingHelper.randomHex(),
         AddressingHelper.randomHex(), AddressingHelper.randomHex(), AddressingHelper.randomHex()];
         let newMac: string = macArray.join(':');

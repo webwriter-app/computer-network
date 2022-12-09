@@ -1,85 +1,91 @@
-import { Address } from "../../adressing/addressTypes/Address";
-import { IpAddress } from "../../adressing/addressTypes/IpAddress";
-import { MacAddress } from "../../adressing/addressTypes/MacAddress";
-import { Wifi } from "../logicalNodes/Wifi";
-import { PhysicalNode } from "./PhysicalNode";
+import { IpAddress } from "../../adressing/IpAddress";
+import { Ipv6Address } from "../../adressing/Ipv6Address";
+import { MacAddress } from "../../adressing/MacAddress";
+import { ConnectionType, PhysicalNode } from "./PhysicalNode";
 
 export abstract class Connector extends PhysicalNode {
-    routingPossible: boolean;
-    //TODO: routing extensions
-    forwardingTable?: Map<any, any>;
-    inPort: number;
-    outPort: number;
-    addresses?: Map<string, Address[]>; //(port, MAC+IP)
-
-    constructor(color: string, layer: number, wifiEnabled: boolean,
-        inPort: number, outPort: number, addresses?: Array<Address>, wifiRange?: Wifi, forwardingTable?) {
-        if (wifiEnabled) {
-            super(color, layer, wifiEnabled, wifiRange);
-            this.routingPossible = false;
-            this.forwardingTable = null;
-        }
-        else {
-            super(color, layer, false);
-        }
-        this.inPort = inPort? inPort : 1;
-        this.outPort = outPort? outPort : 1;
-        this.cssClass.push('connector-node');
-
-        if (addresses) {
-            this.addresses = new Map();
-            if(this.layer==1){
-                //addresses is empty
-            }
-            else if(this.layer==2){
-                //the input must be arrays of MacAddresses
-                let inPortCounter: number = 1;
-                let outPortCounter: number = 1;
-                while(inPortCounter <= inPort){
-                    let currentAd: MacAddress = addresses.pop();
-                    this.addresses.set('inPort'+inPortCounter, [currentAd]);
-                    inPortCounter++;
+    
+    constructor(color: string, layer: number, numberOfInterfacesOrPorts?: number, interfacesNames?: string[], connectionTypes?: ConnectionType) {
+        super(color, layer, numberOfInterfacesOrPorts, interfacesNames);
+        switch(layer){
+            case 1:
+                switch(connectionTypes){
+                    case ConnectionType.wireless:
+                        this.portData.forEach((data) => {
+                            data.set('connectionType', 'wireless');
+                        });
+                        break;
+                    case ConnectionType.wirelessAndEthernet:
+                        //TODO: possible to set later on the node
+                        break;
+                    default:
+                        this.portData.forEach((data) => {
+                            data.set('connectionType', 'ethernet');
+                        });
+                        break;
                 }
-                while(outPortCounter <= outPort){
-                    let currentAd: MacAddress = addresses.pop();
-                    this.addresses.set('outPort'+outPortCounter, [currentAd]);
-                    outPortCounter++;
+                break;
+            case 2:
+                switch(connectionTypes){
+                    case ConnectionType.wireless:
+                        this.portData.forEach((data) => {
+                            data.set('connectionType', 'wireless');
+                            data.set('MAC', null);
+                        });
+                        break;
+                    case ConnectionType.wirelessAndEthernet:
+                        this.portData.forEach((data) => {
+                            //TODO: possible to set LAN/wireless later on the node
+                            data.set('MAC', null);
+                        });
+                        break;
+                    default:
+                        this.portData.forEach((data) => {
+                            data.set('connectionType', 'ethernet');
+                            data.set('MAC', null);
+                        });
+                        break;
                 }
-            }
-            else if(this.layer==3){
-                //the input must be arrays of MacAddresses + IPAddresses
-                let macAddresses: MacAddress[] = [];
-                let ipAddresses: IpAddress[] = [];
-
-                addresses.forEach(address => {
-                    if(address instanceof MacAddress){
-                        macAddresses.push(address);
+                break;
+            case 3:
+                switch(connectionTypes){
+                case ConnectionType.wireless:
+                        this.portData.forEach((data) => {
+                            data.set('connectionType', 'wireless');
+                            data.set('MAC', null);
+                            data.set('IPv4', null);
+                            data.set('IPv6', null);
+                        });
+                        break;
+                    case ConnectionType.wirelessAndEthernet:
+                        this.portData.forEach((data) => {
+                            //TODO: possible to set LAN/wireless later on the node
+                            data.set('MAC', null);
+                            data.set('IPv4', null);
+                            data.set('IPv6', null);
+                        });
+                        break;
+                    default:
+                        this.portData.forEach((data) => {
+                            data.set('connectionType', 'ethernet');
+                            data.set('MAC', null);
+                            data.set('IPv4', null);
+                            data.set('IPv6', null);
+                        });
+                        break;
                     }
-                    if(address instanceof IpAddress){
-                        ipAddresses.push(address);
-                    }
-                });
-
-                let inPortCounter: number = 1;
-                let outPortCounter: number = 1;
-                while(inPortCounter <= inPort){
-                    this.addresses.set('inPort'+inPortCounter, [macAddresses.pop(), ipAddresses.pop()]);
-                    inPortCounter++;
-                }
-                while(outPortCounter <= outPort){
-                    this.addresses.set('outPort'+outPortCounter, [macAddresses.pop(), ipAddresses.pop()]);
-                    outPortCounter++;
-                }
-            }
-
+                break;
+            default:
+                break;
         }
     }
 }
 
 export class Router extends Connector {
-    constructor(color: string, wifiEnabled: boolean,
-        inPort: number, outPort: number, name?: string, addresses?: Address[]) {
-        super(color, 3, wifiEnabled, inPort, outPort, addresses);
+    constructor(color: string, numberOfInterfaces?: number,  interfacesNames?: string[], connectionTypes?: ConnectionType, name?: string, 
+        portMacMapping?: Map<string, MacAddress>, portIpv4Mapping?: Map<string,IpAddress>, portIpv6Mapping?: Map<string, Ipv6Address>) {
+        super(color, 3, numberOfInterfaces, interfacesNames, connectionTypes);
+
         this.id = 'router' + Router.counter;
         Router.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -89,6 +95,15 @@ export class Router extends Connector {
             this.name = this.id;
         }
 
+        portMacMapping.forEach((macAddress, port) => {
+            this.portData.get(port).set('MAC', macAddress);
+        });
+        portIpv4Mapping.forEach((ip4, port) => {
+            this.portData.get(port).set('IPv4', ip4);
+        });
+        portIpv6Mapping.forEach((ip6, port) => {
+            this.portData.get(port).set('IPv6', ip6);
+        });
 
         this.cssClass.push('router-node');
         this.backgroundPath = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/router.svg";
@@ -96,8 +111,8 @@ export class Router extends Connector {
 }
 
 export class Repeater extends Connector {
-    constructor(color: string, wifiEnabled: boolean, name?: string) {
-        super(color, 1, wifiEnabled, 1, 1);
+    constructor(color: string,  connectionTypes?: ConnectionType, name?: string) {
+        super(color, 1, 2, null, connectionTypes);
         this.id = 'repeater' + Repeater.counter;
         Repeater.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -107,15 +122,14 @@ export class Repeater extends Connector {
             this.name = this.id;
         }
 
-
         this.cssClass.push('repeater-node');
         this.backgroundPath = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/hdd.svg";
     }
 }
 
 export class Hub extends Connector {
-    constructor(color: string, wifiEnabled: boolean, inPort: number, outPort: number, name?: string) {
-        super(color, 1, wifiEnabled, inPort, outPort);
+    constructor(color: string,  numberOfPorts?: number, name?: string) {
+        super(color, 1, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, null, ConnectionType.ethernet);
         this.id = 'hub' + Hub.counter;
         Hub.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -125,15 +139,15 @@ export class Hub extends Connector {
             this.name = this.id;
         }
 
-
         this.cssClass.push('hub-node');
         this.backgroundPath = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/git.svg";
     }
 }
 
 export class Switch extends Connector {
-    constructor(color: string, inPort: number, outPort: number, name?: string, macAddresses?: MacAddress[]) {
-        super(color, 2, false, inPort, outPort, macAddresses);
+    constructor(color: string, numberOfPorts?: number, name?: string, portMacMapping?: Map<string, MacAddress>) {
+        super(color, 2, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, null, ConnectionType.ethernet);
+
         this.id = 'switch' + Switch.counter;
         Switch.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -142,16 +156,17 @@ export class Switch extends Connector {
         else {
             this.name = this.id;
         }
-
-
+        portMacMapping.forEach((macAddress, port) => {
+            this.portData.get(port).set('MAC', macAddress);
+        });
         this.cssClass.push('switch-node');
         this.backgroundPath = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/displayport.svg";
     }
 }
 
 export class Bridge extends Connector {
-    constructor(color: string, wifiEnabled: boolean, inPort: number, outPort: number, name?: string, macAddresses?: MacAddress[]) {
-        super(color, 2, wifiEnabled, inPort, outPort, macAddresses);
+    constructor(color: string, connectionTypes?: ConnectionType, portMacMapping?: Map<string, MacAddress>, name?: string) {
+        super(color, 2, 2, null, connectionTypes);
         this.id = 'bridge' + Bridge.counter;
         Bridge.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -161,6 +176,9 @@ export class Bridge extends Connector {
             this.name = this.id;
         }
 
+        portMacMapping.forEach((macAddress, port) => {
+            this.portData.get(port).set('MAC', macAddress);
+        });
 
         this.cssClass.push('bridge-node');
         //change icon
@@ -169,8 +187,9 @@ export class Bridge extends Connector {
 }
 
 export class AccessPoint extends Connector {
-    constructor(color: string, inPort: number, outPort: number, name?: string, macAddresses?: MacAddress[]) {
-        super(color, 2, true, inPort, outPort, macAddresses);
+    constructor(color: string, numberOfPorts?: number, name?: string, portMacMapping?: Map<string, MacAddress>) {
+        super(color, 2, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, null, ConnectionType.wireless);
+
         this.id = 'accessPoint' + AccessPoint.counter;
         AccessPoint.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -179,6 +198,10 @@ export class AccessPoint extends Connector {
         else {
             this.name = this.id;
         }
+        portMacMapping.forEach((macAddress, port) => {
+            this.portData.get(port).set('MAC', macAddress);
+        });
+
         this.cssClass.push('access-point-node');
         this.backgroundPath = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/broadcast-pin.svg";
     }

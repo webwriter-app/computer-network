@@ -1,8 +1,11 @@
 import { ComputerNetwork } from "..";
+import { IpAddress } from "../adressing/IpAddress";
+import { GraphNode } from "../components/GraphNode";
+import { Subnet } from "../components/logicalNodes/Subnet";
+import { Host } from "../components/physicalNodes/Host";
 
-let compoundCounter = 0;
 
-export function toggleSubnetting(event: any, network: ComputerNetwork) {
+export function toggleDragAndDropSubnetting(event: any, network: ComputerNetwork) {
     //if subnetting option is not active
     if (!event.target.checked) {
         event.target.checked = true;
@@ -18,42 +21,42 @@ export function toggleSubnetting(event: any, network: ComputerNetwork) {
  * Handles addressing when dragged into a compound: reset the IP address of an element based on the network ID
  * 'cdnddrop': Emitted on a grabbed node when it is dropped (freed)
  */
-export function onDragInACompound(event, compound): void {
-    
-    if (!compound._private.data) {
+export function onDragInACompound(event, compound, database: Map<string, IpAddress>): void {
+
+    if (compound._private.data !instanceof Subnet) {
         return;
     }
-    let node = event.target;
+    let node = event.target._private.data;
+    let subnet = compound._private.data;
 
-    let networkId = compound._private.data.ip;
-    let prefix = networkId.split("/")[0].slice(0, -1);
-    let cidr = parseInt(networkId.split("/")[1]);
-
-    //node._private.data.ip = generateNewIpProvidedCidr(node._private.data.ip, prefix, cidr);
+    if(node instanceof Host){
+        if(node.ip.matchesNetworkCidr(subnet)){
+            return;
+        }
+        node.ip = IpAddress.generateNewIpForSubnet(database, node.ip, subnet);
+    }
+    //TODO: handle for node instanceof Connector, Subnet
 }
 
 /**
  * Create new "parent" (a compound - network)
  * @param grabbedNode 
- * @param dropSibling 
+ * @param router 
  */
-export function generateNewSubnet(network: ComputerNetwork, grabbedNode, dropSibling) {
-    let firstIp = grabbedNode._private.data.ip;
-    let secondIp = dropSibling._private.data.ip;
+export function generateNewSubnet(network: ComputerNetwork, grabbedNode, router) {
 
-    let networkId = calculateNetworkId([firstIp, secondIp]);
+    let childNode = grabbedNode._private.data;
 
-    let newParent = {
-        group: 'nodes',
-        data: {
-            id: 'compound' + compoundCounter,
-            name: networkId,
-            color: network.currentColor,
-            ip: networkId
-        },
-        classes: 'compound-label'
-    };
-    compoundCounter++;
-    
-    return newParent;
+    if (childNode instanceof GraphNode) {
+        let data = new Subnet(network.currentColor, router._private.data, network.ipDatabase, [childNode]);
+        console.log(data);
+        return {
+            group: 'nodes',
+            data: data,
+            classes: data.cssClass
+        };
+    }
+    else {
+        return null;
+    }
 }

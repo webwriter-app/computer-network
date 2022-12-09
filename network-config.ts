@@ -4,23 +4,23 @@ import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
 import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop/cytoscape-compound-drag-and-drop.js';
 import nodeHtmlLabel from 'cytoscape-node-html-label/dist/cytoscape-node-html-label.min.js'
-import nodeEditing from 'cytoscape-node-editing/cytoscape-node-editing.js'
 import NodeSingular from "cytoscape";
-import konva from 'konva/konva.min.js';
-import jquery from 'jquery/dist/jquery.js';
+
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { SlAlert, SlCheckbox } from "@shoelace-style/shoelace";
-import { handleChangesInDialogForConnector, handleChangesInDialogForHost } from "./event-handlers/dialog-content";
+import { handleChangesInDialogForConnector, handleChangesInDialogForHost, handleChangesInDialogForSubnet } from "./event-handlers/dialog-content";
 import { generateNewSubnet, onDragInACompound } from "./event-handlers/subnetting-controller";
-import { WiredEdge } from "./components/GraphEdge";
+import { WiredEdge, WirelessEdge } from "./components/GraphEdge";
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
-import { createHtmlLabelingForHost } from "./event-handlers/labeling";
+import { createHtmlLabelingForConnector, createHtmlLabelingForHost } from "./event-handlers/labeling";
+import { Host } from "./components/physicalNodes/Host";
+import { Connector, Router } from "./components/physicalNodes/Connector";
+import { Subnet } from "./components/logicalNodes/Subnet";
 
 
 // register extension
-nodeEditing(cytoscape, jquery, konva);
 cytoscape.use(contextMenus);
 cytoscape.use(edgehandles);
 cytoscape.use(compoundDragAndDrop);
@@ -64,14 +64,34 @@ export function initNetwork(network: ComputerNetwork): void {
                 "selector": "edge",
                 "style": {
                     "width": 1,
-                    "curve-style": "taxi",
-                    "label": ""
+                    "curve-style": "straight",
+                    "label": "",
                 }
             },
             {
                 "selector": ".color-edge",
                 "style": {
                     "line-color": "data(color)"
+                }
+            },
+            {
+                "selector": ".wireless-edge",
+                "style": {
+                    "line-style": "dashed",
+                    "line-dash-pattern": [6, 3]
+                }
+            },
+            {
+                "selector": ".wired-edge",
+                "style": {
+                    "line-style": "solid",
+                }
+            },
+            {
+                "selector": ".directed-edge",
+                "style": {
+                    "target-arrow-shape": "vee",
+                    "target-arrow-color": "data(color)"
                 }
             },
             {
@@ -87,7 +107,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 }
             },
             {
-                "selector": ".compound-label",
+                "selector": ".subnet-node",
                 "style": {
                     "text-valign": "top",
                     "text-halign": "center",
@@ -144,6 +164,20 @@ export function initNetwork(network: ComputerNetwork): void {
                 hasTrailingDivider: true
             },
             {
+                id: "details-for-subnet",
+                content: "View Details...",
+                tooltipText: "View Details",
+                selector: ".subnet-node",
+                onClickFunction: function (event) {
+                    let node = event.target;
+                    let id = node._private.data.id;
+                    console.log(node);
+
+                    handleChangesInDialogForSubnet(id, node, network);
+                },
+                hasTrailingDivider: true
+            },
+            {
                 id: 'remove', // ID of menu item
                 content: 'Remove', // Display content of menu item
                 tooltipText: 'Remove this component', // Tooltip text for menu item
@@ -169,13 +203,22 @@ export function initNetwork(network: ComputerNetwork): void {
     let edgehandlesOptions = {
         canConnect: function (sourceNode, targetNode) {
             // whether an edge can be created between source and target
-            return !sourceNode.same(targetNode); // e.g. disallow loops
+            return !sourceNode.same(targetNode);
+
         },
         edgeParams: function (sourceNode: NodeSingular, targetNode: NodeSingular, i: number) {
             // for edges between the specified source and target
             // return element object to be passed to cy.add() for edge
             // NB: i indicates edge index in case of edgeType: 'node'
-            let data = new WiredEdge(network.currentColor, sourceNode._private.data, targetNode._private.data);
+            let data = null;
+            let directed: boolean = network.currentComponentToAdd == "directed-edge" ? true : false;
+            if (sourceNode._private.data.cssClass.includes('wifi-enabled') && sourceNode._private.data.cssClass.includes('wifi-enabled')) {
+                data = new WirelessEdge(network.currentColor, sourceNode._private.data, targetNode._private.data, directed);
+            }
+            else {
+                data = new WiredEdge(network.currentColor, sourceNode._private.data, targetNode._private.data, directed);
+            }
+
             let edge = { group: 'edges', data: data, classes: data.cssClass };
             return edge;
         },
@@ -201,8 +244,9 @@ export function initNetwork(network: ComputerNetwork): void {
         grabbedNode: node => true, // filter function to specify which nodes are valid to grab and drop into other nodes
         dropTarget: (dropTarget, grabbedNode) => {
 
-            if (dropTarget._private.data.id.includes('compound')) {
-                if (dropTarget._private.children.length >= Math.pow(2, 32 - parseInt(dropTarget._private.data.ip.split('/')[1]))) {
+            if (dropTarget._private.data instanceof Subnet) {
+                let subnet: Subnet = dropTarget._private.data;
+                if (dropTarget._private.children.length >= Math.pow(2, 32 - subnet.cidr)) {
 
                     let isChild: boolean = false;
 
@@ -231,11 +275,23 @@ export function initNetwork(network: ComputerNetwork): void {
             return true;
         }, // filter function to specify which parent nodes are valid drop targets
 
-
-
-
-        dropSibling: (dropSibling, grabbedNode) => true, // filter function to specify which orphan nodes are valid drop siblings
-        newParentNode: (grabbedNode, dropSibling) => (generateNewSubnet(network, grabbedNode, dropSibling)), // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
+        dropSibling: (dropSibling, grabbedNode) => {
+            if (grabbedNode._private.data instanceof Router || grabbedNode._private.data instanceof Subnet) {
+                return true;
+            }
+            else {
+                let alert = new SlAlert;
+                alert.variant = "danger";
+                alert.closable = true;
+                alert.innerHTML = `
+                            <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
+                            <strong>The drop target is not a valid gateway.</strong><br />
+                            Please drag your device onto a gateway to create a new subnet!`
+                alert.toast();
+                return false;
+            }
+        }, // filter function to specify which orphan nodes are valid drop siblings
+        newParentNode: (grabbedNode, gateway) => (generateNewSubnet(network, grabbedNode, gateway)), // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
         boundingBoxOptions: { // same as https://js.cytoscape.org/#eles.boundingBox, used when calculating if one node is dragged over another
             includeOverlays: false,
             includeLabels: true
@@ -254,7 +310,7 @@ export function initNetwork(network: ComputerNetwork): void {
     network._cdnd.disable();
 
 
-    network._graph.on('cdnddrop', (event, compound, dropSibling) => onDragInACompound(event, compound));
+    network._graph.on('cdnddrop', (event, compound, dropSibling) => onDragInACompound(event, compound, network.ipDatabase));
 
     //TODO: custom badge for extensions (e.g. firewall)
     network._graph.nodeHtmlLabel([
@@ -270,99 +326,18 @@ export function initNetwork(network: ComputerNetwork): void {
                 let showMac: boolean = (network.renderRoot.querySelector('#MacCheckBox') as SlCheckbox).checked;
                 return createHtmlLabelingForHost(showIp, showBinIp, showMac, host);
             }
+        },
+        {
+            query: ".connector-node",
+            valign: "top",
+            halign: "right",
+            halignBox: 'top',
+            valignBox: 'top',
+            tpl: function (connector) {
+                return createHtmlLabelingForConnector(connector);
+            }
         }
     ]);
 
-
-    let nodeEditingOptions = {
-        padding: 5, // spacing between node and grapples/rectangle
-        undoable: true, // and if cy.undoRedo exists
-
-        grappleSize: 8, // size of square dots
-        grappleColor: "green", // color of grapples
-        inactiveGrappleStroke: "inside 1px blue",               
-        boundingRectangleLineDash: [4, 8], // line dash of bounding rectangle
-        boundingRectangleLineColor: "red",
-        boundingRectangleLineWidth: 1.5,
-        zIndex: 999,
-
-        minWidth: function (node) {
-            var data = node.data("resizeMinWidth");
-            return data ? data : 15;
-        }, // a function returns min width of node
-        minHeight: function (node) {
-            var data = node.data("resizeMinHeight");
-            return data ? data : 15;
-        }, // a function returns min height of node
-
-        // Getters for some style properties the defaults returns ele.css('property-name')
-        // you are encouraged to override these getters
-        getCompoundMinWidth: function(node) { 
-          return node.css('min-width'); 
-        },
-        getCompoundMinHeight: function(node) { 
-          return node.css('min-height'); 
-        },
-        getCompoundMinWidthBiasRight: function(node) {
-          return node.css('min-width-bias-right');
-        },
-        getCompoundMinWidthBiasLeft: function(node) { 
-          return node.css('min-width-bias-left');
-        },
-        getCompoundMinHeightBiasTop: function(node) {
-          return node.css('min-height-bias-top');
-        },
-        getCompoundMinHeightBiasBottom: function(node) { 
-          return node.css('min-height-bias-bottom');
-        },
-
-        // These optional functions will be executed to set the width/height of a node in this extension
-        // Using node.css() is not a recommended way (http://js.cytoscape.org/#eles.style) to do this. Therefore,
-        // overriding these defaults so that a data field or something like that will be used to set node dimentions
-        // instead of directly calling node.css() is highly recommended (Of course this will require a proper 
-        // setting in the stylesheet).
-        setWidth: function(node, width) { 
-            node.css('width', width);
-        },
-        setHeight: function(node, height) {
-            node.css('height', height);
-        },
-
-        isFixedAspectRatioResizeMode: function (node) { return node.is(".wifi-enabled") },// with only 4 active grapples (at corners)
-        isNoResizeMode: function (node) { return node.is(".not-wifi") }, // no active grapples
-        isNoControlsMode: function (node) { return node.is(".not-wifi") }, // no controls - do not draw grapples
-
-        cursors: { // See http://www.w3schools.com/cssref/tryit.asp?filename=trycss_cursor
-            // May take any "cursor" css property
-            default: "default", // to be set after resizing finished or mouseleave
-            inactive: "not-allowed",
-            nw: "nw-resize",
-            n: "n-resize",
-            ne: "ne-resize",
-            e: "e-resize",
-            se: "se-resize",
-            s: "s-resize",
-            sw: "sw-resize",
-            w: "w-resize"
-        },
-
-        // enable resize content cue according to the node
-        resizeToContentCueEnabled: function (node) {
-          return false;
-        },
-        // handle resize to content with given function
-        // default function resizes node according to the label
-        resizeToContentFunction: undefined,
-        // select position of the resize to content cue
-        // options: 'top-left', 'top-right', 'bottom-left', 'bottom-right'
-        resizeToContentCuePosition: 'bottom-right',
-        // relative path of the resize to content cue image
-        resizeToContentCueImage: '/node_modules/cytoscape-node-editing/resizeCue.svg',
-        enableMovementWithArrowKeys: true,
-        autoRemoveResizeToContentCue: false,
-     };
-    //node editing extension for wifi-range
-    //TODO: fix bug
-    //network._graph.nodeEditing(nodeEditingOptions);
 
 }

@@ -1,18 +1,18 @@
-import { IpAddress } from "../../adressing/addressTypes/IpAddress";
-import { MacAddress } from "../../adressing/addressTypes/MacAddress";
-import { Wifi } from "../logicalNodes/Wifi";
-import { PhysicalNode } from "./PhysicalNode";
+import { IpAddress } from "../../adressing/IpAddress";
+import { Ipv6Address } from "../../adressing/Ipv6Address";
+import { MacAddress } from "../../adressing/MacAddress";
+import { ConnectionType, PhysicalNode } from "./PhysicalNode";
 
 export class Host extends PhysicalNode {
-    ip: IpAddress;
-    mac: MacAddress;
 
-    constructor(color: string, ip: IpAddress, mac: MacAddress, mobile: boolean, wifiEnabled?: boolean, name?: string, wifiRange?: Wifi) {
-        super(color, 2, wifiEnabled, wifiRange);
+    constructor(color: string, icon: string, numberOfInterfaces?: number,  interfacesNames?: string[], connectionTypes?: ConnectionType, name?: string, 
+        portMacMapping?: Map<string, MacAddress>, portIpv4Mapping?: Map<string,IpAddress>, portIpv6Mapping?: Map<string, Ipv6Address>) {
+        super(color, 3, numberOfInterfaces, interfacesNames, connectionTypes);
 
         this.id = 'host'+Host.counter;
         Host.counter++;
         
+        //TODO: fix bug: name got over lapped by parent!
         if (name != null && this.name!=undefined && this.name!="") {
             this.name = name;
         }
@@ -20,14 +20,17 @@ export class Host extends PhysicalNode {
             this.name = this.id;
         }
 
-        this.ip = ip;
-        this.mac = mac;
+        portMacMapping.forEach((macAddress, port) => {
+            this.portData.get(port).set('MAC', macAddress);
+        });
+        portIpv4Mapping.forEach((ip4, port) => {
+            this.portData.get(port).set('IPv4', ip4);
+        });
+        portIpv6Mapping.forEach((ip6, port) => {
+            this.portData.get(port).set('IPv6', ip6);
+        });
+
         this.cssClass.push('host-node');
-        if (mobile) {
-            this.backgroundPath = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/phone.svg";
-        }
-        else {
-            this.backgroundPath = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/pc-display-horizontal.svg";
-        }
+        this.backgroundPath = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/"+icon+".svg";
     }
 }

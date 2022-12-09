@@ -2,12 +2,12 @@ import { LitElementWw } from "@webwriter/lit"
 import { css, html } from "lit"
 import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
-import { toggleSubnetting } from "./event-handlers/subnetting-controller";
+import { toggleDragAndDropSubnetting } from "./event-handlers/subnetting-controller";
 import { SlDrawer } from "@shoelace-style/shoelace";
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { IpAddress } from "./adressing/addressTypes/IpAddress"
-import { MacAddress } from "./adressing/addressTypes/MacAddress"
+import { IpAddress } from "./adressing/IpAddress"
+import { MacAddress } from "./adressing/MacAddress"
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 
 
@@ -223,7 +223,6 @@ export class ComputerNetwork extends LitElementWw {
       background: white;
       display: block;
       padding: 0 0.2vw;
-      margin-top: 10px;
     }
 
     sl-split-panel {
@@ -278,8 +277,8 @@ export class ComputerNetwork extends LitElementWw {
       <sl-dropdown placement="bottom">
       <button class="btn" id="edge" slot="trigger"><sl-icon name="share"></sl-icon></button>
         <sl-menu>
-          <sl-menu-item id="nondirected-wire" @click="${this.clickOnComponentButton}"><sl-icon name="arrow-left-right"></sl-menu-item>
-          <sl-menu-item id="wireless" @click="${this.clickOnComponentButton}"><sl-icon name="wifi"></sl-menu-item>
+          <sl-menu-item id="nondirected-edge" @click="${this.clickOnComponentButton}"><sl-icon name="arrow-left-right"></sl-menu-item>
+          <sl-menu-item id="directed-edge" @click="${this.clickOnComponentButton}"><sl-icon name="arrow-right"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
       </div>
@@ -359,10 +358,9 @@ export class ComputerNetwork extends LitElementWw {
     <sl-drawer id="extensions-drawer">
       <sl-menu style="background-color: LightBlue; border: transparent;">
         <sl-menu-label>Subnetting extension</sl-menu-label>
-        <sl-menu-item @click="${(event) => toggleSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
+        <sl-menu-item>Create a blank subnet</sl-menu-item>
+        <sl-menu-item @click="${(event) => toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
         <sl-menu-item>etc</sl-menu-item>
-        <sl-menu-item>etc</sl-menu-item>
-
         <sl-divider style="--width: 0.5vw; --color: white"></sl-divider>
 
         <sl-menu-label>Firewall extension</sl-menu-label>
@@ -389,7 +387,7 @@ export class ComputerNetwork extends LitElementWw {
       case 'router': case 'access-point': case 'hub': case 'repeater': case 'bridge': case 'switch':
         (this.renderRoot.querySelector('#connector') as HTMLElement).style.border = "dashed rgb(50,50,50)";
         break;
-      case "nondirected-wire": case "wireless":
+      case "nondirected-edge": case "directed-edge":
         (this.renderRoot.querySelector('#edge') as HTMLElement).style.border = "dashed rgb(50,50,50)";
         break;
       default: break;
