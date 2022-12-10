@@ -5,86 +5,15 @@ import { ConnectionType, PhysicalNode } from "./PhysicalNode";
 
 export abstract class Connector extends PhysicalNode {
     
-    constructor(color: string, layer: number, numberOfInterfacesOrPorts?: number, interfacesNames?: string[], connectionTypes?: ConnectionType) {
-        super(color, layer, numberOfInterfacesOrPorts, interfacesNames);
-        switch(layer){
-            case 1:
-                switch(connectionTypes){
-                    case ConnectionType.wireless:
-                        this.portData.forEach((data) => {
-                            data.set('connectionType', 'wireless');
-                        });
-                        break;
-                    case ConnectionType.wirelessAndEthernet:
-                        //TODO: possible to set later on the node
-                        break;
-                    default:
-                        this.portData.forEach((data) => {
-                            data.set('connectionType', 'ethernet');
-                        });
-                        break;
-                }
-                break;
-            case 2:
-                switch(connectionTypes){
-                    case ConnectionType.wireless:
-                        this.portData.forEach((data) => {
-                            data.set('connectionType', 'wireless');
-                            data.set('MAC', null);
-                        });
-                        break;
-                    case ConnectionType.wirelessAndEthernet:
-                        this.portData.forEach((data) => {
-                            //TODO: possible to set LAN/wireless later on the node
-                            data.set('MAC', null);
-                        });
-                        break;
-                    default:
-                        this.portData.forEach((data) => {
-                            data.set('connectionType', 'ethernet');
-                            data.set('MAC', null);
-                        });
-                        break;
-                }
-                break;
-            case 3:
-                switch(connectionTypes){
-                case ConnectionType.wireless:
-                        this.portData.forEach((data) => {
-                            data.set('connectionType', 'wireless');
-                            data.set('MAC', null);
-                            data.set('IPv4', null);
-                            data.set('IPv6', null);
-                        });
-                        break;
-                    case ConnectionType.wirelessAndEthernet:
-                        this.portData.forEach((data) => {
-                            //TODO: possible to set LAN/wireless later on the node
-                            data.set('MAC', null);
-                            data.set('IPv4', null);
-                            data.set('IPv6', null);
-                        });
-                        break;
-                    default:
-                        this.portData.forEach((data) => {
-                            data.set('connectionType', 'ethernet');
-                            data.set('MAC', null);
-                            data.set('IPv4', null);
-                            data.set('IPv6', null);
-                        });
-                        break;
-                    }
-                break;
-            default:
-                break;
-        }
+    constructor(color: string, layer: number, numberOfInterfacesOrPorts: number, interfaceNames: string[], connectionType?: ConnectionType) {
+        super(color, layer, numberOfInterfacesOrPorts, interfaceNames, connectionType);
     }
 }
 
 export class Router extends Connector {
-    constructor(color: string, numberOfInterfaces?: number,  interfacesNames?: string[], connectionTypes?: ConnectionType, name?: string, 
-        portMacMapping?: Map<string, MacAddress>, portIpv4Mapping?: Map<string,IpAddress>, portIpv6Mapping?: Map<string, Ipv6Address>) {
-        super(color, 3, numberOfInterfaces, interfacesNames, connectionTypes);
+    constructor(color: string, numberOfInterfaces: number,  interfaceNames: string[], portConnectionTypes: Map<string, ConnectionType>, 
+        portMacMapping: Map<string, MacAddress>, portIpv4Mapping: Map<string,IpAddress>, portIpv6Mapping: Map<string, Ipv6Address>, name?: string) {
+        super(color, 3, numberOfInterfaces, interfaceNames);
 
         this.id = 'router' + Router.counter;
         Router.counter++;
@@ -111,8 +40,8 @@ export class Router extends Connector {
 }
 
 export class Repeater extends Connector {
-    constructor(color: string,  connectionTypes?: ConnectionType, name?: string) {
-        super(color, 1, 2, null, connectionTypes);
+    constructor(color: string, portNumbers: string[], portConnectionTypes: Map<string, ConnectionType>, name?: string) {
+        super(color, 1, 2, portNumbers);
         this.id = 'repeater' + Repeater.counter;
         Repeater.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -128,8 +57,8 @@ export class Repeater extends Connector {
 }
 
 export class Hub extends Connector {
-    constructor(color: string,  numberOfPorts?: number, name?: string) {
-        super(color, 1, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, null, ConnectionType.ethernet);
+    constructor(color: string,  numberOfPorts: number, portNumbers: string[], name?: string) {
+        super(color, 1, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, portNumbers, ConnectionType.ethernet);
         this.id = 'hub' + Hub.counter;
         Hub.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -145,8 +74,8 @@ export class Hub extends Connector {
 }
 
 export class Switch extends Connector {
-    constructor(color: string, numberOfPorts?: number, name?: string, portMacMapping?: Map<string, MacAddress>) {
-        super(color, 2, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, null, ConnectionType.ethernet);
+    constructor(color: string, numberOfPorts: number, portNumbers: string[], portMacMapping: Map<string, MacAddress>, name?: string) {
+        super(color, 2, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, portNumbers, ConnectionType.ethernet);
 
         this.id = 'switch' + Switch.counter;
         Switch.counter++;
@@ -165,8 +94,8 @@ export class Switch extends Connector {
 }
 
 export class Bridge extends Connector {
-    constructor(color: string, connectionTypes?: ConnectionType, portMacMapping?: Map<string, MacAddress>, name?: string) {
-        super(color, 2, 2, null, connectionTypes);
+    constructor(color: string, portNumbers: string[], portConnectionTypes: Map<string, ConnectionType>, portMacMapping: Map<string, MacAddress>, name?: string) {
+        super(color, 2, 2, portNumbers);
         this.id = 'bridge' + Bridge.counter;
         Bridge.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -187,8 +116,8 @@ export class Bridge extends Connector {
 }
 
 export class AccessPoint extends Connector {
-    constructor(color: string, numberOfPorts?: number, name?: string, portMacMapping?: Map<string, MacAddress>) {
-        super(color, 2, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, null, ConnectionType.wireless);
+    constructor(color: string, numberOfPorts: number, portNumbers: string[], portMacMapping: Map<string, MacAddress>, name?: string) {
+        super(color, 2, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, portNumbers, ConnectionType.wireless);
 
         this.id = 'accessPoint' + AccessPoint.counter;
         AccessPoint.counter++;

@@ -1,12 +1,13 @@
 import { ComputerNetwork } from "..";
 import { initNetwork } from "../network-config";
-import { SlAlert, SlButton, SlCheckbox, SlInput } from "@shoelace-style/shoelace"
+import { SlButton, SlInput } from "@shoelace-style/shoelace"
 import { MacAddress } from "../adressing/MacAddress";
 import { IpAddress } from "../adressing/IpAddress";
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
 import { GraphNode } from "../components/GraphNode";
-import { Address } from "../adressing/Address";
+import { ConnectionType } from "../components/physicalNodes/PhysicalNode";
+import { Ipv6Address } from "../adressing/Ipv6Address";
 
 export class GraphNodeFactory {
 
@@ -16,118 +17,85 @@ export class GraphNodeFactory {
         }
 
         let name: string = (network.renderRoot.querySelector('#inputName') as HTMLInputElement).value.trim();
+        let ports: number = (network.renderRoot.querySelector('#ports') as SlInput).valueAsNumber;
 
-        let inputIp: string = (network.renderRoot.querySelector('#inputIP') as HTMLInputElement).value.trim();
+        let portNumbers: string[] = [];
+        let interfaceNames: string[] = [];
 
-        let inputMac: string = (network.renderRoot.querySelector('#inputMAC') as HTMLInputElement).value.trim();
+        let portConnectionTypes: Map<string, ConnectionType> = new Map();
+        let portMacs: Map<string, MacAddress> = new Map();
+        let portIpv4s: Map<string, IpAddress> = new Map();
+        let portIpv6s: Map<string, Ipv6Address> = new Map();
 
-        let autoAdressing: boolean = (network.renderRoot.querySelector('#autoAdressing') as SlCheckbox).checked;
+        if (ports < 1) {
+            return;
+        }
+        for (let index = 1; index <= ports; index++) {
+            let inputPortName: SlInput = network.renderRoot.querySelector('#port-number-' + index) as SlInput;
+            let inputInterfaceName: SlInput = network.renderRoot.querySelector('#interface-name-' + index) as SlInput;
 
-        let wifiEnabled: boolean = (network.renderRoot.querySelector('#wifi') as SlCheckbox).checked;
+            if (inputPortName != null) portNumbers.push(inputPortName.value);
+            if (inputInterfaceName != null) interfaceNames.push(inputInterfaceName.value);
 
-        let inputInPort: number = +(network.renderRoot.querySelector('#inputPorts') as SlInput).value.trim();
-        let inputOutPort: number = +(network.renderRoot.querySelector('#outputPorts') as SlInput).value.trim();
+            let name: string = inputPortName != null ? inputPortName.value :
+                inputInterfaceName != null ? inputInterfaceName.value : index.toString();
 
-        let inPortNum: number = inputInPort != 0 ? +inputInPort : 1;
-        let outPortNum: number = inputOutPort != 0 ? +inputOutPort : 1;
+            let inputConnection: SlInput = network.renderRoot.querySelector('#connection-type-' + index) as SlInput;
+            let inputMac: SlInput = network.renderRoot.querySelector('#mac-' + index) as SlInput;
+            let inputIpv4: SlInput = network.renderRoot.querySelector('#ip4-' + index) as SlInput;
+            let inputIpv6: SlInput = network.renderRoot.querySelector('#ip6-' + index) as SlInput;
+
+            let connectionType: ConnectionType = inputConnection != null ? (inputConnection.value == "Wireless" ?
+                ConnectionType.wireless : ConnectionType.ethernet) : ConnectionType.ethernet;
+
+            let macAddress: MacAddress = inputMac == null ? MacAddress.generateRandomAddress(network.macDatabase)
+                : MacAddress.validateAddress(inputMac.value, network.macDatabase);
+            macAddress = macAddress != null ? macAddress : MacAddress.generateRandomAddress(network.macDatabase);
+
+            let ipv4: IpAddress = inputIpv4 == null ? IpAddress.getLoopBackAddress()
+                : IpAddress.validateAddress(inputIpv4.value, network.ipDatabase);
+            ipv4 = ipv4 != null ? ipv4 : IpAddress.getLoopBackAddress();
+
+            let ipv6: Ipv6Address = Ipv6Address.getLoopBackAddress();
+
+            portConnectionTypes.set(name, connectionType);
+            portMacs.set(name, macAddress);
+            portIpv4s.set(name, ipv4);
+            portIpv6s.set(name, ipv6);
+        }
 
         let component: GraphNode;
-
-        //TODO: wifi enabled button
-
         switch (network.currentComponentToAdd) {
             //connectors
             //layer 1
             case "repeater":
-                component = new Repeater(network.currentColor, wifiEnabled, name);
+                component = new Repeater(network.currentColor, portNumbers, portConnectionTypes, name);
                 break;
             case "hub":
-                component = new Hub(network.currentColor, wifiEnabled, inPortNum, outPortNum, name);
+                component = new Hub(network.currentColor, ports, portNumbers, name);
                 break;
 
             //layer 2
-            case "switch": case "bridge": case "access-point":
-                let macAddresses: MacAddress[] = [];
-                for (let i = 0; i < inPortNum + outPortNum; i++) {
-                    macAddresses.push(MacAddress.generateRandomAddress(network.macDatabase));
-                }
-
-                switch (network.currentComponentToAdd) {
-                    case "switch":
-                        component = new Switch(network.currentColor, inPortNum, outPortNum, name, macAddresses);
-                        break;
-                    case "bridge":
-                        component = new Bridge(network.currentColor, wifiEnabled, inPortNum, outPortNum, name, macAddresses);
-                        break;
-                    case "access-point": component = new AccessPoint(network.currentColor, inPortNum, outPortNum, name, macAddresses);
-                        break;
-                }
+            case "switch":
+                component = new Switch(network.currentColor, ports, portNumbers, portMacs, name);
                 break;
+            case "bridge":
+                component = new Bridge(network.currentColor, portNumbers, portConnectionTypes, portMacs, name);
+                break;
+            case "access-point": component = new AccessPoint(network.currentColor, ports, portNumbers, portMacs, name);
+                break;
+
             //layer 3
             case "router":
-                let mixedAddresses: Address[] = [];
-                for (let i = 0; i < inPortNum + outPortNum; i++) {
-                    mixedAddresses.push(MacAddress.generateRandomAddress(network.macDatabase));
-                    mixedAddresses.push(IpAddress.generateRandomAddress(network.ipDatabase));
-                }
-                component = new Router(network.currentColor, wifiEnabled, inPortNum, outPortNum, name, mixedAddresses);
+                component = new Router(network.currentColor, ports, interfaceNames, portConnectionTypes, portMacs, portIpv4s, portIpv6s, name);
                 break;
 
             //host 
-            case "computer": case "mobile":
-                let ip: IpAddress;
-                let mac: MacAddress;
-                if (autoAdressing) {
-                    ip = IpAddress.generateRandomAddress(network.ipDatabase);
-                    mac = MacAddress.generateRandomAddress(network.macDatabase);
-                }
-                else {
-                    let errorInput: boolean = false;
-
-                    const alert = new SlAlert();
-                    alert.closable = true;
-
-                    let newIpAddress = IpAddress.validateAddress(inputIp, network.ipDatabase);
-                    let newMacAddress = MacAddress.validateAddress(inputMac, network.macDatabase);
-                    if (newIpAddress != null && newIpAddress!=undefined) {
-                        ip = newIpAddress;
-                    }
-                    else {
-                        ip = IpAddress.generateRandomAddress(network.ipDatabase);
-                        errorInput = true;
-
-                        if (inputIp == "") {
-                            alert.innerHTML += `<li>No IP address is given,  automatically generate another IP Address.</li>`;
-                        }
-                        else {
-                            alert.innerHTML += `<li>The inserted IP Address <strong>` + inputIp + `</strong> is not valid,  automatically generate another IP Address.</li>`;
-                        }
-                    }
-
-                    if (newMacAddress != null && newMacAddress!=undefined) {
-                        mac = newMacAddress;
-                    }
-                    else {
-                        mac = MacAddress.generateRandomAddress(network.macDatabase);
-                        errorInput = true;
-
-                        if (inputMac == "") {
-                            alert.innerHTML += `<li>No MAC address is given, automatically generate another MAC Address.</li>`;
-                        }
-                        else {
-                            alert.innerHTML += `<li>The inserted MAC Address <strong>` + inputMac + `</strong> is not valid, automatically generate another MAC Address.</li>`;
-                        }
-                    }
-
-                    if (errorInput) {
-                        alert.variant = "warning";
-                        alert.innerHTML = `<sl-icon slot=\"icon\" name=\"exclamation-triangle\"></sl-icon>` + alert.innerHTML;
-                        alert.toast();
-                        errorInput = false;
-
-                    }
-                }
-                component = new Host(network.currentColor, ip, mac, network.currentComponentToAdd == "mobile", wifiEnabled, name);
+            case "computer":
+                component = new Host(network.currentColor, "pc-display-horizontal", ports, interfaceNames, portConnectionTypes, portMacs, portIpv4s, portIpv6s, name);
+                break;
+            case "mobile":
+                component = new Host(network.currentColor, "mobile", ports, interfaceNames, portConnectionTypes, portMacs, portIpv4s, portIpv6s, name);
                 break;
 
             default:
@@ -154,7 +122,7 @@ export class GraphNodeFactory {
 
     static toggleDrawMode(network: ComputerNetwork): void {
         if (!network.drawModeOn) {
-            if (network.currentComponentToAdd != "nondirected-edge" && network.currentComponentToAdd !="directed-edge") {
+            if (network.currentComponentToAdd != "nondirected-edge" && network.currentComponentToAdd != "directed-edge") {
                 return;
             }
             network._edgeHandles.enableDrawMode();

@@ -12,7 +12,6 @@ import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { SlAlert, SlCheckbox } from "@shoelace-style/shoelace";
 import { handleChangesInDialogForConnector, handleChangesInDialogForHost, handleChangesInDialogForSubnet } from "./event-handlers/dialog-content";
 import { generateNewSubnet, onDragInACompound } from "./event-handlers/subnetting-controller";
-import { WiredEdge, WirelessEdge } from "./components/GraphEdge";
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 import { createHtmlLabelingForConnector, createHtmlLabelingForHost } from "./event-handlers/labeling";
 import { Host } from "./components/physicalNodes/Host";
@@ -207,20 +206,7 @@ export function initNetwork(network: ComputerNetwork): void {
 
         },
         edgeParams: function (sourceNode: NodeSingular, targetNode: NodeSingular, i: number) {
-            // for edges between the specified source and target
-            // return element object to be passed to cy.add() for edge
-            // NB: i indicates edge index in case of edgeType: 'node'
-            let data = null;
-            let directed: boolean = network.currentComponentToAdd == "directed-edge" ? true : false;
-            if (sourceNode._private.data.cssClass.includes('wifi-enabled') && sourceNode._private.data.cssClass.includes('wifi-enabled')) {
-                data = new WirelessEdge(network.currentColor, sourceNode._private.data, targetNode._private.data, directed);
-            }
-            else {
-                data = new WiredEdge(network.currentColor, sourceNode._private.data, targetNode._private.data, directed);
-            }
-
-            let edge = { group: 'edges', data: data, classes: data.cssClass };
-            return edge;
+            //TODO
         },
         preview: true, // whether to show added edges preview before releasing selection
         stackOrder: 4, // Controls stack order of edgehandles canvas element by setting it's z-index
@@ -243,53 +229,13 @@ export function initNetwork(network: ComputerNetwork): void {
     const compoundOptions = {
         grabbedNode: node => true, // filter function to specify which nodes are valid to grab and drop into other nodes
         dropTarget: (dropTarget, grabbedNode) => {
+            //TODO
 
-            if (dropTarget._private.data instanceof Subnet) {
-                let subnet: Subnet = dropTarget._private.data;
-                if (dropTarget._private.children.length >= Math.pow(2, 32 - subnet.cidr)) {
-
-                    let isChild: boolean = false;
-
-                    dropTarget._private.children.forEach(child => {
-                        //if grabbed node is child of the network, then fire no alert
-                        if (child._private.data.id == grabbedNode._private.data.id) {
-                            isChild = true;
-                            return true;
-                        }
-                    });
-
-                    if (!isChild) {
-                        let alert = new SlAlert;
-                        alert.variant = "danger";
-                        alert.closable = true;
-                        alert.innerHTML = `
-                            <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
-                            <strong>This subnet has no available IP address.</strong><br />
-                            Please drag your component onto another subnet, or change the target subnet's ID!`
-                        alert.toast();
-
-                    }
-                    return false;
-                }
-            }
             return true;
         }, // filter function to specify which parent nodes are valid drop targets
 
         dropSibling: (dropSibling, grabbedNode) => {
-            if (grabbedNode._private.data instanceof Router || grabbedNode._private.data instanceof Subnet) {
-                return true;
-            }
-            else {
-                let alert = new SlAlert;
-                alert.variant = "danger";
-                alert.closable = true;
-                alert.innerHTML = `
-                            <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
-                            <strong>The drop target is not a valid gateway.</strong><br />
-                            Please drag your device onto a gateway to create a new subnet!`
-                alert.toast();
-                return false;
-            }
+            return false;
         }, // filter function to specify which orphan nodes are valid drop siblings
         newParentNode: (grabbedNode, gateway) => (generateNewSubnet(network, grabbedNode, gateway)), // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
         boundingBoxOptions: { // same as https://js.cytoscape.org/#eles.boundingBox, used when calculating if one node is dragged over another

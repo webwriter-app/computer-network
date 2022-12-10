@@ -23,18 +23,18 @@ export function toggleDragAndDropSubnetting(event: any, network: ComputerNetwork
  */
 export function onDragInACompound(event, compound, database: Map<string, IpAddress>): void {
 
-    if (compound._private.data !instanceof Subnet) {
-        return;
-    }
-    let node = event.target._private.data;
-    let subnet = compound._private.data;
+    // if (compound._private.data !instanceof Subnet) {
+    //     return;
+    // }
+    // let node = event.target._private.data;
+    // let subnet = compound._private.data;
 
-    if(node instanceof Host){
-        if(node.ip.matchesNetworkCidr(subnet)){
-            return;
-        }
-        node.ip = IpAddress.generateNewIpForSubnet(database, node.ip, subnet);
-    }
+    // if(node instanceof Host){
+    //     if(node.ip.matchesNetworkCidr(subnet)){
+    //         return;
+    //     }
+    //     node.ip = IpAddress.generateNewIpForSubnet(database, node.ip, subnet);
+    // }
     //TODO: handle for node instanceof Connector, Subnet
 }
 
@@ -45,18 +45,18 @@ export function onDragInACompound(event, compound, database: Map<string, IpAddre
  */
 export function generateNewSubnet(network: ComputerNetwork, grabbedNode, router) {
 
-    let childNode = grabbedNode._private.data;
+    // let childNode = grabbedNode._private.data;
 
-    if (childNode instanceof GraphNode) {
-        let data = new Subnet(network.currentColor, router._private.data, network.ipDatabase, [childNode]);
-        console.log(data);
-        return {
-            group: 'nodes',
-            data: data,
-            classes: data.cssClass
-        };
-    }
-    else {
-        return null;
-    }
+    // if (childNode instanceof GraphNode) {
+    //     let data = new Subnet(network.currentColor, router._private.data, network.ipDatabase, [childNode]);
+    //     console.log(data);
+    //     return {
+    //         group: 'nodes',
+    //         data: data,
+    //         classes: data.cssClass
+    //     };
+    // }
+    // else {
+    //     return null;
+    // }
 }

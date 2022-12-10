@@ -9,6 +9,7 @@ import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { IpAddress } from "./adressing/IpAddress"
 import { MacAddress } from "./adressing/MacAddress"
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
+import { generateInputDialog } from "./event-handlers/dialog-content";
 
 
 @customElement("computer-network")
@@ -239,6 +240,14 @@ export class ComputerNetwork extends LitElementWw {
       margin: auto;
     }
 
+    sl-dialog::part(base), sl-select::part(base) {
+      --width: fit-content;
+    }
+
+    td {
+      text-align: center;
+    }
+
     
 `;
   render() {
@@ -284,28 +293,17 @@ export class ComputerNetwork extends LitElementWw {
       </div>
 
       <div style="position:relative;  width: 22vw; display: flex; flex-direction: column; margin: auto;">
-      <sl-checkbox id="wifi" style="padding-left:1vw;">Make your chosen component wireless</sl-checkbox>
       </div>
     </div>
 
     <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
 
-    <sl-split-panel vertical>
-      <div slot="start" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <sl-menu-label>Host</sl-menu-label>
-        <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
-        <sl-input class="label-on-left" label="IPv4" id="inputIP" placeholder="0.0.0.0"></sl-input>
-        <sl-input class="label-on-left" label="MAC" id="inputMAC" placeholder="XX:XX:XX:XX:XX:XX"></sl-input>
-        <sl-checkbox id="autoAdressing" style="padding-left:1vw;">Auto addressing</sl-checkbox>
-      </div>
-      <div slot="end" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <sl-menu-label>Connector</sl-menu-label>
-        <sl-input class="label-on-left" label="Input Ports" id="inputPorts" placeholder="Number of input ports" type='number'></sl-input>
-        <sl-input class="label-on-left" label="Output Ports" id="outputPorts" placeholder="Number of output ports" type='number'></sl-input>
-      </div>
-    </sl-split-panel>
+    <div style="position:relative; margin: auto">
+      <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
+      <sl-input class="label-on-left" label="Number of ports/ interfaces" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
 
-
+      <sl-button style="margin-top: 2vw;" @click="${() => generateInputDialog(this)}">Add details for ports/ interfaces</sl-button>
+    </div>
       
 
       <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
@@ -352,8 +350,7 @@ export class ComputerNetwork extends LitElementWw {
       <div id="cy"></div>
     </div>
 
-    <sl-dialog label="Component details" id="infoDialog">
-    </sl-dialog>
+    <div id="inputDialog"/>
 
     <sl-drawer id="extensions-drawer">
       <sl-menu style="background-color: LightBlue; border: transparent;">
