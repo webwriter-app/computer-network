@@ -5,9 +5,9 @@ import { ConnectionType, PhysicalNode } from "./PhysicalNode";
 
 export class Host extends PhysicalNode {
 
-    constructor(color: string, icon: string, numberOfInterfaces: number,  interfacesNames: string[], portConnectionTypes: Map<string, ConnectionType>, 
-        portMacMapping?: Map<string, MacAddress>, portIpv4Mapping?: Map<string,Ipv4Address>, portIpv6Mapping?: Map<string, Ipv6Address>, name?: string) {
-        super(color, 3, numberOfInterfaces, interfacesNames);
+    constructor(color: string, icon: string, numberOfInterfaces: number,  names: Map<number, string>, portConnectionTypes: Map<number, ConnectionType>, 
+        portMacMapping?: Map<number, MacAddress>, portIpv4Mapping?: Map<number,Ipv4Address>, portIpv6Mapping?: Map<number, Ipv6Address>, name?: string) {
+        super(color, 3, numberOfInterfaces);
 
         this.id = 'host'+Host.counter;
         Host.counter++;
@@ -17,6 +17,12 @@ export class Host extends PhysicalNode {
         }
         else {
             this.name = this.id;
+        }
+
+        for(let index=1; index<=numberOfInterfaces; index++){
+            let name = names.get(index);
+            if (name != undefined && name != null && name != "") { this.portData.get(index).set('Name', name); }
+            else { this.portData.get(index).set('Name', portConnectionTypes.get(index) + index); }
         }
 
         portConnectionTypes.forEach((connectionType, port) => {

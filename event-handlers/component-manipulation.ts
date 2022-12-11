@@ -6,7 +6,7 @@ import { Ipv4Address } from "../adressing/IpAddress";
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
 import { GraphNode } from "../components/GraphNode";
-import { ConnectionType, PhysicalNode } from "../components/physicalNodes/PhysicalNode";
+import { ConnectionType } from "../components/physicalNodes/PhysicalNode";
 import { Ipv6Address } from "../adressing/Ipv6Address";
 
 export class GraphNodeFactory {
@@ -21,23 +21,19 @@ export class GraphNodeFactory {
         let numberOfPorts: number = inputNumOfPorts.value != "" ? inputNumOfPorts.valueAsNumber :
             ((network.currentComponentToAdd == 'computer' || network.currentComponentToAdd == 'mobile') ? 1 : 2);
 
-        let portNumbers: string[] = [];
-        let interfaceNames: string[] = [];
 
-        let portConnectionTypes: Map<string, ConnectionType> = new Map();
-        let portMacs: Map<string, MacAddress> = new Map();
-        let portIpv4s: Map<string, Ipv4Address> = new Map();
-        let portIpv6s: Map<string, Ipv6Address> = new Map();
+        let names: Map<number, string> = new Map();
+        let portConnectionTypes: Map<number, ConnectionType> = new Map();
+        let portMacs: Map<number, MacAddress> = new Map();
+        let portIpv4s: Map<number, Ipv4Address> = new Map();
+        let portIpv6s: Map<number, Ipv6Address> = new Map();
 
         for (let index = 1; index <= numberOfPorts; index++) {
             let inputPortName: SlInput = network.renderRoot.querySelector('#port-number-' + index) as SlInput;
             let inputInterfaceName: SlInput = network.renderRoot.querySelector('#interface-name-' + index) as SlInput;
 
             let name: string = (inputPortName != null && inputPortName.value) != "" ? inputPortName.value :
-                (inputInterfaceName != null && inputInterfaceName.value) ? inputInterfaceName.value : index.toString();
-
-            if (inputPortName != null) portNumbers.push(name);
-            if (inputInterfaceName != null) interfaceNames.push(name);
+                (inputInterfaceName != null && inputInterfaceName.value) ? inputInterfaceName.value : "";
 
             let inputConnection: SlInput = network.renderRoot.querySelector('#connection-type-' + index) as SlInput;
             let inputMac: SlInput = network.renderRoot.querySelector('#mac-' + index) as SlInput;
@@ -59,10 +55,11 @@ export class GraphNodeFactory {
                 : Ipv6Address.validateAddress(inputIpv6.value, network.ipv6Database);
             ipv6 = ipv6 != null ? ipv6 : Ipv6Address.getLoopBackAddress();
 
-            portConnectionTypes.set(name, connectionType);
-            portMacs.set(name, macAddress);
-            portIpv4s.set(name, ipv4);
-            portIpv6s.set(name, ipv6);
+            if (name!="") names.set(index, name);
+            portConnectionTypes.set(index, connectionType);
+            portMacs.set(index, macAddress);
+            portIpv4s.set(index, ipv4);
+            portIpv6s.set(index, ipv6);
         }
 
         let component: GraphNode;
@@ -70,35 +67,33 @@ export class GraphNodeFactory {
             //connectors
             //layer 1
             case "repeater":
-                console.log(portNumbers);
-                console.log(portConnectionTypes);
-                component = new Repeater(network.currentColor, portNumbers, portConnectionTypes, name);
+                component = new Repeater(network.currentColor, names, portConnectionTypes, name);
                 break;
             case "hub":
-                component = new Hub(network.currentColor, numberOfPorts, portNumbers, name);
+                component = new Hub(network.currentColor, numberOfPorts, names, name);
                 break;
 
             //layer 2
             case "switch":
-                component = new Switch(network.currentColor, numberOfPorts, portNumbers, portMacs, name);
+                component = new Switch(network.currentColor, numberOfPorts, names, portMacs, name);
                 break;
             case "bridge":
-                component = new Bridge(network.currentColor, portNumbers, portConnectionTypes, portMacs, name);
+                component = new Bridge(network.currentColor, names, portConnectionTypes, portMacs, name);
                 break;
-            case "access-point": component = new AccessPoint(network.currentColor, numberOfPorts, portNumbers, portMacs, name);
+            case "access-point": component = new AccessPoint(network.currentColor, numberOfPorts, names, portMacs, name);
                 break;
 
             //layer 3
             case "router":
-                component = new Router(network.currentColor, numberOfPorts, interfaceNames, portConnectionTypes, portMacs, portIpv4s, portIpv6s, name);
+                component = new Router(network.currentColor, numberOfPorts, names, portConnectionTypes, portMacs, portIpv4s, portIpv6s, name);
                 break;
 
             //host 
             case "computer":
-                component = new Host(network.currentColor, "pc-display-horizontal", numberOfPorts, interfaceNames, portConnectionTypes, portMacs, portIpv4s, portIpv6s, name);
+                component = new Host(network.currentColor, "pc-display-horizontal", numberOfPorts, names, portConnectionTypes, portMacs, portIpv4s, portIpv6s, name);
                 break;
             case "mobile":
-                component = new Host(network.currentColor, "phone", numberOfPorts, interfaceNames, portConnectionTypes, portMacs, portIpv4s, portIpv6s, name);
+                component = new Host(network.currentColor, "phone", numberOfPorts, names, portConnectionTypes, portMacs, portIpv4s, portIpv6s, name);
                 break;
 
             default:

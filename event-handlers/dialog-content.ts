@@ -124,16 +124,16 @@ export class DialogFactory {
 
   static generateInputsDetailsForEdge(network: ComputerNetwork, edge: any, sourceNode: PhysicalNode, targetNode: PhysicalNode): void {
     //filter available ports
-    let availableSourcePorts: string[] = [];
-    let availableTargetPorts: string[] = [];
-    sourceNode.portLinkMapping.forEach((link, port) => {
+    let availableSourcePorts: Map<number, string> = new Map();
+    let availableTargetPorts: Map<number, string> = new Map();
+    sourceNode.portLinkMapping.forEach((link, index) => {
       if (link == null || link == undefined || link == "") {
-        availableSourcePorts.push(port);
+        availableSourcePorts.set(index, sourceNode.portData.get(index).get('Name'));
       }
     });
-    targetNode.portLinkMapping.forEach((link, port) => {
+    targetNode.portLinkMapping.forEach((link, index) => {
       if (link == null || link == undefined || link == "") {
-        availableTargetPorts.push(port);
+        availableTargetPorts.set(index, targetNode.portData.get(index).get('Name'));
       }
     });
 
@@ -146,13 +146,13 @@ export class DialogFactory {
     let sourcePanel = new SlTabPanel();
     sourcePanel.name = "chooseSourcePort";
     let sourceTable: string = `<table cellspacing="10"><tr>`;
-    sourceTable += sourceNode.layer < 3 ? `<td>Port</td>` : `<td>Interface</td>`;
+    sourceTable += `<td>Index</td>`;
     sourceNode.portData.entries().next().value[1].forEach((_, columnName) => sourceTable += `<td>` + columnName + `</td>`);
     sourceTable += `</tr>`;
 
-    sourceNode.portData.forEach((data, port) => {
+    sourceNode.portData.forEach((data, index) => {
       sourceTable += `<tr>`;
-      sourceTable += `<td>` + port + `</td>`; //add port/interface name
+      sourceTable += `<td>` + index + `</td>`; //add index
       data.forEach((value) => {
         if (value instanceof Address) {
           sourceTable += `<td>` + value.address + `</td>`;
@@ -167,7 +167,8 @@ export class DialogFactory {
     sourcePanel.innerHTML += sourceTable;
 
     let selectedSourcePort = new SlSelect();
-    availableSourcePorts.forEach(port => selectedSourcePort.innerHTML += `<sl-menu-item value="` + port + `">` + port + `</sl-menu-item>`);
+    availableSourcePorts.forEach((port, index) => selectedSourcePort.innerHTML += `<sl-menu-item value="` + index + `">` + port + `</sl-menu-item>`);
+    sourcePanel.innerHTML += "Select one from available ports/ interfaces:";
     sourcePanel.appendChild(selectedSourcePort);
     tabGroup.append(sourcePanel);
 
@@ -175,13 +176,13 @@ export class DialogFactory {
     let targetPanel = new SlTabPanel();
     targetPanel.name = "chooseTargetPort";
     let targetTable: string = `<table cellspacing="10"><tr>`;
-    targetTable += targetNode.layer < 3 ? `<td>Port</td>` : `<td>Interface</td>`;
+    targetTable += `<td>Index</td>`;
     targetNode.portData.entries().next().value[1].forEach((_, columnName) => targetTable += `<td>` + columnName + `</td>`);
     targetTable += `</tr>`;
 
-    targetNode.portData.forEach((data, port) => {
+    targetNode.portData.forEach((data, index) => {
       targetTable += `<tr>`;
-      targetTable += `<td>` + port + `</td>`; //add port/interface name
+      targetTable += `<td>` + index + `</td>`; //add port/interface name
       data.forEach((value) => {
         if (value instanceof Address) {
           targetTable += `<td>` + value.address + `</td>`;
@@ -196,7 +197,9 @@ export class DialogFactory {
     targetPanel.innerHTML += targetTable;
 
     let selectedTargetPort = new SlSelect();
-    availableTargetPorts.forEach(port => selectedTargetPort.innerHTML += `<sl-menu-item value="` + port + `">` + port + `</sl-menu-item>`);
+    availableTargetPorts.forEach((port, index) => selectedTargetPort.innerHTML += `<sl-menu-item value="` + index + `">` + port + `</sl-menu-item>`);
+
+    targetPanel.innerHTML += "Select one from available ports/ interfaces:";
     targetPanel.appendChild(selectedTargetPort);
     tabGroup.append(targetPanel);
 
@@ -208,16 +211,14 @@ export class DialogFactory {
     saveButton.variant = "primary";
     saveButton.innerHTML = "Save";
     saveButton.addEventListener('click', () => {
-      console.log(selectedSourcePort.value);
-      console.log(selectedTargetPort.value);
-      let inPort: string = selectedSourcePort.value as string;
-      let outPort: string = selectedTargetPort.value as string;
+      let inPort: number = +(selectedSourcePort.value as string);
+      let outPort: number = +(selectedTargetPort.value as string);
 
-      if (inPort == "") {
+      if (inPort == NaN || inPort == undefined || inPort == null) {
         AlertHelper.toastAlert("warning", "exclamation-triangle", "", "Please choose port/interface for " + sourceNode.name);
         return;
       }
-      if (outPort == "") {
+      if (outPort == NaN || outPort == undefined || outPort == null) {
         AlertHelper.toastAlert("warning", "exclamation-triangle", "", "Please choose port/interface for " + sourceNode.name);
         return;
       }

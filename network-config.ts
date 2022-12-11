@@ -96,18 +96,20 @@ export function initNetwork(network: ComputerNetwork): void {
                     'target-text-rotation': 'autorotate',
                     "source-label": function (edge) {
                         let source: PhysicalNode = edge.data('from');
-                        let port: string = edge.data('inPort');
+                        let port: number = edge.data('inPort');
                         let portData: Map<string, any> = source.portData.get(port);
-                        let label = port + "\n";
-                        portData.forEach((value, key) => label += value instanceof Address ? key+": "+value.address + "\n" : "");
+                        let label = "";
+                        portData.forEach((value, key) => label += value instanceof Address ? key + ": " + value.address + "\n"
+                            : (key == 'Connection Type' ? "" : value + "\n"));
                         return label;
                     },
                     "target-label": function (edge) {
                         let target: PhysicalNode = edge.data('to');
-                        let port: string = edge.data('outPort');
+                        let port: number = edge.data('outPort');
                         let portData: Map<string, any> = target.portData.get(port);
-                        let label = port + "\n";
-                        portData.forEach((value, key) => label += value instanceof Address ? key+": "+value.address + "\n" : "");
+                        let label = "";
+                        portData.forEach((value, key) => label += value instanceof Address ? key + ": " + value.address + "\n"
+                            : (key == 'Connection Type' ? "" : value + "\n"));
                         return label;
                     },
                     "label": ""
