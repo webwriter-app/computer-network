@@ -10,9 +10,8 @@ import NodeSingular from "cytoscape";
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { SlCheckbox } from "@shoelace-style/shoelace";
-import { DialogFactory, handleChangesInDialogForConnector, handleChangesInDialogForHost, handleChangesInDialogForSubnet } from "./event-handlers/dialog-content";
+import { DialogFactory, handleChangesInDialogForPhysicalNode, handleChangesInDialogForSubnet } from "./event-handlers/dialog-content";
 import { generateNewSubnet, onDragInACompound } from "./event-handlers/subnetting-controller";
-import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 import { createHtmlLabelingForConnector, createHtmlLabelingForHost } from "./event-handlers/labeling";
 import { EdgeController } from "./event-handlers/edge-controller";
 import { GraphEdge } from "./components/GraphEdge";
@@ -174,26 +173,11 @@ export function initNetwork(network: ComputerNetwork): void {
                 id: "details-for-host",
                 content: "View Details...",
                 tooltipText: "View Details",
-                selector: ".host-node",
+                selector: ".physical-node",
                 onClickFunction: function (event) {
                     let node = event.target;
                     let id = node._private.data.id;
-
-                    handleChangesInDialogForHost(id, node, network);
-                },
-                hasTrailingDivider: true
-            },
-            {
-                id: "details-for-connector",
-                content: "View Details...",
-                tooltipText: "View Details",
-                selector: ".connector-node",
-                onClickFunction: function (event) {
-                    let node = event.target;
-                    let id = node._private.data.id;
-                    console.log(node);
-
-                    handleChangesInDialogForConnector(id, node, network);
+                    handleChangesInDialogForPhysicalNode(id, node, network);
                 },
                 hasTrailingDivider: true
             },

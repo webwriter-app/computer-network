@@ -1,7 +1,12 @@
 import { SlButton, SlDialog, SlInput, SlSelect, SlTabGroup, SlTabPanel } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "..";
 import { Address } from "../adressing/Address";
+import { Ipv4Address } from "../adressing/IpAddress";
+import { Ipv6Address } from "../adressing/Ipv6Address";
+import { MacAddress } from "../adressing/MacAddress";
 import { GraphEdge } from "../components/GraphEdge";
+import { Connector } from "../components/physicalNodes/Connector";
+import { Host } from "../components/physicalNodes/Host";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
 import { EdgeController } from "./edge-controller";
@@ -73,7 +78,7 @@ export class DialogFactory {
 
     //add the columns
     table += `<tr>`;
-    table += `<td>Order</td>`;
+    table += `<td>Index</td>`;
     table += layer < 3 ? `<td>Port number</td>` : `<td>Interface name</td>`;
     table += `<td>Connection type</td>`;
     table += layer > 1 ? `<td>MAC Address</td>` : "";
@@ -241,195 +246,95 @@ export class DialogFactory {
   }
 }
 
-export function handleChangesInDialogForHost(id: string, node: any, network: ComputerNetwork) {
+export function handleChangesInDialogForPhysicalNode(id: string, node: any, network: ComputerNetwork) {
+  let physicalNode: PhysicalNode = node.data();
+  let dialog: SlDialog = new SlDialog();
+  let table: string = `<table cellspacing="10"><tr>`;
+  table += `<td>Index</td>`;
+  physicalNode.portData.entries().next().value[1].forEach((_, columnName) => table += `<td>` + columnName + `</td>`);
+  table += `</tr>`;
 
-  // let host: Host = node._private.data;
+  physicalNode.portData.forEach((data, index) => {
+    table += `<tr>`;
+    table += `<td>` + index + `</td>`; //add index
+    data.forEach((value, key) => {
+      if (value instanceof Address) {
+        table += `<td><sl-input id="` + id + "-" + index + "-" + key + `" placeholder="` + value.address + `" clearable type="string"></td>`;
+      }
+      else if (key == "Connection Type") {
+        //show only
+        table += `<td>` + value + `</td>`;
+      }
+      else {
+        table += `<td><sl-input id="` + id + "-" + index + "-" + key + `" placeholder="` + value + `" clearable type="string"></td>`;
+      }
+    });
+    table += `</tr>`;
+  });
+  table += `</table>`;
+  dialog.innerHTML += table;
 
-  // //pass data of current node into the dialog
-  // let inputFields = generateDialog(
-  //   id,
-  //   new Map<string, InputData>([
-  //     ["name", new InputData("Name", "The name of this component", host.name, true)],
-  //     ["mac", new InputData("MAC", "The MAC-Address of this component", host.mac.address, true)],
-  //     ["ip", new InputData("IP", "The IP-Address of this component", host.ip.address, true)],
-  //     ["ipBin", new InputData("IP(2)", "The IP-Address of this component (binary)", host.ip.binaryOctets.join("."), true)],
-  //   ]));
+  const saveButton = new SlButton();
+  saveButton.slot = "footer";
+  saveButton.variant = "primary";
+  saveButton.innerHTML = "Save";
+  saveButton.addEventListener('click', () => {
+    let changed: boolean = false;
+    //for each interface-index
+    for (let index = 1; index <= physicalNode.portData.size; index++) {
+      let newName = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "Name") as SlInput).value.trim();
+      if (newName != "") {
+        physicalNode.portData.get(index).set('Name', newName);
+        changed = true;
+      }
 
-  // const saveButton = new SlButton();
-  // saveButton.slot = "footer";
-  // saveButton.variant = "primary";
-  // saveButton.innerHTML = "Save changes";
+      if (physicalNode.layer >= 2) {
+        let newMac = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "MAC") as SlInput).value.trim();
+        let validatedMac = newMac != "" ? MacAddress.validateAddress(newMac, network.macDatabase) : null;
+        if (validatedMac != null) {
+          physicalNode.portData.get(index).set('MAC', validatedMac);
+          changed = true;
+        }
+        else if (newMac != "") {
+          AlertHelper.toastAlert("warning", "exclamation-triangle", "", newMac + " is not a valid MAC Address.");
+        }
+      }
 
-  // let error: boolean = false;
+      if (physicalNode.layer >= 3) {
+        let newIpv4 = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv4") as SlInput).value.trim();
+        let newIpv6 = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv6") as SlInput).value.trim();
+        let validatedIpv4 = newIpv4 != "" ? Ipv4Address.validateAddress(newIpv4, network.ipv4Database) : null;
+        if (validatedIpv4 != null) {
+          physicalNode.portData.get(index).set('IPv4', validatedIpv4);
+          changed = true;
+        }
+        else if (newIpv4 != "") {
+          AlertHelper.toastAlert("warning", "exclamation-triangle", "", newIpv4 + " is not a valid IPv4 Address.");
+        }
 
-  // saveButton.addEventListener('click', () => {
-  //   const alert = new SlAlert();
-  //   alert.closable = true;
+        let validatedIpv6 = newIpv6 != "" ? Ipv6Address.validateAddress(newIpv6, network.ipv6Database) : null;
+        if (validatedIpv6 != null) {
+          physicalNode.portData.get(index).set('IPv6', validatedIpv6);
+          changed = true;
+        }
+        else if (newIpv6 != "") {
+          AlertHelper.toastAlert("warning", "exclamation-triangle", "", newIpv6 + " is not a valid IPv6 Address.");
+        }
+      }
+    }
 
-  //   //list of methods to update data, ip, subnet
-  //   let newName = (network.renderRoot.querySelector('#' + id + "name") as SlInput).value.trim();
-  //   let newMac = (network.renderRoot.querySelector('#' + id + "mac") as SlInput).value.trim();
-  //   let newIp = (network.renderRoot.querySelector('#' + id + "ip") as SlInput).value.trim();
-  //   //todo: update with binary IP?
-  //   let newIpBin = (network.renderRoot.querySelector('#' + id + "ipBin") as SlInput).value.trim();
+    if (changed) {
+      AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");
+    }
+    dialog.hide();
+  }
+  );
+  dialog.appendChild(saveButton);
 
-  //   host.name = newName;
-  //   let newMacAddress: MacAddress = MacAddress.validateAddress(newMac, network.macDatabase);
-  //   if (newMac == "") {
-  //     //do nothing if no input is given
-  //   } else if (newMacAddress != null) {
-  //     host.mac = newMacAddress;
-  //   }
-  //   else {
-  //     error = true;
-  //     alert.innerHTML += "The inserted MAC Address <strong>" + newMac + "</strong> is not valid.\n";
-  //   }
+  (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
+  (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);
+  dialog.show();
 
-  //   let newIpAddress: IpAddress = IpAddress.validateAddress(newIp, network.ipDatabase);
-  //   if (newIp == "") {
-  //     //do nothing if no input is given
-  //   }
-  //   else if (newIpAddress != null) {
-  //     host.ip = newIpAddress;
-  //   }
-  //   else {
-  //     error = true;
-  //     alert.innerHTML += "The inserted IP Address <strong>" + newIp + "</strong> is not valid.\n";
-
-  //   }
-
-  //   if (newName == "" && newIp == "" && newMac == "") {
-  //     const noti = new SlAlert();
-  //     noti.closable = true;
-  //     noti.variant = "primary";
-  //     noti.innerHTML = "<sl-icon slot=\"icon\" name=\"info-circle\"></sl-icon>No new data is given.";
-  //     noti.toast();
-  //   }
-  //   else if (error) {
-  //     alert.variant = "warning";
-  //     alert.innerHTML = "<sl-icon slot=\"icon\" name=\"exclamation-triangle\"></sl-icon>" + alert.innerHTML;
-  //     alert.toast();
-  //     error = false;
-  //   }
-  //   else {
-  //     const noti = new SlAlert();
-  //     noti.closable = true;
-  //     noti.variant = "success";
-  //     noti.innerHTML = "<sl-icon slot=\"icon\" name=\"check2-circle\"></sl-icon>Your changes have been successfully saved.";
-  //     noti.toast();
-  //   }
-
-  //   //TODO: adapt IP on dragOntoNewSubnet
-  //   // if (node._private.parent.length > 0) {
-  //   //   adaptSubnetInformationOnIpChanges(network._graph.$('#' + node._private.parent._private), newIpAddress);
-  //   // }
-  // });
-  // let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
-  // dialog.innerHTML = "";
-  // inputFields.forEach(e => dialog.appendChild(e));
-  // dialog.appendChild(saveButton);
-  // dialog.show();
-}
-
-export function handleChangesInDialogForConnector(id: string, node: any, network: ComputerNetwork) {
-
-  // let connector: Connector = node._private.data;
-
-  // let fields: Map<string, InputData> = new Map();
-
-  // fields.set("name", new InputData("Name", "", connector.name, true));
-  // fields.set("layer", new InputData("Layer", "", connector.layer.toString(), true, true));
-
-  // switch (connector.layer) {
-  //   case 2:
-  //     connector.addresses.forEach((addresses, port) => {
-  //       fields.set(port + ".MAC", new InputData(port + ".MAC", "", addresses[0].address, true));
-  //     });
-  //     break;
-  //   case 3:
-  //     connector.addresses.forEach((addresses, port) => {
-  //       fields.set(port + ".MAC", new InputData(port + ".MAC", "", addresses[0].address, true));
-  //       fields.set(port + ".IP", new InputData(port + ".IP", "", addresses[1].address, true));
-  //     });
-  //     break;
-  // }
-
-  // //pass data of current connector into the dialog
-  // let inputFields = generateDialog(id, fields);
-
-  // const saveButton = new SlButton();
-  // saveButton.slot = "footer";
-  // saveButton.variant = "primary";
-  // saveButton.innerHTML = "Save changes";
-
-  // let error: boolean = false;
-
-  // saveButton.addEventListener('click', () => {
-  //   const alert = new SlAlert();
-  //   alert.closable = true;
-
-  //   //list of methods to update data, ip, subnet
-  //   let newName = (network.renderRoot.querySelector('#' + id + "name") as SlInput).value.trim();
-  //   let newMac = (network.renderRoot.querySelector('#' + id + "mac") as SlInput).value.trim();
-  //   let newIp = (network.renderRoot.querySelector('#' + id + "ip") as SlInput).value.trim();
-  //   //todo: update with binary IP?
-  //   let newIpBin = (network.renderRoot.querySelector('#' + id + "ipBin") as SlInput).value.trim();
-
-  //   host.name = newName;
-  //   let newMacAddress: MacAddress = MacAddress.validateAddress(newMac, network.macDatabase);
-  //   if (newMac == "") {
-  //     //do nothing if no input is given
-  //   } else if (newMacAddress != null) {
-  //     host.mac = newMacAddress;
-  //   }
-  //   else {
-  //     error = true;
-  //     alert.innerHTML += "The inserted MAC Address <strong>" + newMac + "</strong> is not valid.\n";
-  //   }
-
-  //   let newIpAddress: IpAddress = IpAddress.validateAddress(newIp, network.ipDatabase);
-  //   if (newIp == "") {
-  //     //do nothing if no input is given
-  //   }
-  //   else if (newIpAddress != null) {
-  //     host.ip = newIpAddress;
-  //   }
-  //   else {
-  //     error = true;
-  //     alert.innerHTML += "The inserted IP Address <strong>" + newIp + "</strong> is not valid.\n";
-
-  //   }
-
-  //   if (newName == "" && newIp == "" && newMac == "") {
-  //     const noti = new SlAlert();
-  //     noti.closable = true;
-  //     noti.variant = "primary";
-  //     noti.innerHTML = "<sl-icon slot=\"icon\" name=\"info-circle\"></sl-icon>No new data is given.";
-  //     noti.toast();
-  //   }
-  //   else if (error) {
-  //     alert.variant = "warning";
-  //     alert.innerHTML = "<sl-icon slot=\"icon\" name=\"exclamation-triangle\"></sl-icon>" + alert.innerHTML;
-  //     alert.toast();
-  //     error = false;
-  //   }
-  //   else {
-  //     const noti = new SlAlert();
-  //     noti.closable = true;
-  //     noti.variant = "success";
-  //     noti.innerHTML = "<sl-icon slot=\"icon\" name=\"check2-circle\"></sl-icon>Your changes have been successfully saved.";
-  //     noti.toast();
-  //   }
-
-  //   if (node._private.parent.length > 0) {
-  //     adaptSubnetInformationOnIpChanges(network._graph.$('#' + node._private.parent._private), newIpAddress);
-  //   }
-  // });
-  // let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
-  // dialog.innerHTML = "";
-  // inputFields.forEach(e => dialog.appendChild(e));
-  // //dialog.appendChild(saveButton);
-  // dialog.show();
 }
 
 export function handleChangesInDialogForSubnet(id: string, node: any, network: ComputerNetwork) {

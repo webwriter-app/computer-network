@@ -6,15 +6,21 @@ import { ConnectionType, PhysicalNode } from "./PhysicalNode";
 export abstract class Connector extends PhysicalNode {
 
     constructor(color: string, layer: number, numberOfInterfacesOrPorts: number, names: Map<number, string>, portConnectionTypes: Map<number, ConnectionType>, connectionType?: ConnectionType) {
-        super(color, layer, numberOfInterfacesOrPorts, connectionType);
+        super(color, layer, numberOfInterfacesOrPorts);
 
-        for(let index=1; index<=numberOfInterfacesOrPorts; index++){
+        for (let index = 1; index <= numberOfInterfacesOrPorts; index++) {
             let name = names.get(index);
             if (name != undefined && name != null && name != "") { this.portData.get(index).set('Name', name); }
-            else { this.portData.get(index).set('Name', portConnectionTypes.get(index) + index); }
+            else {
+                this.portData.get(index).set('Name', portConnectionTypes != null ? portConnectionTypes.get(index) + index
+                    : connectionType != null ? connectionType + index : index);
+            }
         }
 
-        if (portConnectionTypes != null) {
+        if (connectionType != null && connectionType != undefined) {
+            this.portData.forEach((data) => data.set('Connection Type', connectionType));
+        }
+        else if (portConnectionTypes != null) {
             portConnectionTypes.forEach((connectionType, port) => {
                 this.portData.get(port).set('Connection Type', connectionType);
             });

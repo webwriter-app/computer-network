@@ -17,7 +17,7 @@ export abstract class PhysicalNode extends GraphNode {
     subnetMask: string; //binary, without . --> better to XOR
 
 
-    constructor(color: string, layer: number, numberOfInterfacesOrPorts: number, connectionType?: ConnectionType) {
+    constructor(color: string, layer: number, numberOfInterfacesOrPorts: number) {
         super(color);
 
         this.cssClass.push('physical-node');
@@ -27,10 +27,6 @@ export abstract class PhysicalNode extends GraphNode {
         for (let i = 1; i <= numberOfInterfacesOrPorts; i++) {
             this.portData.set(i, new Map<string, any>());
             this.portLinkMapping.set(i, null); //init port-link
-        }
-
-        if (connectionType != null && connectionType != undefined) {
-            this.portData.forEach((data) => data.set('Connection Type', connectionType));
         }
     }
 

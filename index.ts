@@ -55,17 +55,18 @@ export class ComputerNetwork extends LitElementWw {
   })
   editable: boolean = true;
 
-  ipv4Database : Map<string, Ipv4Address> = new Map<string, Ipv4Address>();
-  macDatabase : Map<string, MacAddress> = new Map<string, MacAddress>();
-  ipv6Database : Map<string, MacAddress> = new Map<string, MacAddress>();
+  ipv4Database: Map<string, Ipv4Address> = new Map<string, Ipv4Address>();
+  macDatabase: Map<string, MacAddress> = new Map<string, MacAddress>();
+  ipv6Database: Map<string, MacAddress> = new Map<string, MacAddress>();
 
   static styles =
     css`
     .base {
       display: flex;
-      width: 96vw;
-      height: 14vw;
-      margin: 1vw auto;
+      width: 75vw;
+      height: 12vw;
+      margin-top: 1vw;
+      margin-bottom: 1vw;
       background-color: LightBlue;
     }
     .btn {
@@ -84,11 +85,10 @@ export class ComputerNetwork extends LitElementWw {
         background-color: rgb(2, 132, 199);
     }
     .addOption {
-        margin: auto;
-        width: 6vw;
+        width: 16vw;
         display: flex;
-        flex-direction: column;
-        gap: 1.25vw;
+        flex-direction: row;
+        gap: 2.8vw;
         margin: auto;
     }
     .addBtn {
@@ -107,25 +107,24 @@ export class ComputerNetwork extends LitElementWw {
     }
     .colorPalette {
         position: flex;
-        width: 12vw;
+        width: 10.2vw;
         margin: auto;
         display: flex;
         flex-wrap: wrap;
         gap: 1.4vw;
     }
     .colorButton {
-        border-radius: 0.5vw;
+        border-radius: 0.3vw;
         border: dashed transparent;
         cursor: pointer;
-        width: 1.9vw;
-        height: 1.9vw;
+        width: 1.5vw;
+        height: 1.5vw;
     }
     #myCanvas {
         position: relative;
-        width: 96vw;
-        height: calc(100vh - 18vw);
+        width: 75vw;
+        height: calc(100vh - 15vw);
         border: 1px solid SteelBlue;
-        margin: auto;
         flex-grow: 1;
     }
     #cy {
@@ -228,14 +227,6 @@ export class ComputerNetwork extends LitElementWw {
       padding: 0 0.2vw;
     }
 
-    sl-split-panel {
-      --divider-width: 1px;
-    }
-  
-    sl-split-panel::part(divider) {
-      background-color: black;
-    }
-
     sl-dropdown {
       display:flex;
       justify-content: space-between;
@@ -245,11 +236,17 @@ export class ComputerNetwork extends LitElementWw {
     sl-dialog::part(base), sl-select::part(base) {
       --width: fit-content;
     }
-
     td {
       text-align: center;
     }
 
+    .sidebar {
+      height: 100%;
+      position: fixed;
+      right: 0;
+      background: LightBlue;
+      width: 23vw;
+    }
     
 `;
   render() {
@@ -260,11 +257,25 @@ export class ComputerNetwork extends LitElementWw {
 
     return html`
 
+    <div class="sidebar">
+    <sl-menu style="background-color: LightBlue; border: transparent;">
+      <sl-menu-label>Subnetting extension</sl-menu-label>
+      <sl-menu-item>Create a blank subnet</sl-menu-item>
+      <sl-menu-item @click="${(event) => toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
+      <sl-menu-item>etc</sl-menu-item>
+
+      <sl-divider style="--width: 0.5vw; --color: white"></sl-divider>
+
+      <sl-menu-label>Firewall extension</sl-menu-label>
+      <sl-menu-item>etc</sl-menu-item>
+      <sl-menu-item>etc</sl-menu-item>
+      <sl-menu-item>etc</sl-menu-item>
+    </sl-menu>
+  </div>
+
     <div class="base">
 
-    <div style="position:relative; width: 22vw;">
-      <div style="height: 9.5vw; display: flex; flex-direction: row; margin: auto; padding: auto;">
-      
+    <div style="position:relative; width: 20vw; display: flex; flex-direction: row; gap: auto; padding: auto">
       <sl-dropdown placement="bottom">
         <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
         <sl-menu>
@@ -272,7 +283,6 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item id="mobile" @click="${this.clickOnComponentButton}"><sl-icon name="phone"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
-
       <sl-dropdown placement="bottom">
         <button class="btn" id="connector" slot="trigger"><sl-icon name="hdd"></sl-icon></button>
         <sl-menu>
@@ -284,7 +294,6 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon name="hdd"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
-
       <sl-dropdown placement="bottom">
       <button class="btn" id="edge" slot="trigger"><sl-icon name="share"></sl-icon></button>
         <sl-menu>
@@ -292,10 +301,6 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item id="directed-edge" @click="${this.clickOnComponentButton}"><sl-icon name="arrow-right"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
-      </div>
-
-      <div style="position:relative;  width: 22vw; display: flex; flex-direction: column; margin: auto;">
-      </div>
     </div>
 
     <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
@@ -303,72 +308,46 @@ export class ComputerNetwork extends LitElementWw {
     <div style="position:relative; margin: auto">
       <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
       <sl-input class="label-on-left" label="Number of ports/ interfaces" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
-
       <sl-button style="margin-top: 2vw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports/ interfaces</sl-button>
     </div>
       
 
-      <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
+    <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
 
-      <div class="colorPalette">
-        ${colorOptions}
-      </div>
+    <div class="colorPalette">
+      ${colorOptions}
+    </div>
 
-      <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
+    <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
 
-      <div style="margin: auto;">
-        <sl-menu-label>Labeling</sl-menu-label>
-        <sl-menu-item><sl-checkbox id="IpCheckBox">Show IP</sl-checkbox></sl-menu-item>
-        <sl-menu-item><sl-checkbox id="IpBinCheckBox">Show IP binary</sl-checkbox></sl-menu-item>
-        <sl-menu-item><sl-checkbox id="MacCheckBox">Show MAC</sl-checkbox></sl-menu-item>
-      </div>
-
-      <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
-
-      <div class="addOption">
-
-        <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7vw;">
-          <button class="addBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
-        </sl-tooltip>
-        <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7vw;">
-          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1vw;">
-            <sl-icon id="drawMode" name="share"></sl-icon>
-          </button>
+    <div class="addOption">
+      <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7vw;">
+        <button class="addBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
+      </sl-tooltip>
+      <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7vw;">
+        <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1vw;">
+          <sl-icon id="drawMode" name="share"></sl-icon>
+        </button>
         </sl-tooltip>
         <sl-tooltip content="Click to change color of existing components" placement="left" style="--max-width: 9vw;">
           <button class="rainbowBtn" id="resetColorBtn" @click="${() => GraphNodeFactory.toggleResetColor(this)}">
             <sl-icon id="changeColorMode" name="eyedropper"></sl-icon>
           </button>
         </sl-tooltip>
-      </div>
-
-      <sl-tooltip content="Extensions" placement="left-start" style="--max-width: 7vw;">
-      <sl-icon-button name="puzzle" @click="${() => (this.renderRoot.querySelector('#extensions-drawer') as SlDrawer).show()}" style="font-size: 1.5vw;"></sl-icon-button>
-      </sl-tooltip>
     </div>
 
+    </div>
 
     <div class="canvas" id="myCanvas">
-      <div id="cy"></div>
-    </div>
+    <div id="cy"></div>
+  </div>
+
+    
+
+
+    
 
     <div id="inputDialog"/>
-
-    <sl-drawer id="extensions-drawer">
-      <sl-menu style="background-color: LightBlue; border: transparent;">
-        <sl-menu-label>Subnetting extension</sl-menu-label>
-        <sl-menu-item>Create a blank subnet</sl-menu-item>
-        <sl-menu-item @click="${(event) => toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
-        <sl-menu-item>etc</sl-menu-item>
-        <sl-divider style="--width: 0.5vw; --color: white"></sl-divider>
-
-        <sl-menu-label>Firewall extension</sl-menu-label>
-        <sl-menu-item>etc</sl-menu-item>
-        <sl-menu-item>etc</sl-menu-item>
-        <sl-menu-item>etc</sl-menu-item>
-      </sl-menu>
-    </sl-drawer>
-
     `
   }
 
