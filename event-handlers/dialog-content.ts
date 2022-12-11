@@ -1,10 +1,10 @@
-import { SlAlert, SlButton, SlDialog, SlInput, SlSelect } from "@shoelace-style/shoelace";
+import { SlButton, SlDialog, SlInput, SlSelect, SlTabGroup, SlTabPanel } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "..";
-import { IpAddress } from "../adressing/IpAddress";
-import { MacAddress } from "../adressing/MacAddress";
-import { Subnet } from "../components/logicalNodes/Subnet";
-import { Connector } from "../components/physicalNodes/Connector";
-import { Host } from "../components/physicalNodes/Host";
+import { Address } from "../adressing/Address";
+import { GraphEdge } from "../components/GraphEdge";
+import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
+import { AlertHelper } from "../utils/AlertHelper";
+import { EdgeController } from "./edge-controller";
 
 
 export class InputData {
@@ -28,101 +28,216 @@ export class InputData {
 
 }
 
-export function generateInputDialog(network: ComputerNetwork): void {
+export class DialogFactory {
+  static generateInputsDetailsForNode(network: ComputerNetwork): void {
 
-  let currentComponentToAdd = network.currentComponentToAdd;
-  
-  if(currentComponentToAdd == ""){
-    return;
-  }
+    let currentComponentToAdd = network.currentComponentToAdd;
 
-  let numberOfPortsOrInterfaces: number = (network.renderRoot.querySelector('#ports') as SlInput).valueAsNumber ?
-    (network.renderRoot.querySelector('#ports') as SlInput).valueAsNumber :
-    (currentComponentToAdd == 'computer' || currentComponentToAdd == 'mobile' ? 1 : 2);
-
-
-  let layer: number = 0;
-  let portNum: number = 0;
-
-  switch (currentComponentToAdd) {
-    case 'computer': case 'mobile': case 'router':
-      layer = 3; //add IPv4, IPv6
-      break;
-    case 'access-point': case 'bridge': case 'switch':
-      layer = 2; //add MAC
-      break;
-    case 'hub': case 'repeater':
-      layer = 1; //add connection type
-      break;
-    default: break;
-  }
-
-  if (currentComponentToAdd == 'repeater' || currentComponentToAdd == 'bridge'
-    || numberOfPortsOrInterfaces == null || numberOfPortsOrInterfaces == undefined) {
-    portNum = 2;
-  }
-  else {
-    portNum = numberOfPortsOrInterfaces;
-  }
-
-  let dialog = new SlDialog();
-  dialog.label = "Add details for each port/interface of your " + currentComponentToAdd;
-
-  let table = `<table>`;
-
-  //add the columns
-  table += `<tr>`;
-  table += `<td>Order</td>`;
-  table += layer < 3 ? `<td>Port number</td>` : `<td>Interface name</td>`;
-  table += `<td>Connection type</td>`;
-  table += layer > 1 ? `<td>MAC Address</td>` : "";
-  table += layer > 2 ? `<td>Ipv4</td><td>Ipv6</td>` : "";
-  table += `</tr>`;
-
-  //add row for each port/interface
-  for (let i = 1; i <= portNum; i++) {
-    table += `<tr>`;
-    table += `<td>` + i + `</td>`;
-    table += layer < 3 ? `<td><sl-input id="port-number-`+i+`" placeholder="Port number" clearable type="number" min="0" max="65536"></sl-input></td>`
-      : `<td><sl-input id="interface-name`+i+`" placeholder="Interface name" clearable></sl-input></td>`;
-
-    switch (currentComponentToAdd) {
-      case 'hub': case 'switch':
-        table += `<td>Ethernet</td>`;
-        break;
-      case 'access-point':
-        table += `<td>Wireless</td>`;
-        break;
-      default:
-        table += `<td><sl-select id="connection-type-`+i+`"><sl-menu-item value="Ethernet">Ethernet</sl-menu-item>
-        <sl-menu-item value="Wireless">Wireless</sl-menu-item></sl-select></td>`;
-        break;
+    if (currentComponentToAdd == "") {
+      return;
     }
 
-    table += layer > 1 ? `<td><sl-input id="mac-`+i+`" placeholder="FF:FF:FF:FF:FF:FF" clearable></sl-input></td>` : "";
-    table += layer > 2 ? `<td><sl-input id="ip4-`+i+`" placeholder="0:0:0:0" clearable></sl-input></td>` : "";
-    table += layer > 2 ? `<td><sl-input id="ip6-`+i+`"placeholder="FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF" clearable></sl-input></td>` : "";
+    let numberOfPortsOrInterfaces: number = (network.renderRoot.querySelector('#ports') as SlInput).valueAsNumber ?
+      (network.renderRoot.querySelector('#ports') as SlInput).valueAsNumber :
+      (currentComponentToAdd == 'computer' || currentComponentToAdd == 'mobile' ? 1 : 2);
 
+
+    let layer: number = 0;
+    let portNum: number = 0;
+
+    switch (currentComponentToAdd) {
+      case 'computer': case 'mobile': case 'router':
+        layer = 3; //add IPv4, IPv6
+        break;
+      case 'access-point': case 'bridge': case 'switch':
+        layer = 2; //add MAC
+        break;
+      case 'hub': case 'repeater':
+        layer = 1; //add connection type
+        break;
+      default: break;
+    }
+
+    if (currentComponentToAdd == 'repeater' || currentComponentToAdd == 'bridge'
+      || numberOfPortsOrInterfaces == null || numberOfPortsOrInterfaces == undefined) {
+      portNum = 2;
+    }
+    else {
+      portNum = numberOfPortsOrInterfaces;
+    }
+
+    let dialog = new SlDialog();
+    dialog.label = "Add details for each port/interface of your " + currentComponentToAdd;
+
+    let table = `<table>`;
+
+    //add the columns
+    table += `<tr>`;
+    table += `<td>Order</td>`;
+    table += layer < 3 ? `<td>Port number</td>` : `<td>Interface name</td>`;
+    table += `<td>Connection type</td>`;
+    table += layer > 1 ? `<td>MAC Address</td>` : "";
+    table += layer > 2 ? `<td>Ipv4</td><td>Ipv6</td>` : "";
     table += `</tr>`;
+
+    //add row for each port/interface
+    for (let i = 1; i <= portNum; i++) {
+      table += `<tr>`;
+      table += `<td>` + i + `</td>`;
+      table += layer < 3 ? `<td><sl-input id="port-number-` + i + `" placeholder="Port number" clearable type="number" min="0" max="65536"></sl-input></td>`
+        : `<td><sl-input id="interface-name-` + i + `" placeholder="Interface name" clearable></sl-input></td>`;
+
+      switch (currentComponentToAdd) {
+        case 'hub': case 'switch':
+          table += `<td>Ethernet</td>`;
+          break;
+        case 'access-point':
+          table += `<td>Wireless</td>`;
+          break;
+        default:
+          table += `<td><sl-select id="connection-type-` + i + `"><sl-menu-item value="ethernet">Ethernet</sl-menu-item>
+        <sl-menu-item value="wireless">Wireless</sl-menu-item></sl-select></td>`;
+          break;
+      }
+
+      table += layer > 1 ? `<td><sl-input id="mac-` + i + `" placeholder="FF:FF:FF:FF:FF:FF" clearable></sl-input></td>` : "";
+      table += layer > 2 ? `<td><sl-input id="ip4-` + i + `" placeholder="0:0:0:0" clearable></sl-input></td>` : "";
+      table += layer > 2 ? `<td><sl-input id="ip6-` + i + `"placeholder="FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF" clearable></sl-input></td>` : "";
+
+      table += `</tr>`;
+    }
+    table += `</table>`;
+    dialog.innerHTML = table;
+
+    //TODO: add event listener vào cái nút add node
+    const saveButton = new SlButton();
+    saveButton.slot = "footer";
+    saveButton.variant = "primary";
+    saveButton.innerHTML = "Save";
+    saveButton.addEventListener('click', () => dialog.hide());
+    dialog.appendChild(saveButton);
+    (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
+    (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);
+    dialog.show();
+
   }
-  table += `</table>`;
-  dialog.innerHTML = table;
 
-  //id để jquery: currentCompoient's ID (case existing component) . tên hàng . tên cột
+  static generateInputsDetailsForEdge(network: ComputerNetwork, edge: any, sourceNode: PhysicalNode, targetNode: PhysicalNode): void {
+    //filter available ports
+    let availableSourcePorts: string[] = [];
+    let availableTargetPorts: string[] = [];
+    sourceNode.portLinkMapping.forEach((link, port) => {
+      if (link == null || link == undefined || link == "") {
+        availableSourcePorts.push(port);
+      }
+    });
+    targetNode.portLinkMapping.forEach((link, port) => {
+      if (link == null || link == undefined || link == "") {
+        availableTargetPorts.push(port);
+      }
+    });
+
+    let dialog = new SlDialog();
+    dialog.label = "Assigning ports/interfaces for this connection";
+    let tabGroup: SlTabGroup = new SlTabGroup();
+    tabGroup.innerHTML += `<sl-tab slot="nav" panel="chooseSourcePort">` + sourceNode.name + `</sl-tab><sl-tab slot="nav" panel="chooseTargetPort">` + targetNode.name + `</sl-tab>`;
+
+    //init panel with data of ports of source + select port for source
+    let sourcePanel = new SlTabPanel();
+    sourcePanel.name = "chooseSourcePort";
+    let sourceTable: string = `<table cellspacing="10"><tr>`;
+    sourceTable += sourceNode.layer < 3 ? `<td>Port</td>` : `<td>Interface</td>`;
+    sourceNode.portData.entries().next().value[1].forEach((_, columnName) => sourceTable += `<td>` + columnName + `</td>`);
+    sourceTable += `</tr>`;
+
+    sourceNode.portData.forEach((data, port) => {
+      sourceTable += `<tr>`;
+      sourceTable += `<td>` + port + `</td>`; //add port/interface name
+      data.forEach((value) => {
+        if (value instanceof Address) {
+          sourceTable += `<td>` + value.address + `</td>`;
+        }
+        else {
+          sourceTable += `<td>` + value + `</td>`;
+        }
+      });
+      sourceTable += `</tr>`;
+    });
+    sourceTable += `</table>`;
+    sourcePanel.innerHTML += sourceTable;
+
+    let selectedSourcePort = new SlSelect();
+    availableSourcePorts.forEach(port => selectedSourcePort.innerHTML += `<sl-menu-item value="` + port + `">` + port + `</sl-menu-item>`);
+    sourcePanel.appendChild(selectedSourcePort);
+    tabGroup.append(sourcePanel);
+
+    //init panel with data of ports of target + select port for target
+    let targetPanel = new SlTabPanel();
+    targetPanel.name = "chooseTargetPort";
+    let targetTable: string = `<table cellspacing="10"><tr>`;
+    targetTable += targetNode.layer < 3 ? `<td>Port</td>` : `<td>Interface</td>`;
+    targetNode.portData.entries().next().value[1].forEach((_, columnName) => targetTable += `<td>` + columnName + `</td>`);
+    targetTable += `</tr>`;
+
+    targetNode.portData.forEach((data, port) => {
+      targetTable += `<tr>`;
+      targetTable += `<td>` + port + `</td>`; //add port/interface name
+      data.forEach((value) => {
+        if (value instanceof Address) {
+          targetTable += `<td>` + value.address + `</td>`;
+        }
+        else {
+          targetTable += `<td>` + value + `</td>`;
+        }
+      });
+      targetTable += `</tr>`;
+    });
+    targetTable += `</table>`;
+    targetPanel.innerHTML += targetTable;
+
+    let selectedTargetPort = new SlSelect();
+    availableTargetPorts.forEach(port => selectedTargetPort.innerHTML += `<sl-menu-item value="` + port + `">` + port + `</sl-menu-item>`);
+    targetPanel.appendChild(selectedTargetPort);
+    tabGroup.append(targetPanel);
 
 
-  //TODO: add event listener vào cái nút add node
-  const saveButton = new SlButton();
-  saveButton.slot = "footer";
-  saveButton.variant = "primary";
-  saveButton.innerHTML = "Save";
+    dialog.appendChild(tabGroup);
 
+    const saveButton = new SlButton();
+    saveButton.slot = "footer";
+    saveButton.variant = "primary";
+    saveButton.innerHTML = "Save";
+    saveButton.addEventListener('click', () => {
+      console.log(selectedSourcePort.value);
+      console.log(selectedTargetPort.value);
+      let inPort: string = selectedSourcePort.value as string;
+      let outPort: string = selectedTargetPort.value as string;
 
-  dialog.appendChild(saveButton);
-  (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
-  (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);
-  dialog.show();
+      if (inPort == "") {
+        AlertHelper.toastAlert("warning", "exclamation-triangle", "", "Please choose port/interface for " + sourceNode.name);
+        return;
+      }
+      if (outPort == "") {
+        AlertHelper.toastAlert("warning", "exclamation-triangle", "", "Please choose port/interface for " + sourceNode.name);
+        return;
+      }
 
+      let newData = GraphEdge.addPorts(edge.data(), inPort, outPort);
+      if (newData != null) {
+        edge.removeClass("unconfigured-edge");
+        edge.addClass(newData.cssClass);
+        console.log(newData.cssClass);
+        edge._private.data = newData;
+        dialog.hide();
+      } //set new format-display for this connection if no error appears
+    }
+    );
+    dialog.appendChild(saveButton);
+
+    (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
+    (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);
+    dialog.show();
+  }
 }
 
 export function handleChangesInDialogForHost(id: string, node: any, network: ComputerNetwork) {

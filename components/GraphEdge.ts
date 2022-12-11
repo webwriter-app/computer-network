@@ -1,3 +1,4 @@
+import { AlertHelper } from "../utils/AlertHelper";
 import { ConnectionType, PhysicalNode } from "./physicalNodes/PhysicalNode";
 
 export class GraphEdge {
@@ -6,19 +7,22 @@ export class GraphEdge {
     cssClass: string[] = [];
     from: PhysicalNode;
     to: PhysicalNode;
+    inPort: string;
+    outPort: string;
     static counter = 0;
     source: string;
     target: string;
-    
+
     //config on edge details 
     portIn: string; //can be port or interface --> TODO: different visualization for layer 2 and 3 connection
     portOut: string;
 
-    constructor(color: string, from: PhysicalNode, to: PhysicalNode){
+    constructor(color: string, from: PhysicalNode, to: PhysicalNode) {
         this.id = 'graphEdge' + GraphEdge.counter;
         GraphEdge.counter++;
         this.color = color;
         this.cssClass.push("color-edge");
+        this.cssClass.push("unconfigured-edge");
         this.from = from;
         this.to = to;
         this.source = this.from.id;
@@ -26,25 +30,35 @@ export class GraphEdge {
     }
 
 
-    addPorts(inPort: string, outPort: string): void {
-        let inPortData: Map<string,any> = this.from.portData.get(inPort);
-        let outPortData: Map<string,any> = this.to.portData.get(outPort);
+    static addPorts(edge: GraphEdge, inPort: string, outPort: string): GraphEdge {
+        let inPortData: Map<string, any> = edge.from.portData.get(inPort);
+        let outPortData: Map<string, any> = edge.to.portData.get(outPort);
 
-        if(inPortData.get('connectionType')==ConnectionType.wireless || outPortData.get('connectionType')==ConnectionType.wireless){
-            this.cssClass.push("wireless-edge");
+        if (inPortData.get('Connection Type') == "wireless" && outPortData.get('Connection Type') == "wireless") {
+            edge.cssClass.push("wireless-edge");
         }
-        else if((inPortData.get('connectionType')==ConnectionType.wireless || outPortData.get('connectionType')==ConnectionType.ethernet) ||
-        (inPortData.get('connectionType')==ConnectionType.ethernet || outPortData.get('connectionType')==ConnectionType.wireless)){
-            this.cssClass.push("error-edge");
-            return;
+        else if ((inPortData.get('Connection Type') == "wireless" && outPortData.get('Connection Type') == "ethernet") ||
+            (inPortData.get('Connection Type') == "ethernet" && outPortData.get('Connection Type') == "wireless")) {
+            AlertHelper.toastAlert("danger", "exclamation-triangle", 
+            "The connection type of 2 ports/interfaces are not compatible!", 
+            "Please re-assign your ports/interfaces or dismiss this connection.");
+                return null;
         }
-        else{
-            this.cssClass.push("wired-edge");
+        else {
+            edge.cssClass.push("wired-edge");
         }
 
-        this.from.portLinkMapping.set(inPort, this);
-        this.to.portLinkMapping.set(outPort, this);
+        edge.cssClass.push("labelled-edge");
         
+        let index;
+        if ((index=edge.cssClass.indexOf("unconfigured-edge"))>-1) edge.cssClass.splice(index, 1);
+
+        edge.from.portLinkMapping.set(inPort, edge.id);
+        edge.to.portLinkMapping.set(outPort, edge.id);
+
+        edge.inPort = inPort;
+        edge.outPort = outPort;
+        return edge;
 
         //check if one node belongs to a subnet, if yes --> other node must be a router
     }

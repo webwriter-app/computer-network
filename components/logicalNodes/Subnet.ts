@@ -1,4 +1,4 @@
-import { IpAddress } from "../../adressing/IpAddress";
+import { Ipv4Address } from "../../adressing/IpAddress";
 import { AddressingHelper } from "../../utils/Helper";
 import { GraphNode } from "../GraphNode";
 import { Router } from "../physicalNodes/Connector";
@@ -7,14 +7,14 @@ import { LogicalNode } from "./LogicalNode";
 export class Subnet extends LogicalNode {
     cidr: number;
     gateways: Router[];
-    networkAddress: IpAddress;
+    networkAddress: Ipv4Address;
     subnetMask: string;
     //this is updated on drag-and-drop
     devices: GraphNode[] = [];
     mode: SubnettingMode;
 
     //3 last attributes --> subnet-based mode of subnetting extensions
-    constructor(color: string, mode: SubnettingMode, networkAddress?: string, database?: Map<string, IpAddress>, cidr?: number) {
+    constructor(color: string, mode: SubnettingMode, networkAddress?: string, database?: Map<string, Ipv4Address>, cidr?: number) {
         super(color);
         this.id = 'subnet' + Subnet.counter;
         Subnet.counter++;
@@ -23,7 +23,7 @@ export class Subnet extends LogicalNode {
 
         //subnet-based mode
         if (mode == SubnettingMode.SUBNET_BASED) {
-            this.networkAddress = IpAddress.validateAddress(networkAddress, database);
+            this.networkAddress = Ipv4Address.validateAddress(networkAddress, database);
             this.cidr = this.networkAddress != null ? cidr : null;
         }
 
@@ -47,12 +47,12 @@ export class Subnet extends LogicalNode {
         // this.calculateSubnetNumber(hostAddresses, database);
     }
 
-    addHostToSubnet(host: GraphNode, database: Map<string, IpAddress>) {
+    addHostToSubnet(host: GraphNode, database: Map<string, Ipv4Address>) {
 
     }
 
 
-    calculateSubnetNumber(ips: IpAddress[], database: Map<string, IpAddress>): void {
+    calculateSubnetNumber(ips: Ipv4Address[], database: Map<string, Ipv4Address>): void {
         let matrix: string[][] = [];
         ips.forEach(ip => {
             matrix.push(ip.binaryOctets);
@@ -111,7 +111,7 @@ export class Subnet extends LogicalNode {
         });
 
         let subnetNum = id.slice(0, -1);
-        let networkAddress = IpAddress.validateAddress(subnetNum, database);
+        let networkAddress = Ipv4Address.validateAddress(subnetNum, database);
         while (networkAddress == null || networkAddress == undefined) {
             if (count == 0) {
                 // let alert = new SlAlert;
@@ -130,7 +130,7 @@ export class Subnet extends LogicalNode {
             let decimalOctets: number[] = [];
             let binaryOctets: string[] = [binaryIp.slice(0, 8), binaryIp.slice(8, 16), binaryIp.slice(16, 24), binaryIp.slice(24, 32)];
             binaryOctets.forEach(octet => decimalOctets.push(parseInt(octet, 2)));
-            networkAddress = IpAddress.validateAddress(decimalOctets.join('.'), database);
+            networkAddress = Ipv4Address.validateAddress(decimalOctets.join('.'), database);
         }
 
         this.cidr = count;

@@ -1,4 +1,4 @@
-import { IpAddress } from "../../adressing/IpAddress";
+import { Ipv4Address } from "../../adressing/IpAddress";
 import { GraphEdge } from "../GraphEdge";
 import { GraphNode } from "../GraphNode";
 import { Router } from "./Connector";
@@ -9,7 +9,7 @@ export abstract class PhysicalNode extends GraphNode {
     portData: Map<string, Map<string, any>> = new Map(); //update on changing data on edges
     backgroundPath: string;
     name: string;
-    portLinkMapping: Map<string, GraphEdge> = new Map(); //updates on drawing edges
+    portLinkMapping: Map<string, string> = new Map(); //updates on drawing edges (port, edge.id)
 
 
     //configure with subnetting extensions
@@ -37,7 +37,7 @@ export abstract class PhysicalNode extends GraphNode {
         }
 
         if (connectionType != null && connectionType != undefined) {
-            this.portData.forEach((data) => data.set('connectionType', connectionType));
+            this.portData.forEach((data) => data.set('Connection Type', connectionType));
         }
     }
 
@@ -49,14 +49,10 @@ export abstract class PhysicalNode extends GraphNode {
         if (this.layer < 3) {
             return null;
         }
-        let ipAddresses: IpAddress[] = [];
+        let ipAddresses: Ipv4Address[] = [];
         this.portData.forEach(data => ipAddresses.push(data.get('IPv4')));
         return ipAddresses;
     }
 }
 
-export enum ConnectionType {
-    wireless,
-    ethernet,
-    wirelessAndEthernet
-}
+export type ConnectionType = "wireless" | "ethernet";

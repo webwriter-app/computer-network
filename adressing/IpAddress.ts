@@ -2,7 +2,7 @@ import { Subnet } from "../components/logicalNodes/Subnet";
 import { AddressingHelper } from "../utils/Helper";
 import { Address } from "./Address";
 
-export class IpAddress extends Address {
+export class Ipv4Address extends Address {
     binaryOctets: string[];
     decimalOctets: number[];
 
@@ -14,9 +14,9 @@ export class IpAddress extends Address {
         this.decimalOctets = decimalOctets;
     }
 
-    static getLoopBackAddress(): IpAddress{
+    static getLoopBackAddress(): Ipv4Address{
         //the octets are set as null cause there's no computation needed for loopback address
-        return new IpAddress("127.0.0.1", null, null, null);
+        return new Ipv4Address("127.0.0.1", null, null, null);
     }
 
 
@@ -25,7 +25,7 @@ export class IpAddress extends Address {
      * @param database of all Ip Addresses
      * @returns IpAddress object of given IP
      */
-    static override validateAddress(ip: string, database: Map<string, IpAddress>): IpAddress {
+    static override validateAddress(ip: string, database: Map<string, Ipv4Address>): Ipv4Address {
 
         if (database.has(ip)) {
             return null;
@@ -48,13 +48,13 @@ export class IpAddress extends Address {
             binArray.push(AddressingHelper.numTo8BitBinary(intOctet));
         });
 
-        let result: IpAddress = new IpAddress(ip, stringArray, binArray, decimalArray);
+        let result: Ipv4Address = new Ipv4Address(ip, stringArray, binArray, decimalArray);
         database.set(ip, result);
 
         return result;
     }
 
-    static generateNewIpForSubnet(database: Map<string, IpAddress>, oldIp: IpAddress, subnet: Subnet): IpAddress {
+    static generateNewIpForSubnet(database: Map<string, Ipv4Address>, oldIp: Ipv4Address, subnet: Subnet): Ipv4Address {
         //TODO: fix bug here: bug for subnet with cidr = 24
 
         if (oldIp.matchesNetworkCidr(subnet)) {
@@ -95,7 +95,7 @@ export class IpAddress extends Address {
 
         database.delete(oldIp.address);
 
-        let result = new IpAddress(ip, [decimalNew[0].toString(), decimalNew[1].toString(), decimalNew[2].toString(), decimalNew[3].toString()], binaryNew, decimalNew);
+        let result = new Ipv4Address(ip, [decimalNew[0].toString(), decimalNew[1].toString(), decimalNew[2].toString(), decimalNew[3].toString()], binaryNew, decimalNew);
 
         database.set(ip, result);
 

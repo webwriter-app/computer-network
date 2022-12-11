@@ -6,10 +6,11 @@ import { toggleDragAndDropSubnetting } from "./event-handlers/subnetting-control
 import { SlDrawer } from "@shoelace-style/shoelace";
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { IpAddress } from "./adressing/IpAddress"
+import { Ipv4Address } from "./adressing/IpAddress"
 import { MacAddress } from "./adressing/MacAddress"
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
-import { generateInputDialog } from "./event-handlers/dialog-content";
+import { EdgeController } from "./event-handlers/edge-controller";
+import { DialogFactory } from "./event-handlers/dialog-content";
 
 
 @customElement("computer-network")
@@ -54,8 +55,9 @@ export class ComputerNetwork extends LitElementWw {
   })
   editable: boolean = true;
 
-  ipDatabase : Map<string, IpAddress> = new Map<string, IpAddress>();
+  ipv4Database : Map<string, Ipv4Address> = new Map<string, Ipv4Address>();
   macDatabase : Map<string, MacAddress> = new Map<string, MacAddress>();
+  ipv6Database : Map<string, MacAddress> = new Map<string, MacAddress>();
 
   static styles =
     css`
@@ -302,7 +304,7 @@ export class ComputerNetwork extends LitElementWw {
       <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
       <sl-input class="label-on-left" label="Number of ports/ interfaces" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
 
-      <sl-button style="margin-top: 2vw;" @click="${() => generateInputDialog(this)}">Add details for ports/ interfaces</sl-button>
+      <sl-button style="margin-top: 2vw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports/ interfaces</sl-button>
     </div>
       
 
@@ -329,7 +331,7 @@ export class ComputerNetwork extends LitElementWw {
           <button class="addBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
         </sl-tooltip>
         <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7vw;">
-          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => GraphNodeFactory.toggleDrawMode(this)}" style="font-size: 1vw;">
+          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1vw;">
             <sl-icon id="drawMode" name="share"></sl-icon>
           </button>
         </sl-tooltip>

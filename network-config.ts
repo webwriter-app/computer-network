@@ -9,14 +9,15 @@ import NodeSingular from "cytoscape";
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { SlAlert, SlCheckbox } from "@shoelace-style/shoelace";
-import { handleChangesInDialogForConnector, handleChangesInDialogForHost, handleChangesInDialogForSubnet } from "./event-handlers/dialog-content";
+import { SlCheckbox } from "@shoelace-style/shoelace";
+import { DialogFactory, handleChangesInDialogForConnector, handleChangesInDialogForHost, handleChangesInDialogForSubnet } from "./event-handlers/dialog-content";
 import { generateNewSubnet, onDragInACompound } from "./event-handlers/subnetting-controller";
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 import { createHtmlLabelingForConnector, createHtmlLabelingForHost } from "./event-handlers/labeling";
-import { Host } from "./components/physicalNodes/Host";
-import { Connector, Router } from "./components/physicalNodes/Connector";
-import { Subnet } from "./components/logicalNodes/Subnet";
+import { EdgeController } from "./event-handlers/edge-controller";
+import { GraphEdge } from "./components/GraphEdge";
+import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
+import { Address } from "./adressing/Address";
 
 
 // register extension
@@ -64,13 +65,52 @@ export function initNetwork(network: ComputerNetwork): void {
                 "style": {
                     "width": 1,
                     "curve-style": "straight",
-                    "label": "",
                 }
             },
             {
                 "selector": ".color-edge",
                 "style": {
-                    "line-color": "data(color)"
+                    "line-color": "data(color)",
+                    "color": "black"
+                }
+            },
+            {
+                "selector": ".unconfigured-edge",
+                "style": {
+                    "line-style": "dotted",
+                    "line-opacity": 0.8,
+                    "font-size": 5,
+                    "label": "please assign the ports/ interfaces",
+                    "edge-text-rotation": "autorotate"
+                }
+            },
+            {
+                "selector": ".labelled-edge",
+                "style": {
+                    "text-wrap": "wrap",
+                    "font-size": 5,
+                    "edge-text-rotation": "autorotate",
+                    'source-text-offset': 30,
+                    'source-text-rotation': 'autorotate',
+                    'target-text-offset': 30,
+                    'target-text-rotation': 'autorotate',
+                    "source-label": function (edge) {
+                        let source: PhysicalNode = edge.data('from');
+                        let port: string = edge.data('inPort');
+                        let portData: Map<string, any> = source.portData.get(port);
+                        let label = port + "\n";
+                        portData.forEach((value, key) => label += value instanceof Address ? key+": "+value.address + "\n" : "");
+                        return label;
+                    },
+                    "target-label": function (edge) {
+                        let target: PhysicalNode = edge.data('to');
+                        let port: string = edge.data('outPort');
+                        let portData: Map<string, any> = target.portData.get(port);
+                        let label = port + "\n";
+                        portData.forEach((value, key) => label += value instanceof Address ? key+": "+value.address + "\n" : "");
+                        return label;
+                    },
+                    "label": ""
                 }
             },
             {
@@ -84,13 +124,6 @@ export function initNetwork(network: ComputerNetwork): void {
                 "selector": ".wired-edge",
                 "style": {
                     "line-style": "solid",
-                }
-            },
-            {
-                "selector": ".directed-edge",
-                "style": {
-                    "target-arrow-shape": "vee",
-                    "target-arrow-color": "data(color)"
                 }
             },
             {
@@ -177,6 +210,17 @@ export function initNetwork(network: ComputerNetwork): void {
                 hasTrailingDivider: true
             },
             {
+                id: "configure-port",
+                content: "Configure ports/interfaces for this connection",
+                selector: ".unconfigured-edge",
+                onClickFunction: function (event) {
+                    let edge = event.target;
+                    let graphEdge: GraphEdge = edge.data();
+                    DialogFactory.generateInputsDetailsForEdge(network, edge, graphEdge.from, graphEdge.to);
+                },
+                hasTrailingDivider: true
+            },
+            {
                 id: 'remove', // ID of menu item
                 content: 'Remove', // Display content of menu item
                 tooltipText: 'Remove this component', // Tooltip text for menu item
@@ -185,7 +229,8 @@ export function initNetwork(network: ComputerNetwork): void {
                 selector: "node, edge",
                 onClickFunction: (event) => { // The function to be executed on click
                     let component = event.target;
-                    GraphNodeFactory.removeComponent(network, component.id());
+                    if (component.isEdge()) EdgeController.removeConnection(component.data(), network._graph);
+                    component.remove();
                 },
                 disabled: false, // Whether the item will be created as disabled
                 show: true, // Whether the item will be shown or not
@@ -202,11 +247,10 @@ export function initNetwork(network: ComputerNetwork): void {
     let edgehandlesOptions = {
         canConnect: function (sourceNode, targetNode) {
             // whether an edge can be created between source and target
-            return !sourceNode.same(targetNode);
-
+            return EdgeController.canConnect(sourceNode, targetNode);
         },
-        edgeParams: function (sourceNode: NodeSingular, targetNode: NodeSingular, i: number) {
-            //TODO
+        edgeParams: function (sourceNode: NodeSingular, targetNode: NodeSingular) {
+            return EdgeController.newUnconfiguredEdge(network, sourceNode.data(), targetNode.data());
         },
         preview: true, // whether to show added edges preview before releasing selection
         stackOrder: 4, // Controls stack order of edgehandles canvas element by setting it's z-index
@@ -256,7 +300,7 @@ export function initNetwork(network: ComputerNetwork): void {
     network._cdnd.disable();
 
 
-    network._graph.on('cdnddrop', (event, compound, dropSibling) => onDragInACompound(event, compound, network.ipDatabase));
+    network._graph.on('cdnddrop', (event, compound, dropSibling) => onDragInACompound(event, compound, network.ipv4Database));
 
     //TODO: custom badge for extensions (e.g. firewall)
     network._graph.nodeHtmlLabel([
@@ -284,6 +328,5 @@ export function initNetwork(network: ComputerNetwork): void {
             }
         }
     ]);
-
 
 }

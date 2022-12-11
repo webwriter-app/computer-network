@@ -1,5 +1,5 @@
 import { ComputerNetwork } from "..";
-import { IpAddress } from "../adressing/IpAddress";
+import { Ipv4Address } from "../adressing/IpAddress";
 import { GraphNode } from "../components/GraphNode";
 import { Subnet } from "../components/logicalNodes/Subnet";
 import { Host } from "../components/physicalNodes/Host";
@@ -21,7 +21,7 @@ export function toggleDragAndDropSubnetting(event: any, network: ComputerNetwork
  * Handles addressing when dragged into a compound: reset the IP address of an element based on the network ID
  * 'cdnddrop': Emitted on a grabbed node when it is dropped (freed)
  */
-export function onDragInACompound(event, compound, database: Map<string, IpAddress>): void {
+export function onDragInACompound(event, compound, database: Map<string, Ipv4Address>): void {
 
     // if (compound._private.data !instanceof Subnet) {
     //     return;
