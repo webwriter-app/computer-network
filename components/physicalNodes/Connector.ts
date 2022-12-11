@@ -4,16 +4,22 @@ import { MacAddress } from "../../adressing/MacAddress";
 import { ConnectionType, PhysicalNode } from "./PhysicalNode";
 
 export abstract class Connector extends PhysicalNode {
-    
-    constructor(color: string, layer: number, numberOfInterfacesOrPorts: number, interfaceNames: string[], connectionType?: ConnectionType) {
+
+    constructor(color: string, layer: number, numberOfInterfacesOrPorts: number, interfaceNames: string[], portConnectionTypes: Map<string, ConnectionType>, connectionType?: ConnectionType) {
         super(color, layer, numberOfInterfacesOrPorts, interfaceNames, connectionType);
+
+        if (portConnectionTypes != null) {
+            portConnectionTypes.forEach((connectionType, port) => {
+                this.portData.get(port).set('connection-type', connectionType);
+            });
+        }
     }
 }
 
 export class Router extends Connector {
-    constructor(color: string, numberOfInterfaces: number,  interfaceNames: string[], portConnectionTypes: Map<string, ConnectionType>, 
-        portMacMapping: Map<string, MacAddress>, portIpv4Mapping: Map<string,IpAddress>, portIpv6Mapping: Map<string, Ipv6Address>, name?: string) {
-        super(color, 3, numberOfInterfaces, interfaceNames);
+    constructor(color: string, numberOfInterfaces: number, interfaceNames: string[], portConnectionTypes: Map<string, ConnectionType>,
+        portMacMapping: Map<string, MacAddress>, portIpv4Mapping: Map<string, IpAddress>, portIpv6Mapping: Map<string, Ipv6Address>, name?: string) {
+        super(color, 3, numberOfInterfaces, interfaceNames, portConnectionTypes);
 
         this.id = 'router' + Router.counter;
         Router.counter++;
@@ -41,7 +47,7 @@ export class Router extends Connector {
 
 export class Repeater extends Connector {
     constructor(color: string, portNumbers: string[], portConnectionTypes: Map<string, ConnectionType>, name?: string) {
-        super(color, 1, 2, portNumbers);
+        super(color, 1, 2, portNumbers, portConnectionTypes);
         this.id = 'repeater' + Repeater.counter;
         Repeater.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -57,8 +63,8 @@ export class Repeater extends Connector {
 }
 
 export class Hub extends Connector {
-    constructor(color: string,  numberOfPorts: number, portNumbers: string[], name?: string) {
-        super(color, 1, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, portNumbers, ConnectionType.ethernet);
+    constructor(color: string, numberOfPorts: number, portNumbers: string[], name?: string) {
+        super(color, 1, (numberOfPorts != null && numberOfPorts != 0) ? numberOfPorts : 2, portNumbers, null, ConnectionType.ethernet);
         this.id = 'hub' + Hub.counter;
         Hub.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -75,7 +81,7 @@ export class Hub extends Connector {
 
 export class Switch extends Connector {
     constructor(color: string, numberOfPorts: number, portNumbers: string[], portMacMapping: Map<string, MacAddress>, name?: string) {
-        super(color, 2, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, portNumbers, ConnectionType.ethernet);
+        super(color, 2, (numberOfPorts != null && numberOfPorts != 0) ? numberOfPorts : 2, portNumbers, null, ConnectionType.ethernet);
 
         this.id = 'switch' + Switch.counter;
         Switch.counter++;
@@ -95,7 +101,7 @@ export class Switch extends Connector {
 
 export class Bridge extends Connector {
     constructor(color: string, portNumbers: string[], portConnectionTypes: Map<string, ConnectionType>, portMacMapping: Map<string, MacAddress>, name?: string) {
-        super(color, 2, 2, portNumbers);
+        super(color, 2, 2, portNumbers, portConnectionTypes);
         this.id = 'bridge' + Bridge.counter;
         Bridge.counter++;
         if (name != null && this.name != undefined && this.name != "") {
@@ -117,7 +123,7 @@ export class Bridge extends Connector {
 
 export class AccessPoint extends Connector {
     constructor(color: string, numberOfPorts: number, portNumbers: string[], portMacMapping: Map<string, MacAddress>, name?: string) {
-        super(color, 2, (numberOfPorts!=null && numberOfPorts!=0)? numberOfPorts : 2, portNumbers, ConnectionType.wireless);
+        super(color, 2, (numberOfPorts != null && numberOfPorts != 0) ? numberOfPorts : 2, portNumbers, null, ConnectionType.wireless);
 
         this.id = 'accessPoint' + AccessPoint.counter;
         AccessPoint.counter++;

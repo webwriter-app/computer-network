@@ -119,7 +119,8 @@ export function generateInputDialog(network: ComputerNetwork): void {
 
 
   dialog.appendChild(saveButton);
-  (network.renderRoot.querySelector('#inputDialog') as SlDialog).append(dialog);
+  (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
+  (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);
   dialog.show();
 
 }

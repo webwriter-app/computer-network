@@ -29,7 +29,7 @@ export abstract class PhysicalNode extends GraphNode {
             this.portLinkMapping.set(i, null); //init port
         });
 
-        if (interfaceNames == null || interfaceNames.length == 0) {
+        if (interfaceNames == null || interfaceNames == undefined || interfaceNames.length == 0) {
             for (let i = 1; i <= numberOfInterfacesOrPorts; i++) {
                 this.portData.set(i.toString(), new Map<string, any>());
                 this.portLinkMapping.set(i.toString(), null); //init port
