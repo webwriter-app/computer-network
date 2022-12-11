@@ -23,7 +23,7 @@ export class Router extends Connector {
 
         this.id = 'router' + Router.counter;
         Router.counter++;
-        if (name != null && this.name != undefined && this.name != "") {
+        if (name != null && name != undefined && name != "") {
             this.name = name;
         }
         else {
@@ -50,7 +50,7 @@ export class Repeater extends Connector {
         super(color, 1, 2, portNumbers, portConnectionTypes);
         this.id = 'repeater' + Repeater.counter;
         Repeater.counter++;
-        if (name != null && this.name != undefined && this.name != "") {
+        if (name != null && name != undefined && name != "") {
             this.name = name;
         }
         else {
@@ -67,7 +67,7 @@ export class Hub extends Connector {
         super(color, 1, (numberOfPorts != null && numberOfPorts != 0) ? numberOfPorts : 2, portNumbers, null, ConnectionType.ethernet);
         this.id = 'hub' + Hub.counter;
         Hub.counter++;
-        if (name != null && this.name != undefined && this.name != "") {
+        if (name != null && name != undefined && name != "") {
             this.name = name;
         }
         else {
@@ -85,7 +85,7 @@ export class Switch extends Connector {
 
         this.id = 'switch' + Switch.counter;
         Switch.counter++;
-        if (name != null && this.name != undefined && this.name != "") {
+        if (name != null && name != undefined && name != "") {
             this.name = name;
         }
         else {
@@ -104,7 +104,7 @@ export class Bridge extends Connector {
         super(color, 2, 2, portNumbers, portConnectionTypes);
         this.id = 'bridge' + Bridge.counter;
         Bridge.counter++;
-        if (name != null && this.name != undefined && this.name != "") {
+        if (name != null && name != undefined && name != "") {
             this.name = name;
         }
         else {
@@ -127,7 +127,7 @@ export class AccessPoint extends Connector {
 
         this.id = 'accessPoint' + AccessPoint.counter;
         AccessPoint.counter++;
-        if (name != null && this.name != undefined && this.name != "") {
+        if (name != null && name != undefined && name != "") {
             this.name = name;
         }
         else {

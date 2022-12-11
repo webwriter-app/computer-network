@@ -17,7 +17,6 @@ export class GraphNodeFactory {
         }
 
         let name: string = (network.renderRoot.querySelector('#inputName') as HTMLInputElement).value.trim();
-
         let inputNumOfPorts: SlInput = network.renderRoot.querySelector('#ports') as SlInput;
         let numberOfPorts: number = inputNumOfPorts.value != "" ? inputNumOfPorts.valueAsNumber :
             ((network.currentComponentToAdd == 'computer' || network.currentComponentToAdd == 'mobile')? 1 : 2);

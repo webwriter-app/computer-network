@@ -12,8 +12,7 @@ export class Host extends PhysicalNode {
         this.id = 'host'+Host.counter;
         Host.counter++;
         
-        //TODO: fix bug: name got over lapped by parent!
-        if (name != null && this.name!=undefined && this.name!="") {
+        if (name != null && name!=undefined && name!="") {
             this.name = name;
         }
         else {
