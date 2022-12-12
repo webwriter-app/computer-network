@@ -3,7 +3,6 @@ import { css, html } from "lit"
 import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
 import { toggleDragAndDropSubnetting } from "./event-handlers/subnetting-controller";
-import { SlDrawer } from "@shoelace-style/shoelace";
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { Ipv4Address } from "./adressing/IpAddress"
@@ -241,11 +240,11 @@ export class ComputerNetwork extends LitElementWw {
     }
 
     .sidebar {
-      height: 100%;
+      height: calc(100vh - 1.8vw);
       position: fixed;
       right: 0;
       background: LightBlue;
-      width: 23vw;
+      width: 23.7vw;
     }
     
 `;
@@ -289,18 +288,12 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item id="router" @click="${this.clickOnComponentButton}">Router <sl-icon name="router"></sl-menu-item>
           <sl-menu-item id="access-point" @click="${this.clickOnComponentButton}">Access Point <sl-icon name="broadcast-pin"></sl-menu-item>
           <sl-menu-item id="repeater" @click="${this.clickOnComponentButton}">Repeater <sl-icon name="hdd"></sl-menu-item>
-          <sl-menu-item id="hub" @click="${this.clickOnComponentButton}">Hub <sl-icon name="hdd"></sl-menu-item>
-          <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}">Bridge <sl-icon name="hdd"></sl-menu-item>
-          <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon name="hdd"></sl-menu-item>
+          <sl-menu-item id="hub" @click="${this.clickOnComponentButton}">Hub <sl-icon src="doc/icons/hub.svg"></sl-menu-item>
+          <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}">Bridge <sl-icon src="doc/icons/bridge.svg"></sl-menu-item>
+          <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon src="doc/icons/switch.svg"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
-      <sl-dropdown placement="bottom">
-      <button class="btn" id="edge" slot="trigger"><sl-icon name="share"></sl-icon></button>
-        <sl-menu>
-          <sl-menu-item id="nondirected-edge" @click="${this.clickOnComponentButton}"><sl-icon name="arrow-left-right"></sl-menu-item>
-          <sl-menu-item id="directed-edge" @click="${this.clickOnComponentButton}"><sl-icon name="arrow-right"></sl-menu-item>
-        </sl-menu>
-      </sl-dropdown>
+      <button class="btn" id="edge" @click="${this.clickOnComponentButton}"><sl-icon name="share"></sl-icon></button>
     </div>
 
     <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
@@ -326,7 +319,7 @@ export class ComputerNetwork extends LitElementWw {
       </sl-tooltip>
       <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7vw;">
         <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1vw;">
-          <sl-icon id="drawMode" name="share"></sl-icon>
+          <sl-icon id="drawMode" name="plug"></sl-icon>
         </button>
         </sl-tooltip>
         <sl-tooltip content="Click to change color of existing components" placement="left" style="--max-width: 9vw;">
@@ -365,7 +358,7 @@ export class ComputerNetwork extends LitElementWw {
       case 'router': case 'access-point': case 'hub': case 'repeater': case 'bridge': case 'switch':
         (this.renderRoot.querySelector('#connector') as HTMLElement).style.border = "dashed rgb(50,50,50)";
         break;
-      case "nondirected-edge": case "directed-edge":
+      case "edge":
         (this.renderRoot.querySelector('#edge') as HTMLElement).style.border = "dashed rgb(50,50,50)";
         break;
       default: break;

@@ -9,7 +9,7 @@ export class EdgeController {
 
     static toggleDrawMode(network: ComputerNetwork): void {
         if (!network.drawModeOn) {
-            if (network.currentComponentToAdd != "nondirected-edge" && network.currentComponentToAdd != "directed-edge") {
+            if (network.currentComponentToAdd != "edge") {
                 return;
             }
             network._edgeHandles.enableDrawMode();
@@ -61,10 +61,10 @@ export class EdgeController {
     }
 
     static removeConnection(edge: GraphEdge, graph){ 
-        if(edge.inPort!=undefined && edge.inPort!=null && edge.inPort!=""){
+        if(edge.inPort!=undefined && edge.inPort!=null && edge.inPort!=NaN){
             graph.$("#"+edge.from.id).data().portLinkMapping.set(edge.inPort, null);
         }
-        if(edge.outPort!=undefined && edge.outPort!=null && edge.outPort!=""){
+        if(edge.outPort!=undefined && edge.outPort!=null && edge.outPort!=NaN){
             graph.$("#"+edge.to.id).data().portLinkMapping.set(edge.outPort, null);
         }
     }
