@@ -4,14 +4,27 @@ export class AddressingHelper{
             return "00000000";
         }
         let binary = num.toString(2);
-        let result = binary;
-    
-        if (binary.length < 8) {
-            while (result.length != 8) {
-                result = "0" + result;
-            }
+        return binary.padStart(8, "0");
+    }
+
+    static binaryToDecimalOctets(binary: string): number[]{
+        if(binary.length!=32){
+            return null;
         }
-        return result;
+        return [parseInt(binary.slice(0, 8), 2), parseInt(binary.slice(8, 16), 2),
+            parseInt(binary.slice(16, 24), 2), parseInt(binary.slice(24, 32), 2)];
+    }
+
+    static decimalStringWithDotToBinary(decimal: string): string{
+        let decimalOctets: string[] = decimal.split('.');
+        let bin = "";
+        if(decimalOctets.length!=4){
+            return null;
+        }
+        else {
+            decimalOctets.forEach(octet => bin+= (+octet).toString(2).padStart(8,"0"));
+            return bin;
+        }
     }
 
 

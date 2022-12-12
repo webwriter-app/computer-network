@@ -5,7 +5,7 @@ import "@shoelace-style/shoelace/dist/themes/light.css"
 import { toggleDragAndDropSubnetting } from "./event-handlers/subnetting-controller";
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { Ipv4Address } from "./adressing/IpAddress"
+import { Ipv4Address } from "./adressing/Ipv4Address"
 import { MacAddress } from "./adressing/MacAddress"
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 import { EdgeController } from "./event-handlers/edge-controller";
@@ -213,6 +213,16 @@ export class ComputerNetwork extends LitElementWw {
       font-size: 0.8vw;
       height: 1.5vw;
     }
+    sl-details::part(base) {
+      background-color: LightBlue;
+      border: none;
+    }
+    sl-details::part(summary) {
+      font-size: 14px;
+      font-weight: 600;
+      color: 	#567d96;
+      font-family: sans-serif;
+    }
 
     /** additional info next to Node **/
     .element-info-box {
@@ -235,6 +245,7 @@ export class ComputerNetwork extends LitElementWw {
     sl-dialog::part(base), sl-select::part(base) {
       --width: fit-content;
     }
+
     td {
       text-align: center;
     }
@@ -258,17 +269,37 @@ export class ComputerNetwork extends LitElementWw {
 
     <div class="sidebar">
     <sl-menu style="background-color: LightBlue; border: transparent;">
-      <sl-menu-label>Subnetting extension</sl-menu-label>
-      <sl-menu-item>Create a blank subnet</sl-menu-item>
-      <sl-menu-item @click="${(event) => toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
-      <sl-menu-item>etc</sl-menu-item>
+    <sl-details summary="Subnetting extension" open>
+      <sl-select id="current-subnet-mode" label="Choose one mode:" value="MANUAL">
+        <sl-menu-item value="HOST_BASED">Hosts-based Mode</sl-menu-item>
+        <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
+        <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
+      </sl-select>
+      <div class="details-group-example" @sl-show="${(event) => { this.renderRoot.querySelector('.details-group-example').querySelectorAll('sl-details').forEach(details => (details.open = event.target === details)) }}">
+  <sl-details summary="Hosts-based Mode">
+    A bottom-up auto calculation of subnet number according to hosts' IPv4 Addresses.
+  </sl-details>
 
-      <sl-divider style="--width: 0.5vw; --color: white"></sl-divider>
+  <sl-details summary="Subnet-based Mode">
+    A top-down auto adaptation of IPv4 addresses for hosts according to subnet number.
+  </sl-details>
 
-      <sl-menu-label>Firewall extension</sl-menu-label>
+  <sl-details summary="Manual Mode">
+    A manual mode that let you manually assign the IPv4 Addresses and Subnet number, validate with the <strong>check</strong> button.
+  </sl-details>
+  
+</div>
+<sl-menu-item @click="${(event) => toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
+</sl-details>
+
+      
+
+    <sl-details summary="Packet sending extension">
+      <sl-menu-label>Some explanations for the extension</sl-menu-label>
       <sl-menu-item>etc</sl-menu-item>
       <sl-menu-item>etc</sl-menu-item>
       <sl-menu-item>etc</sl-menu-item>
+    </sl-details>
     </sl-menu>
   </div>
 
@@ -294,7 +325,7 @@ export class ComputerNetwork extends LitElementWw {
         </sl-menu>
       </sl-dropdown>
       <button class="btn" id="edge" @click="${this.clickOnComponentButton}"><sl-icon name="share"></sl-icon></button>
-      <button class="btn" id="subnet"><sl-icon name="diagram-3"></sl-icon></button>
+      <button class="btn" id="subnet" @click="${this.clickOnComponentButton}"><sl-icon name="diagram-3"></sl-icon></button>
     </div>
 
     <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
@@ -312,7 +343,7 @@ export class ComputerNetwork extends LitElementWw {
       <sl-tab-panel name="logical">
       <sl-input class="label-on-left" label="Subnet Number" id="subnet-num" placeholder="Network ID"></sl-input>
       <sl-input class="label-on-left" label="Subnet Mask" id="subnet-mask" placeholder="255.255.255.255"></sl-input>
-      <sl-input class="label-on-left" label="CIDR" id="subnet-cidr" placeholder="" type='number' min="1"></sl-input>
+      <sl-input class="label-on-left" label="Bitmask" id="subnet-bitmask" placeholder="" type='number' min="0" max="32"></sl-input>
       </sl-tab-panel>
     </sl-tab-group>
 
@@ -360,32 +391,45 @@ export class ComputerNetwork extends LitElementWw {
   }
 
   private clickOnComponentButton(e: Event): void {
-    this.currentComponentToAdd = (e.target as HTMLElement).getAttribute('id')!;
-    this.renderRoot.querySelectorAll('.btn').forEach(e => {
-      (e as HTMLElement).style.border = "dashed transparent";
-    });
-
-    //highlight the chosen component
+    this.currentComponentToAdd = (e.target as HTMLElement).getAttribute('id');
+    let nodeToHighLight: string = "";
     switch (this.currentComponentToAdd) {
       case 'computer': case 'mobile':
-        (this.renderRoot.querySelector('#host') as HTMLElement).style.border = "dashed rgb(50,50,50)";
+        nodeToHighLight = 'host';
         break;
       case 'router': case 'access-point': case 'hub': case 'repeater': case 'bridge': case 'switch':
-        (this.renderRoot.querySelector('#connector') as HTMLElement).style.border = "dashed rgb(50,50,50)";
+        nodeToHighLight = 'connector';
         break;
-      case "edge":
-        (this.renderRoot.querySelector('#edge') as HTMLElement).style.border = "dashed rgb(50,50,50)";
-        break;
-      default: break;
+      default: 
+        nodeToHighLight = this.currentComponentToAdd;
+      break;
     }
+
+    this.renderRoot.querySelectorAll('.btn').forEach(e => {
+      if(e.id==nodeToHighLight){
+        //highlight the chosen component
+        (e as HTMLElement).style.border = "dashed rgb(50,50,50)";
+      }
+      else{
+        //un-highlight other components
+        (e as HTMLElement).style.border = "dashed transparent";
+      }
+    });
+
+
   }
 
   private clickOnColor(e: Event): void {
-    this.currentColor = (e.target as HTMLElement).getAttribute('id')!;
+    this.currentColor = (e.target as HTMLElement).getAttribute('id');
     this.renderRoot.querySelectorAll('.colorButton').forEach(e => {
-      (e as HTMLElement).style.border = "dashed transparent";
+      if(e.id==this.currentColor){
+        (e as HTMLElement).style.border = "dashed rgb(80,80,80)";
+      }
+      else{
+        (e as HTMLElement).style.border = "dashed transparent";
+      }
     });
-    (this.renderRoot.querySelector('#' + this.currentColor) as HTMLElement).style.border = "dashed rgb(80,80,80)";
+    
   }
 
 }

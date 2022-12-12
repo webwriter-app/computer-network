@@ -1,8 +1,9 @@
 import { ComputerNetwork } from "..";
-import { Ipv4Address } from "../adressing/IpAddress";
+import { Ipv4Address } from "../adressing/Ipv4Address";
 import { GraphNode } from "../components/GraphNode";
 import { Subnet } from "../components/logicalNodes/Subnet";
 import { Host } from "../components/physicalNodes/Host";
+import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 
 
 export function toggleDragAndDropSubnetting(event: any, network: ComputerNetwork) {
@@ -22,41 +23,51 @@ export function toggleDragAndDropSubnetting(event: any, network: ComputerNetwork
  * 'cdnddrop': Emitted on a grabbed node when it is dropped (freed)
  */
 export function onDragInACompound(event, compound, database: Map<string, Ipv4Address>): void {
+    let subnet = compound.data(0);
+    //reset the IP address of an element based on the network ID
+    if (Subnet.mode == "SUBNET_BASED") {
+        if (compound.data()! instanceof Subnet) {
+            return;
+        }
+        let node = event.target.data(0);
 
-    // if (compound._private.data !instanceof Subnet) {
-    //     return;
-    // }
-    // let node = event.target._private.data;
-    // let subnet = compound._private.data;
-
-    // if(node instanceof Host){
-    //     if(node.ip.matchesNetworkCidr(subnet)){
-    //         return;
-    //     }
-    //     node.ip = IpAddress.generateNewIpForSubnet(database, node.ip, subnet);
-    // }
-    //TODO: handle for node instanceof Connector, Subnet
-}
-
-/**
- * Create new "parent" (a compound - network)
- * @param grabbedNode 
- * @param router 
- */
-export function generateNewSubnet(network: ComputerNetwork, grabbedNode, router) {
-
-    // let childNode = grabbedNode._private.data;
-
-    // if (childNode instanceof GraphNode) {
-    //     let data = new Subnet(network.currentColor, router._private.data, network.ipDatabase, [childNode]);
-    //     console.log(data);
-    //     return {
-    //         group: 'nodes',
-    //         data: data,
-    //         classes: data.cssClass
-    //     };
-    // }
-    // else {
-    //     return null;
-    // }
+        if (node instanceof PhysicalNode) {
+            node.portData.forEach(data => {
+                let ip4 = data.get('IPv4');
+                if (!ip4.matchesNetworkCidr(subnet)) {
+                    data.set('IPv4', Ipv4Address.generateNewIpGivenSubnet(database, ip4, subnet));
+                }
+            });
+        }
+        else if (node instanceof Subnet) {
+            //if the subnet doesn't match supernet's CIDR
+            if (!node.networkAddress.matchesNetworkCidr(subnet)) {
+                node.networkAddress = null; //delete the subnet Address
+                event.target.addClass("unconfigured-subnet");
+                node.name = "";
+                database.delete(node.networkAddress.address); //delete the subnet's old ID from database
+            }
+        }
+    }//reset the Network ID based on new element
+    else if (Subnet.mode = "HOST_BASED") {
+        let ips: Ipv4Address[] = [];
+        let matchesCIDR = true;
+        compound.children().forEach(child => {
+            let host: GraphNode = child.data();
+            if (host instanceof Subnet && host.networkAddress != null && host.networkAddress != undefined) {
+                if (!host.networkAddress.matchesNetworkCidr(subnet)) matchesCIDR = false;
+                ips.push(host.networkAddress);
+            }
+            else if (host instanceof PhysicalNode) {
+                host.portData.forEach(data => {
+                    let ip = data.has('IPv4') ? data.get('IPv4') : null;
+                    if (ip != null && ip.matchesNetworkCidr(subnet)) matchesCIDR = false;
+                    ips.push(ip);
+                });
+            }
+        });
+        if(matchesCIDR) return; //do nothing if all hosts still match subnet CIDR
+        
+        Subnet.calculateSubnetNumber(subnet, ips, database);
+    }
 }

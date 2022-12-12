@@ -1,4 +1,4 @@
-import { Ipv4Address } from "../../adressing/IpAddress";
+import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { GraphEdge } from "../GraphEdge";
 import { GraphNode } from "../GraphNode";
 import { Router } from "./Connector";

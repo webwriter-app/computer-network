@@ -9,14 +9,13 @@ import NodeSingular from "cytoscape";
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { SlCheckbox } from "@shoelace-style/shoelace";
 import { DialogFactory, handleChangesInDialogForPhysicalNode, handleChangesInDialogForSubnet } from "./event-handlers/dialog-content";
-import { generateNewSubnet, onDragInACompound } from "./event-handlers/subnetting-controller";
-import { createHtmlLabelingForConnector, createHtmlLabelingForHost } from "./event-handlers/labeling";
+import { onDragInACompound } from "./event-handlers/subnetting-controller";
 import { EdgeController } from "./event-handlers/edge-controller";
 import { GraphEdge } from "./components/GraphEdge";
 import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
 import { Address } from "./adressing/Address";
+import { Subnet } from "./components/logicalNodes/Subnet";
 
 
 // register extension
@@ -34,15 +33,6 @@ export function initNetwork(network: ComputerNetwork): void {
         autounselectify: true,
 
         style: [
-            {
-                "selector": "node",
-                "style": {
-                    "shape": "round-rectangle",
-                    "height": 20,
-                    "width": 20,
-                    "font-size": 15
-                }
-            },
             {
                 "selector": "[name]",
                 "style": {
@@ -128,11 +118,14 @@ export function initNetwork(network: ComputerNetwork): void {
                 }
             },
             {
-                "selector": ".element-label",
+                "selector": ".physical-node",
                 "style": {
                     "text-valign": "bottom",
                     "text-halign": "center",
-                    "font-size": 10,
+                    "shape": "round-rectangle",
+                    "height": 20,
+                    "width": 20,
+                    "font-size": 15,
                     "text-wrap": "wrap",
                     "background-color": "data(color)",
                     "background-image": "data(backgroundPath)",
@@ -140,15 +133,25 @@ export function initNetwork(network: ComputerNetwork): void {
                 }
             },
             {
+                "selector": ".unconfigured-subnet",
+                "style": {
+                    "label": "unconfigured"
+                }
+            },
+            {
                 "selector": ".subnet-node",
                 "style": {
                     "text-valign": "top",
                     "text-halign": "center",
+                    "shape": "round-rectangle",
+                    "height": 50,
+                    "width": 50,
                     "font-size": 8,
                     "text-wrap": "wrap",
                     "font-family": "monospace",
                     "background-opacity": 0.4,
-                    "background-color": "data(color)"
+                    "background-color": "data(color)",
+                    "border": "solid LightGrey 2px"
                 }
             }
         ],
@@ -256,18 +259,16 @@ export function initNetwork(network: ComputerNetwork): void {
 
 
     //options for drap-and-drop compound nodes
-    const compoundOptions = {
+    const manualSubnettingOptions = {
         grabbedNode: node => true, // filter function to specify which nodes are valid to grab and drop into other nodes
         dropTarget: (dropTarget, grabbedNode) => {
-            //TODO
-
-            return true;
+            return (dropTarget.data() instanceof Subnet);
         }, // filter function to specify which parent nodes are valid drop targets
-
-        dropSibling: (dropSibling, grabbedNode) => {
-            return false;
-        }, // filter function to specify which orphan nodes are valid drop siblings
-        newParentNode: (grabbedNode, gateway) => (generateNewSubnet(network, grabbedNode, gateway)), // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
+        dropSibling: (dropSibling, grabbedNode) => {return (dropSibling.data() instanceof Subnet);}, // filter function to specify which orphan nodes are valid drop siblings
+        newParentNode: (grabbedNode, dropSibling) => { 
+            if(dropSibling.data() instanceof Subnet) return dropSibling;
+            return {};
+        }, // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
         boundingBoxOptions: { // same as https://js.cytoscape.org/#eles.boundingBox, used when calculating if one node is dragged over another
             includeOverlays: false,
             includeLabels: true
@@ -282,37 +283,36 @@ export function initNetwork(network: ComputerNetwork): void {
     //register context menu
     network._instance = network._graph.contextMenus(menuOptions);
 
-    network._cdnd = network._graph.compoundDragAndDrop(compoundOptions);
+    network._cdnd = network._graph.compoundDragAndDrop(manualSubnettingOptions);
     network._cdnd.disable();
 
-
-    network._graph.on('cdnddrop', (event, compound, dropSibling) => onDragInACompound(event, compound, network.ipv4Database));
+    network._graph.on('cdnddrop', (event, compound) => onDragInACompound(event, compound, network.ipv4Database));
 
     //TODO: custom badge for extensions (e.g. firewall)
-    network._graph.nodeHtmlLabel([
-        {
-            query: ".host-node",
-            valign: "bottom",
-            halign: "center",
-            halignBox: 'center',
-            valignBox: 'bottom',
-            tpl: function (host) {
-                let showIp: boolean = (network.renderRoot.querySelector('#IpCheckBox') as SlCheckbox).checked;
-                let showBinIp: boolean = (network.renderRoot.querySelector('#IpBinCheckBox') as SlCheckbox).checked;
-                let showMac: boolean = (network.renderRoot.querySelector('#MacCheckBox') as SlCheckbox).checked;
-                return createHtmlLabelingForHost(showIp, showBinIp, showMac, host);
-            }
-        },
-        {
-            query: ".connector-node",
-            valign: "top",
-            halign: "right",
-            halignBox: 'top',
-            valignBox: 'top',
-            tpl: function (connector) {
-                return createHtmlLabelingForConnector(connector);
-            }
-        }
-    ]);
+    // network._graph.nodeHtmlLabel([
+    //     {
+    //         query: ".host-node",
+    //         valign: "bottom",
+    //         halign: "center",
+    //         halignBox: 'center',
+    //         valignBox: 'bottom',
+    //         tpl: function (host) {
+    //             let showIp: boolean = (network.renderRoot.querySelector('#IpCheckBox') as SlCheckbox).checked;
+    //             let showBinIp: boolean = (network.renderRoot.querySelector('#IpBinCheckBox') as SlCheckbox).checked;
+    //             let showMac: boolean = (network.renderRoot.querySelector('#MacCheckBox') as SlCheckbox).checked;
+    //             return createHtmlLabelingForHost(showIp, showBinIp, showMac, host);
+    //         }
+    //     },
+    //     {
+    //         query: ".connector-node",
+    //         valign: "top",
+    //         halign: "right",
+    //         halignBox: 'top',
+    //         valignBox: 'top',
+    //         tpl: function (connector) {
+    //             return createHtmlLabelingForConnector(connector);
+    //         }
+    //     }
+    // ]);
 
 }

@@ -2,12 +2,13 @@ import { ComputerNetwork } from "..";
 import { initNetwork } from "../network-config";
 import { SlButton, SlInput } from "@shoelace-style/shoelace"
 import { MacAddress } from "../adressing/MacAddress";
-import { Ipv4Address } from "../adressing/IpAddress";
+import { Ipv4Address } from "../adressing/Ipv4Address";
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
 import { GraphNode } from "../components/GraphNode";
-import { ConnectionType } from "../components/physicalNodes/PhysicalNode";
+import { ConnectionType, PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { Ipv6Address } from "../adressing/Ipv6Address";
+import { Subnet } from "../components/logicalNodes/Subnet";
 
 export class GraphNodeFactory {
 
@@ -15,8 +16,45 @@ export class GraphNodeFactory {
         if (network.currentComponentToAdd == "" || network.currentComponentToAdd == null) {
             return;
         }
+        if (!network.networkAvailable) {
+            network.networkAvailable = true;
+            initNetwork(network);
+        }
 
-        let name: string = (network.renderRoot.querySelector('#inputName') as HTMLInputElement).value.trim();
+        switch(network.currentComponentToAdd){
+            case 'edge': //edge is not added with the "plus-button"
+                break;
+            case 'subnet':
+                this.addSubnetNode(network);
+                break;
+            default:
+                //default is adding physical node
+                this.addPhysicalNode(network);
+                break;
+        }
+
+    }
+
+    static addSubnetNode(network: ComputerNetwork): void{
+        let subnetNum: string = (network.renderRoot.querySelector('#subnet-num') as SlInput).value.trim();
+        let subnetMask: string = (network.renderRoot.querySelector('#subnet-mask') as SlInput).value.trim();
+        let bitmask: number = (network.renderRoot.querySelector('#subnet-bitmask') as SlInput).valueAsNumber;
+
+        let newSubnet = Subnet.createSubnet(network.currentColor, subnetNum, subnetMask, bitmask, network.ipv4Database);
+
+        if(newSubnet!=null){
+            console.log(newSubnet);
+            network._graph.add({
+                group: 'nodes',
+                data: newSubnet,
+                classes: newSubnet.cssClass,
+            });
+        }
+    }
+
+    static addPhysicalNode(network: ComputerNetwork): void {
+
+        let name: string = (network.renderRoot.querySelector('#inputName') as SlInput).value.trim();
         let inputNumOfPorts: SlInput = network.renderRoot.querySelector('#ports') as SlInput;
         let numberOfPorts: number = inputNumOfPorts.value != "" ? inputNumOfPorts.valueAsNumber :
             ((network.currentComponentToAdd == 'computer' || network.currentComponentToAdd == 'mobile') ? 1 : 2);
@@ -55,7 +93,7 @@ export class GraphNodeFactory {
                 : Ipv6Address.validateAddress(inputIpv6.value, network.ipv6Database);
             ipv6 = ipv6 != null ? ipv6 : Ipv6Address.getLoopBackAddress();
 
-            if (name!="") names.set(index, name);
+            if (name != "") names.set(index, name);
             portConnectionTypes.set(index, connectionType);
             portMacs.set(index, macAddress);
             portIpv4s.set(index, ipv4);
@@ -100,19 +138,12 @@ export class GraphNodeFactory {
                 break;
         }
 
-        if (!network.networkAvailable) {
-            network.networkAvailable = true;
-            initNetwork(network);
-        }
-
         network._graph.add({
             group: 'nodes',
             data: component,
             position: { x: 10, y: 10 },
             classes: component.cssClass,
         });
-
-        console.log(component);
     }
 
     static toggleResetColor(network: ComputerNetwork): void {

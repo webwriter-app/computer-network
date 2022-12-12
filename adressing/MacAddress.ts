@@ -1,4 +1,4 @@
-import { AddressingHelper } from "../utils/Helper";
+import { AddressingHelper } from "../utils/AdressingHelper";
 import { Address } from "./Address";
 
 export class MacAddress extends Address {

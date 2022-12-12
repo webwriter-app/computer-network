@@ -1,7 +1,7 @@
 import { SlButton, SlDialog, SlInput, SlSelect, SlTabGroup, SlTabPanel } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "..";
 import { Address } from "../adressing/Address";
-import { Ipv4Address } from "../adressing/IpAddress";
+import { Ipv4Address } from "../adressing/Ipv4Address";
 import { Ipv6Address } from "../adressing/Ipv6Address";
 import { MacAddress } from "../adressing/MacAddress";
 import { GraphEdge } from "../components/GraphEdge";
@@ -219,11 +219,11 @@ export class DialogFactory {
       let inPort: number = +(selectedSourcePort.value as string);
       let outPort: number = +(selectedTargetPort.value as string);
 
-      if (inPort == NaN || inPort == undefined || inPort == null) {
+      if (Number.isNaN(inPort) || inPort == undefined || inPort == null) {
         AlertHelper.toastAlert("warning", "exclamation-triangle", "", "Please choose port/interface for " + sourceNode.name);
         return;
       }
-      if (outPort == NaN || outPort == undefined || outPort == null) {
+      if (Number.isNaN(outPort) || outPort == undefined || outPort == null) {
         AlertHelper.toastAlert("warning", "exclamation-triangle", "", "Please choose port/interface for " + sourceNode.name);
         return;
       }
