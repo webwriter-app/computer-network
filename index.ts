@@ -74,7 +74,7 @@ export class ComputerNetwork extends LitElementWw {
         border: dashed transparent;
         color: white;
         align-items: center;
-        font-size: 2vmin;
+        font-size: 1.6vw;
         cursor: pointer;
         width: 4vw;
         height: 4vw;
@@ -84,10 +84,10 @@ export class ComputerNetwork extends LitElementWw {
         background-color: rgb(2, 132, 199);
     }
     .addOption {
-        width: 16vw;
+        width: 12vw;
         display: flex;
         flex-direction: row;
-        gap: 2.8vw;
+        gap: 1.5vw;
         margin: auto;
     }
     .addBtn {
@@ -274,7 +274,7 @@ export class ComputerNetwork extends LitElementWw {
 
     <div class="base">
 
-    <div style="position:relative; width: 20vw; display: flex; flex-direction: row; gap: auto; padding: auto">
+    <div style="position:relative; width: 25vw; display: flex; flex-direction: row; gap: auto; padding: auto">
       <sl-dropdown placement="bottom">
         <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
         <sl-menu>
@@ -294,14 +294,29 @@ export class ComputerNetwork extends LitElementWw {
         </sl-menu>
       </sl-dropdown>
       <button class="btn" id="edge" @click="${this.clickOnComponentButton}"><sl-icon name="share"></sl-icon></button>
+      <button class="btn" id="subnet"><sl-icon name="diagram-3"></sl-icon></button>
     </div>
 
     <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
 
-    <div style="position:relative; margin: auto">
-      <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
-      <sl-input class="label-on-left" label="Number of ports/ interfaces" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
-      <sl-button style="margin-top: 2vw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports/ interfaces</sl-button>
+    <div style="position:relative; margin: 0 auto;">
+    <sl-tab-group>
+      <sl-tab slot="nav" panel="physical">Physical Node</sl-tab>
+      <sl-tab slot="nav" panel="logical">Logical Node</sl-tab>
+
+      <sl-tab-panel name="physical">
+        <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
+        <sl-input class="label-on-left" label="Number of ports/ interfaces" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
+        <sl-button style="margin-top: 1vw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports/ interfaces</sl-button>
+      </sl-tab-panel>
+      <sl-tab-panel name="logical">
+      <sl-input class="label-on-left" label="Subnet Number" id="subnet-num" placeholder="Network ID"></sl-input>
+      <sl-input class="label-on-left" label="Subnet Mask" id="subnet-mask" placeholder="255.255.255.255"></sl-input>
+      <sl-input class="label-on-left" label="CIDR" id="subnet-cidr" placeholder="" type='number' min="1"></sl-input>
+      </sl-tab-panel>
+    </sl-tab-group>
+
+      
     </div>
       
 
