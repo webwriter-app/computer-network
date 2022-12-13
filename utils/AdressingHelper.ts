@@ -27,23 +27,17 @@ export class AddressingHelper{
         }
     }
 
-
-    static getLongestMatch(first: string, second: string): string {
-        //second string should be 8 bits
-        if (second.length != 8) {
-            return "";
-        }
-        let match: string = "";
-        for (let i = 0; i < 8; i++) {
-            if (first.charAt(i) == second.charAt(i)) {
-                match += first.charAt(i);
-            }
-            else {
-                return match;
-            }
-        }
-        return match;
-    }
+    static getPrefix(strings: string[]){
+        // check border cases size 1 array and empty first word)
+        if (!strings[0] || strings.length ==  1) return strings[0] || "";
+        let i = 0;
+        // while all words have the same character at position i, increment i
+        while(strings[0][i] && strings.every(w => w[i] === strings[0][i]))
+          i++;
+        
+        // prefix is the substring from the beginning to the last successfully checked i
+        return strings[0].substring(0, i);
+      }
 
     static randomBetween(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1) + min);

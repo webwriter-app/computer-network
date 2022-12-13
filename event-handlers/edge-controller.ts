@@ -37,16 +37,10 @@ export class EdgeController {
 
         //the edgehandles extensions use a ghost edge, that increases the degree by 1 from the source
         if (source.degree() > sourceNode.numberOfInterfacesOrPorts) {
-            console.log("source degree"+ source.degree());
-            console.log("source numPort"+ sourceNode.numberOfInterfacesOrPorts)
-
             AlertHelper.toastAlert("warning", "exclamation-triangle", sourceNode.name + " is out of available ports.", "");
             return false;
         }
         if (target.degree() >= targetNode.numberOfInterfacesOrPorts) {
-            console.log("target degree"+ target.degree());
-            console.log("target numPort"+ targetNode.numberOfInterfacesOrPorts)
-
             AlertHelper.toastAlert("warning", "exclamation-triangle", targetNode.name + " is out of available ports.", "");
             return false;
         }
@@ -61,10 +55,10 @@ export class EdgeController {
     }
 
     static removeConnection(edge: GraphEdge, graph){ 
-        if(edge.inPort!=undefined && edge.inPort!=null && edge.inPort!=NaN){
+        if(edge.inPort!=undefined && edge.inPort!=null && !Number.isNaN(edge.inPort)){
             graph.$("#"+edge.from.id).data().portLinkMapping.set(edge.inPort, null);
         }
-        if(edge.outPort!=undefined && edge.outPort!=null && edge.outPort!=NaN){
+        if(edge.outPort!=undefined && edge.outPort!=null && !Number.isNaN(edge.outPort)){
             graph.$("#"+edge.to.id).data().portLinkMapping.set(edge.outPort, null);
         }
     }

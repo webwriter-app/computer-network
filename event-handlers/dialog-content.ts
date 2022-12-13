@@ -5,33 +5,11 @@ import { Ipv4Address } from "../adressing/Ipv4Address";
 import { Ipv6Address } from "../adressing/Ipv6Address";
 import { MacAddress } from "../adressing/MacAddress";
 import { GraphEdge } from "../components/GraphEdge";
-import { Connector } from "../components/physicalNodes/Connector";
-import { Host } from "../components/physicalNodes/Host";
+import { Subnet } from "../components/logicalNodes/Subnet";
+import { Router } from "../components/physicalNodes/Connector";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
-import { EdgeController } from "./edge-controller";
 
-
-export class InputData {
-  label: string;
-  helpText: string;
-  placeHolder: string;
-  clearable: boolean;
-  disabled: boolean;
-
-  constructor(label: string,
-    helpText: string,
-    placeHolder: string,
-    clearable: boolean,
-    disabled?: boolean) {
-    this.label = label;
-    this.helpText = helpText;
-    this.placeHolder = placeHolder;
-    this.clearable = clearable;
-    this.disabled = disabled;
-  }
-
-}
 
 export class DialogFactory {
   static generateInputsDetailsForNode(network: ComputerNetwork): void {
@@ -232,8 +210,7 @@ export class DialogFactory {
       if (newData != null) {
         edge.removeClass("unconfigured-edge");
         edge.addClass(newData.cssClass);
-        console.log(newData.cssClass);
-        edge._private.data = newData;
+        edge.data(newData);
         dialog.hide();
       } //set new format-display for this connection if no error appears
     }
@@ -303,7 +280,7 @@ export function handleChangesInDialogForPhysicalNode(id: string, node: any, netw
       if (physicalNode.layer >= 3) {
         let newIpv4 = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv4") as SlInput).value.trim();
         let newIpv6 = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv6") as SlInput).value.trim();
-        let validatedIpv4 = newIpv4 != "" ? Ipv4Address.validateAddress(newIpv4, network.ipv4Database) : null;
+        let validatedIpv4 = newIpv4 != "" ? Ipv4Address.validateIpv4Address(newIpv4, network.ipv4Database, network.ipv4SubnetDatabase) : null;
         if (validatedIpv4 != null) {
           physicalNode.portData.get(index).set('IPv4', validatedIpv4);
           changed = true;
@@ -339,46 +316,47 @@ export function handleChangesInDialogForPhysicalNode(id: string, node: any, netw
 
 export function handleChangesInDialogForSubnet(id: string, node: any, network: ComputerNetwork) {
 
-  //   let subnet: Subnet = node._private.data;
+  let dialog: SlDialog = new SlDialog();
 
-  //   let fields: Map<string, InputData> = new Map();
+  let subnet: Subnet = node.data();
+  dialog.innerHTML += `<sl-input id="` + id + `"NetworkAddress" label="Network Address" placeholder="` + subnet.networkAddress.address + `" clearable type="string">`;
+  dialog.innerHTML += `<sl-input id="` + id + `"Bitmask" label="Bitmask" placeholder="` + subnet.bitmask + `" clearable type="number" min=0>`;
+  dialog.innerHTML += `<sl-input id="` + id + `"SubnetMask" label="Subnet Mask" placeholder="` + subnet.subnetMask + `" clearable type="string">`;
 
-  //   fields.set("networkAddress", new InputData("Network Address", "", subnet.networkAddress.address, true));
-  //   fields.set("cidr", new InputData("CIDR", "", subnet.cidr.toString(), true));
-  //   fields.set("subnetmask", new InputData("Subnet mask", "", subnet.subnetMask, true));
-  //   fields.set("subnetmask", new InputData("Gateway", "", subnet.gateway.getIpAddresses.toString(), true));
+  //table for gateways
+  let gateways: Map<[string, number], Router> = subnet.gateways;
+  if (gateways.size != 0) {
 
+    let table: string = `<table cellspacing="10"><tr><td>Gateway</td><td>Interface</td><td>Connection Type</td><td>MAC</td><td>IPv4</td><td>IPv6</td></tr>`;
 
-  //   //pass data of current subnet into the dialog
-  //   let inputFields = generateDialog(id, fields);
-  //   let dialog = (network.renderRoot.querySelector('#infoDialog') as SlDialog);
-  //   dialog.innerHTML = "";
-  //   inputFields.forEach(e => dialog.appendChild(e));
-  //   //dialog.appendChild(saveButton);
-  //   dialog.show();
-  // }
+    //TODO: add id for changes?
+    gateways.forEach((router, [id, portIndex]) => {
+      let data = router.portData.get(portIndex);
+      table += `<tr>`;
+      table += `<td>` + router.name + `</td>`;
+      table += `<td>` + data.get('name') + `</td>`;
+      table += `<td>` + data.get('Connection Type') + `</td>`;
+      table += `<td>` + data.get('MAC') + `</td>`;
+      table += `<td>` + data.get('IPv4') + `</td>`;
+      table += `<td>` + data.get('IPv6') + `</td>`;
+      table += `</tr>`;
+    });
 
+    dialog.innerHTML += table;
+  }
+  //TODO: add event listener vào cái nút add node
+  const saveButton = new SlButton();
+  saveButton.slot = "footer";
+  saveButton.variant = "primary";
+  saveButton.innerHTML = "Save";
+  saveButton.addEventListener('click', () => dialog.hide());
 
-
-  // export function adaptSubnetInformationOnIpChanges(node: any, newIp: IpAddress): void {
-  //   let compound = node._private.parent._private;
-  //   let siblings = compound.children;
-
-  //   let oldIp = node._private.data.ipAddress;
-
-  //   let ips: IpAddress[] = [];
-
-  //   siblings.forEach(child => {
-  //     let ip = child._private.data.ipAddress;
-  //     if (ip.address == oldIp.address) {
-  //       ips.push(newIp);
-  //     }
-  //     else {
-  //       ips.push(child._private.data.ipAddress);
-  //     }
-  //   });
-  //   node.data.calculateSubnetNumber(ips);
+  dialog.appendChild(saveButton);
+  (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
+  (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);
+  dialog.show();
 }
+
 
 
 

@@ -29,6 +29,11 @@ export abstract class Connector extends PhysicalNode {
 }
 
 export class Router extends Connector {
+    //TODO: portLinkMapping bị xóa
+    //--> check + remove router (remove bằng routerid + port index) from list of gateways của subnet
+    portGatewayMapping: Map<number, string> = new Map(); //(port-index, id of subnet-node)
+
+
     constructor(color: string, numberOfInterfaces: number, names: Map<number, string>, portConnectionTypes: Map<number, ConnectionType>,
         portMacMapping: Map<number, MacAddress>, portIpv4Mapping: Map<number, Ipv4Address>, portIpv6Mapping: Map<number, Ipv6Address>, name?: string) {
         super(color, 3, numberOfInterfaces, names, portConnectionTypes);

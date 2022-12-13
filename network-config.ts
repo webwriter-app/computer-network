@@ -16,6 +16,7 @@ import { GraphEdge } from "./components/GraphEdge";
 import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
 import { Address } from "./adressing/Address";
 import { Subnet } from "./components/logicalNodes/Subnet";
+import { AlertHelper } from "./utils/AlertHelper";
 
 
 // register extension
@@ -179,7 +180,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 selector: ".physical-node",
                 onClickFunction: function (event) {
                     let node = event.target;
-                    let id = node._private.data.id;
+                    let id = node.data().id;
                     handleChangesInDialogForPhysicalNode(id, node, network);
                 },
                 hasTrailingDivider: true
@@ -191,8 +192,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 selector: ".subnet-node",
                 onClickFunction: function (event) {
                     let node = event.target;
-                    let id = node._private.data.id;
-                    console.log(node);
+                    let id = node.data().id;
 
                     handleChangesInDialogForSubnet(id, node, network);
                 },
@@ -259,15 +259,37 @@ export function initNetwork(network: ComputerNetwork): void {
 
 
     //options for drap-and-drop compound nodes
-    const manualSubnettingOptions = {
-        grabbedNode: node => true, // filter function to specify which nodes are valid to grab and drop into other nodes
+    const subnettingOptions = {
+        grabbedNode: node => { return node.connectedEdges().length == 0; }, // nodes valid to grab and drop into subnet: ones that don't have any link
         dropTarget: (dropTarget, grabbedNode) => {
-            return (dropTarget.data() instanceof Subnet);
+            if (dropTarget.data() instanceof Subnet) {
+                switch (Subnet.mode) {
+                    case 'HOST_BASED': //subnet's info get regenerated based on hosts in host_mode
+                        onDragInACompound(grabbedNode, dropTarget, network.ipv4Database, network.ipv4SubnetDatabase);
+                        return true;
+                    case 'SUBNET_BASED': //the subnet must be configured to drag hosts into (subnet_mode)
+                        let bitmask: number = dropTarget.data().bitmask;
+                        if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
+                            //check if current num. of hosts exceed allowed && subnet is configured
+                            if (((Math.pow(2, 32 - bitmask) - 2) > dropTarget.children().length) && !dropTarget.data().cssClass.includes('unconfigured-subnet')) {
+                                onDragInACompound(grabbedNode, dropTarget, network.ipv4Database, network.ipv4SubnetDatabase);
+                                return true;
+                            }
+                            return false;
+                        }
+                        else {
+                            AlertHelper.toastAlert('danger', 'exclamation-triangle', "Subnet-based mode activated:", "Unable to drag hosts into unconfigured subnet.");
+                            return false;
+                        }
+                    default:
+                        return true;
+                }
+            }
+            return false;
         }, // filter function to specify which parent nodes are valid drop targets
-        dropSibling: (dropSibling, grabbedNode) => {return (dropSibling.data() instanceof Subnet);}, // filter function to specify which orphan nodes are valid drop siblings
-        newParentNode: (grabbedNode, dropSibling) => { 
-            if(dropSibling.data() instanceof Subnet) return dropSibling;
-            return {};
+        dropSibling: (dropSibling, grabbedNode) => { return (dropSibling.data() instanceof Subnet); }, // filter function to specify which orphan nodes are valid drop siblings
+        newParentNode: (grabbedNode, dropSibling) => {
+            if (dropSibling.data() instanceof Subnet) return dropSibling;
         }, // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
         boundingBoxOptions: { // same as https://js.cytoscape.org/#eles.boundingBox, used when calculating if one node is dragged over another
             includeOverlays: false,
@@ -283,36 +305,21 @@ export function initNetwork(network: ComputerNetwork): void {
     //register context menu
     network._instance = network._graph.contextMenus(menuOptions);
 
-    network._cdnd = network._graph.compoundDragAndDrop(manualSubnettingOptions);
+    network._cdnd = network._graph.compoundDragAndDrop(subnettingOptions);
     network._cdnd.disable();
 
-    network._graph.on('cdnddrop', (event, compound) => onDragInACompound(event, compound, network.ipv4Database));
-
     //TODO: custom badge for extensions (e.g. firewall)
-    // network._graph.nodeHtmlLabel([
-    //     {
-    //         query: ".host-node",
-    //         valign: "bottom",
-    //         halign: "center",
-    //         halignBox: 'center',
-    //         valignBox: 'bottom',
-    //         tpl: function (host) {
-    //             let showIp: boolean = (network.renderRoot.querySelector('#IpCheckBox') as SlCheckbox).checked;
-    //             let showBinIp: boolean = (network.renderRoot.querySelector('#IpBinCheckBox') as SlCheckbox).checked;
-    //             let showMac: boolean = (network.renderRoot.querySelector('#MacCheckBox') as SlCheckbox).checked;
-    //             return createHtmlLabelingForHost(showIp, showBinIp, showMac, host);
-    //         }
-    //     },
-    //     {
-    //         query: ".connector-node",
-    //         valign: "top",
-    //         halign: "right",
-    //         halignBox: 'top',
-    //         valignBox: 'top',
-    //         tpl: function (connector) {
-    //             return createHtmlLabelingForConnector(connector);
-    //         }
-    //     }
-    // ]);
+    network._graph.nodeHtmlLabel([
+        {
+            query: ".default-gateway-not-found",
+            valign: "top",
+            halign: "right",
+            //valignBox: 'top',
+            //halignBox: 'center',
+            tpl: function () {
+                return `<sl-icon src="doc/icons/no-internet.svg">`;
+            }
+        }
+    ]);
 
 }

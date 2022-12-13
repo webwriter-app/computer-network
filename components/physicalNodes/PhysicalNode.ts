@@ -1,6 +1,7 @@
 import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { GraphEdge } from "../GraphEdge";
 import { GraphNode } from "../GraphNode";
+import { Subnet } from "../logicalNodes/Subnet";
 import { Router } from "./Connector";
 
 export abstract class PhysicalNode extends GraphNode {
@@ -11,11 +12,10 @@ export abstract class PhysicalNode extends GraphNode {
     name: string;
     portLinkMapping: Map<number, string> = new Map(); //updates on drawing edges (port-index, edge.id)
 
-
     //configure with subnetting extensions
-    defaultGateway?: Router;
-    subnetMask: string; //binary, without . --> better to XOR
-
+    subnet: Subnet;
+    defaultGateway: [number, Router]; // port-index, Router
+    
 
     constructor(color: string, layer: number, numberOfInterfacesOrPorts: number) {
         super(color);

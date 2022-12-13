@@ -2,7 +2,7 @@ import { LitElementWw } from "@webwriter/lit"
 import { css, html } from "lit"
 import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
-import { toggleDragAndDropSubnetting } from "./event-handlers/subnetting-controller";
+import { toggleDragAndDropSubnetting, validateAllSubnets } from "./event-handlers/subnetting-controller";
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { Ipv4Address } from "./adressing/Ipv4Address"
@@ -10,6 +10,7 @@ import { MacAddress } from "./adressing/MacAddress"
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 import { EdgeController } from "./event-handlers/edge-controller";
 import { DialogFactory } from "./event-handlers/dialog-content";
+import { Subnet } from "./components/logicalNodes/Subnet";
 
 
 @customElement("computer-network")
@@ -57,6 +58,7 @@ export class ComputerNetwork extends LitElementWw {
   ipv4Database: Map<string, Ipv4Address> = new Map<string, Ipv4Address>();
   macDatabase: Map<string, MacAddress> = new Map<string, MacAddress>();
   ipv6Database: Map<string, MacAddress> = new Map<string, MacAddress>();
+  ipv4SubnetDatabase: Map<string, Map<number, Ipv4Address>> = new Map();
 
   static styles =
     css`
@@ -270,7 +272,7 @@ export class ComputerNetwork extends LitElementWw {
     <div class="sidebar">
     <sl-menu style="background-color: LightBlue; border: transparent;">
     <sl-details summary="Subnetting extension" open>
-      <sl-select id="current-subnet-mode" label="Choose one mode:" value="MANUAL">
+      <sl-select id="current-subnet-mode" label="Choose one mode:" @sl-change="${(event)=>{Subnet.setMode(event.target.value)}}" value="MANUAL">
         <sl-menu-item value="HOST_BASED">Hosts-based Mode</sl-menu-item>
         <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
         <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
@@ -286,13 +288,12 @@ export class ComputerNetwork extends LitElementWw {
 
   <sl-details summary="Manual Mode">
     A manual mode that let you manually assign the IPv4 Addresses and Subnet number, validate with the <strong>check</strong> button.
+    <sl-button @click="${() => validateAllSubnets(this)}">Check</sl-button>
   </sl-details>
   
 </div>
 <sl-menu-item @click="${(event) => toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
 </sl-details>
-
-      
 
     <sl-details summary="Packet sending extension">
       <sl-menu-label>Some explanations for the extension</sl-menu-label>
