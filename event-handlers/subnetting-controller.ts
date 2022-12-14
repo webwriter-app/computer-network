@@ -43,65 +43,39 @@ export function onDragInACompound(grabbedNode, compound, database: Map<string, I
         }
         else if (node instanceof Subnet) {
             //if the subnet doesn't match supernet's CIDR
-            if (!node.networkAddress.matchesNetworkCidr(subnet)) {
-                database.delete(node.networkAddress.address); //delete the subnet's old ID from database
+            if (!subnet.isSupernetOf(node)) {
+                subnetDatabase.get(node.networkAddress.address).delete(node.bitmask) //delete the subnet from database
                 node.networkAddress = null; //delete the subnet Address
-                grabbedNode.addClass("unconfigured-subnet");
+                grabbedNode.addClass("unconfigured-subnet"); //seems redundant? no direct mapping between cssClass and classes of cytopscape?
+                node.cssClass.push("unconfigured-subnet");
                 node.name = "";
             }
         }
     }//reset the Network ID based on new element
     else if (Subnet.mode == "HOST_BASED") {
-        let ips: Ipv4Address[] = [];
-        let matchesCIDR = true;
-        let unconfigured: boolean = subnet.cssClass.indexOf('unconfigured-subnet')!=-1;
-        let subnetPrefixes: string[] = [];
 
         if (node instanceof PhysicalNode && node.layer > 2) {
             node.portData.forEach(data => {
                 let ip4 = data.get('IPv4');
-                if (ip4 != null && ip4.address != "127.0.0.1") {
-                    ips.push(ip4);
-                    if (!unconfigured && !ip4.matchesNetworkCidr(subnet)) matchesCIDR = false;
-                }
+                if (ip4 != null && ip4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet, ip4, database, subnetDatabase);
             });
         }
         else if (node instanceof Subnet) {
-            subnetPrefixes.push(node.networkAddress.binaryOctets.join('').slice(0,node.bitmask));
-            //if the subnet doesn't match supernet's CIDR
-            if (!unconfigured && !node.networkAddress.matchesNetworkCidr(subnet)) matchesCIDR = false;
-        }
-
-        if (unconfigured || !matchesCIDR) {
-            compound.children().forEach(child => {
-                let host: GraphNode = child.data();
-                if (host instanceof Subnet && host.networkAddress != null && host.networkAddress != undefined) {
-                    subnetPrefixes.push(node.networkAddress.binaryOctets.join('').slice(0,node.bitmask));
-                }
-                else if (host instanceof PhysicalNode && host.layer>2) {
-                    host.portData.forEach(data => {
-                        let ip = data.get('IPv4');
-                        if (ip != null && ip.address != "127.0.0.1") ips.push(ip);
-                    });
-                }
-            });
-        }
-        if (Subnet.calculateSubnetNumber(subnet, ips, database, subnetDatabase, subnetPrefixes)){
-            compound.removeClass('unconfigured-subnet');
+            Subnet.calculateCIDRGivenNewSubnet(subnet, node, database, subnetDatabase);
         }
     }
 }
 
-export function validateAllSubnets(network: ComputerNetwork): void{
+export function validateAllSubnets(network: ComputerNetwork): void {
     let subnets = network._graph.$('.subnet-node');
     let allCorrect = true;
     subnets.forEach(subnetNode => {
         let subnet = subnetNode.data();
         let hosts: GraphNode[] = [];
-        subnetNode.children().forEach (node => hosts.push(node.data()));
-        if(!subnet.validateSubnet(hosts)) allCorrect=false;
+        subnetNode.children().forEach(node => hosts.push(node.data()));
+        if (!subnet.validateSubnet(hosts)) allCorrect = false;
     });
-    if(allCorrect){
-        AlertHelper.toastAlert("success","check2-circle", "Well done!", "All subnets are configured and correct!")
+    if (allCorrect) {
+        AlertHelper.toastAlert("success", "check2-circle", "Well done!", "All subnets are configured and correct!")
     }
 }

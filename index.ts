@@ -273,27 +273,16 @@ export class ComputerNetwork extends LitElementWw {
     <sl-menu style="background-color: LightBlue; border: transparent;">
     <sl-details summary="Subnetting extension" open>
       <sl-select id="current-subnet-mode" label="Choose one mode:" @sl-change="${(event)=>{Subnet.setMode(event.target.value)}}" value="MANUAL">
-        <sl-menu-item value="HOST_BASED">Hosts-based Mode</sl-menu-item>
-        <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
         <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
+        <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
+        <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
       </sl-select>
-      <div class="details-group-example" @sl-show="${(event) => { this.renderRoot.querySelector('.details-group-example').querySelectorAll('sl-details').forEach(details => (details.open = event.target === details)) }}">
-  <sl-details summary="Hosts-based Mode">
-    A bottom-up auto calculation of subnet number according to hosts' IPv4 Addresses.
-  </sl-details>
-
-  <sl-details summary="Subnet-based Mode">
-    A top-down auto adaptation of IPv4 addresses for hosts according to subnet number.
-  </sl-details>
-
-  <sl-details summary="Manual Mode">
-    A manual mode that let you manually assign the IPv4 Addresses and Subnet number, validate with the <strong>check</strong> button.
-    <sl-button @click="${() => validateAllSubnets(this)}">Check</sl-button>
-  </sl-details>
-  
-</div>
-<sl-menu-item @click="${(event) => toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
-</sl-details>
+      <sl-tooltip placement="bottom">
+        <div slot="content">Choose a mode to drag and drop into subnet:<br/><strong>Subnet-based: </strong>A top-down auto adaptation of IPv4 addresses for hosts according to subnet number.<br/><strong>Host-based: </strong>A bottom-up auto calculation of subnet number according to dragged component.</div>
+        <sl-menu-item @click="${(event) => toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
+      </sl-tooltip>
+      <sl-button @click="${() => validateAllSubnets(this)}">Check</sl-button>
+    </sl-details>
 
     <sl-details summary="Packet sending extension">
       <sl-menu-label>Some explanations for the extension</sl-menu-label>
