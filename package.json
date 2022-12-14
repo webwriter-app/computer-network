@@ -11,6 +11,7 @@
     "cytoscape-context-menus": "^4.1.0",
     "cytoscape-edgehandles": "^4.0.1",
     "cytoscape-node-html-label": "^1.2.2",
+    "konva": "7.0.3",
     "lit": "^2.4.0"
   },
   "devDependencies": {
