@@ -9,14 +9,14 @@ import NodeSingular from "cytoscape";
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { DialogFactory, handleChangesInDialogForPhysicalNode, handleChangesInDialogForSubnet } from "./event-handlers/dialog-content";
-import { onDragInACompound } from "./event-handlers/subnetting-controller";
+import { DialogFactory } from "./event-handlers/dialog-content";
 import { EdgeController } from "./event-handlers/edge-controller";
 import { GraphEdge } from "./components/GraphEdge";
 import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
 import { Address } from "./adressing/Address";
 import { Subnet } from "./components/logicalNodes/Subnet";
 import { AlertHelper } from "./utils/AlertHelper";
+import { SubnettingController } from "./event-handlers/subnetting-controller";
 
 
 // register extension
@@ -181,7 +181,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 onClickFunction: function (event) {
                     let node = event.target;
                     let id = node.data().id;
-                    handleChangesInDialogForPhysicalNode(id, node, network);
+                    DialogFactory.handleChangesInDialogForPhysicalNode(id, node, network);
                 },
                 hasTrailingDivider: true
             },
@@ -194,13 +194,13 @@ export function initNetwork(network: ComputerNetwork): void {
                     let node = event.target;
                     let id = node.data().id;
 
-                    handleChangesInDialogForSubnet(id, node, network);
+                    DialogFactory.handleChangesInDialogForSubnet(id, node, network);
                 },
                 hasTrailingDivider: true
             },
             {
                 id: "configure-port",
-                content: "Configure ports/interfaces for this connection",
+                content: "Configure ports for this connection",
                 selector: ".unconfigured-edge",
                 onClickFunction: function (event) {
                     let edge = event.target;
@@ -265,14 +265,14 @@ export function initNetwork(network: ComputerNetwork): void {
             if (dropTarget.data() instanceof Subnet) {
                 switch (Subnet.mode) {
                     case 'HOST_BASED': //subnet's info get regenerated based on hosts in host_mode
-                        onDragInACompound(grabbedNode, dropTarget, network.ipv4Database, network.ipv4SubnetDatabase);
+                        SubnettingController.onDragInACompound(grabbedNode, dropTarget, network.ipv4Database);
                         return true;
                     case 'SUBNET_BASED': //the subnet must be configured to drag hosts into (subnet_mode)
                         let bitmask: number = dropTarget.data().bitmask;
                         if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
                             //check if current num. of hosts exceed allowed && subnet is configured
                             if (((Math.pow(2, 32 - bitmask) - 2) > dropTarget.children().length) && !dropTarget.data().cssClass.includes('unconfigured-subnet')) {
-                                onDragInACompound(grabbedNode, dropTarget, network.ipv4Database, network.ipv4SubnetDatabase);
+                                SubnettingController.onDragInACompound(grabbedNode, dropTarget, network.ipv4Database);
                                 return true;
                             }
                             return false;

@@ -40,7 +40,7 @@ export class GraphNodeFactory {
         let subnetMask: string = (network.renderRoot.querySelector('#subnet-mask') as SlInput).value.trim();
         let bitmask: number = (network.renderRoot.querySelector('#subnet-bitmask') as SlInput).valueAsNumber;
 
-        let newSubnet = Subnet.createSubnet(network.currentColor, subnetNum, subnetMask, bitmask, network.ipv4Database, network.ipv4SubnetDatabase);
+        let newSubnet = Subnet.createSubnet(network.currentColor, subnetNum, subnetMask, bitmask, network.ipv4Database);
 
         if(newSubnet!=null){
             network._graph.add({
@@ -85,7 +85,7 @@ export class GraphNodeFactory {
             macAddress = macAddress != null ? macAddress : MacAddress.generateRandomAddress(network.macDatabase);
 
             let ipv4: Ipv4Address = inputIpv4 == null ? Ipv4Address.getLoopBackAddress()
-                : Ipv4Address.validateIpv4Address(inputIpv4.value, network.ipv4Database, network.ipv4SubnetDatabase);
+                : Ipv4Address.validateAddress(inputIpv4.value, network.ipv4Database);
             ipv4 = ipv4 != null ? ipv4 : Ipv4Address.getLoopBackAddress();
 
             let ipv6: Ipv6Address = inputIpv6 == null ? Ipv6Address.getLoopBackAddress()

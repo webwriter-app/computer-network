@@ -24,26 +24,14 @@ export class Ipv4Address extends Address {
      * 
      * @param ip an Ipv4 address (string) that's not validate
      * @param database of all "worldwide" addresses
-     * @param subnetDatabase of all "worldwide" Subnets
      * @param bitmask only needed if the passed Address is of a subnet
      * @returns a valid Ipv4 address || null
      */
-    static validateIpv4Address(ip: string, database: Map<string, Ipv4Address>,
-        subnetDatabase: Map<string, Map<number, Ipv4Address>>, bitmask?: number): Ipv4Address {
+    static override validateAddress(ip: string, database: Map<string, Ipv4Address>, bitmask?: number): Ipv4Address {
         let isNetworkId: boolean = (bitmask != null && !Number.isNaN(bitmask) && bitmask != undefined);
 
         if (ip == null || ip == undefined || ip == "" || database.has(ip)) {
             return null;
-        }
-        if (subnetDatabase.has(ip)) {
-            //if this is a subnet
-            if (isNetworkId) {
-                if (subnetDatabase.get(ip).has(bitmask)) return null;
-            }
-            else {
-                //the network ID can't be assigned to host
-                return null;
-            }
         }
         let stringArray = ip.split('.');
 
@@ -65,22 +53,13 @@ export class Ipv4Address extends Address {
 
         let result: Ipv4Address = new Ipv4Address(ip, stringArray, binArray, decimalArray);
 
-        if (isNetworkId) {
-            if (parseInt(binArray.join('').slice(bitmask)) * 10 != 0) return null;
-            if (!subnetDatabase.has(ip)) {
-                subnetDatabase.set(ip, new Map());
-            }
-            subnetDatabase.get(ip).set(bitmask, result);
-            return result;
-        }
-        else {
-            database.set(ip, result);
-            return result;
-        }
+        if (isNetworkId && parseInt(binArray.join('').slice(bitmask)) * 10 != 0) return null;
+
+        database.set(ip, result);
+        return result;
     }
 
-    static generateNewIpGivenSubnet(database: Map<string, Ipv4Address>, subnetDatabase: Map<string, Map<number, Ipv4Address>>,
-        oldIp: Ipv4Address, subnet: Subnet): Ipv4Address {
+    static generateNewIpGivenSubnet(database: Map<string, Ipv4Address>, oldIp: Ipv4Address, subnet: Subnet): Ipv4Address {
 
         if (oldIp.matchesNetworkCidr(subnet)) {
             return oldIp;
@@ -98,7 +77,7 @@ export class Ipv4Address extends Address {
 
         let n: number = 10; //TODO: how many iterations is appropriate?
         //if randomized ip exists/reserved, regenerate another IP (set timeout to n iterations)
-        while (n > 0 && (database.has(ip) || subnetDatabase.has(ip) || reservedAddresses.includes(candidateIp))) {
+        while (n > 0 && (database.has(ip) || reservedAddresses.includes(candidateIp))) {
             candidateIp = subnetPrefix;
             while (candidateIp.length != 32) {
                 candidateIp += AddressingHelper.randomBetween(0, 1);
@@ -108,11 +87,11 @@ export class Ipv4Address extends Address {
         }
 
         database.delete(oldIp.address);
-        if (database.has(ip) || subnetDatabase.has(ip)) {
+        if (database.has(ip)) {
             AlertHelper.toastAlert("danger", "exclamation-triangle", "Can't generate an automatic address for this host", "");
             return null;
         }
-        let result = this.validateIpv4Address(ip, database, subnetDatabase);
+        let result = this.validateAddress(ip, database);
         return result;
     }
 

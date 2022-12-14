@@ -40,8 +40,8 @@ export class GraphEdge {
         else if ((inPortData.get('Connection Type') == "wireless" && outPortData.get('Connection Type') == "ethernet") ||
             (inPortData.get('Connection Type') == "ethernet" && outPortData.get('Connection Type') == "wireless")) {
             AlertHelper.toastAlert("danger", "exclamation-triangle", 
-            "The connection type of 2 ports/interfaces are not compatible!", 
-            "Please re-assign your ports/interfaces or dismiss this connection.");
+            "The connection type of assigned ports are not compatible!", 
+            "Please re-assign your ports or dismiss this connection.");
                 return null;
         }
         else {

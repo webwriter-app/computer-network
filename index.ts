@@ -2,7 +2,6 @@ import { LitElementWw } from "@webwriter/lit"
 import { css, html } from "lit"
 import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
-import { toggleDragAndDropSubnetting, validateAllSubnets } from "./event-handlers/subnetting-controller";
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { Ipv4Address } from "./adressing/Ipv4Address"
@@ -11,6 +10,7 @@ import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 import { EdgeController } from "./event-handlers/edge-controller";
 import { DialogFactory } from "./event-handlers/dialog-content";
 import { Subnet } from "./components/logicalNodes/Subnet";
+import { SubnettingController } from "./event-handlers/subnetting-controller";
 
 
 @customElement("computer-network")
@@ -37,6 +37,7 @@ export class ComputerNetwork extends LitElementWw {
 
   @property()
   _edgeHandles; //controller for edgehandles extension
+
   @property({ type: Boolean, reflect: true })
   drawModeOn: boolean = false;
 
@@ -58,7 +59,6 @@ export class ComputerNetwork extends LitElementWw {
   ipv4Database: Map<string, Ipv4Address> = new Map<string, Ipv4Address>();
   macDatabase: Map<string, MacAddress> = new Map<string, MacAddress>();
   ipv6Database: Map<string, MacAddress> = new Map<string, MacAddress>();
-  ipv4SubnetDatabase: Map<string, Map<number, Ipv4Address>> = new Map();
 
   static styles =
     css`
@@ -259,7 +259,6 @@ export class ComputerNetwork extends LitElementWw {
       background: LightBlue;
       width: 23.7vw;
     }
-    
 `;
   render() {
     const colorOptions = [];
@@ -270,31 +269,30 @@ export class ComputerNetwork extends LitElementWw {
     return html`
 
     <div class="sidebar">
-    <sl-menu style="background-color: LightBlue; border: transparent;">
-    <sl-details summary="Subnetting extension" open>
-      <sl-select id="current-subnet-mode" label="Choose one mode:" @sl-change="${(event)=>{Subnet.setMode(event.target.value)}}" value="MANUAL">
-        <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
-        <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
-        <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
-      </sl-select>
-      <sl-tooltip placement="bottom">
-        <div slot="content">Choose a mode to drag and drop into subnet:<br/><strong>Subnet-based: </strong>A top-down auto adaptation of IPv4 addresses for hosts according to subnet number.<br/><strong>Host-based: </strong>A bottom-up auto calculation of subnet number according to dragged component.</div>
-        <sl-menu-item @click="${(event) => toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
-      </sl-tooltip>
-      <sl-button @click="${() => validateAllSubnets(this)}">Check</sl-button>
-    </sl-details>
-
-    <sl-details summary="Packet sending extension">
-      <sl-menu-label>Some explanations for the extension</sl-menu-label>
-      <sl-menu-item>etc</sl-menu-item>
-      <sl-menu-item>etc</sl-menu-item>
-      <sl-menu-item>etc</sl-menu-item>
-    </sl-details>
-    </sl-menu>
-  </div>
+      <sl-menu style="background-color: LightBlue; border: transparent; height: fit-content;">
+        <sl-details summary="Subnetting extension" open>
+          <sl-tooltip style="overflow: hidden;" placement="bottom">
+            <div slot="content"><strong>Subnet-based: </strong>A top-down auto adaptation of IPv4 addresses for hosts according to subnet number.<br/><strong>Host-based: </strong>A bottom-up auto-extension of subnet number according to dragged component.</div>
+            <sl-menu-label>Choose a mode:</sl-menu-label>
+          </sl-tooltip>
+          <sl-select id="current-subnet-mode" @sl-change="${(event)=>{Subnet.setMode(event.target.value)}}" value="MANUAL">
+            <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
+            <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
+            <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
+          </sl-select>
+          <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
+          <sl-button @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button>
+        </sl-details>
+        <sl-details summary="Packet sending extension">
+          <sl-menu-label>Some explanations for the extension</sl-menu-label>
+          <sl-menu-item>etc</sl-menu-item>
+          <sl-menu-item>etc</sl-menu-item>
+          <sl-menu-item>etc</sl-menu-item>
+        </sl-details>
+      </sl-menu>
+    </div>
 
     <div class="base">
-
     <div style="position:relative; width: 25vw; display: flex; flex-direction: row; gap: auto; padding: auto">
       <sl-dropdown placement="bottom">
         <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
@@ -327,8 +325,8 @@ export class ComputerNetwork extends LitElementWw {
 
       <sl-tab-panel name="physical">
         <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
-        <sl-input class="label-on-left" label="Number of ports/ interfaces" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
-        <sl-button style="margin-top: 1vw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports/ interfaces</sl-button>
+        <sl-input class="label-on-left" label="Number of ports" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
+        <sl-button style="margin-top: 1vw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
       </sl-tab-panel>
       <sl-tab-panel name="logical">
       <sl-input class="label-on-left" label="Subnet Number" id="subnet-num" placeholder="Network ID"></sl-input>
