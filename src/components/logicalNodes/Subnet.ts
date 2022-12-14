@@ -1,10 +1,10 @@
 import { Ipv4Address } from "../../adressing/Ipv4Address";
-import { AlertHelper } from "../../utils/AlertHelper";
 import { AddressingHelper } from "../../utils/AdressingHelper";
+import { AlertHelper } from "../../utils/AlertHelper";
 import { GraphNode } from "../GraphNode";
 import { Router } from "../physicalNodes/Connector";
-import { LogicalNode } from "./LogicalNode";
 import { PhysicalNode } from "../physicalNodes/PhysicalNode";
+import { LogicalNode } from "./LogicalNode";
 
 export class Subnet extends LogicalNode {
     bitmask: number;

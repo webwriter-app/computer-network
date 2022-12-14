@@ -1,5 +1,4 @@
 import { Ipv4Address } from "../../adressing/Ipv4Address";
-import { GraphEdge } from "../GraphEdge";
 import { GraphNode } from "../GraphNode";
 import { Subnet } from "../logicalNodes/Subnet";
 import { Router } from "./Connector";

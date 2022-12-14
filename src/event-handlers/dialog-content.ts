@@ -1,5 +1,5 @@
-import { SlButton, SlDialog, SlInput, SlSelect, SlTabGroup, SlTabPanel } from "@shoelace-style/shoelace";
-import { ComputerNetwork } from "..";
+import { SlInput, SlDialog, SlButton, SlTabGroup, SlTabPanel, SlSelect } from "@shoelace-style/shoelace";
+import { ComputerNetwork } from "../..";
 import { Address } from "../adressing/Address";
 import { Ipv4Address } from "../adressing/Ipv4Address";
 import { Ipv6Address } from "../adressing/Ipv6Address";

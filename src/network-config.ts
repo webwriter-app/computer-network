@@ -1,4 +1,4 @@
-import { ComputerNetwork } from ".";
+import { ComputerNetwork } from "..";
 import cytoscape from "cytoscape/dist/cytoscape.esm.min.js";
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
 import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
@@ -11,12 +11,13 @@ import NodeSingular from "cytoscape";
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
 import { DialogFactory } from "./event-handlers/dialog-content";
 import { EdgeController } from "./event-handlers/edge-controller";
-import { GraphEdge } from "./components/GraphEdge";
-import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
-import { Address } from "./adressing/Address";
-import { Subnet } from "./components/logicalNodes/Subnet";
+
 import { AlertHelper } from "./utils/AlertHelper";
 import { SubnettingController } from "./event-handlers/subnetting-controller";
+import { Address } from "./adressing/Address";
+import { GraphEdge } from "./components/GraphEdge";
+import { Subnet } from "./components/logicalNodes/Subnet";
+import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
 
 
 // register extension

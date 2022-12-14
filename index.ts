@@ -4,13 +4,13 @@ import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { Ipv4Address } from "./adressing/Ipv4Address"
-import { MacAddress } from "./adressing/MacAddress"
-import { GraphNodeFactory } from "./event-handlers/component-manipulation";
-import { EdgeController } from "./event-handlers/edge-controller";
-import { DialogFactory } from "./event-handlers/dialog-content";
-import { Subnet } from "./components/logicalNodes/Subnet";
-import { SubnettingController } from "./event-handlers/subnetting-controller";
+import { Ipv4Address } from "./src/adressing/Ipv4Address"
+import { MacAddress } from "./src/adressing/MacAddress"
+import { GraphNodeFactory } from "./src/event-handlers/component-manipulation";
+import { EdgeController } from "./src/event-handlers/edge-controller";
+import { DialogFactory } from "./src/event-handlers/dialog-content";
+import { SubnettingController } from "./src/event-handlers/subnetting-controller";
+import { Subnet } from "./src/components/logicalNodes/Subnet";
 
 
 @customElement("computer-network")

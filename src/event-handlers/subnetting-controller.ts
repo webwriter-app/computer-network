@@ -1,9 +1,10 @@
-import { ComputerNetwork } from "..";
+import { ComputerNetwork } from "../..";
 import { Ipv4Address } from "../adressing/Ipv4Address";
 import { GraphNode } from "../components/GraphNode";
 import { Subnet } from "../components/logicalNodes/Subnet";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
+
 
 export class SubnettingController {
     static toggleDragAndDropSubnetting(event: any, network: ComputerNetwork) {

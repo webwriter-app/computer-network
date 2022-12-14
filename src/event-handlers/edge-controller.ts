@@ -1,9 +1,10 @@
 import { SlButton } from "@shoelace-style/shoelace";
-import { ComputerNetwork } from "..";
+import { ComputerNetwork } from "../..";
 import { GraphEdge } from "../components/GraphEdge";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
-import NodeSingular from "cytoscape";
 import { AlertHelper } from "../utils/AlertHelper";
+import NodeSingular from "cytoscape";
+
 
 export class EdgeController {
 

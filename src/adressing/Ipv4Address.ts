@@ -1,4 +1,4 @@
-import { Subnet } from "../components/logicalNodes/Subnet";
+import { Subnet } from "../../components/logicalNodes/Subnet";
 import { AddressingHelper } from "../utils/AdressingHelper";
 import { AlertHelper } from "../utils/AlertHelper";
 import { Address } from "./Address";
