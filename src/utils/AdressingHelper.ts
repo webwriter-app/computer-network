@@ -1,5 +1,6 @@
 export class AddressingHelper {
     static numTo8BitBinary(num: number): string {
+        if (num < 0) throw new Error("Octets shouldn't be of negative value");
         if (num == undefined || num == 0) {
             return "00000000";
         }
@@ -8,7 +9,7 @@ export class AddressingHelper {
     }
 
     static binaryToDecimalOctets(binary: string): number[] {
-        if (binary.length != 32) {
+        if (binary.length != 32 || !/^[01]+$/.test(binary)) {
             return null;
         }
         return [parseInt(binary.slice(0, 8), 2), parseInt(binary.slice(8, 16), 2),
@@ -49,12 +50,10 @@ export class AddressingHelper {
         return hexRef[this.randomBetween(0, 15)] + hexRef[this.randomBetween(0, 15)];
     }
 
-    //TODO: this is buggyy
     static replaceAt(origin: string, index: number, replacement: string): string {
-        if (index >= origin.length) console.log("index out of bound");
-        console.log(index);
-        if (index == 0) return replacement + origin.substring(replacement.length);
-        return origin.substring(0, index-1) + replacement + origin.substring(index - 1 + replacement.length);
+        if (index > origin.length || index<0 || replacement.length!=1) return null;
+        if (index == 0) return replacement + origin.substring(1);
+        return origin.substring(0, index-1) + replacement + origin.substring(index);
     }
 }
 

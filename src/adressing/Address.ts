@@ -5,6 +5,7 @@ export abstract class Address {
 
 
     constructor(layer: number){
+        this.layer = layer;
         if(layer<2){
             this.address = "";
         }

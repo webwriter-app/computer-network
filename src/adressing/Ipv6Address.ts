@@ -1,11 +1,12 @@
 import { Address } from "./Address";
 
 export class Ipv6Address extends Address {
-    static regex: RegExp = /^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$/;
+    static regex: RegExp = /([a-f0-9:]+:+)+[a-f0-9]+/;
 
     constructor(address: string, stringOctets: string[]){
         super(3);
         this.address = address;
+        this.octets = stringOctets;
     }
 
     static getLoopBackAddress(): Ipv6Address{
@@ -16,6 +17,8 @@ export class Ipv6Address extends Address {
         if (database.has(address) || address=="" || address==undefined || address==null) {
             return null;
         }
+
+        if (address=="0:0:0:0:0:0:0:1") return this.getLoopBackAddress();
 
         if (Ipv6Address.regex.test(address)) {
             let octets: string[] = address.split(':');

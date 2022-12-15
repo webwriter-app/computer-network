@@ -1,4 +1,4 @@
-import { Subnet } from "../../components/logicalNodes/Subnet";
+import { Subnet } from "../components/logicalNodes/Subnet";
 import { AddressingHelper } from "../utils/AdressingHelper";
 import { AlertHelper } from "../utils/AlertHelper";
 import { Address } from "./Address";
@@ -33,6 +33,11 @@ export class Ipv4Address extends Address {
         if (ip == null || ip == undefined || ip == "" || database.has(ip)) {
             return null;
         }
+
+        if (ip == "127.0.0.1") {
+            if (!isNetworkId) { return this.getLoopBackAddress(); } else { return null; }
+        }
+
         let stringArray = ip.split('.');
 
         if (stringArray.length != 4) {
@@ -41,15 +46,16 @@ export class Ipv4Address extends Address {
 
         let decimalArray: number[] = [];
         let binArray: string[] = [];
+        let outOfRange: boolean = false;
 
         stringArray.forEach(octet => {
             let intOctet = parseInt(octet);
-            if (intOctet == undefined || intOctet < 0 || intOctet > 255) {
-                return null;
-            }
+            if (intOctet == undefined || intOctet < 0 || intOctet > 255) outOfRange=true;
             decimalArray.push(intOctet);
             binArray.push(AddressingHelper.numTo8BitBinary(intOctet));
         });
+        
+        if (outOfRange) return null;
 
         let result: Ipv4Address = new Ipv4Address(ip, stringArray, binArray, decimalArray);
 

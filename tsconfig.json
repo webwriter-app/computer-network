@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
+    "allowJs": true,
     "useDefineForClassFields": false,
+    "esModuleInterop": true,
     "lib": ["es2017", "dom"]
   }
 }
