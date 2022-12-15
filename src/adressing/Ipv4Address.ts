@@ -22,27 +22,21 @@ export class Ipv4Address extends Address {
 
     /**
      * 
-     * @param ip an Ipv4 address (string) that's not validate
+     * @param ip an Ipv4 address (string) that's not validated
      * @param database of all "worldwide" addresses
      * @param bitmask only needed if the passed Address is of a subnet
-     * @returns a valid Ipv4 address || null
+     * @returns Ipv4 address from passed address string | null if the passed address string is not valid
      */
     static override validateAddress(ip: string, database: Map<string, Ipv4Address>, bitmask?: number): Ipv4Address {
         let isNetworkId: boolean = (bitmask != null && !Number.isNaN(bitmask) && bitmask != undefined);
 
-        if (ip == null || ip == undefined || ip == "" || database.has(ip)) {
-            return null;
-        }
+        if (ip == null || ip == undefined || ip == "" || database.has(ip)) return null;
+        if (isNetworkId && (bitmask<0 || bitmask>32)) return null;
 
-        if (ip == "127.0.0.1") {
-            if (!isNetworkId) { return this.getLoopBackAddress(); } else { return null; }
-        }
+        if (ip == "127.0.0.1") if (!isNetworkId) { return this.getLoopBackAddress(); } else { return null; }
 
         let stringArray = ip.split('.');
-
-        if (stringArray.length != 4) {
-            return null;
-        }
+        if (stringArray.length != 4) return null;
 
         let decimalArray: number[] = [];
         let binArray: string[] = [];
@@ -59,12 +53,19 @@ export class Ipv4Address extends Address {
 
         let result: Ipv4Address = new Ipv4Address(ip, stringArray, binArray, decimalArray);
 
-        if (isNetworkId && parseInt(binArray.join('').slice(bitmask)) * 10 != 0) return null;
+        if (isNetworkId && parseInt(binArray.join('').slice(bitmask)) * 10 != 0 && bitmask<32) return null;
 
         database.set(ip, result);
         return result;
     }
 
+    /**
+     * 
+     * @param database ipv4 database
+     * @param oldIp current ipv4 address of a host
+     * @param subnet the current subnet that host's in
+     * @returns current ipv4 if it matches network CIDR, else a random new address that matches network CIDR (except for reserved addresses of subnet)
+     */
     static generateNewIpGivenSubnet(database: Map<string, Ipv4Address>, oldIp: Ipv4Address, subnet: Subnet): Ipv4Address {
 
         if (oldIp.matchesNetworkCidr(subnet)) {
@@ -101,6 +102,11 @@ export class Ipv4Address extends Address {
         return result;
     }
 
+    /**
+     * 
+     * @param subnet 
+     * @returns whether this ipv4 address matches network CIDR
+     */
     matchesNetworkCidr(subnet: Subnet): boolean {
         if (this.address == "127.0.0.1") return true; //exclude loop-back address
         if (subnet.cssClass.includes('unconfigured-subnet')) return false;

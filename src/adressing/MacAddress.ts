@@ -11,8 +11,8 @@ export class MacAddress extends Address {
     }
 
     /**
-     * @param database 
-     * @returns 
+     * @param database of "worldwide" MAC addresses
+     * @returns a random unique MAC address
      */
     static generateRandomAddress(database: Map<string, MacAddress>): MacAddress {
         let macArray: string[] = [AddressingHelper.randomHex(), AddressingHelper.randomHex(), AddressingHelper.randomHex(),

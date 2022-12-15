@@ -7,7 +7,6 @@ export abstract class GraphNode {
 
     constructor(color: string) {
         this.color = color;
-        //this.cssClass.push('element-label');
     }
 
 
