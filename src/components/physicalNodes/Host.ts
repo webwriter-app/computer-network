@@ -6,7 +6,7 @@ import { ConnectionType, PhysicalNode } from "./PhysicalNode";
 export class Host extends PhysicalNode {
 
     constructor(color: string, icon: string, numberOfInterfaces: number,  names: Map<number, string>, portConnectionTypes: Map<number, ConnectionType>, 
-        portMacMapping?: Map<number, MacAddress>, portIpv4Mapping?: Map<number,Ipv4Address>, portIpv6Mapping?: Map<number, Ipv6Address>, name?: string) {
+        portMacMapping: Map<number, MacAddress>, portIpv4Mapping: Map<number,Ipv4Address>, portIpv6Mapping: Map<number, Ipv6Address>, name?: string) {
         super(color, 3, numberOfInterfaces);
 
         this.id = 'host'+Host.counter;

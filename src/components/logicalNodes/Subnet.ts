@@ -16,6 +16,8 @@ export class Subnet extends LogicalNode {
     //this is updated on drag-and-drop
     gateways: Map<[string, number], Router> = new Map(); //([routerid, port-index], Router)
 
+    static subnetRegex = new RegExp("@^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$");
+
 
     private constructor(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, Ipv4Address>) {
         super(color);
@@ -24,25 +26,22 @@ export class Subnet extends LogicalNode {
         this.cssClass.push('subnet-node');
 
         //if bitmask is not null, calculate equivalent subnet mask
-        if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
+        if (bitmask != null) {
             this.bitmask = bitmask;
             this.binarySubnetMask = "".padStart(bitmask, '1').padEnd(32, '0');
             let derivedDecimalMask: number[] = AddressingHelper.binaryToDecimalOctets(this.binarySubnetMask);
-
-            if (derivedDecimalMask.join('.') != subnetmask) {
-                AlertHelper.toastAlert("warning", "exclamation-diamond", "The subnet mask you entered doesn't match the subnet number and subnet bits.",
-                    "Derived subnet mask is: " + derivedDecimalMask.join('.'));
-            }
             this.subnetMask = derivedDecimalMask.join('.');
-        }
-        else {
-            //if bitmask is null, subnetmask!=null --> calculate bitmask from subnetmask
-            if (subnetmask != null && subnetmask != "" && subnetmask != undefined) {
-                this.subnetMask = subnetmask;
-                this.binarySubnetMask = AddressingHelper.decimalStringWithDotToBinary(subnetmask);
-                this.bitmask = (this.binarySubnetMask.match(new RegExp("1", "g")) || []).length;
+            //if the input subnetmask is valid and doesn't match our bitmask
+            if (subnetmask != null && derivedDecimalMask.join('.') != subnetmask) {
+                AlertHelper.toastAlert("warning", "exclamation-diamond", "The subnet mask you entered doesn't match the subnet number and subnet bits.",
+                    "Derived subnet mask is: " + this.subnetMask);
             }
-            //if both null, set nothing
+        }
+        else if (subnetmask != null) {
+            //if bitmask is null, subnetmask!=null --> calculate bitmask from subnetmask
+            this.subnetMask = subnetmask;
+            this.binarySubnetMask = AddressingHelper.decimalStringWithDotToBinary(subnetmask);
+            this.bitmask = (this.binarySubnetMask.match(new RegExp("1", "g")) || []).length;
         }
 
         let networkId = Ipv4Address.validateAddress(subnetNum, database, this.bitmask);
@@ -51,38 +50,35 @@ export class Subnet extends LogicalNode {
             this.cssClass.push("unconfigured-subnet");
             return;
         }
-        this.networkAddress = networkId != null ? networkId : null;
 
+        this.networkAddress = networkId != null ? networkId : null;
         this.name = (this.networkAddress != null && this.bitmask != undefined) ? this.networkAddress.address + " /" + this.bitmask : "";
     }
 
+    /**
+     * Filter for valid bitmask and subnetmask
+     * @param color 
+     * @param subnetNum 
+     * @param subnetmask 
+     * @param bitmask 
+     * @param database 
+     * @returns 
+     */
     static createSubnet(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, Ipv4Address>): Subnet {
-        if (subnetNum == null || subnetNum == undefined || subnetNum == "") {
+        let bitmaskValid: boolean = !(bitmask == null || bitmask == undefined || Number.isNaN(bitmask) || bitmask < 0 || bitmask > 32);
+        let subnetmaskValid: boolean = !(subnetmask == null || subnetmask == undefined || subnetmask == "" || !Subnet.subnetRegex.test(subnetmask));
+
+        if (!bitmaskValid && !subnetmaskValid) {
             if (Subnet.mode == "SUBNET_BASED") {
                 AlertHelper.toastAlert("danger", "exclamation-diamond", "Subnet-based Mode for Subnetting extensions activated:",
-                    "Cannot create a subnet without subnet number!");
+                    "Cannot create a subnet without bitmask and subnet mask!");
                 return null;
             }
-            let unconfiguredSubnet = new Subnet(color, null, subnetmask, bitmask, database);
+            let unconfiguredSubnet = new Subnet(color, subnetNum, subnetmaskValid ? subnetmask : null, bitmaskValid ? bitmask : null, database);
             unconfiguredSubnet.cssClass.push("unconfigured-subnet");
             return unconfiguredSubnet;
         }
-        else {
-            if ((bitmask == null || bitmask == undefined || Number.isNaN(bitmask)) &&
-                (subnetmask == null || subnetmask == undefined || subnetmask == "")) {
-                if (Subnet.mode == "SUBNET_BASED") {
-                    AlertHelper.toastAlert("danger", "exclamation-diamond", "Subnet-based Mode for Subnetting extensions activated:",
-                        "Cannot create a subnet without bitmask and subnet mask!");
-                    return null;
-                }
-                let unconfiguredSubnet = new Subnet(color, subnetNum, null, null, database);
-                unconfiguredSubnet.cssClass.push("unconfigured-subnet");
-                return unconfiguredSubnet;
-            }
-            else {
-                return new Subnet(color, subnetNum, subnetmask, bitmask, database);
-            }
-        }
+        return new Subnet(color, subnetNum, subnetmaskValid ? subnetmask : null, bitmaskValid ? bitmask : null, database);
     }
 
 
@@ -98,7 +94,7 @@ export class Subnet extends LogicalNode {
      * @param database Ipv4 database
      */
     static calculateCIDRGivenNewHost(subnet: Subnet, ip: Ipv4Address, database: Map<string, Ipv4Address>): void {
-        if (ip.matchesNetworkCidr(subnet)) {
+        if (Subnet.mode!="HOST_BASED" || ip.matchesNetworkCidr(subnet)) {
             return;
         }
         let count: number;
@@ -117,28 +113,36 @@ export class Subnet extends LogicalNode {
     }
 
     private static testPossibleSubnetAddresses(count: number, candidateId: string, subnet: Subnet, database: Map<string, Ipv4Address>): void {
+        if(Subnet.mode!="HOST_BASED") return;
+
         let candidateIdFormatted = AddressingHelper.binaryToDecimalOctets(candidateId).join('.');
         let candidateAddress = Ipv4Address.validateAddress(candidateIdFormatted, database, count);
 
         while (count > 0 && candidateAddress == null) {
-            count--;
             candidateId = AddressingHelper.replaceAt(candidateId, count, '0');
             candidateIdFormatted = AddressingHelper.binaryToDecimalOctets(candidateId).join('.');
             candidateAddress = Ipv4Address.validateAddress(candidateIdFormatted, database, count);
+            count--;
         }
 
         //if no subnet address is available
         if (candidateAddress == null) {
             AlertHelper.toastAlert("warning", "exclamation-triangle", "Hosts-based mode:", "No valid network address can be assigned to this subnet.");
+            database.delete(subnet.networkAddress.address);
+            subnet.networkAddress = null;
+            subnet.bitmask = null;
+            subnet.binarySubnetMask = null;
+            subnet.subnetMask = null;
+            subnet.name = "";
+            subnet.cssClass.push("unconfigured-subnet");
             return;
         }
         else {
             while (subnet.cssClass.includes('unconfigured-subnet')) {
                 subnet.cssClass.splice(subnet.cssClass.indexOf('unconfigured-subnet'), 1);
             }
-            if (subnet.networkAddress != null && subnet.networkAddress != undefined &&
-                subnet.bitmask != null && subnet.bitmask != undefined && !Number.isNaN(subnet.bitmask)) {
-                database.delete(subnet.networkAddress.address); //delete the old subnet from database
+            if (subnet.networkAddress != null && subnet.networkAddress != undefined) {
+                database.delete(subnet.networkAddress.address); //delete the old subnet ID from database
             }
             subnet.networkAddress = candidateAddress;
             subnet.bitmask = count;
@@ -157,23 +161,15 @@ export class Subnet extends LogicalNode {
      * @param bitmask of the subnet
      */
     static calculateCIDRGivenNewSubnet(supernet: Subnet, subnet: Subnet, database: Map<string, Ipv4Address>): void {
-        if (supernet.isSupernetOf(subnet)) return;
-        if (subnet.cssClass.includes('unconfigured-subnet')) {
-            //not enough info to auto-generate network ID
-            return;
-        }
+        if (Subnet.mode!="HOST_BASED" || supernet.isSupernetOf(subnet) || subnet.cssClass.includes('unconfigured-subnet')) return;
 
         let count: number;
         let candidateId: string;
         if (!supernet.cssClass.includes('unconfigured-subnet')) {
             let oldSupernetPrefix = supernet.networkAddress.binaryOctets.join('').slice(0, supernet.bitmask);
-            console.log(oldSupernetPrefix);
             let subnetPrefix = subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask);
-            console.log(subnetPrefix);
             let newPrefix = AddressingHelper.getPrefix([oldSupernetPrefix, subnetPrefix]);
-            console.log(newPrefix);
             count = newPrefix.length;
-            console.log(count);
             candidateId = newPrefix.padEnd(32, '0');
         }
         else {
@@ -219,7 +215,7 @@ export class Subnet extends LogicalNode {
 
 
     isSupernetOf(subnet: Subnet): boolean {
-        if (this.cssClass.includes('unconfigured-subnet') || subnet.cssClass.includes('unconfigured-subnet')) {
+        if (subnet == null || this.cssClass.includes('unconfigured-subnet') || subnet.cssClass.includes('unconfigured-subnet')) {
             return false;
         }
         if (this.bitmask >= subnet.bitmask) return false;

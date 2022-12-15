@@ -93,3 +93,12 @@ test('should not generate new Ip for host in subnet if no address is valid', () 
     let newId = Ipv4Address.generateNewIpGivenSubnet(database, hostOldId, subnet);
     expect(newId).toBeNull();
 });
+
+test('should not generate new Ip for host in subnet if subnet is not configured', () => {
+    let database: Map<string, Ipv4Address> = new Map();
+    Subnet.setMode("MANUAL");
+    let subnet = Subnet.createSubnet("", "255.255.255.255", "", -1, database);
+    let hostOldId = Ipv4Address.validateAddress("129.0.0.0", database);
+    let newId = Ipv4Address.generateNewIpGivenSubnet(database, hostOldId, subnet);
+    expect(newId).toBeNull();
+});

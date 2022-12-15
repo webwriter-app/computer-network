@@ -68,6 +68,8 @@ export class Ipv4Address extends Address {
      */
     static generateNewIpGivenSubnet(database: Map<string, Ipv4Address>, oldIp: Ipv4Address, subnet: Subnet): Ipv4Address {
 
+        if(subnet.cssClass.includes('unconfigured-subnet')) return null;
+
         if (oldIp.matchesNetworkCidr(subnet)) {
             return oldIp;
         }
@@ -118,9 +120,4 @@ export class Ipv4Address extends Address {
         }
         return false;
     }
-
-
-
-
-
 }

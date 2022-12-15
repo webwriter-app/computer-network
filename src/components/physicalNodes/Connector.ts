@@ -26,7 +26,9 @@ export abstract class Connector extends PhysicalNode {
                 this.portData.get(port).set('Connection Type', connectionType);
             });
         }
+        this.cssClass.push("connector-node");
     }
+
 }
 
 export class Router extends Connector {
