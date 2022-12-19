@@ -175,7 +175,7 @@ export function initNetwork(network: ComputerNetwork): void {
         // initial viewport state:
         zoom: 5,
         pan: { x: 0, y: 0 },
-        minZoom: 3,
+        minZoom: 1,
         maxZoom: 1e50,
     });
 

@@ -12,6 +12,15 @@ test('should set mode correctly', () => {
     });
 });
 
+test('should validate subnet mask correctly', () => {
+    expect(Subnet.validateSubnetMask("255.255.255.255")).toBe(true);
+    expect(Subnet.validateSubnetMask("255.255.255.0")).toBe(true);
+    expect(Subnet.validateSubnetMask("255.255.0.0")).toBe(true);
+    expect(Subnet.validateSubnetMask("255.0.0.0")).toBe(true);
+    expect(Subnet.validateSubnetMask("0.0.0.0")).toBe(true);
+    expect(Subnet.validateSubnetMask("0.1.0.0")).toBe(false);
+});
+
 test('should create Subnet for valid subnetNum, subnetMask, bitmask - upper bound', () => {
     modes.forEach(mode => {
         Subnet.setMode(mode);

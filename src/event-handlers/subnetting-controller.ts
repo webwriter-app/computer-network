@@ -46,7 +46,7 @@ export class SubnettingController {
                 router.data('subnets').push(subnet.data()); //add subnet to router node
                 router.toggleClass("gateway-node", true);
                 let gatewayList = subnet.data('gateways');
-                if (!gatewayList.has(router.id)) gatewayList.set(router.id, null); // add gateway to the subnet, with undefined port
+                if (!gatewayList.has(router.id)) gatewayList.set(router.id(), null); // add gateway to the subnet, with undefined port
                 console.log(router);
             }
         });
@@ -58,8 +58,8 @@ export class SubnettingController {
 
         //a layer 3 host needs to have a gateway (saves the IP address of the gateway)
         if (node instanceof PhysicalNode && node.layer > 2) {
-            node.subnet = subnet;
             grabbedNode.addClass('default-gateway-not-found');
+            grabbedNode.addClass('can-change-default-gateway');
         }
 
         //reset the IP address of a host based on the network ID
@@ -137,11 +137,13 @@ export class SubnettingController {
     static setUpGateway(gateway: NodeSingular, host: NodeSingular, gatewayPort: number, database: Map<string, Ipv4Address>): void {
         if (host.isChild() && gateway.hasClass('gateway-node')) {
             let subnet = host.parent();
-            if (!subnet.data('gateways').has(gateway.id)) return;
-            subnet.data('gateways').set(gateway.id, gatewayPort);
-            gateway.data('portSubnetMapping').set(gatewayPort, subnet);
+            let gatewayNodeId = gateway.data().id;
+            if (!subnet.data('gateways').has(gatewayNodeId)) return;
+            subnet.data('gateways').set(gatewayNodeId, gatewayPort);
+            gateway.data('portSubnetMapping').set(gatewayPort, subnet.data());
             let ip4 = gateway.data('portData').get(gatewayPort).get('IPv4');
-
+            console.log(subnet);
+            console.log(gateway);
             switch (Subnet.mode) {
                 case 'HOST_BASED':
                     if (ip4 != null && ip4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet.data() as Subnet, ip4, database);

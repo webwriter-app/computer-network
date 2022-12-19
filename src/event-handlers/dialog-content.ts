@@ -305,6 +305,7 @@ export class DialogFactory {
             //if this physical node is a gateway of some networks
             if (isGateway) {
               let affectedNetwork: Subnet = (physicalNode as Router).portSubnetMapping.get(index);
+              console.log(physicalNode);
               switch (Subnet.mode) {
                 case 'HOST_BASED':
                   if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(affectedNetwork, validatedIpv4, network.ipv4Database);
@@ -366,20 +367,22 @@ export class DialogFactory {
     //table for gateways
     let gateways: Map<string, number> = subnet.gateways;
     if (gateways.size != 0) {
-
       let table: string = `<table cellspacing="10"><tr><td>Gateway</td><td>Interface</td><td>Connection Type</td><td>MAC</td><td>IPv4</td><td>IPv6</td></tr>`;
 
+      console.log(gateways);
       //TODO: add id for changes?
-      gateways.forEach((port, id) => {
-        let router: Router = network._graph.$("#" + id).data();
+      gateways.forEach((port, gatewayId) => {
+        let router: Router = network._graph.$("#" + gatewayId).data();
+        console.log(gatewayId);
+        console.log(router);
         let data = router.portData.get(port);
         table += `<tr>`;
         table += `<td>` + router.name + `</td>`;
-        table += `<td>` + data.get('name') + `</td>`;
+        table += `<td>` + data.get('Name') + `</td>`;
         table += `<td>` + data.get('Connection Type') + `</td>`;
-        table += `<td>` + data.get('MAC') + `</td>`;
-        table += `<td>` + data.get('IPv4') + `</td>`;
-        table += `<td>` + data.get('IPv6') + `</td>`;
+        table += `<td>` + data.get('MAC').address + `</td>`;
+        table += `<td>` + data.get('IPv4').address + `</td>`;
+        table += `<td>` + data.get('IPv6').address + `</td>`;
         table += `</tr>`;
       });
 
@@ -390,7 +393,14 @@ export class DialogFactory {
     saveButton.slot = "footer";
     saveButton.variant = "primary";
     saveButton.innerHTML = "Save";
-    saveButton.addEventListener('click', () => dialog.hide());
+    saveButton.addEventListener('click', () => {
+      let newId = (network.renderRoot.querySelector('#' + id + "NetworkAddress") as SlInput).value.trim();
+      let newBitmask = (network.renderRoot.querySelector('#' + id + "Bitmask") as SlInput).value.trim();
+      let newSubnetmask = (network.renderRoot.querySelector('#' + id + "SubnetMask") as SlInput).value.trim();
+
+      subnet.handleChangesOnNewSubnetInfo(newId != "" ? newId : null, newSubnetmask, newBitmask != "" ? +newBitmask : null, network);
+      dialog.hide();
+    });
 
     dialog.appendChild(saveButton);
     (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";

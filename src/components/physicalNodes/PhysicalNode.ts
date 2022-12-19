@@ -1,6 +1,5 @@
 import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { GraphNode } from "../GraphNode";
-import { Subnet } from "../logicalNodes/Subnet";
 import { Router } from "./Connector";
 
 export abstract class PhysicalNode extends GraphNode {
@@ -12,7 +11,6 @@ export abstract class PhysicalNode extends GraphNode {
     portLinkMapping: Map<number, string> = new Map(); //updates on drawing edges (port-index, edge.id)
 
     //configure with subnetting extensions
-    subnet: Subnet;
     defaultGateway: [number, Router]; // port-index, Router
     
 

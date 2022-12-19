@@ -1,3 +1,4 @@
+import { ComputerNetwork } from "../../..";
 import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { AddressingHelper } from "../../utils/AdressingHelper";
 import { AlertHelper } from "../../utils/AlertHelper";
@@ -16,9 +17,6 @@ export class Subnet extends LogicalNode {
     //this is updated on drag-and-drop
     gateways: Map<string, number> = new Map(); //(routerId, portIndex)
 
-    static subnetRegex = new RegExp("@^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$");
-
-
     private constructor(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, Ipv4Address>) {
         super(color);
         this.id = 'subnet' + Subnet.counter;
@@ -30,12 +28,14 @@ export class Subnet extends LogicalNode {
             this.bitmask = bitmask;
             this.binarySubnetMask = "".padStart(bitmask, '1').padEnd(32, '0');
             let derivedDecimalMask: number[] = AddressingHelper.binaryToDecimalOctets(this.binarySubnetMask);
-            this.subnetMask = derivedDecimalMask.join('.');
             //if the input subnetmask is valid and doesn't match our bitmask
+            this.subnetMask = derivedDecimalMask.join('.');
             if (subnetmask != null && derivedDecimalMask.join('.') != subnetmask) {
-                AlertHelper.toastAlert("warning", "exclamation-diamond", "The subnet mask you entered doesn't match the subnet number and subnet bits.",
-                    "Derived subnet mask is: " + this.subnetMask);
+                AlertHelper.toastAlert("warning", "exclamation-diamond", "",
+                    "The subnet mask you entered <strong>" + subnetmask + "</strong> doesn't match the bitmask <strong>"
+                    + this.bitmask + "</strong>. Derived subnet mask is: " + this.subnetMask);
             }
+
         }
         else if (subnetmask != null) {
             //if bitmask is null, subnetmask!=null --> calculate bitmask from subnetmask
@@ -55,6 +55,31 @@ export class Subnet extends LogicalNode {
         this.name = (this.networkAddress != null && this.bitmask != undefined) ? this.networkAddress.address + " /" + this.bitmask : "";
     }
 
+    static validateSubnetMask(subnetmask: string): boolean {
+        if (!/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/.test(subnetmask)) return false;
+        let binMask: string = AddressingHelper.decimalStringWithDotToBinary(subnetmask);
+        if (binMask.length != 32) return false;
+
+        let ones: boolean = true;
+        let zeros: boolean = false;
+        for (let index = 0; index < binMask.length; index++) {
+            let char = binMask.charAt(index);
+            switch (char) {
+                case '0':
+                    if (ones) {
+                        ones = false;
+                        zeros = true;
+                    }
+                    break;
+                case '1':
+                    if (zeros) return false;
+                    break;
+                default: return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Filter for valid bitmask and subnetmask
      * @param color 
@@ -66,7 +91,7 @@ export class Subnet extends LogicalNode {
      */
     static createSubnet(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, Ipv4Address>): Subnet {
         let bitmaskValid: boolean = !(bitmask == null || bitmask == undefined || Number.isNaN(bitmask) || bitmask < 0 || bitmask > 32);
-        let subnetmaskValid: boolean = !(subnetmask == null || subnetmask == undefined || subnetmask == "" || !Subnet.subnetRegex.test(subnetmask));
+        let subnetmaskValid: boolean = !(subnetmask == null || subnetmask == undefined || subnetmask == "" || !Subnet.validateSubnetMask(subnetmask));
 
         if (!bitmaskValid && !subnetmaskValid) {
             if (Subnet.mode == "SUBNET_BASED") {
@@ -94,7 +119,7 @@ export class Subnet extends LogicalNode {
      * @param database Ipv4 database
      */
     static calculateCIDRGivenNewHost(subnet: Subnet, ip: Ipv4Address, database: Map<string, Ipv4Address>): void {
-        if (Subnet.mode!="HOST_BASED" || ip.matchesNetworkCidr(subnet)) {
+        if (Subnet.mode != "HOST_BASED" || ip.matchesNetworkCidr(subnet)) {
             return;
         }
         let count: number;
@@ -113,7 +138,7 @@ export class Subnet extends LogicalNode {
     }
 
     private static testPossibleSubnetAddresses(count: number, candidateId: string, subnet: Subnet, database: Map<string, Ipv4Address>): void {
-        if(Subnet.mode!="HOST_BASED") return;
+        if (Subnet.mode != "HOST_BASED") return;
 
         let candidateIdFormatted = AddressingHelper.binaryToDecimalOctets(candidateId).join('.');
         let candidateAddress = Ipv4Address.validateAddress(candidateIdFormatted, database, count);
@@ -161,7 +186,7 @@ export class Subnet extends LogicalNode {
      * @param bitmask of the subnet
      */
     static calculateCIDRGivenNewSubnet(supernet: Subnet, subnet: Subnet, database: Map<string, Ipv4Address>): void {
-        if (Subnet.mode!="HOST_BASED" || supernet.isSupernetOf(subnet) || subnet.cssClass.includes('unconfigured-subnet')) return;
+        if (Subnet.mode != "HOST_BASED" || supernet.isSupernetOf(subnet) || subnet.cssClass.includes('unconfigured-subnet')) return;
 
         let count: number;
         let candidateId: string;
@@ -200,7 +225,7 @@ export class Subnet extends LogicalNode {
         gateways.forEach(gateway => {
             let port = this.gateways.get(gateway.id);
             let ip4 = gateway.portData.get(port).get('IPv4');
-            if (!ip4.matchesNetworkCidr(this)){
+            if (!ip4.matchesNetworkCidr(this)) {
                 unmatchedPairs.set(ip4.address, "gateway");
             }
         });
@@ -233,7 +258,88 @@ export class Subnet extends LogicalNode {
         return this.networkAddress.binaryOctets.join('').slice(0, this.bitmask) == subnet.networkAddress.binaryOctets.join('').slice(0, this.bitmask);
     }
 
+    handleChangesOnNewSubnetInfo(newSubnetNum: string, newSubnetMask: string, newBitmask: number, network: ComputerNetwork): boolean {
+        let bitmaskValid: boolean = !(newBitmask == null || newBitmask == undefined || Number.isNaN(newBitmask) || newBitmask < 0 || newBitmask > 32);
+        let subnetmaskValid: boolean = !(newSubnetMask == null || newSubnetMask == undefined || newSubnetMask == "" || !Subnet.validateSubnetMask(newSubnetMask));
+
+        if (!bitmaskValid && !subnetmaskValid) return false;
+
+        //if bitmask valid, calculate equivalent subnet mask
+        if (bitmaskValid) {
+            let derivedDecimalMask: number[] = AddressingHelper.binaryToDecimalOctets("".padStart(newBitmask, '1').padEnd(32, '0'));
+            //if the input subnetmask is valid and doesn't match our bitmask
+            if (subnetmaskValid && derivedDecimalMask.join('.') != newSubnetMask) {
+                AlertHelper.toastAlert("warning", "exclamation-diamond", "",
+                    "The subnet mask you entered <strong>" + newSubnetMask + "</strong> doesn't match the bitmask <strong>"
+                    + newBitmask + "</strong>. Derived subnet mask is: " + derivedDecimalMask.join('.'));
+
+                newSubnetMask = derivedDecimalMask.join('.');
+            }
+        }
+        else if (subnetmaskValid) {
+            //if bitmask not valid --> calculate bitmask from subnetmask
+            newBitmask = (AddressingHelper.decimalStringWithDotToBinary(newSubnetMask).match(new RegExp("1", "g")) || []).length;
+        }
+
+        let networkId = Ipv4Address.validateAddress(newSubnetNum, network.ipv4Database, newBitmask);
+
+        switch (Subnet.mode) {
+            case 'HOST_BASED':
+                if (this.bitmask >= newBitmask && this.networkAddress.binaryOctets.join('').slice(0, newBitmask)
+                    == networkId.binaryOctets.join('').slice(0, newBitmask)) {
+                    this.bitmask = newBitmask;
+                    this.networkAddress = networkId;
+                    this.subnetMask = newSubnetMask;
+                    this.binarySubnetMask = AddressingHelper.decimalStringWithDotToBinary(newSubnetMask);
+                }
+                else {
+                    AlertHelper.toastAlert('danger', 'exclamation-triangle', 'Host-based mode on:', "New network doesn't extend old network!");
+                }
+                break;
+
+            case 'SUBNET_BASED':
+                this.bitmask = newBitmask;
+                this.networkAddress = networkId;
+                this.subnetMask = newSubnetMask;
+                this.binarySubnetMask = AddressingHelper.decimalStringWithDotToBinary(newSubnetMask);
+
+                network._graph.$('#' + this.id).children().forEach(node => {
+                    let nodeData = node.data();
+                    if (nodeData instanceof PhysicalNode && nodeData.layer > 2) {
+                        nodeData.portData.forEach(data => {
+                            let ip4 = data.get('IPv4');
+                            if (ip4 != null && !ip4.matchesNetworkCidr(this)) {
+                                data.set('IPv4', Ipv4Address.generateNewIpGivenSubnet(network.ipv4Database, ip4, this));
+                            }
+                        });
+                    }
+                    else if (nodeData instanceof Subnet) {
+                        //if the subnet doesn't match supernet's CIDR
+                        if (!this.isSupernetOf(nodeData)) {
+                            network.ipv4Database.delete(nodeData.networkAddress.address) //delete the subnet from database
+                            nodeData.networkAddress = null; //delete the subnet Address
+                            node.toggleClass("unconfigured-subnet", true);
+                            nodeData.cssClass.push("unconfigured-subnet");
+                            nodeData.name = "";
+                        }
+                    }
+                });
+                this.gateways.forEach((port, id) => {
+                    let gateway = network._graph.$('#' + id);
+                    let ip4 = gateway.data('portData').get(port).get('IPv4');
+                    if (ip4 != null && !ip4.matchesNetworkCidr(this)) {
+                        gateway.data('portData').get(port).set('IPv4', Ipv4Address.generateNewIpGivenSubnet(network.ipv4Database, ip4, this));
+                    }
+                });
+                break;
+            default:
+                break;
+        }
+    }
+
 }
+
+
 
 
 export type SubnettingMode = "SUBNET_BASED" | "HOST_BASED" | "MANUAL";
