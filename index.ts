@@ -47,6 +47,9 @@ export class ComputerNetwork extends LitElementWw {
   @property()
   _cdnd; //controller for drag-and-drop compound nodes extension
 
+  @property()
+  _gatewayDnd; //controller for drag-and-drop compound nodes extension
+
   @property({ type: Boolean, reflect: true })
   resetColorModeOn: boolean = false;
 
@@ -281,6 +284,7 @@ export class ComputerNetwork extends LitElementWw {
             <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
           </sl-select>
           <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
+          <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: 0.1vw !important;">Drag to assign gateway</sl-menu-item>
           <sl-button @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button>
         </sl-details>
         <sl-details summary="Packet sending extension">

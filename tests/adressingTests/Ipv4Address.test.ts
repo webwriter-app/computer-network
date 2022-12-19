@@ -5,7 +5,7 @@ import { Subnet } from '../../src/components/logicalNodes/Subnet';
 
 test('should generate loop-back address correctly', () => {
     let loopback: Ipv4Address = Ipv4Address.getLoopBackAddress();
-    expect(loopback.address).toBe("127.0.0.1");
+    expect(loopback.address).toBe("127.0.0.1"); 
     expect(loopback.layer).toBe(3);
     expect(loopback.binaryOctets).toBeNull();
     expect(loopback.decimalOctets).toBeNull();

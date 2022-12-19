@@ -14,7 +14,7 @@ export class Subnet extends LogicalNode {
 
     static mode: SubnettingMode = "MANUAL"; //initial is manual
     //this is updated on drag-and-drop
-    gateways: Map<[string, number], Router> = new Map(); //([routerid, port-index], Router)
+    gateways: Map<string, number> = new Map(); //(routerId, portIndex)
 
     static subnetRegex = new RegExp("@^(((255\.){3}(255|254|252|248|240|224|192|128|0+))|((255\.){2}(255|254|252|248|240|224|192|128|0+)\.0)|((255\.)(255|254|252|248|240|224|192|128|0+)(\.0+){2})|((255|254|252|248|240|224|192|128|0+)(\.0+){3}))$");
 
@@ -180,7 +180,7 @@ export class Subnet extends LogicalNode {
         Subnet.testPossibleSubnetAddresses(count, candidateId, supernet, database);
     }
 
-    validateSubnetLocally(hosts: GraphNode[]): boolean {
+    validateSubnetLocally(hosts: GraphNode[], gateways: Router[]): boolean {
         if (this.cssClass.includes('unconfigured-subnet')) return false;
         let unmatchedPairs: Map<string, string> = new Map(); //("host", [subnet,type of host])
         hosts.forEach(host => {
@@ -197,15 +197,26 @@ export class Subnet extends LogicalNode {
                 }
             }
         });
+        gateways.forEach(gateway => {
+            let port = this.gateways.get(gateway.id);
+            let ip4 = gateway.portData.get(port).get('IPv4');
+            if (!ip4.matchesNetworkCidr(this)){
+                unmatchedPairs.set(ip4.address, "gateway");
+            }
+        });
+
         if (unmatchedPairs.size == 0) return true;
         let alert: string = "<ul>";
-        unmatchedPairs.forEach((type, host) => {
+        unmatchedPairs.forEach((type, node) => {
             switch (type) {
                 case 'host':
-                    alert += "<li>Host " + host + "</li>";
+                    alert += "<li>Host " + node + "</li>";
                     break;
                 case 'subnet':
-                    alert += "<li>Subnet " + host + "</li>";
+                    alert += "<li>Subnet " + node + "</li>";
+                    break;
+                case 'gateway':
+                    alert += "<li>Gateway " + node + "</li>";
                     break;
             }
         });

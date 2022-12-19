@@ -33,8 +33,10 @@ export class EdgeController {
             return false;
         }
 
-        let sourceNode: PhysicalNode = source.data();
-        let targetNode: PhysicalNode = target.data();
+        let sourceNode = source.data();
+        let targetNode = target.data();
+
+        if (!(sourceNode instanceof PhysicalNode) || !(targetNode instanceof PhysicalNode)) return false;
 
         //the edgehandles extensions use a ghost edge, that increases the degree by 1 from the source
         if (source.degree() > sourceNode.numberOfInterfacesOrPorts) {
@@ -46,7 +48,6 @@ export class EdgeController {
             return false;
         }
 
-        //TODO: adapt more after subnet available
         return true;
     }
 

@@ -2,6 +2,7 @@
 import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { Ipv6Address } from "../../adressing/Ipv6Address";
 import { MacAddress } from "../../adressing/MacAddress";
+import { Subnet } from "../logicalNodes/Subnet";
 import { ConnectionType, PhysicalNode } from "./PhysicalNode";
 
 export abstract class Connector extends PhysicalNode {
@@ -34,7 +35,16 @@ export abstract class Connector extends PhysicalNode {
 export class Router extends Connector {
     //TODO: portLinkMapping bị xóa
     //--> check + remove router (remove bằng routerid + port index) from list of gateways của subnet
-    portGatewayMapping: Map<number, string> = new Map(); //(port-index, id of subnet-node)
+    portSubnetMapping: Map<number, Subnet> = new Map(); //(port-index, id of subnet-node)
+    subnets: Subnet[] = [];
+    
+    colorsForGateway(): string[] {
+        let colors = [];
+        this.subnets.forEach(subnet => {
+            colors.push(subnet.color);
+        });
+        return colors;
+    }
 
 
     constructor(color: string, numberOfInterfaces: number, names: Map<number, string>, portConnectionTypes: Map<number, ConnectionType>,

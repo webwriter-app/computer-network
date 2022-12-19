@@ -9,6 +9,7 @@ import { Subnet } from "../components/logicalNodes/Subnet";
 import { Router } from "../components/physicalNodes/Connector";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
+import { SubnettingController } from "./subnetting-controller";
 
 
 export class DialogFactory {
@@ -206,13 +207,15 @@ export class DialogFactory {
         return;
       }
 
-      let newData = GraphEdge.addPorts(edge.data(), inPort, outPort);
+      let newData = GraphEdge.addPorts(edge.data(), inPort, outPort); //add port-link mapping for source+target
       if (newData != null) {
         edge.removeClass("unconfigured-edge");
         edge.addClass(newData.cssClass);
-        edge.data(newData);
         dialog.hide();
       } //set new format-display for this connection if no error appears
+
+      SubnettingController.setUpGateway(network._graph.$('#' + sourceNode.id), network._graph.$('#' + targetNode.id), inPort, network.ipv4Database);
+      SubnettingController.setUpGateway(network._graph.$('#' + targetNode.id), network._graph.$('#' + sourceNode.id), outPort, network.ipv4Database);
     }
     );
     dialog.appendChild(saveButton);
@@ -223,14 +226,14 @@ export class DialogFactory {
   }
 
 
-  static handleChangesInDialogForPhysicalNode(id: string, node: any, network: ComputerNetwork) {
+  static handleChangesInDialogForPhysicalNode(id: string, node: any, network: ComputerNetwork, isGateway: boolean, subnet?: Subnet) {
     let physicalNode: PhysicalNode = node.data();
     let dialog: SlDialog = new SlDialog();
     let table: string = `<table cellspacing="10"><tr>`;
     table += `<td>Index</td>`;
     physicalNode.portData.entries().next().value[1].forEach((_, columnName) => table += `<td>` + columnName + `</td>`);
     table += `</tr>`;
-  
+
     physicalNode.portData.forEach((data, index) => {
       table += `<tr>`;
       table += `<td>` + index + `</td>`; //add index
@@ -250,7 +253,7 @@ export class DialogFactory {
     });
     table += `</table>`;
     dialog.innerHTML += table;
-  
+
     const saveButton = new SlButton();
     saveButton.slot = "footer";
     saveButton.variant = "primary";
@@ -264,7 +267,7 @@ export class DialogFactory {
           physicalNode.portData.get(index).set('Name', newName);
           changed = true;
         }
-  
+
         if (physicalNode.layer >= 2) {
           let newMac = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "MAC") as SlInput).value.trim();
           let validatedMac = newMac != "" ? MacAddress.validateAddress(newMac, network.macDatabase) : null;
@@ -276,19 +279,56 @@ export class DialogFactory {
             AlertHelper.toastAlert("warning", "exclamation-triangle", "", newMac + " is not a valid MAC Address.");
           }
         }
-  
+
         if (physicalNode.layer >= 3) {
           let newIpv4 = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv4") as SlInput).value.trim();
           let newIpv6 = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv6") as SlInput).value.trim();
           let validatedIpv4 = newIpv4 != "" ? Ipv4Address.validateAddress(newIpv4, network.ipv4Database) : null;
           if (validatedIpv4 != null) {
-            physicalNode.portData.get(index).set('IPv4', validatedIpv4);
-            changed = true;
+            let keepOldIp: boolean = false;
+            //if this physical node is in a network
+            if (subnet != null && subnet != undefined) {
+              switch (Subnet.mode) {
+                case 'HOST_BASED':
+                  if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet, validatedIpv4, network.ipv4Database);
+                  break;
+                case 'SUBNET_BASED':
+                  if (validatedIpv4 != null && !validatedIpv4.matchesNetworkCidr(subnet)) {
+                    AlertHelper.toastAlert('warning', 'exclamation-triangle', 'Subnet-based mode on:', "Inserted IPv4 doesn't match the subnet mask.");
+                    keepOldIp = true;
+                  }
+                  break;
+                default:
+                  break;
+              }
+            }
+            //if this physical node is a gateway of some networks
+            if (isGateway) {
+              let affectedNetwork: Subnet = (physicalNode as Router).portSubnetMapping.get(index);
+              switch (Subnet.mode) {
+                case 'HOST_BASED':
+                  if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(affectedNetwork, validatedIpv4, network.ipv4Database);
+                  break;
+                case 'SUBNET_BASED':
+                  if (validatedIpv4 != null && !validatedIpv4.matchesNetworkCidr(affectedNetwork)) {
+                    AlertHelper.toastAlert('warning', 'exclamation-triangle', 'Subnet-based mode on:', "Inserted IPv4 for gateway doesn't match the subnet mask.");
+                    keepOldIp = true;
+                  }
+                  break;
+                default:
+                  break;
+              }
+            }
+
+            if (!keepOldIp) {
+              physicalNode.portData.get(index).set('IPv4', validatedIpv4);
+              changed = true;
+            }
           }
           else if (newIpv4 != "") {
             AlertHelper.toastAlert("warning", "exclamation-triangle", "", newIpv4 + " is not a valid IPv4 Address.");
           }
-  
+
           let validatedIpv6 = newIpv6 != "" ? Ipv6Address.validateAddress(newIpv6, network.ipv6Database) : null;
           if (validatedIpv6 != null) {
             physicalNode.portData.get(index).set('IPv6', validatedIpv6);
@@ -299,7 +339,7 @@ export class DialogFactory {
           }
         }
       }
-  
+
       if (changed) {
         AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");
       }
@@ -307,31 +347,32 @@ export class DialogFactory {
     }
     );
     dialog.appendChild(saveButton);
-  
+
     (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
     (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);
     dialog.show();
-  
+
   }
 
   static handleChangesInDialogForSubnet(id: string, node: any, network: ComputerNetwork) {
 
     let dialog: SlDialog = new SlDialog();
-  
+
     let subnet: Subnet = node.data();
     dialog.innerHTML += `<sl-input id="` + id + `"NetworkAddress" label="Network Address" placeholder="` + subnet.networkAddress.address + `" clearable type="string">`;
     dialog.innerHTML += `<sl-input id="` + id + `"Bitmask" label="Bitmask" placeholder="` + subnet.bitmask + `" clearable type="number" min=0>`;
     dialog.innerHTML += `<sl-input id="` + id + `"SubnetMask" label="Subnet Mask" placeholder="` + subnet.subnetMask + `" clearable type="string">`;
-  
+
     //table for gateways
-    let gateways: Map<[string, number], Router> = subnet.gateways;
+    let gateways: Map<string, number> = subnet.gateways;
     if (gateways.size != 0) {
-  
+
       let table: string = `<table cellspacing="10"><tr><td>Gateway</td><td>Interface</td><td>Connection Type</td><td>MAC</td><td>IPv4</td><td>IPv6</td></tr>`;
-  
+
       //TODO: add id for changes?
-      gateways.forEach((router, [id, portIndex]) => {
-        let data = router.portData.get(portIndex);
+      gateways.forEach((port, id) => {
+        let router: Router = network._graph.$("#" + id).data();
+        let data = router.portData.get(port);
         table += `<tr>`;
         table += `<td>` + router.name + `</td>`;
         table += `<td>` + data.get('name') + `</td>`;
@@ -341,7 +382,7 @@ export class DialogFactory {
         table += `<td>` + data.get('IPv6') + `</td>`;
         table += `</tr>`;
       });
-  
+
       dialog.innerHTML += table;
     }
     //TODO: add event listener vào cái nút add node
@@ -350,7 +391,7 @@ export class DialogFactory {
     saveButton.variant = "primary";
     saveButton.innerHTML = "Save";
     saveButton.addEventListener('click', () => dialog.hide());
-  
+
     dialog.appendChild(saveButton);
     (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
     (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);

@@ -58,6 +58,7 @@ export class GraphEdge {
 
         edge.inPort = inPort;
         edge.outPort = outPort;
+
         return edge;
 
         //check if one node belongs to a subnet, if yes --> other node must be a router

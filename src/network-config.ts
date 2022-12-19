@@ -18,6 +18,7 @@ import { Address } from "./adressing/Address";
 import { GraphEdge } from "./components/GraphEdge";
 import { Subnet } from "./components/logicalNodes/Subnet";
 import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
+import { Router } from "./components/physicalNodes/Connector";
 
 
 // register extension
@@ -153,9 +154,18 @@ export function initNetwork(network: ComputerNetwork): void {
                     "font-family": "monospace",
                     "background-opacity": 0.4,
                     "background-color": "data(color)",
-                    "border": "solid LightGrey 2px"
                 }
-            }
+            },
+            {
+                "selector": ".gateway-node",
+                "style": {
+                    "background-fill": "linear-gradient",
+                    "background-gradient-stop-colors": function (gateway) {
+                        let colors: string[] = (gateway.data() as Router).colorsForGateway();
+                        return colors.join(' ');
+                    },
+                }
+            },
         ],
 
         layout: {
@@ -182,7 +192,12 @@ export function initNetwork(network: ComputerNetwork): void {
                 onClickFunction: function (event) {
                     let node = event.target;
                     let id = node.data().id;
-                    DialogFactory.handleChangesInDialogForPhysicalNode(id, node, network);
+                    if(node.isChild()){
+                        DialogFactory.handleChangesInDialogForPhysicalNode(id, node, network, node.hasClass('gateway-node'), node.parent().data());
+                    }
+                    else {
+                      DialogFactory.handleChangesInDialogForPhysicalNode(id, node, network, node.hasClass('gateway-node'));  
+                    }
                 },
                 hasTrailingDivider: true
             },
@@ -259,7 +274,7 @@ export function initNetwork(network: ComputerNetwork): void {
     };
 
 
-    //options for drap-and-drop compound nodes
+    //options for drap-and-drop compound nodes - no handle on drag out of compound
     const subnettingOptions = {
         grabbedNode: node => { return node.connectedEdges().length == 0; }, // nodes valid to grab and drop into subnet: ones that don't have any link
         dropTarget: (dropTarget, grabbedNode) => {
@@ -300,6 +315,7 @@ export function initNetwork(network: ComputerNetwork): void {
         outThreshold: 10 // make dragging out of a drop target a bit harder by expanding the hit area by this amount on all sides
     };
 
+
     //register edge handles
     network._edgeHandles = network._graph.edgehandles(edgehandlesOptions);
 
@@ -309,18 +325,21 @@ export function initNetwork(network: ComputerNetwork): void {
     network._cdnd = network._graph.compoundDragAndDrop(subnettingOptions);
     network._cdnd.disable();
 
+
     //TODO: custom badge for extensions (e.g. firewall)
     network._graph.nodeHtmlLabel([
         {
             query: ".default-gateway-not-found",
             valign: "top",
             halign: "right",
-            //valignBox: 'top',
-            //halignBox: 'center',
             tpl: function () {
                 return `<sl-icon src="doc/icons/no-internet.svg">`;
             }
         }
     ]);
 
+    network._graph.on('tapend', '.router-node', function (event) {
+        if(!SubnettingController.assignGatewayOn) return;
+        SubnettingController.addGateway(event, network);
+    });
 }
