@@ -57,26 +57,25 @@ export class DialogFactory {
 
     //add the columns
     table += `<tr>`;
-    table += `<td>Index</td>`;
-    table += layer < 3 ? `<td>Port number</td>` : `<td>Interface name</td>`;
+    table += `<td>Port number</td>`;
+    table += layer > 2 ? `<td>Interface name</td>` : ``;
     table += `<td>Connection type</td>`;
     table += layer > 1 ? `<td>MAC Address</td>` : "";
     table += layer > 2 ? `<td>Ipv4</td><td>Ipv6</td>` : "";
     table += `</tr>`;
 
-    //add row for each port/interface
+    //add row for each port
     for (let i = 1; i <= portNum; i++) {
       table += `<tr>`;
       table += `<td>` + i + `</td>`;
-      table += layer < 3 ? `<td><sl-input id="port-number-` + i + `" placeholder="Port number" clearable type="number" min="0" max="65536"></sl-input></td>`
-        : `<td><sl-input id="interface-name-` + i + `" placeholder="Interface name" clearable></sl-input></td>`;
+      table += layer > 2 ? `<td><sl-input id="interface-name-` + i + `" placeholder="Interface name" clearable></sl-input></td>` : ``;
 
       switch (currentComponentToAdd) {
         case 'hub': case 'switch':
           table += `<td>Ethernet</td>`;
           break;
         case 'access-point':
-          table += `<td>Wireless</td>`;
+          table += i == 1 ? `<td>Ethernet</td>` : `<td>Wireless</td>`;
           break;
         default:
           table += `<td><sl-select id="connection-type-` + i + `"><sl-menu-item value="ethernet" style="overflow: hidden;">Ethernet</sl-menu-item>
@@ -108,16 +107,16 @@ export class DialogFactory {
 
   static generateInputsDetailsForEdge(network: ComputerNetwork, edge: any, sourceNode: PhysicalNode, targetNode: PhysicalNode): void {
     //filter available ports
-    let availableSourcePorts: Map<number, string> = new Map();
-    let availableTargetPorts: Map<number, string> = new Map();
-    sourceNode.portLinkMapping.forEach((link, index) => {
+    let availableSourcePorts: number[] = [];
+    let availableTargetPorts: number[] = [];
+    sourceNode.portLinkMapping.forEach((link, port) => {
       if (link == null || link == undefined || link == "") {
-        availableSourcePorts.set(index, sourceNode.portData.get(index).get('Name'));
+        availableSourcePorts.push(port);
       }
     });
-    targetNode.portLinkMapping.forEach((link, index) => {
+    targetNode.portLinkMapping.forEach((link, port) => {
       if (link == null || link == undefined || link == "") {
-        availableTargetPorts.set(index, targetNode.portData.get(index).get('Name'));
+        availableTargetPorts.push(port);
       }
     });
 
@@ -130,13 +129,13 @@ export class DialogFactory {
     let sourcePanel = new SlTabPanel();
     sourcePanel.name = "chooseSourcePort";
     let sourceTable: string = `<table cellspacing="10"><tr>`;
-    sourceTable += `<td>Index</td>`;
+    sourceTable += `<td>Port number</td>`;
     sourceNode.portData.entries().next().value[1].forEach((_, columnName) => sourceTable += `<td>` + columnName + `</td>`);
     sourceTable += `</tr>`;
 
-    sourceNode.portData.forEach((data, index) => {
+    sourceNode.portData.forEach((data, port) => {
       sourceTable += `<tr>`;
-      sourceTable += `<td>` + index + `</td>`; //add index
+      sourceTable += `<td>` + port + `</td>`; //add index
       data.forEach((value) => {
         if (value instanceof Address) {
           sourceTable += `<td>` + value.address + `</td>`;
@@ -151,8 +150,8 @@ export class DialogFactory {
     sourcePanel.innerHTML += sourceTable;
 
     let selectedSourcePort = new SlSelect();
-    availableSourcePorts.forEach((port, index) => selectedSourcePort.innerHTML += `<sl-menu-item value="` + index + `">` + port + `</sl-menu-item>`);
-    sourcePanel.innerHTML += "Select one from available ports/ interfaces:";
+    availableSourcePorts.forEach(port => selectedSourcePort.innerHTML += `<sl-menu-item value="` + port + `">` + port + `</sl-menu-item>`);
+    sourcePanel.innerHTML += "Select one from available ports:";
     sourcePanel.appendChild(selectedSourcePort);
     tabGroup.append(sourcePanel);
 
@@ -160,7 +159,7 @@ export class DialogFactory {
     let targetPanel = new SlTabPanel();
     targetPanel.name = "chooseTargetPort";
     let targetTable: string = `<table cellspacing="10"><tr>`;
-    targetTable += `<td>Index</td>`;
+    targetTable += `<td>Port number</td>`;
     targetNode.portData.entries().next().value[1].forEach((_, columnName) => targetTable += `<td>` + columnName + `</td>`);
     targetTable += `</tr>`;
 
@@ -181,9 +180,9 @@ export class DialogFactory {
     targetPanel.innerHTML += targetTable;
 
     let selectedTargetPort = new SlSelect();
-    availableTargetPorts.forEach((port, index) => selectedTargetPort.innerHTML += `<sl-menu-item value="` + index + `">` + port + `</sl-menu-item>`);
+    availableTargetPorts.forEach(port => selectedTargetPort.innerHTML += `<sl-menu-item value="` + port + `">` + port + `</sl-menu-item>`);
 
-    targetPanel.innerHTML += "Select one from available ports/ interfaces:";
+    targetPanel.innerHTML += "Select one from available ports:";
     targetPanel.appendChild(selectedTargetPort);
     tabGroup.append(targetPanel);
 
@@ -372,20 +371,22 @@ export class DialogFactory {
       console.log(gateways);
       //TODO: add id for changes?
       gateways.forEach((port, gatewayId) => {
-        let router: Router = network._graph.$("#" + gatewayId).data();
-        console.log(gatewayId);
-        console.log(router);
-        let data = router.portData.get(port);
-        table += `<tr>`;
-        table += `<td>` + router.name + `</td>`;
-        table += `<td>` + data.get('Name') + `</td>`;
-        table += `<td>` + data.get('Connection Type') + `</td>`;
-        table += `<td>` + data.get('MAC').address + `</td>`;
-        table += `<td>` + data.get('IPv4').address + `</td>`;
-        table += `<td>` + data.get('IPv6').address + `</td>`;
-        table += `</tr>`;
+        if (port != null) {
+          let router: Router = network._graph.$("#" + gatewayId).data();
+          console.log(gatewayId);
+          console.log(router);
+          let data = router.portData.get(port);
+          table += `<tr>`;
+          table += `<td>` + router.name + `</td>`;
+          table += `<td>` + data.get('Name') + `</td>`;
+          table += `<td>` + data.get('Connection Type') + `</td>`;
+          table += `<td>` + data.get('MAC').address + `</td>`;
+          table += `<td>` + data.get('IPv4').address + `</td>`;
+          table += `<td>` + data.get('IPv6').address + `</td>`;
+          table += `</tr>`;
+        }
       });
-
+      table += `</table>`;
       dialog.innerHTML += table;
     }
     //TODO: add event listener vào cái nút add node
@@ -399,6 +400,60 @@ export class DialogFactory {
       let newSubnetmask = (network.renderRoot.querySelector('#' + id + "SubnetMask") as SlInput).value.trim();
 
       subnet.handleChangesOnNewSubnetInfo(newId != "" ? newId : null, newSubnetmask, newBitmask != "" ? +newBitmask : null, network);
+      dialog.hide();
+    });
+
+    dialog.appendChild(saveButton);
+    (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
+    (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);
+    dialog.show();
+  }
+
+
+  static handleChangeDefaultGateway(subnet: Subnet, id: string, node: any, network: ComputerNetwork) {
+    let dialog: SlDialog = new SlDialog();
+
+    let gateways: Map<string, number> = subnet.gateways; //gateway-node-id, port
+
+    let select = `<sl-select id="new-gateway-` + id + `">`;
+
+    if (gateways.size != 0) {
+      let table: string = `<table cellspacing="10"><tr><td>Gateway</td><td>Interface</td><td>Connection Type</td><td>MAC</td><td>IPv4</td><td>IPv6</td></tr>`;
+
+      gateways.forEach((port, gatewayId) => {
+        if (port != null) {
+          let router: Router = network._graph.$("#" + gatewayId).data();
+          let data = router.portData.get(port);
+          table += `<tr>`;
+          table += `<td>` + router.name + `</td>`;
+          table += `<td>` + data.get('Name') + `</td>`;
+          table += `<td>` + data.get('Connection Type') + `</td>`;
+          table += `<td>` + data.get('MAC').address + `</td>`;
+          table += `<td>` + data.get('IPv4').address + `</td>`;
+          table += `<td>` + data.get('IPv6').address + `</td>`;
+          table += `</tr>`;
+          select += `<sl-menu-item value="` + gatewayId + "/" + port + `" style="overflow: hidden;">` + router.name + `</sl-menu-item>`;
+        }
+      });
+      table += `</table>`;
+      dialog.innerHTML += table;
+      select += `</sl-select>`;
+      dialog.innerHTML += select;
+    }
+
+    if(!node.hasClass('default-gateway-not-found')){
+      let current: [string, number] = node.data('defaultGateway');
+      dialog.innerHTML += "Current default gateway is: "+ network._graph.$("#" + current[0]).data('portData').get(current[1]).name;
+    }
+    node.toggleClass('default-gateway-not-found', false);
+
+    const saveButton = new SlButton();
+    saveButton.slot = "footer";
+    saveButton.variant = "primary";
+    saveButton.innerHTML = "Save";
+    saveButton.addEventListener('click', () => {
+      let newGateway: string = (network.renderRoot.querySelector('#' + "new-gateway-" + id) as SlInput).value.trim();
+      node.data('defaultGateway', newGateway.split('/'));
       dialog.hide();
     });
 

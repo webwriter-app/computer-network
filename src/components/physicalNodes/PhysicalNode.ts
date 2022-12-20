@@ -11,7 +11,7 @@ export abstract class PhysicalNode extends GraphNode {
     portLinkMapping: Map<number, string> = new Map(); //updates on drawing edges (port-index, edge.id)
 
     //configure with subnetting extensions
-    defaultGateway: [number, Router]; // port-index, Router
+    defaultGateway?: [string, number]; // id of gateway node (can't use type Router here because of recursive data), port-index
     
 
     constructor(color: string, layer: number, numberOfInterfacesOrPorts: number) {

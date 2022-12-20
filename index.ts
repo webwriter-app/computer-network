@@ -47,9 +47,6 @@ export class ComputerNetwork extends LitElementWw {
   @property()
   _cdnd; //controller for drag-and-drop compound nodes extension
 
-  @property()
-  _gatewayDnd; //controller for drag-and-drop compound nodes extension
-
   @property({ type: Boolean, reflect: true })
   resetColorModeOn: boolean = false;
 

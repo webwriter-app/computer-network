@@ -7,7 +7,7 @@ import { GraphNode } from "../components/GraphNode";
 import { Subnet } from "../components/logicalNodes/Subnet";
 import { Repeater, Hub, Switch, Bridge, AccessPoint, Router } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
-import { ConnectionType } from "../components/physicalNodes/PhysicalNode";
+import { ConnectionType, PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { initNetwork } from "../network-config";
 
 
@@ -22,7 +22,7 @@ export class GraphNodeFactory {
             initNetwork(network);
         }
 
-        switch(network.currentComponentToAdd){
+        switch (network.currentComponentToAdd) {
             case 'edge': //edge is not added with the "plus-button"
                 break;
             case 'subnet':
@@ -36,14 +36,14 @@ export class GraphNodeFactory {
 
     }
 
-    static addSubnetNode(network: ComputerNetwork): void{
+    static addSubnetNode(network: ComputerNetwork): void {
         let subnetNum: string = (network.renderRoot.querySelector('#subnet-num') as SlInput).value.trim();
         let subnetMask: string = (network.renderRoot.querySelector('#subnet-mask') as SlInput).value.trim();
         let bitmask: number = (network.renderRoot.querySelector('#subnet-bitmask') as SlInput).valueAsNumber;
 
         let newSubnet = Subnet.createSubnet(network.currentColor, subnetNum, subnetMask, bitmask, network.ipv4Database);
 
-        if(newSubnet!=null){
+        if (newSubnet != null) {
             network._graph.add({
                 group: 'nodes',
                 data: newSubnet,
@@ -67,11 +67,9 @@ export class GraphNodeFactory {
         let portIpv6s: Map<number, Ipv6Address> = new Map();
 
         for (let index = 1; index <= numberOfPorts; index++) {
-            let inputPortName: SlInput = network.renderRoot.querySelector('#port-number-' + index) as SlInput;
             let inputInterfaceName: SlInput = network.renderRoot.querySelector('#interface-name-' + index) as SlInput;
 
-            let name: string = (inputPortName != null && inputPortName.value) != "" ? inputPortName.value :
-                (inputInterfaceName != null && inputInterfaceName.value) ? inputInterfaceName.value : "";
+            let name: string = (inputInterfaceName != null && inputInterfaceName.value) ? inputInterfaceName.value : "";
 
             let inputConnection: SlInput = network.renderRoot.querySelector('#connection-type-' + index) as SlInput;
             let inputMac: SlInput = network.renderRoot.querySelector('#mac-' + index) as SlInput;
@@ -105,20 +103,20 @@ export class GraphNodeFactory {
             //connectors
             //layer 1
             case "repeater":
-                component = new Repeater(network.currentColor, names, portConnectionTypes, name);
+                component = new Repeater(network.currentColor, portConnectionTypes, name);
                 break;
             case "hub":
-                component = new Hub(network.currentColor, numberOfPorts, names, name);
+                component = new Hub(network.currentColor, numberOfPorts, name);
                 break;
 
             //layer 2
             case "switch":
-                component = new Switch(network.currentColor, numberOfPorts, names, portMacs, name);
+                component = new Switch(network.currentColor, numberOfPorts, portMacs, name);
                 break;
             case "bridge":
-                component = new Bridge(network.currentColor, names, portConnectionTypes, portMacs, name);
+                component = new Bridge(network.currentColor, portConnectionTypes, portMacs, name);
                 break;
-            case "access-point": component = new AccessPoint(network.currentColor, numberOfPorts, names, portMacs, name);
+            case "access-point": component = new AccessPoint(network.currentColor, numberOfPorts, portMacs, name);
                 break;
 
             //layer 3
@@ -143,6 +141,76 @@ export class GraphNodeFactory {
             data: component,
             position: { x: 10, y: 10 },
             classes: component.cssClass,
+        });
+    }
+
+    static removeNode(node: any, network: ComputerNetwork): void {
+        if (node.hasClass('subnet-node')) {
+            this.removeSubnet(node, network);
+        }
+        else if (node.hasClass('gateway-node')) {
+            this.removeGateway(node, network);
+        }
+        else {
+            let physicalNode = node.data();
+            if (physicalNode.layer > 2) {
+                physicalNode.portData.forEach(data => {
+                    network.ipv4Database.delete(data.get('IPv4').address);
+                });
+            }
+        }
+    }
+
+    static removeGateway(node: any, network: ComputerNetwork): void {
+        let gateway: Router = node.data();
+        gateway.portSubnetMapping.forEach((subnet, port) => {
+            subnet.gateways.delete(gateway.id);
+            if (subnet.currentDefaultGateway[0] == gateway.id && subnet.currentDefaultGateway[1] == port) {
+                if (subnet.gateways.size > 0) {
+                    subnet.currentDefaultGateway = subnet.gateways.entries().next().value;
+                    console.log(subnet.currentDefaultGateway);
+                    console.log(subnet.gateways.entries().next().value);
+                    network._graph.$('#' + subnet.id).children().forEach(child => {
+                        let oldGateway = child.data('defaultGateway');
+                        if (oldGateway[0] == node.id(), oldGateway[1] == port) {
+                            child.data('defaultGateway', subnet.currentDefaultGateway); //pass by value? or reference (obmit this?)
+                        }
+                    });
+                }
+                else {
+                    network._graph.$('#' + subnet.id).children().forEach(child => {
+                        let oldGateway = child.data('defaultGateway');
+                        if (oldGateway[0] == node.id(), oldGateway[1] == port) {
+                            child.data('defaultGateway', null);
+                            child.toggleClass('default-gateway-not-found', true);
+                        }
+                    });
+                }
+            }
+        });
+        gateway.portData.forEach(data => {
+            network.ipv4Database.delete(data.get('IPv4').address);
+        });
+    }
+
+    static removeSubnet(node: any, network: ComputerNetwork): void {
+        //free addresses of all children
+        node.children().forEach(child => {
+            let physicalNode = child.data();
+            if (physicalNode instanceof PhysicalNode && physicalNode.layer > 2) {
+                (physicalNode as PhysicalNode).portData.forEach(data => {
+                    network.ipv4Database.delete(data.get('IPv4').address);
+                });
+            }
+        });
+        let subnet: Subnet = node.data() as Subnet;
+        network.ipv4Database.delete(subnet.networkAddress.address); //free ID of network
+        //free the port of the gateways
+        subnet.gateways.forEach((port, gatewayId) => {
+            let gateway: Router = network._graph.$('#' + gatewayId).data();
+            gateway.portSubnetMapping.set(port, null);
+            gateway.portLinkMapping.set(port, null);
+            gateway.subnets = Array.from(gateway.portSubnetMapping.values()); //reset the color for gateway
         });
     }
 

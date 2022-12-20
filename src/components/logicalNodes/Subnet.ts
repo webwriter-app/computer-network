@@ -16,6 +16,7 @@ export class Subnet extends LogicalNode {
     static mode: SubnettingMode = "MANUAL"; //initial is manual
     //this is updated on drag-and-drop
     gateways: Map<string, number> = new Map(); //(routerId, portIndex)
+    currentDefaultGateway: [string, number];
 
     private constructor(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, Ipv4Address>) {
         super(color);

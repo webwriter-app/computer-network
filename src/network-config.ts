@@ -19,6 +19,7 @@ import { GraphEdge } from "./components/GraphEdge";
 import { Subnet } from "./components/logicalNodes/Subnet";
 import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
 import { Router } from "./components/physicalNodes/Connector";
+import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 
 
 // register extension
@@ -192,11 +193,11 @@ export function initNetwork(network: ComputerNetwork): void {
                 onClickFunction: function (event) {
                     let node = event.target;
                     let id = node.data().id;
-                    if(node.isChild()){
+                    if (node.isChild()) {
                         DialogFactory.handleChangesInDialogForPhysicalNode(id, node, network, node.hasClass('gateway-node'), node.parent().data());
                     }
                     else {
-                      DialogFactory.handleChangesInDialogForPhysicalNode(id, node, network, node.hasClass('gateway-node'));  
+                        DialogFactory.handleChangesInDialogForPhysicalNode(id, node, network, node.hasClass('gateway-node'));
                     }
                 },
                 hasTrailingDivider: true
@@ -226,6 +227,17 @@ export function initNetwork(network: ComputerNetwork): void {
                 hasTrailingDivider: true
             },
             {
+                id: "configure-default-gateway",
+                content: "Configure gateway for this connection",
+                selector: ".default-gateway-not-found, .gateway-changeable",
+                onClickFunction: function (event) {
+                    let node = event.target;
+                    DialogFactory.handleChangeDefaultGateway(node.parent().data(), node.id(), node, network);
+                    console.log(node);
+                },
+                hasTrailingDivider: true
+            },
+            {
                 id: 'remove', // ID of menu item
                 content: 'Remove', // Display content of menu item
                 tooltipText: 'Remove this component', // Tooltip text for menu item
@@ -234,7 +246,12 @@ export function initNetwork(network: ComputerNetwork): void {
                 selector: "node, edge",
                 onClickFunction: (event) => { // The function to be executed on click
                     let component = event.target;
-                    if (component.isEdge()) EdgeController.removeConnection(component.data(), network._graph);
+                    if (component.isEdge()) {
+                        EdgeController.removeConnection(component.data(), network._graph);
+                    }
+                    else {
+                        GraphNodeFactory.removeNode(component, network);
+                    }
                     component.remove();
                 },
                 disabled: false, // Whether the item will be created as disabled
@@ -242,6 +259,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 hasTrailingDivider: true, // Whether the item will have a trailing divider
                 coreAsWell: false // Whether core instance have this item on cxttap
             },
+
         ],
         menuItemClasses: ["custom-menu-item", "custom-menu-item:hover"],
         contextMenuClasses: ["custom-context-menu"]
@@ -339,7 +357,7 @@ export function initNetwork(network: ComputerNetwork): void {
     ]);
 
     network._graph.on('tapend', '.router-node', function (event) {
-        if(!SubnettingController.assignGatewayOn) return;
+        if (!SubnettingController.assignGatewayOn) return;
         SubnettingController.addGateway(event, network);
     });
 }

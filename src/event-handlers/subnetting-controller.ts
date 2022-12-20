@@ -53,14 +53,8 @@ export class SubnettingController {
     }
 
     static onDragInACompound(grabbedNode, compound, database: Map<string, Ipv4Address>): void {
-        let subnet = compound.data();
-        let node = grabbedNode.data();
-
-        //a layer 3 host needs to have a gateway (saves the IP address of the gateway)
-        if (node instanceof PhysicalNode && node.layer > 2) {
-            grabbedNode.addClass('default-gateway-not-found');
-            grabbedNode.addClass('can-change-default-gateway');
-        }
+        let subnet: Subnet = compound.data();
+        let node: PhysicalNode = grabbedNode.data();
 
         //reset the IP address of a host based on the network ID
         if (Subnet.mode == "SUBNET_BASED") {
@@ -71,6 +65,13 @@ export class SubnettingController {
                         data.set('IPv4', Ipv4Address.generateNewIpGivenSubnet(database, ip4, subnet));
                     }
                 });
+                if (subnet.currentDefaultGateway != undefined && subnet.currentDefaultGateway != null) {
+                    node.defaultGateway = subnet.currentDefaultGateway;
+                    grabbedNode.addClass('gateway-changeable');
+                }
+                else {
+                    grabbedNode.addClass('default-gateway-not-found');
+                }
             }
             else if (node instanceof Subnet) {
                 //if the subnet doesn't match supernet's CIDR
@@ -90,6 +91,13 @@ export class SubnettingController {
                     let ip4 = data.get('IPv4');
                     if (ip4 != null && ip4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet, ip4, database);
                 });
+                if (subnet.currentDefaultGateway != undefined && subnet.currentDefaultGateway != null) {
+                    node.defaultGateway = subnet.currentDefaultGateway;
+                    grabbedNode.addClass('gateway-changeable');
+                }
+                else {
+                    grabbedNode.addClass('default-gateway-not-found');
+                }
             }
             else if (node instanceof Subnet) {
                 Subnet.calculateCIDRGivenNewSubnet(subnet, node, database);
@@ -109,7 +117,7 @@ export class SubnettingController {
             let gateways: Router[] = [];
             //check if each subnet is correctly assigned locally
             networkNode.children().forEach(node => hosts.push(node.data()));
-            nw.gateways.forEach((_port, id) => gateways.push(network._graph.$('#'+id)));
+            nw.gateways.forEach((_port, id) => gateways.push(network._graph.$('#' + id)));
             if (!nw.validateSubnetLocally(hosts, gateways)) allCorrect = false;
 
             subnets.forEach(subnet => {
@@ -138,12 +146,14 @@ export class SubnettingController {
         if (host.isChild() && gateway.hasClass('gateway-node')) {
             let subnet = host.parent();
             let gatewayNodeId = gateway.data().id;
-            if (!subnet.data('gateways').has(gatewayNodeId)) return;
-            subnet.data('gateways').set(gatewayNodeId, gatewayPort);
+            let gatewayList: Map<string, number> = subnet.data('gateways');
+            if (!gatewayList.has(gatewayNodeId)) return;
+            gatewayList.set(gatewayNodeId, gatewayPort);
             gateway.data('portSubnetMapping').set(gatewayPort, subnet.data());
             let ip4 = gateway.data('portData').get(gatewayPort).get('IPv4');
-            console.log(subnet);
-            console.log(gateway);
+
+            if (subnet.data('currentDefaultGateway') == undefined) subnet.data('currentDefaultGateway', [gatewayNodeId, gatewayPort]);
+
             switch (Subnet.mode) {
                 case 'HOST_BASED':
                     if (ip4 != null && ip4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet.data() as Subnet, ip4, database);
