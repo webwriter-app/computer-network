@@ -45,6 +45,7 @@ export class Router extends Connector {
         this.subnets.forEach(subnet => {
             colors.push(subnet.color);
         });
+        if(this.subnets.length==0) return ['grey'];
         return colors;
     }
 

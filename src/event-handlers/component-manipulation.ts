@@ -160,7 +160,9 @@ export class GraphNodeFactory {
                 });
 
                 physicalNode.portLinkMapping.forEach((linkId) => {
-                    EdgeController.removeConnection(network._graph.$('#'+linkId).data(), network._graph);
+                    if (linkId != undefined && linkId != null) {
+                        EdgeController.removeConnection(network._graph.$('#' + linkId).data(), network._graph);
+                    }
                 });
             }
         }
@@ -204,13 +206,19 @@ export class GraphNodeFactory {
             this.removeNode(child, network);
         });
         let subnet: Subnet = node.data() as Subnet;
-        network.ipv4Database.delete(subnet.networkAddress.address); //free ID of network
+        if (subnet.networkAddress != null && subnet.networkAddress != undefined) network.ipv4Database.delete(subnet.networkAddress.address); //free ID of network
         //free the port of the gateways
         subnet.gateways.forEach((port, gatewayId) => {
             let gateway: Router = network._graph.$('#' + gatewayId).data();
             gateway.portSubnetMapping.set(port, null);
             gateway.portLinkMapping.set(port, null);
-            gateway.subnets = Array.from(gateway.portSubnetMapping.values()); //reset the color for gateway
+
+            let colorList = [];
+            Array.from(gateway.portSubnetMapping.values()).forEach(subnet => {
+                if (subnet != null) colorList.push(subnet);
+            });
+            gateway.subnets = colorList; //reset the color for gateway
+            console.log(gateway);
         });
     }
 
