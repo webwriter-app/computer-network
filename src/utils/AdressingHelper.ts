@@ -28,6 +28,12 @@ export class AddressingHelper {
         }
     }
 
+    static getBroadcastAddress(networkId: string, bitmask: number){
+        let binId = this.decimalStringWithDotToBinary(networkId);
+        let prefix = binId.slice(0, bitmask);
+        return this.binaryToDecimalOctets(prefix.padEnd(32,'1')).join('.');
+    }
+
     static getPrefix(strings: string[]) {
         // check border cases size 1 array and empty first word)
         if (!strings[0] || strings.length == 1) return strings[0] || "";

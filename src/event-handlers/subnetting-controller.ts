@@ -153,7 +153,7 @@ export class SubnettingController {
         else {
             alert += "<li>Unconfigured subnet still exists.</li>";
         }
-        
+
         if (alert != "") AlertHelper.toastAlert("warning", "exclamation-triangle", "", alert);
     }
 

@@ -311,10 +311,11 @@ export class DialogFactory {
                   if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(affectedNetwork, validatedIpv4, network.ipv4Database);
                   break;
                 case 'SUBNET_BASED':
-                  if (validatedIpv4 != null && !validatedIpv4.matchesNetworkCidr(affectedNetwork)) {
-                    AlertHelper.toastAlert('warning', 'exclamation-triangle', 'Subnet-based mode on:', "Inserted IPv4 for gateway doesn't match the subnet mask.");
+                  if (affectedNetwork != null && validatedIpv4 != null && !validatedIpv4.matchesNetworkCidr(affectedNetwork)) {
+                    AlertHelper.toastAlert('warning', 'exclamation-triangle', 'Subnet-based mode on:', "Inserted IPv4 for gateway doesn't match the subnet mask or the network is not configured.");
                     keepOldIp = true;
                   }
+                  
                   break;
                 default:
                   break;
@@ -404,7 +405,7 @@ export class DialogFactory {
       let newBitmask = (network.renderRoot.querySelector('#change-bitmask-' + id) as SlInput).value.trim();
       let newSubnetmask = (network.renderRoot.querySelector('#change-mask-' + id) as SlInput).value.trim();
 
-      if(subnet.handleChangesOnNewSubnetInfo(newId != "" ? newId : null, newSubnetmask != "" ? newSubnetmask : null, newBitmask != "" ? +newBitmask : null, network)){
+      if (subnet.handleChangesOnNewSubnetInfo(newId != "" ? newId : null, newSubnetmask != "" ? newSubnetmask : null, newBitmask != "" ? +newBitmask : null, network)) {
         node.toggleClass('unconfigured-subnet', false);
       }
       dialog.hide();

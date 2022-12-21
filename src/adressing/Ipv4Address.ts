@@ -31,7 +31,7 @@ export class Ipv4Address extends Address {
         let isNetworkId: boolean = (bitmask != null && !Number.isNaN(bitmask) && bitmask != undefined);
 
         if (ip == null || ip == undefined || ip == "" || database.has(ip)) return null;
-        if (isNetworkId && (bitmask<0 || bitmask>32)) return null;
+        if (isNetworkId && (bitmask < 0 || bitmask > 32)) return null;
 
         if (ip == "127.0.0.1") if (!isNetworkId) { return this.getLoopBackAddress(); } else { return null; }
 
@@ -44,18 +44,25 @@ export class Ipv4Address extends Address {
 
         stringArray.forEach(octet => {
             let intOctet = parseInt(octet);
-            if (intOctet == undefined || intOctet < 0 || intOctet > 255) outOfRange=true;
+            if (intOctet == undefined || intOctet < 0 || intOctet > 255) outOfRange = true;
             decimalArray.push(intOctet);
             binArray.push(AddressingHelper.numTo8BitBinary(intOctet));
         });
-        
+
         if (outOfRange) return null;
 
         let result: Ipv4Address = new Ipv4Address(ip, stringArray, binArray, decimalArray);
 
-        if (isNetworkId && parseInt(binArray.join('').slice(bitmask)) * 10 != 0 && bitmask<32) return null;
+        if (isNetworkId && parseInt(binArray.join('').slice(bitmask)) * 10 != 0 && bitmask < 32) return null;
 
-        database.set(ip, result);
+        if (isNetworkId) {
+            database.set(ip, result);
+            database.set(AddressingHelper.getBroadcastAddress(ip, bitmask), null); //add the broadcast address to database also
+        }
+        else {
+            database.set(ip, result);
+        }
+
         return result;
     }
 
@@ -68,7 +75,7 @@ export class Ipv4Address extends Address {
      */
     static generateNewIpGivenSubnet(database: Map<string, Ipv4Address>, oldIp: Ipv4Address, subnet: Subnet): Ipv4Address {
 
-        if(subnet.cssClass.includes('unconfigured-subnet')) return null;
+        if (subnet.cssClass.includes('unconfigured-subnet')) return null;
 
         if (oldIp.matchesNetworkCidr(subnet)) {
             return oldIp;

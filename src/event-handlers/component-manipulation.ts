@@ -9,6 +9,7 @@ import { Repeater, Hub, Switch, Bridge, AccessPoint, Router } from "../component
 import { Host } from "../components/physicalNodes/Host";
 import { ConnectionType, PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { initNetwork } from "../network-config";
+import { AddressingHelper } from "../utils/AdressingHelper";
 import { EdgeController } from "./edge-controller";
 
 
@@ -206,7 +207,10 @@ export class GraphNodeFactory {
             this.removeNode(child, network);
         });
         let subnet: Subnet = node.data() as Subnet;
-        if (subnet.networkAddress != null && subnet.networkAddress != undefined) network.ipv4Database.delete(subnet.networkAddress.address); //free ID of network
+        if (subnet.networkAddress != null && subnet.networkAddress != undefined) {
+            network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(subnet.networkAddress.address, subnet.bitmask)); //remove the broadcast address
+            network.ipv4Database.delete(subnet.networkAddress.address); //free ID of network   
+        }
         //free the port of the gateways
         subnet.gateways.forEach((port, gatewayId) => {
             let gateway: Router = network._graph.$('#' + gatewayId).data();
