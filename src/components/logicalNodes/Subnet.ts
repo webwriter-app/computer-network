@@ -155,12 +155,7 @@ export class Subnet extends LogicalNode {
         if (candidateAddress == null) {
             AlertHelper.toastAlert("warning", "exclamation-triangle", "Hosts-based mode:", "No valid network address can be assigned to this subnet.");
             database.delete(subnet.networkAddress.address);
-            subnet.networkAddress = null;
-            subnet.bitmask = null;
-            subnet.binarySubnetMask = null;
-            subnet.subnetMask = null;
-            subnet.name = "";
-            subnet.cssClass.push("unconfigured-subnet");
+            subnet.setSubnetInfo(null, null, null, null, true, "");
             return;
         }
         else {
@@ -170,11 +165,8 @@ export class Subnet extends LogicalNode {
             if (subnet.networkAddress != null && subnet.networkAddress != undefined) {
                 database.delete(subnet.networkAddress.address); //delete the old subnet ID from database
             }
-            subnet.networkAddress = candidateAddress;
-            subnet.bitmask = count;
-            subnet.binarySubnetMask = "".padStart(count, '1').padEnd(32, '0');
-            subnet.subnetMask = AddressingHelper.binaryToDecimalOctets(subnet.binarySubnetMask).join('.');
-            subnet.name = candidateIdFormatted + " /" + count;
+            subnet.setSubnetInfo(candidateAddress, count, AddressingHelper.binaryToDecimalOctets("".padStart(count, '1').padEnd(32, '0')).join('.'),
+                "".padStart(count, '1').padEnd(32, '0'), false)
         }
     }
 
@@ -259,6 +251,22 @@ export class Subnet extends LogicalNode {
         return this.networkAddress.binaryOctets.join('').slice(0, this.bitmask) == subnet.networkAddress.binaryOctets.join('').slice(0, this.bitmask);
     }
 
+    private setSubnetInfo(networkAddress: Ipv4Address, bitmask: number, subnetmask: string, binarySubnetmask: string, unconfig: boolean, name?: string) {
+        this.bitmask = bitmask;
+        this.networkAddress = networkAddress;
+        this.subnetMask = subnetmask;
+        this.binarySubnetMask = binarySubnetmask;
+        this.name = name != null ? this.name = name : this.networkAddress.address + " /" + this.bitmask;
+        if (!unconfig) {
+            while (this.cssClass.includes('unconfigured-subnet')) {
+                this.cssClass.splice(this.cssClass.indexOf('unconfigured-subnet'), 1);
+            }
+        }
+        else {
+            this.cssClass.push('unconfigured-subnet');
+        }
+    }
+
     handleChangesOnNewSubnetInfo(newSubnetNum: string, newSubnetMask: string, newBitmask: number, network: ComputerNetwork): boolean {
         let bitmaskValid: boolean = !(newBitmask == null || newBitmask == undefined || Number.isNaN(newBitmask) || newBitmask < 0 || newBitmask > 32);
         let subnetmaskValid: boolean = !(newSubnetMask == null || newSubnetMask == undefined || newSubnetMask == "" || !Subnet.validateSubnetMask(newSubnetMask));
@@ -268,14 +276,15 @@ export class Subnet extends LogicalNode {
         //if bitmask valid, calculate equivalent subnet mask
         if (bitmaskValid) {
             let derivedDecimalMask: number[] = AddressingHelper.binaryToDecimalOctets("".padStart(newBitmask, '1').padEnd(32, '0'));
+            console.log(derivedDecimalMask);
             //if the input subnetmask is valid and doesn't match our bitmask
             if (subnetmaskValid && derivedDecimalMask.join('.') != newSubnetMask) {
                 AlertHelper.toastAlert("warning", "exclamation-diamond", "",
                     "The subnet mask you entered <strong>" + newSubnetMask + "</strong> doesn't match the bitmask <strong>"
                     + newBitmask + "</strong>. Derived subnet mask is: " + derivedDecimalMask.join('.'));
 
-                newSubnetMask = derivedDecimalMask.join('.');
             }
+            newSubnetMask = derivedDecimalMask.join('.');
         }
         else if (subnetmaskValid) {
             //if bitmask not valid --> calculate bitmask from subnetmask
@@ -284,25 +293,25 @@ export class Subnet extends LogicalNode {
 
         let networkId = Ipv4Address.validateAddress(newSubnetNum, network.ipv4Database, newBitmask);
 
+        if (networkId == null) return false;
+
         switch (Subnet.mode) {
             case 'HOST_BASED':
+                console.log("checkpoint-0");
                 if (this.bitmask >= newBitmask && this.networkAddress.binaryOctets.join('').slice(0, newBitmask)
                     == networkId.binaryOctets.join('').slice(0, newBitmask)) {
-                    this.bitmask = newBitmask;
-                    this.networkAddress = networkId;
-                    this.subnetMask = newSubnetMask;
-                    this.binarySubnetMask = AddressingHelper.decimalStringWithDotToBinary(newSubnetMask);
+                        console.log("checkpoint-1");
+                    this.setSubnetInfo(networkId, newBitmask, newSubnetMask, AddressingHelper.decimalStringWithDotToBinary(newSubnetMask), false);
                 }
                 else {
                     AlertHelper.toastAlert('danger', 'exclamation-triangle', 'Host-based mode on:', "New network doesn't extend old network!");
+                    console.log("checkpoint-2");
+                    return false;
                 }
                 break;
 
             case 'SUBNET_BASED':
-                this.bitmask = newBitmask;
-                this.networkAddress = networkId;
-                this.subnetMask = newSubnetMask;
-                this.binarySubnetMask = AddressingHelper.decimalStringWithDotToBinary(newSubnetMask);
+                this.setSubnetInfo(networkId, newBitmask, newSubnetMask, AddressingHelper.decimalStringWithDotToBinary(newSubnetMask), false);
 
                 network._graph.$('#' + this.id).children().forEach(node => {
                     let nodeData = node.data();
@@ -333,9 +342,13 @@ export class Subnet extends LogicalNode {
                     }
                 });
                 break;
-            default:
+            case 'MANUAL':
+                this.setSubnetInfo(networkId, newBitmask, newSubnetMask, AddressingHelper.decimalStringWithDotToBinary(newSubnetMask), false);
                 break;
         }
+
+        AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");
+        return true;
     }
 
 }

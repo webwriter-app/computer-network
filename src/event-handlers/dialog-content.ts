@@ -361,9 +361,12 @@ export class DialogFactory {
     dialog.label = "Details of this network:";
 
     let subnet: Subnet = node.data();
-    dialog.innerHTML += `<sl-input id="` + id + `"NetworkAddress" label="Network Address" placeholder="` + subnet.networkAddress.address + `" clearable type="string">`;
-    dialog.innerHTML += `<sl-input id="` + id + `"Bitmask" label="Bitmask" placeholder="` + subnet.bitmask + `" clearable type="number" min=0>`;
-    dialog.innerHTML += `<sl-input id="` + id + `"SubnetMask" label="Subnet Mask" placeholder="` + subnet.subnetMask + `" clearable type="string">`;
+    dialog.innerHTML += `<sl-input id="change-id-` + id + `" label="Network Address" placeholder="`
+      + ((subnet.networkAddress != undefined && subnet.networkAddress != null) ? subnet.networkAddress.address : "") + `" clearable type="string">`;
+    dialog.innerHTML += `<sl-input id="change-bitmask-` + id + `" label="Bitmask" placeholder="`
+      + ((subnet.bitmask != undefined && subnet.bitmask != null) ? subnet.bitmask : "") + `" clearable type="number" min=0>`;
+    dialog.innerHTML += `<sl-input id="change-mask-` + id + `" label="Subnet Mask" placeholder="`
+      + ((subnet.subnetMask != undefined && subnet.subnetMask != null) ? subnet.subnetMask : "") + `" clearable type="string">`;
 
     //table for gateways
     let gateways: Map<string, number> = subnet.gateways;
@@ -397,11 +400,13 @@ export class DialogFactory {
     saveButton.variant = "primary";
     saveButton.innerHTML = "Save";
     saveButton.addEventListener('click', () => {
-      let newId = (network.renderRoot.querySelector('#' + id + "NetworkAddress") as SlInput).value.trim();
-      let newBitmask = (network.renderRoot.querySelector('#' + id + "Bitmask") as SlInput).value.trim();
-      let newSubnetmask = (network.renderRoot.querySelector('#' + id + "SubnetMask") as SlInput).value.trim();
+      let newId = (network.renderRoot.querySelector('#change-id-' + id) as SlInput).value.trim();
+      let newBitmask = (network.renderRoot.querySelector('#change-bitmask-' + id) as SlInput).value.trim();
+      let newSubnetmask = (network.renderRoot.querySelector('#change-mask-' + id) as SlInput).value.trim();
 
-      subnet.handleChangesOnNewSubnetInfo(newId != "" ? newId : null, newSubnetmask, newBitmask != "" ? +newBitmask : null, network);
+      if(subnet.handleChangesOnNewSubnetInfo(newId != "" ? newId : null, newSubnetmask != "" ? newSubnetmask : null, newBitmask != "" ? +newBitmask : null, network)){
+        node.toggleClass('unconfigured-subnet', false);
+      }
       dialog.hide();
     });
 
@@ -444,9 +449,9 @@ export class DialogFactory {
       dialog.innerHTML += select;
     }
 
-    if(!node.hasClass('default-gateway-not-found')){
+    if (!node.hasClass('default-gateway-not-found')) {
       let current: [string, number] = node.data('defaultGateway');
-      dialog.innerHTML += "Current default gateway is: "+ current[0] +", port: "+ current[1];
+      dialog.innerHTML += "Current default gateway is: " + current[0] + ", port: " + current[1];
     }
     node.toggleClass('default-gateway-not-found', false);
 

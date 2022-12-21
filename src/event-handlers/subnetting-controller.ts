@@ -10,26 +10,33 @@ import NodeSingular from "cytoscape";
 
 export class SubnettingController {
     static assignGatewayOn = false;
+    static mutexDragAndDrop: string;
 
 
     static toggleDragAndDropSubnetting(event: any, network: ComputerNetwork) {
+        if (this.mutexDragAndDrop == "gateway") return;
         //if subnetting option is not active
         if (!event.target.checked) {
             event.target.checked = true;
+            this.mutexDragAndDrop = "subnetting";
             network._cdnd.enable();
         }
         else {
             event.target.checked = false;
             network._cdnd.disable();
+            this.mutexDragAndDrop = null;
         }
     }
 
     static toggleAssigningGateway(event: any) {
+        if (this.mutexDragAndDrop == "subnetting") return;
         if (!event.target.checked) {
             event.target.checked = true;
+            this.mutexDragAndDrop = "gateway";
         }
         else {
             event.target.checked = false;
+            this.mutexDragAndDrop = null;
         }
         SubnettingController.assignGatewayOn = event.target.checked;
     }
@@ -110,35 +117,44 @@ export class SubnettingController {
         let subnets = network._graph.$('.subnet-node');
         let allCorrect = true;
         let alert = "";
+        let unconfig = false;
 
         subnets.forEach(networkNode => {
-            let nw: Subnet = networkNode.data() as Subnet;
-            let hosts: GraphNode[] = [];
-            let gateways: Router[] = [];
-            //check if each subnet is correctly assigned locally
-            networkNode.children().forEach(node => hosts.push(node.data()));
-            nw.gateways.forEach((_port, id) => gateways.push(network._graph.$('#' + id)));
-            if (!nw.validateSubnetLocally(hosts, gateways)) allCorrect = false;
+            if (networkNode.hasClass('unconfigured-subnet')) {
+                unconfig = true;
+            }
+            else {
+                let nw: Subnet = networkNode.data() as Subnet;
+                let hosts: GraphNode[] = [];
+                let gateways: Router[] = [];
+                //check if each subnet is correctly assigned locally
+                networkNode.children().forEach(node => hosts.push(node.data()));
+                nw.gateways.forEach((_port, id) => gateways.push(network._graph.$('#' + id)));
+                if (!nw.validateSubnetLocally(hosts, gateways)) allCorrect = false;
 
-            subnets.forEach(subnet => {
-                let isSupernet: boolean = (nw as Subnet).isSupernetOf(subnet.data());
-                let contains: boolean = networkNode.children().contains(subnet);
-                if (isSupernet && !contains) {
-                    alert += "<li>" + nw.name + " should contain subnet " + subnet.data().name + "</li>";
-                    allCorrect = false;
-                }
-                else if (!isSupernet && contains) {
-                    alert += "<li>" + nw.name + " is not a supernet of " + subnet.data().name + "</li>";
-                    allCorrect = false;
-                }
-            });
+                subnets.forEach(subnet => {
+                    let isSupernet: boolean = (nw as Subnet).isSupernetOf(subnet.data());
+                    let contains: boolean = networkNode.children().contains(subnet);
+                    if (isSupernet && !contains) {
+                        alert += "<li>" + nw.name + " should contain subnet " + subnet.data().name + "</li>";
+                        allCorrect = false;
+                    }
+                    else if (!isSupernet && contains) {
+                        alert += "<li>" + nw.name + " is not a supernet of " + subnet.data().name + "</li>";
+                        allCorrect = false;
+                    }
+                });
+            }
         });
 
-        if (alert != "") AlertHelper.toastAlert("warning", "exclamation-triangle", "", alert);
-
-        if (allCorrect) {
+        if (allCorrect && !unconfig) {
             AlertHelper.toastAlert("success", "check2-circle", "Well done!", "All subnets are correctly configured!")
         }
+        else {
+            alert += "<li>Unconfigured subnet still exists.</li>";
+        }
+        
+        if (alert != "") AlertHelper.toastAlert("warning", "exclamation-triangle", "", alert);
     }
 
 
