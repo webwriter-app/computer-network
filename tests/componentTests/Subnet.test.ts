@@ -115,7 +115,7 @@ test('should create Subnet for valid subnetNum, bitmask and invalid subnetMask',
         expect(subnet.cssClass.includes('unconfigured-subnet')).toBe(false);
         expect(subnet.subnetMask).toBe("255.255.0.0");
         expect(subnet.name).toBe("128.1.0.0 /16");
-        expect(database.size).toBe(1);
+        expect(database.size).toBe(2);
     });
 });
 
@@ -130,7 +130,7 @@ test('should create Subnet for valid subnetNum, subnetmask and invalid bitmask',
         expect(subnet.cssClass.includes('unconfigured-subnet')).toBe(false);
         expect(subnet.subnetMask).toBe("255.255.0.0");
         expect(subnet.name).toBe("128.1.0.0 /16");
-        expect(database.size).toBe(1);
+        expect(database.size).toBe(2);
     });
 });
 
@@ -143,7 +143,7 @@ test('test supernet should be correct', () => {
         let database: Map<string, Ipv4Address> = new Map();
         let subnet: Subnet = Subnet.createSubnet("", "128.1.0.0", "", 16, database);
         let supernet: Subnet = Subnet.createSubnet("", "128.0.0.0", "", 15, database);
-        expect(database.size).toBe(2);
+        expect(database.size).toBe(3); //same broadcast address
         expect(supernet.isSupernetOf(subnet)).toBe(true);
     });
 });
@@ -157,15 +157,15 @@ test('test not supernet case should be correct', () => {
         let database: Map<string, Ipv4Address> = new Map();
         let subnet: Subnet = Subnet.createSubnet("", "255.1.0.0", "", 16, database);
         let supernet: Subnet = Subnet.createSubnet("", "255.0.0.0", "", 16, database);
-        expect(database.size).toBe(2);
+        expect(database.size).toBe(4);
         expect(supernet.isSupernetOf(subnet)).toBe(false);
 
         subnet = Subnet.createSubnet("", "254.0.0.0", "", 14, database);
-        expect(database.size).toBe(3);
+        expect(database.size).toBe(6);
         expect(supernet.isSupernetOf(subnet)).toBe(false);
 
         subnet = Subnet.createSubnet("", "255.2.128.0", "", 24, database);
-        expect(database.size).toBe(4);
+        expect(database.size).toBe(8);
         expect(supernet.isSupernetOf(subnet)).toBe(false);
     });
 });
@@ -207,7 +207,7 @@ test('should extend existed subnet for new host', () => {
     expect(subnet.cssClass.includes('unconfigured-subnet')).toBe(false);
     expect(database.has("128.0.255.0")).toBe(false);
     expect(database.has("128.0.0.0")).toBe(true);
-    expect(database.size).toBe(2);
+    expect(database.size).toBe(3);
 });
 
 test("shouldn't extend existed subnet for new host if not HOST_BASED mode", () => {
@@ -227,7 +227,7 @@ test("shouldn't extend existed subnet for new host if not HOST_BASED mode", () =
         expect(subnet.subnetMask).toBe("255.255.255.0");
         expect(subnet.name).toBe("128.0.255.0 /24");
         expect(subnet.cssClass.includes('unconfigured-subnet')).toBe(false);
-        expect(database.size).toBe(2);
+        expect(database.size).toBe(3);
         expect(database.has("128.0.255.0")).toBe(true);
         expect(database.has("128.128.0.0")).toBe(true);
     });
@@ -247,7 +247,7 @@ test('should not extend existed subnet for matching new host', () => {
     expect(subnet.subnetMask).toBe("255.255.255.0");
     expect(subnet.name).toBe("128.0.255.0 /24");
     expect(subnet.cssClass.includes('unconfigured-subnet')).toBe(false);
-    expect(database.size).toBe(2);
+    expect(database.size).toBe(3);
     expect(database.has("128.0.255.0")).toBe(true);
     expect(database.has("128.0.255.128")).toBe(true);
 });
@@ -266,7 +266,7 @@ test('should not extend existed subnet for loopback address', () => {
     expect(subnet.subnetMask).toBe("255.255.255.0");
     expect(subnet.name).toBe("128.0.255.0 /24");
     expect(subnet.cssClass.includes('unconfigured-subnet')).toBe(false);
-    expect(database.size).toBe(1);
+    expect(database.size).toBe(2);
     expect(database.has("128.0.255.0")).toBe(true);
 });
 
@@ -284,7 +284,7 @@ test('should extend existed supernet for new subnet (of same bitmask)', () => {
     expect(supernet.subnetMask).toBe("255.255.252.0");
     expect(supernet.name).toBe("128.0.252.0 /22");
     expect(supernet.cssClass.includes('unconfigured-subnet')).toBe(false);
-    expect(database.size).toBe(2);
+    expect(database.size).toBe(4);
     expect(database.has("128.0.255.0")).toBe(false);
 });
 
@@ -302,7 +302,7 @@ test('should extend existed supernet for new subnet - lower bound', () => {
     expect(supernet.subnetMask).toBe("0.0.0.0");
     expect(supernet.name).toBe("0.0.0.0 /0");
     expect(supernet.cssClass.includes('unconfigured-subnet')).toBe(false);
-    expect(database.size).toBe(2);
+    expect(database.size).toBe(4);
     expect(database.has("128.0.255.0")).toBe(false);
 });
 
@@ -321,7 +321,7 @@ test('should set supernet as unconfigured when no valid address available', () =
     expect(supernet.subnetMask).toBe(null);
     expect(supernet.name).toBe("");
     expect(supernet.cssClass.includes('unconfigured-subnet')).toBe(true);
-    expect(database.size).toBe(2);
+    expect(database.size).toBe(3);
     expect(database.has("128.0.255.0")).toBe(false);
 });
 

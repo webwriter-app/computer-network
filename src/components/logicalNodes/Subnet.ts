@@ -155,6 +155,7 @@ export class Subnet extends LogicalNode {
         if (candidateAddress == null) {
             AlertHelper.toastAlert("warning", "exclamation-triangle", "Hosts-based mode:", "No valid network address can be assigned to this subnet.");
             database.delete(subnet.networkAddress.address);
+            database.delete(AddressingHelper.getBroadcastAddress(subnet.networkAddress.address, subnet.bitmask));
             subnet.setSubnetInfo(null, null, null, null, true, "");
             return;
         }
@@ -164,6 +165,7 @@ export class Subnet extends LogicalNode {
             }
             if (subnet.networkAddress != null && subnet.networkAddress != undefined) {
                 database.delete(subnet.networkAddress.address); //delete the old subnet ID from database
+                database.delete(AddressingHelper.getBroadcastAddress(subnet.networkAddress.address, subnet.bitmask));
             }
             subnet.setSubnetInfo(candidateAddress, count, AddressingHelper.binaryToDecimalOctets("".padStart(count, '1').padEnd(32, '0')).join('.'),
                 "".padStart(count, '1').padEnd(32, '0'), false)
@@ -270,6 +272,8 @@ export class Subnet extends LogicalNode {
     handleChangesOnNewSubnetInfo(newSubnetNum: string, newSubnetMask: string, newBitmask: number, network: ComputerNetwork): boolean {
         let bitmaskValid: boolean = !(newBitmask == null || newBitmask == undefined || Number.isNaN(newBitmask) || newBitmask < 0 || newBitmask > 32);
         let subnetmaskValid: boolean = !(newSubnetMask == null || newSubnetMask == undefined || newSubnetMask == "" || !Subnet.validateSubnetMask(newSubnetMask));
+        let networkToFree: [string, number] = [this.networkAddress.address, this.bitmask];
+        console.log(networkToFree);
 
         if (!bitmaskValid && !subnetmaskValid) return false;
 
@@ -297,15 +301,12 @@ export class Subnet extends LogicalNode {
 
         switch (Subnet.mode) {
             case 'HOST_BASED':
-                console.log("checkpoint-0");
                 if (this.bitmask >= newBitmask && this.networkAddress.binaryOctets.join('').slice(0, newBitmask)
                     == networkId.binaryOctets.join('').slice(0, newBitmask)) {
-                        console.log("checkpoint-1");
                     this.setSubnetInfo(networkId, newBitmask, newSubnetMask, AddressingHelper.decimalStringWithDotToBinary(newSubnetMask), false);
                 }
                 else {
                     AlertHelper.toastAlert('danger', 'exclamation-triangle', 'Host-based mode on:', "New network doesn't extend old network!");
-                    console.log("checkpoint-2");
                     return false;
                 }
                 break;
@@ -327,6 +328,7 @@ export class Subnet extends LogicalNode {
                         //if the subnet doesn't match supernet's CIDR
                         if (!this.isSupernetOf(nodeData)) {
                             network.ipv4Database.delete(nodeData.networkAddress.address) //delete the subnet from database
+                            network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(nodeData.networkAddress.address, nodeData.bitmask));
                             nodeData.networkAddress = null; //delete the subnet Address
                             node.toggleClass("unconfigured-subnet", true);
                             nodeData.cssClass.push("unconfigured-subnet");
@@ -347,6 +349,8 @@ export class Subnet extends LogicalNode {
                 break;
         }
 
+        console.log(networkToFree);
+        network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(networkToFree[0], networkToFree[1]));
         AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");
         return true;
     }
