@@ -228,6 +228,7 @@ export class DialogFactory {
   static handleChangesInDialogForPhysicalNode(id: string, node: any, network: ComputerNetwork, isGateway: boolean, subnet?: Subnet) {
     let physicalNode: PhysicalNode = node.data();
     let dialog: SlDialog = new SlDialog();
+    dialog.label = "Details about ports of this component:";
     let table: string = `<table cellspacing="10"><tr>`;
     table += `<td>Index</td>`;
     physicalNode.portData.entries().next().value[1].forEach((_, columnName) => table += `<td>` + columnName + `</td>`);
@@ -357,6 +358,7 @@ export class DialogFactory {
   static handleChangesInDialogForSubnet(id: string, node: any, network: ComputerNetwork) {
 
     let dialog: SlDialog = new SlDialog();
+    dialog.label = "Details of this network:";
 
     let subnet: Subnet = node.data();
     dialog.innerHTML += `<sl-input id="` + id + `"NetworkAddress" label="Network Address" placeholder="` + subnet.networkAddress.address + `" clearable type="string">`;
@@ -412,13 +414,13 @@ export class DialogFactory {
 
   static handleChangeDefaultGateway(subnet: Subnet, id: string, node: any, network: ComputerNetwork) {
     let dialog: SlDialog = new SlDialog();
-
+    dialog.label = "Details of available gateways";
     let gateways: Map<string, number> = subnet.gateways; //gateway-node-id, port
 
     let select = `<sl-select id="new-gateway-` + id + `">`;
 
     if (gateways.size != 0) {
-      let table: string = `<table cellspacing="10"><tr><td>Gateway</td><td>Interface</td><td>Connection Type</td><td>MAC</td><td>IPv4</td><td>IPv6</td></tr>`;
+      let table: string = `<table cellspacing="10"><tr><td>Gateway</td><td>Port number</td><td>Interface</td><td>Connection Type</td><td>MAC</td><td>IPv4</td><td>IPv6</td></tr>`;
 
       gateways.forEach((port, gatewayId) => {
         if (port != null) {
@@ -426,6 +428,7 @@ export class DialogFactory {
           let data = router.portData.get(port);
           table += `<tr>`;
           table += `<td>` + router.name + `</td>`;
+          table += `<td>` + port + `</td>`;
           table += `<td>` + data.get('Name') + `</td>`;
           table += `<td>` + data.get('Connection Type') + `</td>`;
           table += `<td>` + data.get('MAC').address + `</td>`;
@@ -443,7 +446,7 @@ export class DialogFactory {
 
     if(!node.hasClass('default-gateway-not-found')){
       let current: [string, number] = node.data('defaultGateway');
-      dialog.innerHTML += "Current default gateway is: "+ network._graph.$("#" + current[0]).data('portData').get(current[1]).name;
+      dialog.innerHTML += "Current default gateway is: "+ current[0] +", port: "+ current[1];
     }
     node.toggleClass('default-gateway-not-found', false);
 

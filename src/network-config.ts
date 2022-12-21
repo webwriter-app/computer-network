@@ -81,19 +81,20 @@ export function initNetwork(network: ComputerNetwork): void {
                 "selector": ".labelled-edge",
                 "style": {
                     "text-wrap": "wrap",
-                    "font-size": 5,
+                    "font-size": 8,
                     "edge-text-rotation": "autorotate",
-                    'source-text-offset': 30,
+                    'source-text-offset': 50,
                     'source-text-rotation': 'autorotate',
-                    'target-text-offset': 30,
+                    'target-text-offset': 50,
                     'target-text-rotation': 'autorotate',
                     "source-label": function (edge) {
                         let source: PhysicalNode = edge.data('from');
                         let port: number = edge.data('inPort');
                         let portData: Map<string, any> = source.portData.get(port);
                         let label = "";
-                        portData.forEach((value, key) => label += value instanceof Address ? key + ": " + value.address + "\n"
-                            : (key == 'Connection Type' ? "" : value + "\n"));
+                        //TOEXTEND:hide IPv6 since the widget doesn't support IPv6 atm
+                        portData.forEach((value, key) => label += (key == 'Connection Type' || key == 'IPv6') ? "" :
+                            (value instanceof Address ? key + ": " + value.address + "\n" : value + "\n"));
                         return label;
                     },
                     "target-label": function (edge) {
@@ -101,8 +102,8 @@ export function initNetwork(network: ComputerNetwork): void {
                         let port: number = edge.data('outPort');
                         let portData: Map<string, any> = target.portData.get(port);
                         let label = "";
-                        portData.forEach((value, key) => label += value instanceof Address ? key + ": " + value.address + "\n"
-                            : (key == 'Connection Type' ? "" : value + "\n"));
+                        portData.forEach((value, key) => label += (key == 'Connection Type' || key == 'IPv6') ? "" :
+                            (value instanceof Address ? key + ": " + value.address + "\n" : value + "\n"));
                         return label;
                     },
                     "label": ""

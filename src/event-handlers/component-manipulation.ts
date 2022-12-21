@@ -9,6 +9,7 @@ import { Repeater, Hub, Switch, Bridge, AccessPoint, Router } from "../component
 import { Host } from "../components/physicalNodes/Host";
 import { ConnectionType, PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { initNetwork } from "../network-config";
+import { EdgeController } from "./edge-controller";
 
 
 export class GraphNodeFactory {
@@ -152,10 +153,14 @@ export class GraphNodeFactory {
             this.removeGateway(node, network);
         }
         else {
-            let physicalNode = node.data();
+            let physicalNode: PhysicalNode = node.data();
             if (physicalNode.layer > 2) {
                 physicalNode.portData.forEach(data => {
                     network.ipv4Database.delete(data.get('IPv4').address);
+                });
+
+                physicalNode.portLinkMapping.forEach((linkId) => {
+                    EdgeController.removeConnection(network._graph.$('#'+linkId).data(), network._graph);
                 });
             }
         }
@@ -196,12 +201,7 @@ export class GraphNodeFactory {
     static removeSubnet(node: any, network: ComputerNetwork): void {
         //free addresses of all children
         node.children().forEach(child => {
-            let physicalNode = child.data();
-            if (physicalNode instanceof PhysicalNode && physicalNode.layer > 2) {
-                (physicalNode as PhysicalNode).portData.forEach(data => {
-                    network.ipv4Database.delete(data.get('IPv4').address);
-                });
-            }
+            this.removeNode(child, network);
         });
         let subnet: Subnet = node.data() as Subnet;
         network.ipv4Database.delete(subnet.networkAddress.address); //free ID of network
