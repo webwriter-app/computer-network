@@ -295,15 +295,16 @@ export class Subnet extends LogicalNode {
             newBitmask = (AddressingHelper.decimalStringWithDotToBinary(newSubnetMask).match(new RegExp("1", "g")) || []).length;
         }
 
-        if (!this.cssClass.includes('unconfigured-subnet')) {
-            if (newSubnetNum == this.networkAddress.address && this.bitmask >= newBitmask) {
-                network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask));
-                this.setSubnetInfo(this.networkAddress, newBitmask, newSubnetMask, AddressingHelper.decimalStringWithDotToBinary(newSubnetMask), false);
-                network.ipv4Database.set(AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask), null);
-                AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");
-                return true;
-            }
+
+        if (this.networkAddress!=null && newSubnetNum == this.networkAddress.address 
+            && (this.bitmask==undefined || this.bitmask==null || this.bitmask >= newBitmask)) {
+            network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask));
+            this.setSubnetInfo(this.networkAddress, newBitmask, newSubnetMask, AddressingHelper.decimalStringWithDotToBinary(newSubnetMask), false);
+            network.ipv4Database.set(AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask), null);
+            AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");
+            return true;
         }
+
 
         let networkId = Ipv4Address.validateAddress(newSubnetNum, network.ipv4Database, newBitmask);
 

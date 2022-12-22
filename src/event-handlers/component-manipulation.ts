@@ -208,15 +208,17 @@ export class GraphNodeFactory {
         //free the port of the gateways
         subnet.gateways.forEach((port, gatewayId) => {
             let gateway: Router = network._graph.$('#' + gatewayId).data();
-            gateway.portSubnetMapping.set(port, null);
-            gateway.portLinkMapping.set(port, null);
+            if (port != null && port != undefined && !Number.isNaN(port)) {
+                gateway.portSubnetMapping.set(port, null);
+                gateway.portLinkMapping.set(port, null);
+            }
 
-            let colorList = [];
-            Array.from(gateway.portSubnetMapping.values()).forEach(subnet => {
-                if (subnet != null) colorList.push(subnet);
+            gateway.subnets.forEach((nw, index, array) => {
+                if (nw.id == subnet.id) {
+                    array.splice(index, 1);
+                }
             });
-            gateway.subnets = colorList; //reset the color for gateway
-            if(colorList.length==0) network._graph.$('#' + gatewayId).toggleClass('gateway-node', false); //if the gateway has no networks --> back to router-node
+            if (gateway.subnets.length == 0) network._graph.$('#' + gatewayId).toggleClass('gateway-node', false); //if the gateway has no networks --> back to router-node
         });
     }
 
