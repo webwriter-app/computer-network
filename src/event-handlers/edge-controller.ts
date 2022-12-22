@@ -58,10 +58,10 @@ export class EdgeController {
 
     static removeConnection(edge: GraphEdge, graph){ 
         if(edge.inPort!=undefined && edge.inPort!=null && !Number.isNaN(edge.inPort)){
-            graph.$("#"+edge.from.id).data().portLinkMapping.set(edge.inPort, null);
+            if(graph.$("#"+edge.from.id).data() instanceof PhysicalNode) graph.$("#"+edge.from.id).data().portLinkMapping.set(edge.inPort, null);
         }
         if(edge.outPort!=undefined && edge.outPort!=null && !Number.isNaN(edge.outPort)){
-            graph.$("#"+edge.to.id).data().portLinkMapping.set(edge.outPort, null);
+            if(graph.$("#"+edge.to.id).data() instanceof PhysicalNode) graph.$("#"+edge.to.id).data().portLinkMapping.set(edge.outPort, null);
         }
     }
 }

@@ -251,7 +251,7 @@ export function initNetwork(network: ComputerNetwork): void {
                         EdgeController.removeConnection(component.data(), network._graph);
                     }
                     else {
-                        GraphNodeFactory.removeNode(component, network);
+                        //GraphNodeFactory.removeNode(component, network);
                     }
                     component.remove();
                 },
@@ -297,30 +297,32 @@ export function initNetwork(network: ComputerNetwork): void {
     const subnettingOptions = {
         grabbedNode: node => { return node.connectedEdges().length == 0; }, // nodes valid to grab and drop into subnet: ones that don't have any link
         dropTarget: (dropTarget, grabbedNode) => {
-            if (dropTarget.data() instanceof Subnet) {
-                switch (Subnet.mode) {
-                    case 'HOST_BASED': //subnet's info get regenerated based on hosts in host_mode
-                        SubnettingController.onDragInACompound(grabbedNode, dropTarget, network.ipv4Database);
-                        return true;
-                    case 'SUBNET_BASED': //the subnet must be configured to drag hosts into (subnet_mode)
-                        let bitmask: number = dropTarget.data().bitmask;
-                        if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
-                            //check if current num. of hosts exceed allowed && subnet is configured
-                            if (((Math.pow(2, 32 - bitmask) - 2) > dropTarget.children().length) && !dropTarget.data().cssClass.includes('unconfigured-subnet')) {
-                                SubnettingController.onDragInACompound(grabbedNode, dropTarget, network.ipv4Database);
-                                return true;
+            grabbedNode.on('cdndover', (event, target, sibling) => {
+                let parent = target != null ? target : sibling;
+                if (parent.data() instanceof Subnet) {
+                    switch (Subnet.mode) {
+                        case 'HOST_BASED': //subnet's info get regenerated based on hosts in host_mode
+                            SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
+                            break;
+                        case 'SUBNET_BASED': //the subnet must be configured to drag hosts into (subnet_mode)
+                            let bitmask: number = parent.data().bitmask;
+                            if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
+                                //check if current num. of hosts exceed allowed && subnet is configured
+                                if (((Math.pow(2, 32 - bitmask) - 2) > parent.children().length) && !parent.data().cssClass.includes('unconfigured-subnet')) {
+                                    SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
+                                }
                             }
-                            return false;
-                        }
-                        else {
-                            AlertHelper.toastAlert('danger', 'exclamation-triangle', "Subnet-based mode activated:", "Unable to drag hosts into unconfigured subnet.");
-                            return false;
-                        }
-                    default:
-                        return true;
+                            else {
+                                AlertHelper.toastAlert('danger', 'exclamation-triangle', "Subnet-based mode activated:", "Unable to drag hosts into unconfigured subnet.");
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            }
-            return false;
+            });
+
+            return dropTarget.data() instanceof Subnet;
         }, // filter function to specify which parent nodes are valid drop targets
         dropSibling: (dropSibling, grabbedNode) => { return (dropSibling.data() instanceof Subnet); }, // filter function to specify which orphan nodes are valid drop siblings
         newParentNode: (grabbedNode, dropSibling) => {
@@ -360,5 +362,14 @@ export function initNetwork(network: ComputerNetwork): void {
     network._graph.on('tapend', '.router-node', function (event) {
         if (!SubnettingController.assignGatewayOn) return;
         SubnettingController.addGateway(event, network);
+    });
+
+
+    //handle database and port assignment on removing node/edge
+    network._graph.on('remove', 'node', (event) => {
+        GraphNodeFactory.removeNode(event.target, network);
+    });
+    network._graph.on('remove', 'edge', (event) => {
+        EdgeController.removeConnection(event.target.data(), network._graph);
     });
 }

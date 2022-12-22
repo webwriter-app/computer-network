@@ -155,15 +155,18 @@ export class Subnet extends LogicalNode {
             count--;
         }
 
+        console.log('checkpoint');
         //if no subnet address is available
         if (candidateAddress == null) {
+            console.log('shouldnt run this!');
             AlertHelper.toastAlert("warning", "exclamation-triangle", "Hosts-based mode:", "No valid network address can be assigned to this subnet.");
             subnet.setSubnetInfo(null, null, null, null, true, "");
             return;
         }
         else {
+            console.log('should run this!');
             subnet.setSubnetInfo(candidateAddress, count, AddressingHelper.binaryToDecimalOctets("".padStart(count, '1').padEnd(32, '0')).join('.'),
-                "".padStart(count, '1').padEnd(32, '0'), false)
+                "".padStart(count, '1').padEnd(32, '0'), false);
         }
     }
 

@@ -291,6 +291,7 @@ export class DialogFactory {
               switch (Subnet.mode) {
                 case 'HOST_BASED':
                   if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet, validatedIpv4, network.ipv4Database);
+                  node.parent().classes(subnet.cssClass);
                   break;
                 case 'SUBNET_BASED':
                   if (validatedIpv4 != null && !validatedIpv4.matchesNetworkCidr(subnet)) {
@@ -309,13 +310,13 @@ export class DialogFactory {
               switch (Subnet.mode) {
                 case 'HOST_BASED':
                   if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(affectedNetwork, validatedIpv4, network.ipv4Database);
+                  network._graph.$('#'+affectedNetwork.id).classes(affectedNetwork.cssClass);
                   break;
                 case 'SUBNET_BASED':
                   if (affectedNetwork != null && validatedIpv4 != null && !validatedIpv4.matchesNetworkCidr(affectedNetwork)) {
                     AlertHelper.toastAlert('warning', 'exclamation-triangle', 'Subnet-based mode on:', "Inserted IPv4 for gateway doesn't match the subnet mask or the network is not configured.");
                     keepOldIp = true;
                   }
-                  
                   break;
                 default:
                   break;
@@ -323,6 +324,7 @@ export class DialogFactory {
             }
 
             if (!keepOldIp) {
+              network.ipv4Database.delete(physicalNode.portData.get(index).get('IPv4').address);
               physicalNode.portData.get(index).set('IPv4', validatedIpv4);
               changed = true;
             }

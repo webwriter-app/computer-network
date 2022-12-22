@@ -159,12 +159,6 @@ export class GraphNodeFactory {
                 physicalNode.portData.forEach(data => {
                     network.ipv4Database.delete(data.get('IPv4').address);
                 });
-
-                physicalNode.portLinkMapping.forEach((linkId) => {
-                    if (linkId != undefined && linkId != null) {
-                        EdgeController.removeConnection(network._graph.$('#' + linkId).data(), network._graph);
-                    }
-                });
             }
         }
     }
