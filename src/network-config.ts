@@ -234,7 +234,6 @@ export function initNetwork(network: ComputerNetwork): void {
                 onClickFunction: function (event) {
                     let node = event.target;
                     DialogFactory.handleChangeDefaultGateway(node.parent().data(), node.id(), node, network);
-                    console.log(node);
                 },
                 hasTrailingDivider: true
             },

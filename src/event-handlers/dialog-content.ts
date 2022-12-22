@@ -306,7 +306,6 @@ export class DialogFactory {
             //if this physical node is a gateway of some networks
             if (isGateway) {
               let affectedNetwork: Subnet = (physicalNode as Router).portSubnetMapping.get(index);
-              console.log(physicalNode);
               switch (Subnet.mode) {
                 case 'HOST_BASED':
                   if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(affectedNetwork, validatedIpv4, network.ipv4Database);
@@ -376,13 +375,10 @@ export class DialogFactory {
     if (gateways.size != 0) {
       let table: string = `<table cellspacing="10"><tr><td>Gateway</td><td>Interface</td><td>Connection Type</td><td>MAC</td><td>IPv4</td><td>IPv6</td></tr>`;
 
-      console.log(gateways);
       //TODO: add id for changes?
       gateways.forEach((port, gatewayId) => {
         if (port != null) {
           let router: Router = network._graph.$("#" + gatewayId).data();
-          console.log(gatewayId);
-          console.log(router);
           let data = router.portData.get(port);
           table += `<tr>`;
           table += `<td>` + router.name + `</td>`;

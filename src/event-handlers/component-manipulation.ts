@@ -147,13 +147,17 @@ export class GraphNodeFactory {
     }
 
     static removeNode(node: any, network: ComputerNetwork): void {
+        console.log('checkpoint-1');
         if (node.hasClass('subnet-node')) {
+            console.log('checkpoint-2');
             this.removeSubnet(node, network);
         }
         else if (node.hasClass('gateway-node')) {
+            console.log('should run this');
             this.removeGateway(node, network);
         }
         else {
+            console.log('checkpoint-3');
             let physicalNode: PhysicalNode = node.data();
             if (physicalNode.layer > 2) {
                 physicalNode.portData.forEach(data => {
@@ -170,13 +174,16 @@ export class GraphNodeFactory {
             if (subnet.currentDefaultGateway[0] == gateway.id && subnet.currentDefaultGateway[1] == port) {
                 if (subnet.gateways.size > 0) {
                     subnet.currentDefaultGateway = subnet.gateways.entries().next().value;
+                    console.log(subnet);
                     console.log(subnet.currentDefaultGateway);
                     console.log(subnet.gateways.entries().next().value);
                     network._graph.$('#' + subnet.id).children().forEach(child => {
                         let oldGateway = child.data('defaultGateway');
+                        console.log(child);
                         if (oldGateway[0] == node.id(), oldGateway[1] == port) {
                             child.data('defaultGateway', subnet.currentDefaultGateway); //pass by value? or reference (obmit this?)
                         }
+                        console.log(child);
                     });
                 }
                 else {

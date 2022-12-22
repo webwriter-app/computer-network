@@ -155,16 +155,13 @@ export class Subnet extends LogicalNode {
             count--;
         }
 
-        console.log('checkpoint');
         //if no subnet address is available
         if (candidateAddress == null) {
-            console.log('shouldnt run this!');
             AlertHelper.toastAlert("warning", "exclamation-triangle", "Hosts-based mode:", "No valid network address can be assigned to this subnet.");
             subnet.setSubnetInfo(null, null, null, null, true, "");
             return;
         }
         else {
-            console.log('should run this!');
             subnet.setSubnetInfo(candidateAddress, count, AddressingHelper.binaryToDecimalOctets("".padStart(count, '1').padEnd(32, '0')).join('.'),
                 "".padStart(count, '1').padEnd(32, '0'), false);
         }
@@ -273,14 +270,12 @@ export class Subnet extends LogicalNode {
 
 
         let networkToFree: [string, number] = !this.cssClass.includes('unconfigured-subnet') ? [this.networkAddress.address, this.bitmask] : null;
-        console.log(networkToFree);
 
         if (!bitmaskValid && !subnetmaskValid) return false;
 
         //if bitmask valid, calculate equivalent subnet mask
         if (bitmaskValid) {
             let derivedDecimalMask: number[] = AddressingHelper.binaryToDecimalOctets("".padStart(newBitmask, '1').padEnd(32, '0'));
-            console.log(derivedDecimalMask);
             //if the input subnetmask is valid and doesn't match our bitmask
             if (subnetmaskValid && derivedDecimalMask.join('.') != newSubnetMask) {
                 AlertHelper.toastAlert("warning", "exclamation-diamond", "",
@@ -360,7 +355,6 @@ export class Subnet extends LogicalNode {
                 break;
         }
 
-        console.log(networkToFree);
         network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(networkToFree[0], networkToFree[1]));
         network.ipv4Database.delete(networkToFree[0]);
         AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");

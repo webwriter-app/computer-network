@@ -55,7 +55,6 @@ export class SubnettingController {
                 router.toggleClass("gateway-node", true);
                 let gatewayList = subnet.data('gateways');
                 if (!gatewayList.has(router.id)) gatewayList.set(router.id(), null); // add gateway to the subnet, with undefined port
-                console.log(router);
             }
         });
     }
