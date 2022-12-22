@@ -229,7 +229,7 @@ export function initNetwork(network: ComputerNetwork): void {
             },
             {
                 id: "configure-default-gateway",
-                content: "Configure gateway for this connection",
+                content: "Configure default gateway for this connection",
                 selector: ".default-gateway-not-found, .gateway-changeable",
                 onClickFunction: function (event) {
                     let node = event.target;
@@ -317,6 +317,7 @@ export function initNetwork(network: ComputerNetwork): void {
                             }
                             break;
                         default:
+                            SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
                             break;
                     }
                 }

@@ -310,7 +310,7 @@ export class DialogFactory {
               switch (Subnet.mode) {
                 case 'HOST_BASED':
                   if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(affectedNetwork, validatedIpv4, network.ipv4Database);
-                  network._graph.$('#'+affectedNetwork.id).classes(affectedNetwork.cssClass);
+                  network._graph.$('#' + affectedNetwork.id).classes(affectedNetwork.cssClass);
                   break;
                 case 'SUBNET_BASED':
                   if (affectedNetwork != null && validatedIpv4 != null && !validatedIpv4.matchesNetworkCidr(affectedNetwork)) {
@@ -330,7 +330,7 @@ export class DialogFactory {
             }
           }
           else if (newIpv4 != "") {
-            AlertHelper.toastAlert("warning", "exclamation-triangle", "", newIpv4 + " is not a valid IPv4 Address.");
+            AlertHelper.toastAlert("warning", "exclamation-triangle", "", newIpv4 + " is not valid.");
           }
 
           let validatedIpv6 = newIpv6 != "" ? Ipv6Address.validateAddress(newIpv6, network.ipv6Database) : null;
@@ -451,12 +451,14 @@ export class DialogFactory {
       select += `</sl-select>`;
       dialog.innerHTML += select;
     }
+    else {
+      dialog.innerHTML += "This network has no gateway.";
+    }
 
     if (!node.hasClass('default-gateway-not-found')) {
       let current: [string, number] = node.data('defaultGateway');
       dialog.innerHTML += "Current default gateway is: " + current[0] + ", port: " + current[1];
     }
-    node.toggleClass('default-gateway-not-found', false);
 
     const saveButton = new SlButton();
     saveButton.slot = "footer";
@@ -464,7 +466,11 @@ export class DialogFactory {
     saveButton.innerHTML = "Save";
     saveButton.addEventListener('click', () => {
       let newGateway: string = (network.renderRoot.querySelector('#' + "new-gateway-" + id) as SlInput).value.trim();
-      node.data('defaultGateway', newGateway.split('/'));
+      if (newGateway != "") {
+        node.data('defaultGateway', newGateway.split('/'));
+        node.toggleClass('default-gateway-not-found', false);
+        node.toggleClass('gateway-changeable', true);
+      }
       dialog.hide();
     });
 

@@ -99,7 +99,7 @@ export class SubnettingController {
                 node.portData.forEach(data => {
                     let ip4 = data.get('IPv4');
                     if (ip4 != null && ip4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet, ip4, database);
-                    compound.classes(subnet.cssClass); 
+                    compound.classes(subnet.cssClass);
                 });
                 if (subnet.currentDefaultGateway != undefined && subnet.currentDefaultGateway != null) {
                     node.defaultGateway = subnet.currentDefaultGateway;
@@ -112,6 +112,11 @@ export class SubnettingController {
             else if (node instanceof Subnet) {
                 Subnet.calculateCIDRGivenNewSubnet(subnet, node, database);
                 compound.classes(subnet.cssClass);
+            }
+        }
+        else {
+            if (node instanceof PhysicalNode && node.layer > 2) {
+                grabbedNode.addClass('default-gateway-not-found');
             }
         }
     }
