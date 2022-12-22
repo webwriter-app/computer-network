@@ -6,6 +6,7 @@ import { Router } from "../components/physicalNodes/Connector";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
 import NodeSingular from "cytoscape";
+import { AddressingHelper } from "../utils/AdressingHelper";
 
 
 export class SubnettingController {
@@ -84,6 +85,7 @@ export class SubnettingController {
                 //if the subnet doesn't match supernet's CIDR
                 if (!subnet.isSupernetOf(node)) {
                     database.delete(node.networkAddress.address) //delete the subnet from database
+                    database.delete(AddressingHelper.getBroadcastAddress(node.networkAddress.address, node.bitmask));
                     node.networkAddress = null; //delete the subnet Address
                     grabbedNode.addClass("unconfigured-subnet"); //seems redundant? no direct mapping between cssClass and classes of cytopscape?
                     node.cssClass.push("unconfigured-subnet");
@@ -97,6 +99,7 @@ export class SubnettingController {
                 node.portData.forEach(data => {
                     let ip4 = data.get('IPv4');
                     if (ip4 != null && ip4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet, ip4, database);
+                    compound.classes(subnet.cssClass); 
                 });
                 if (subnet.currentDefaultGateway != undefined && subnet.currentDefaultGateway != null) {
                     node.defaultGateway = subnet.currentDefaultGateway;
@@ -108,6 +111,7 @@ export class SubnettingController {
             }
             else if (node instanceof Subnet) {
                 Subnet.calculateCIDRGivenNewSubnet(subnet, node, database);
+                compound.classes(subnet.cssClass);
             }
         }
     }

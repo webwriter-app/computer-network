@@ -222,7 +222,7 @@ export class GraphNodeFactory {
                 if (subnet != null) colorList.push(subnet);
             });
             gateway.subnets = colorList; //reset the color for gateway
-            console.log(gateway);
+            if(colorList.length==0) network._graph.$('#' + gatewayId).toggleClass('gateway-node', false); //if the gateway has no networks --> back to router-node
         });
     }
 

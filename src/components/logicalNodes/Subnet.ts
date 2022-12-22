@@ -140,6 +140,10 @@ export class Subnet extends LogicalNode {
 
     private static testPossibleSubnetAddresses(count: number, candidateId: string, subnet: Subnet, database: Map<string, Ipv4Address>): void {
         if (Subnet.mode != "HOST_BASED") return;
+        if (subnet.networkAddress != null && subnet.networkAddress != undefined) {
+            database.delete(subnet.networkAddress.address); //delete the old subnet ID from database
+            database.delete(AddressingHelper.getBroadcastAddress(subnet.networkAddress.address, subnet.bitmask));
+        }
 
         let candidateIdFormatted = AddressingHelper.binaryToDecimalOctets(candidateId).join('.');
         let candidateAddress = Ipv4Address.validateAddress(candidateIdFormatted, database, count);
@@ -154,19 +158,10 @@ export class Subnet extends LogicalNode {
         //if no subnet address is available
         if (candidateAddress == null) {
             AlertHelper.toastAlert("warning", "exclamation-triangle", "Hosts-based mode:", "No valid network address can be assigned to this subnet.");
-            database.delete(subnet.networkAddress.address);
-            database.delete(AddressingHelper.getBroadcastAddress(subnet.networkAddress.address, subnet.bitmask));
             subnet.setSubnetInfo(null, null, null, null, true, "");
             return;
         }
         else {
-            while (subnet.cssClass.includes('unconfigured-subnet')) {
-                subnet.cssClass.splice(subnet.cssClass.indexOf('unconfigured-subnet'), 1);
-            }
-            if (subnet.networkAddress != null && subnet.networkAddress != undefined) {
-                database.delete(subnet.networkAddress.address); //delete the old subnet ID from database
-                database.delete(AddressingHelper.getBroadcastAddress(subnet.networkAddress.address, subnet.bitmask));
-            }
             subnet.setSubnetInfo(candidateAddress, count, AddressingHelper.binaryToDecimalOctets("".padStart(count, '1').padEnd(32, '0')).join('.'),
                 "".padStart(count, '1').padEnd(32, '0'), false)
         }
@@ -272,7 +267,9 @@ export class Subnet extends LogicalNode {
     handleChangesOnNewSubnetInfo(newSubnetNum: string, newSubnetMask: string, newBitmask: number, network: ComputerNetwork): boolean {
         let bitmaskValid: boolean = !(newBitmask == null || newBitmask == undefined || Number.isNaN(newBitmask) || newBitmask < 0 || newBitmask > 32);
         let subnetmaskValid: boolean = !(newSubnetMask == null || newSubnetMask == undefined || newSubnetMask == "" || !Subnet.validateSubnetMask(newSubnetMask));
-        let networkToFree: [string, number] = [this.networkAddress.address, this.bitmask];
+
+
+        let networkToFree: [string, number] = !this.cssClass.includes('unconfigured-subnet') ? [this.networkAddress.address, this.bitmask] : null;
         console.log(networkToFree);
 
         if (!bitmaskValid && !subnetmaskValid) return false;
@@ -293,6 +290,16 @@ export class Subnet extends LogicalNode {
         else if (subnetmaskValid) {
             //if bitmask not valid --> calculate bitmask from subnetmask
             newBitmask = (AddressingHelper.decimalStringWithDotToBinary(newSubnetMask).match(new RegExp("1", "g")) || []).length;
+        }
+
+        if (!this.cssClass.includes('unconfigured-subnet')) {
+            if (newSubnetNum == this.networkAddress.address && this.bitmask >= newBitmask) {
+                network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask));
+                this.setSubnetInfo(this.networkAddress, newBitmask, newSubnetMask, AddressingHelper.decimalStringWithDotToBinary(newSubnetMask), false);
+                network.ipv4Database.set(AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask), null);
+                AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");
+                return true;
+            }
         }
 
         let networkId = Ipv4Address.validateAddress(newSubnetNum, network.ipv4Database, newBitmask);
@@ -351,6 +358,7 @@ export class Subnet extends LogicalNode {
 
         console.log(networkToFree);
         network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(networkToFree[0], networkToFree[1]));
+        network.ipv4Database.delete(networkToFree[0]);
         AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");
         return true;
     }
