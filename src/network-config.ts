@@ -296,7 +296,8 @@ export function initNetwork(network: ComputerNetwork): void {
     const subnettingOptions = {
         grabbedNode: node => { return node.connectedEdges().length == 0; }, // nodes valid to grab and drop into subnet: ones that don't have any link
         dropTarget: (dropTarget, grabbedNode) => {
-            grabbedNode.on('cdndover', (event, target, sibling) => {
+
+            grabbedNode.on('cdnddrop', (event, target, sibling) => {
                 let parent = target != null ? target : sibling;
                 if (parent.data() instanceof Subnet) {
                     switch (Subnet.mode) {
@@ -307,7 +308,7 @@ export function initNetwork(network: ComputerNetwork): void {
                             let bitmask: number = parent.data().bitmask;
                             if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
                                 //check if current num. of hosts exceed allowed && subnet is configured
-                                if (((Math.pow(2, 32 - bitmask) - 2) > parent.children().length) && !parent.data().cssClass.includes('unconfigured-subnet')) {
+                                if (((Math.pow(2, 32 - bitmask) - 2) > parent.children().length) && !parent.hasClass('unconfigured-subnet')) {
                                     SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
                                 }
                             }
@@ -322,6 +323,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 }
             });
 
+            if (dropTarget.hasClass('unconfigured-subnet') && Subnet.mode == "SUBNET_BASED") return false;
             return dropTarget.data() instanceof Subnet;
         }, // filter function to specify which parent nodes are valid drop targets
         dropSibling: (dropSibling, grabbedNode) => { return (dropSibling.data() instanceof Subnet); }, // filter function to specify which orphan nodes are valid drop siblings

@@ -62,69 +62,76 @@ export class ComputerNetwork extends LitElementWw {
 
   static styles =
     css`
+    .main-container {
+      container-type: inline-size;
+      height: 100%;
+      width: 100%;
+    }
     .base {
       display: flex;
-      width: 75vw;
-      height: 12vw;
-      margin-top: 1vw;
-      margin-bottom: 1vw;
+      width: 75cqw;
+      height: 12cqw;
+      min-height: 192px;
+      margin-top: 1cqw;
+      margin-bottom: 1cqw;
       background-color: LightBlue;
     }
     .btn {
-        border-radius: 0.5vw;
+        border-radius: 0.5cqw;
         background-color: DodgerBlue;
         border: dashed transparent;
         color: white;
         align-items: center;
-        font-size: 1.6vw;
+        font-size: 1.6cqw;
         cursor: pointer;
-        width: 4vw;
-        height: 4vw;
+        width: 4cqw;
+        height: 4cqw;
         margin: auto;
     }
     .btn:hover {
         background-color: rgb(2, 132, 199);
     }
     .addOption {
-        width: 12vw;
+        width: 12cqw;
         display: flex;
         flex-direction: row;
-        gap: 1.5vw;
+        gap: 1.5cqw;
         margin: auto;
     }
     .addBtn {
-        border-radius: 0.5vw;
+        border-radius: 0.5cqw;
         background-color: DodgerBlue;
         border: dashed transparent;
         color: white;
         align-items: center;
-        font-size: 1vw;
+        font-size: 1cqw;
         cursor: pointer;
-        width: 3vw;
-        height: 3vw;
+        width: 3cqw;
+        height: 3cqw;
     }
     .addBtn:hover {
         background-color: rgb(2, 132, 199);
     }
     .colorPalette {
         position: flex;
-        width: 10.2vw;
+        width: 10.2cqw;
         margin: auto;
         display: flex;
         flex-wrap: wrap;
-        gap: 1.4vw;
+        gap: 1.4cqw;
+        height: 10.2cqw;
     }
     .colorButton {
-        border-radius: 0.3vw;
+        border-radius: 0.3cqw;
         border: dashed transparent;
         cursor: pointer;
-        width: 1.5vw;
-        height: 1.5vw;
+        width: 1.5cqw;
+        height: 1.5cqw;
     }
     #myCanvas {
         position: relative;
-        width: 75vw;
-        height: calc(100vh - 15vw);
+        width: 75cqw;
+        height: calc(100vh - 15cqw);
         border: 1px solid SteelBlue;
         flex-grow: 1;
     }
@@ -142,29 +149,42 @@ export class ComputerNetwork extends LitElementWw {
         box-shadow:inset 0 0 0 100px DodgerBlue;
         background-size:  110% 110%;
 
-        border-radius: 0.5vw;
+        border-radius: 0.5cqw;
         border: dashed transparent;
         align-items: center;
-        font-size: 1vw;
+        font-size: 1cqw;
         cursor: pointer;
-        width: 3vw;
-        height: 3vw;
+        width: 3cqw;
+        height: 3cqw;
     }
     .rainbowBtn:hover {
         box-shadow: inset 0 0 0 100px rgb(2, 132, 199);
+    }
+    .componentMenu {
+      position:relative; 
+      width: 25cqw; 
+      display: flex; 
+      flex-direction: row; 
+      gap: auto; 
+      padding: auto;
+      margin: auto;
+    }
+    .nameBox {
+      position: relative; 
+      margin: 0 auto;
     }
   
     /** CONTEXTUAL MENU - cytoscape **/
     .custom-menu-item {
         border: none !important;
-        height: 3vw !important;
-        width: 8vw !important;
-        padding-left: 1vw !important;
+        height: 3cqw !important;
+        width: 8cqw !important;
+        padding-left: 1cqw !important;
         color: black !important;
         background-color: white !important;
         font-family: --sl-font-sans !important;
         font-weight: normal !important;
-        font-size: 0.8vw !important;
+        font-size: 0.8cqw !important;
         text-align: left !important;
         box-shadow: none !important;
     }
@@ -173,9 +193,9 @@ export class ComputerNetwork extends LitElementWw {
     }
     .custom-context-menu {
         border: none !important;
-        padding-top: 0.5vw !important;
-        padding-bottom: 0.5vw !important;
-        border-radius: 0.2vw !important;
+        padding-top: 0.5cqw !important;
+        padding-bottom: 0.5cqw !important;
+        border-radius: 0.2cqw !important;
         background-color: #fafafa !important;
         box-shadow: 0px 0px 8px 0px rgb(0, 0, 0, 0.12),
             0px 8px 8px 0px rgb(0, 0, 0, 0.24) !important;
@@ -183,24 +203,24 @@ export class ComputerNetwork extends LitElementWw {
 
     /** SL-INPUT **/
     .label-on-left {
-      --label-width: 3vw;
-      --gap-width: 2vw;
+      --label-width: 3cqw;
+      --gap-width: 2cqw;
       margin: auto;
     }
     sl-input::part(base), sl-input::part(input) {
       border: none;
-      font-size: 0.8vw;
-			height: 1.5vw;
+      font-size: max(0.8cqw, 12px);
+			height: 1.5cqw;
     }
     .label-on-left::part(form-control) {
       display: grid;
       grid: auto / var(--label-width) 1fr;
-      gap: 1vw;
+      gap: 1cqw;
       align-items: center;
     }
     .label-on-left::part(form-control-label) {
       text-align: right;
-      font-size: 0.8vw;
+      font-size: max(0.8cqw, 12px);
     }
     .label-on-left::part(form-control-help-text) {
       grid-column: span 2;
@@ -208,12 +228,12 @@ export class ComputerNetwork extends LitElementWw {
     }
 
     sl-checkbox::part(base), sl-checkbox::part(label) {
-      font-size: 0.8vw;
-      height: 1.5vw;
+      font-size: max(0.8cqw, 12px);
+      height: 1.5cqw;
     }
     sl-menu-item::part(base), sl-menu-item::part(label) {
-      font-size: 0.8vw;
-      height: 1.5vw;
+      font-size: max(0.8cqw, 12px);
+      height: 1.5cqw;
     }
     sl-details::part(base) {
       background-color: LightBlue;
@@ -226,17 +246,6 @@ export class ComputerNetwork extends LitElementWw {
       font-family: sans-serif;
     }
 
-    /** additional info next to Node **/
-    .element-info-box {
-      margin: auto;
-      border-radius: 0.2vw;
-      border: solid 0.1vw gray;
-      font-size: 0.3vw;
-      font-family: monospace;
-      background: white;
-      display: block;
-      padding: 0 0.2vw;
-    }
 
     sl-dropdown {
       display:flex;
@@ -253,13 +262,76 @@ export class ComputerNetwork extends LitElementWw {
     }
 
     .sidebar {
-      height: calc(100vh - 1.8vw);
+      height: calc(100vh - 1.8cqw);
       position: fixed;
       right: 0;
       background: LightBlue;
-      width: 23.7vw;
+      width: 23.7cqw;
     }
+
+    @container (max-width: 1550px) {
+      .addOption {
+        width: 5cqw;
+        flex-direction: column;
+      }
+    }
+    @container (max-width: 1215px) {
+      .colorPalette {
+        width: 11cqw;
+        height: 11cqw;
+        gap: 1.5cqw;
+      }
+    }
+    @container (max-width: 1123px) {
+      .colorPalette {
+        gap: 1.4cqw;
+      }
+    }
+    @container (max-width: 1086px) {
+      .colorPalette {
+        width: 12cqw;
+        height: 12cqw;
+      }
+    } 
+    @container (max-width: 1041px) {
+      .colorPalette {
+        width: 13cqw;
+        height: 13cqw;
+      }
+    }
+    @container (max-width: 1019px) {
+      .colorPalette {
+        width: 13.5cqw;
+        height: 13.5cqw;
+      }
+    }
+    @container (max-width: 988px) {
+      .colorPalette {
+        width: 14cqw;
+        height: 14cqw;
+      }
+      .componentMenu {
+        width: 9cqw; 
+        flex-direction: column;
+        gap: 0.5cqw;
+        padding-left: 1cqw;
+      }
+      .nameBox {
+        width: 30cqw;
+      }
+      .label-on-left {
+        --label-width: 6cqw;
+        --gap-width: 2cqw;
+        margin: auto;
+      }
+      sl-input::part(input) {
+        width: 10cqw;
+      }
+    }
+    
 `;
+
+
   render() {
     const colorOptions = [];
     for (const color of this.colors) {
@@ -268,6 +340,7 @@ export class ComputerNetwork extends LitElementWw {
 
     return html`
 
+    <div class="main-container">
     <div class="sidebar">
       <sl-menu style="background-color: LightBlue; border: transparent; height: fit-content;">
         <sl-details summary="Subnetting extension" open>
@@ -280,8 +353,8 @@ export class ComputerNetwork extends LitElementWw {
             <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
             <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
           </sl-select>
-          <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: 0.1vw !important;">Activate Draw-and-drop</sl-menu-item>
-          <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: 0.1vw !important;">Drag to assign gateway</sl-menu-item>
+          <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: max(0.1cqw, 12px) !important;">Activate Draw-and-drop</sl-menu-item>
+          <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: max(0.1cqw, 12px) !important;">Drag to assign gateway</sl-menu-item>
           <sl-button @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button>
         </sl-details>
         <sl-details summary="Packet sending extension">
@@ -294,7 +367,7 @@ export class ComputerNetwork extends LitElementWw {
     </div>
 
     <div class="base">
-    <div style="position:relative; width: 25vw; display: flex; flex-direction: row; gap: auto; padding: auto">
+    <div class="componentMenu">
       <sl-dropdown placement="bottom">
         <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
         <sl-menu>
@@ -317,9 +390,9 @@ export class ComputerNetwork extends LitElementWw {
       <button class="btn" id="subnet" @click="${this.clickOnComponentButton}"><sl-icon name="diagram-3"></sl-icon></button>
     </div>
 
-    <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
+    <sl-divider vertical style="--width: 0.5cqw; --color: white;"></sl-divider>
 
-    <div style="position:relative; margin: 0 auto;">
+    <div class="nameBox">
     <sl-tab-group>
       <sl-tab slot="nav" panel="physical">Physical Node</sl-tab>
       <sl-tab slot="nav" panel="logical">Logical Node</sl-tab>
@@ -327,7 +400,7 @@ export class ComputerNetwork extends LitElementWw {
       <sl-tab-panel name="physical">
         <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
         <sl-input class="label-on-left" label="Number of ports" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
-        <sl-button style="margin-top: 1vw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
+        <sl-button style="margin-top: 1cqw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
       </sl-tab-panel>
       <sl-tab-panel name="logical">
       <sl-input class="label-on-left" label="Subnet Number" id="subnet-num" placeholder="Network ID"></sl-input>
@@ -335,29 +408,27 @@ export class ComputerNetwork extends LitElementWw {
       <sl-input class="label-on-left" label="Bitmask" id="subnet-bitmask" placeholder="" type='number' min="0" max="32"></sl-input>
       </sl-tab-panel>
     </sl-tab-group>
-
-      
     </div>
       
 
-    <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
+    <sl-divider vertical style="--width: 0.5cqw; --color: white;"></sl-divider>
 
     <div class="colorPalette">
       ${colorOptions}
     </div>
 
-    <sl-divider vertical style="--width: 0.5vw; --color: white;"></sl-divider>
+    <sl-divider vertical style="--width: 0.5cqw; --color: white;"></sl-divider>
 
     <div class="addOption">
-      <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7vw;">
+      <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7cqw;">
         <button class="addBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
       </sl-tooltip>
-      <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7vw;">
-        <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1vw;">
+      <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7cqw;">
+        <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1cqw;">
           <sl-icon id="drawMode" name="plug"></sl-icon>
         </button>
         </sl-tooltip>
-        <sl-tooltip content="Click to change color of existing components" placement="left" style="--max-width: 9vw;">
+        <sl-tooltip content="Click to change color of existing components" placement="left" style="--max-width: 9cqw;">
           <button class="rainbowBtn" id="resetColorBtn" @click="${() => GraphNodeFactory.toggleResetColor(this)}">
             <sl-icon id="changeColorMode" name="eyedropper"></sl-icon>
           </button>
@@ -376,6 +447,8 @@ export class ComputerNetwork extends LitElementWw {
     
 
     <div id="inputDialog"/>
+
+    </div>
     `
   }
 

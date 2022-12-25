@@ -147,17 +147,13 @@ export class GraphNodeFactory {
     }
 
     static removeNode(node: any, network: ComputerNetwork): void {
-        console.log('checkpoint-1');
         if (node.hasClass('subnet-node')) {
-            console.log('checkpoint-2');
             this.removeSubnet(node, network);
         }
         else if (node.hasClass('gateway-node')) {
-            console.log('should run this');
             this.removeGateway(node, network);
         }
         else {
-            console.log('checkpoint-3');
             let physicalNode: PhysicalNode = node.data();
             if (physicalNode.layer > 2) {
                 physicalNode.portData.forEach(data => {
@@ -171,32 +167,43 @@ export class GraphNodeFactory {
         let gateway: Router = node.data();
         gateway.portSubnetMapping.forEach((subnet, port) => {
             subnet.gateways.delete(gateway.id);
-            if (subnet.currentDefaultGateway[0] == gateway.id && subnet.currentDefaultGateway[1] == port) {
+            if (subnet.currentDefaultGateway != undefined && subnet.currentDefaultGateway != null &&
+                subnet.currentDefaultGateway[0] == gateway.id && subnet.currentDefaultGateway[1] == port) {
                 if (subnet.gateways.size > 0) {
-                    subnet.currentDefaultGateway = subnet.gateways.entries().next().value;
-                    console.log(subnet);
-                    console.log(subnet.currentDefaultGateway);
-                    console.log(subnet.gateways.entries().next().value);
-                    network._graph.$('#' + subnet.id).children().forEach(child => {
-                        let oldGateway = child.data('defaultGateway');
-                        console.log(child);
-                        if (oldGateway[0] == node.id(), oldGateway[1] == port) {
-                            child.data('defaultGateway', subnet.currentDefaultGateway); //pass by value? or reference (obmit this?)
-                        }
-                        console.log(child);
-                    });
+                    let iter = subnet.gateways.entries();
+                    let temp = iter.next();
+                    while (temp.value != undefined && temp.value[1] == null) {
+                        temp = iter.next();
+                    }
+                    if (temp.value != undefined && temp.value[1] != null) {
+                        subnet.currentDefaultGateway = temp.value;
+                    }
+                    else {
+                        subnet.currentDefaultGateway = null;
+                    }
                 }
                 else {
-                    network._graph.$('#' + subnet.id).children().forEach(child => {
-                        let oldGateway = child.data('defaultGateway');
-                        if (oldGateway[0] == node.id(), oldGateway[1] == port) {
-                            child.data('defaultGateway', null);
-                            child.toggleClass('default-gateway-not-found', true);
-                        }
-                    });
+                    subnet.currentDefaultGateway = null;
                 }
             }
+            network._graph.$('#' + subnet.id).children().forEach(child => {
+                let oldGateway = child.data('defaultGateway');
+                console.log(oldGateway);
+                if (oldGateway != null && oldGateway != undefined &&
+                    oldGateway[0] == node.id() && oldGateway[1] == port) {
+                    if (subnet.currentDefaultGateway != null && subnet.currentDefaultGateway != undefined) {
+                        child.data('defaultGateway', subnet.currentDefaultGateway);
+                    }
+                    else {
+                        child.data('defaultGateway', null);
+                        child.toggleClass('default-gateway-not-found', true);
+                    }
+                    console.log(child.data('defaultGateway'));
+                }
+                console.log(child);
+            });
         });
+
         gateway.portData.forEach(data => {
             network.ipv4Database.delete(data.get('IPv4').address);
         });

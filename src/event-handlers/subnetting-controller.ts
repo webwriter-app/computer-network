@@ -181,9 +181,14 @@ export class SubnettingController {
             switch (Subnet.mode) {
                 case 'HOST_BASED':
                     if (ip4 != null && ip4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet.data() as Subnet, ip4, database);
+                    subnet.classes(subnet.data('cssClass'));
                     break;
                 case 'SUBNET_BASED':
-                    if (ip4 != null && !ip4.matchesNetworkCidr(subnet.data() as Subnet)) {
+                    if (subnet.hasClass('unconfigured-subnet')) {
+                        gateway.data('portData').get(gatewayPort).set('IPv4', Ipv4Address.getLoopBackAddress());
+                        AlertHelper.toastAlert("warning", "exclamation-triangle", "Subnet-based mode on:", "Unconfigured subnet, automatically set Ipv4 address to loop-back.");
+                    }
+                    else if (ip4 != null && !ip4.matchesNetworkCidr(subnet.data() as Subnet)) {
                         gateway.data('portData').get(gatewayPort).set('IPv4', Ipv4Address.generateNewIpGivenSubnet(database, ip4, subnet.data() as Subnet));
                     }
                     break;
