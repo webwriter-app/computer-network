@@ -81,26 +81,38 @@ export class GraphNodeFactory {
             let connectionType: ConnectionType = inputConnection != null ? (inputConnection.value == "wireless" ?
                 "wireless" : "ethernet") : "ethernet";
 
-            let macAddress: MacAddress = inputMac == null ? MacAddress.generateRandomAddress(network.macDatabase)
-                : MacAddress.validateAddress(inputMac.value, network.macDatabase);
-            macAddress = macAddress != null ? macAddress : MacAddress.generateRandomAddress(network.macDatabase);
+            switch (network.currentComponentToAdd) {
+                case 'switch': case 'bridge': case 'access-point':
+                    let mac: MacAddress = inputMac == null ? MacAddress.generateRandomAddress(network.macDatabase)
+                        : MacAddress.validateAddress(inputMac.value, network.macDatabase);
+                    mac = mac != null ? mac : MacAddress.generateRandomAddress(network.macDatabase);
 
-            let ipv4: Ipv4Address = inputIpv4 == null ? Ipv4Address.getLoopBackAddress()
-                : Ipv4Address.validateAddress(inputIpv4.value, network.ipv4Database);
-            ipv4 = ipv4 != null ? ipv4 : Ipv4Address.getLoopBackAddress();
+                    portMacs.set(index, mac);
+                    break;
+                case 'router': case 'computer': case 'mobile':
+                    let macAddress: MacAddress = inputMac == null ? MacAddress.generateRandomAddress(network.macDatabase)
+                        : MacAddress.validateAddress(inputMac.value, network.macDatabase);
+                    macAddress = macAddress != null ? macAddress : MacAddress.generateRandomAddress(network.macDatabase);
 
-            let ipv6: Ipv6Address = inputIpv6 == null ? Ipv6Address.getLoopBackAddress()
-                : Ipv6Address.validateAddress(inputIpv6.value, network.ipv6Database);
-            ipv6 = ipv6 != null ? ipv6 : Ipv6Address.getLoopBackAddress();
+                    let ipv4: Ipv4Address = inputIpv4 == null ? Ipv4Address.getLoopBackAddress()
+                        : Ipv4Address.validateAddress(inputIpv4.value, network.ipv4Database);
+                    ipv4 = ipv4 != null ? ipv4 : Ipv4Address.getLoopBackAddress();
+
+                    let ipv6: Ipv6Address = inputIpv6 == null ? Ipv6Address.getLoopBackAddress()
+                        : Ipv6Address.validateAddress(inputIpv6.value, network.ipv6Database);
+                    ipv6 = ipv6 != null ? ipv6 : Ipv6Address.getLoopBackAddress();
+
+                    portMacs.set(index, macAddress);
+                    portIpv4s.set(index, ipv4);
+                    portIpv6s.set(index, ipv6);
+                    break;
+            }
 
             if (name != "") names.set(index, name);
             portConnectionTypes.set(index, connectionType);
-            portMacs.set(index, macAddress);
-            portIpv4s.set(index, ipv4);
-            portIpv6s.set(index, ipv6);
         }
 
-        let component: GraphNode;
+        let component: PhysicalNode;
         switch (network.currentComponentToAdd) {
             //connectors
             //layer 1
@@ -136,6 +148,20 @@ export class GraphNodeFactory {
 
             default:
                 break;
+        }
+
+        if(component.layer>=2){
+            portMacs.forEach(mac => {
+                MacAddress.addAddressToDatabase(mac, network.macDatabase, component.id);
+            });
+        }
+        if(component.layer>=3){
+            portIpv4s.forEach(ip4 => {
+                Ipv4Address.addAddressToDatabase(ip4, network.ipv4Database, component.id);
+            });
+            portIpv6s.forEach(ip6 => {
+                Ipv6Address.addAddressToDatabase(ip6, network.ipv6Database, component.id);
+            });
         }
 
         network._graph.add({

@@ -59,7 +59,7 @@ export class SubnettingController {
         });
     }
 
-    static onDragInACompound(grabbedNode, compound, database: Map<string, Ipv4Address>): void {
+    static onDragInACompound(grabbedNode, compound, database: Map<string, string>): void {
         let subnet: Subnet = compound.data();
         let node: PhysicalNode = grabbedNode.data();
 
@@ -69,7 +69,10 @@ export class SubnettingController {
                 node.portData.forEach(data => {
                     let ip4 = data.get('IPv4');
                     if (ip4 != null && !ip4.matchesNetworkCidr(subnet)) {
-                        data.set('IPv4', Ipv4Address.generateNewIpGivenSubnet(database, ip4, subnet));
+                        Ipv4Address.removeAddressFromDatabase(ip4, database);
+                        let newIpv4 = Ipv4Address.generateNewIpGivenSubnet(database, ip4, subnet);
+                        data.set('IPv4', newIpv4);
+                        Ipv4Address.addAddressToDatabase(newIpv4, database, node.id);
                     }
                 });
                 if (subnet.currentDefaultGateway != undefined && subnet.currentDefaultGateway != null) {
@@ -166,7 +169,7 @@ export class SubnettingController {
     }
 
 
-    static setUpGateway(gateway: NodeSingular, host: NodeSingular, gatewayPort: number, database: Map<string, Ipv4Address>): void {
+    static setUpGateway(gateway: NodeSingular, host: NodeSingular, gatewayPort: number, database: Map<string, string>): void {
         if (host.isChild() && gateway.hasClass('gateway-node')) {
             let subnet = host.parent();
             let gatewayNodeId = gateway.data().id;
@@ -189,7 +192,11 @@ export class SubnettingController {
                         AlertHelper.toastAlert("warning", "exclamation-triangle", "Subnet-based mode on:", "Unconfigured subnet, automatically set Ipv4 address to loop-back.");
                     }
                     else if (ip4 != null && !ip4.matchesNetworkCidr(subnet.data() as Subnet)) {
-                        gateway.data('portData').get(gatewayPort).set('IPv4', Ipv4Address.generateNewIpGivenSubnet(database, ip4, subnet.data() as Subnet));
+
+                        Ipv4Address.removeAddressFromDatabase(ip4, database);
+                        let newIp4 = Ipv4Address.generateNewIpGivenSubnet(database, ip4, subnet.data() as Subnet);
+                        gateway.data('portData').get(gatewayPort).set('IPv4', newIp4);
+                        Ipv4Address.addAddressToDatabase(newIp4, database, gateway.id());
                     }
                     break;
                 default:

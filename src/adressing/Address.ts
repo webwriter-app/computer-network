@@ -19,7 +19,15 @@ export abstract class Address {
      * @param database 
      * @returns of type Address if passed address string is valid (valid format + not preexisted in database) | null
      */
-    static validateAddress(address: string, database: Map<string, Address>): Address {
+    static validateAddress(address: string, database: Map<string, string>): Address {
         return null;
+    }
+
+    static removeAddressFromDatabase(address: Address, database: Map<string, string>){
+        database.delete(address.address);
+    }
+
+    static addAddressToDatabase(address: Address, database: Map<string, string>, nodeId: string){
+        database.set(address.address, nodeId);
     }
 }

@@ -10,7 +10,7 @@ test('should generate loop-back address correctly', () => {
 });
 
 test('properly validate IPv6 Address regex', () => {
-    let emptyDatabase: Map<string, Ipv6Address> = new Map();
+    let emptyDatabase: Map<string, string> = new Map();
     let ip6 = Ipv6Address.validateAddress('2001:0db8:85a3:0000:0000:8a2e:0370:7334', emptyDatabase);
     expect(ip6.address).toBe('2001:0db8:85a3:0000:0000:8a2e:0370:7334');
     expect(ip6.layer).toBe(3);
@@ -18,13 +18,13 @@ test('properly validate IPv6 Address regex', () => {
 });
 
 test('properly validate IPv6 Address against database', () => {
-    let database: Map<string, Ipv6Address> = new Map();
+    let database: Map<string, string> = new Map();
     Ipv6Address.validateAddress('2001:0db8:85a3:0000:0000:8a2e:0370:7334', database);
     expect(Ipv6Address.validateAddress('2001:0db8:85a3:0000:0000:8a2e:0370:7334', database)).toBeNull();
 });
 
 test('properly validate loopback against database', () => {
-    let database: Map<string, Ipv6Address> = new Map();
+    let database: Map<string, string> = new Map();
     expect(Ipv6Address.validateAddress("0:0:0:0:0:0:0:1", database).address).toBe("0:0:0:0:0:0:0:1");
     expect(Ipv6Address.validateAddress("0:0:0:0:0:0:0:1", database).address).toBe("0:0:0:0:0:0:0:1");
     expect(database.size).toBe(0);

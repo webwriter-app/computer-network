@@ -272,7 +272,9 @@ export class DialogFactory {
           let newMac = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "MAC") as SlInput).value.trim();
           let validatedMac = newMac != "" ? MacAddress.validateAddress(newMac, network.macDatabase) : null;
           if (validatedMac != null) {
+            MacAddress.removeAddressFromDatabase(physicalNode.portData.get(index).get('MAC'), network.macDatabase);
             physicalNode.portData.get(index).set('MAC', validatedMac);
+            MacAddress.addAddressToDatabase(validatedMac, network.macDatabase, physicalNode.id);
             changed = true;
           }
           else if (newMac != "") {
@@ -323,8 +325,9 @@ export class DialogFactory {
             }
 
             if (!keepOldIp) {
-              network.ipv4Database.delete(physicalNode.portData.get(index).get('IPv4').address);
+              Ipv4Address.removeAddressFromDatabase(physicalNode.portData.get(index).get('IPv4'), network.ipv4Database);
               physicalNode.portData.get(index).set('IPv4', validatedIpv4);
+              Ipv4Address.addAddressToDatabase(validatedIpv4, network.ipv4Database, physicalNode.id);
               changed = true;
             }
           }
@@ -334,7 +337,9 @@ export class DialogFactory {
 
           let validatedIpv6 = newIpv6 != "" ? Ipv6Address.validateAddress(newIpv6, network.ipv6Database) : null;
           if (validatedIpv6 != null) {
+            Ipv6Address.removeAddressFromDatabase(physicalNode.portData.get(index).get('IPv6'), network.ipv6Database);
             physicalNode.portData.get(index).set('IPv6', validatedIpv6);
+            Ipv6Address.addAddressToDatabase(validatedIpv6, network.ipv6Database, physicalNode.id);
             changed = true;
           }
           else if (newIpv6 != "") {

@@ -14,7 +14,7 @@ export class MacAddress extends Address {
      * @param database of "worldwide" MAC addresses
      * @returns a random unique MAC address
      */
-    static generateRandomAddress(database: Map<string, MacAddress>): MacAddress {
+    static generateRandomAddress(database: Map<string, string>): MacAddress {
         let macArray: string[] = [AddressingHelper.randomHex(), AddressingHelper.randomHex(), AddressingHelper.randomHex(),
         AddressingHelper.randomHex(), AddressingHelper.randomHex(), AddressingHelper.randomHex()];
         let newMac: string = macArray.join(':');
@@ -27,13 +27,12 @@ export class MacAddress extends Address {
         }
 
         let result = new MacAddress(newMac, macArray);
-        database.set(newMac, result);
 
         return result;
     }
 
 
-    static override validateAddress(mac: string, database: Map<string, MacAddress>): MacAddress {
+    static override validateAddress(mac: string, database: Map<string, string>): MacAddress {
         if (database.has(mac) || mac=="" || mac==undefined || mac==null) {
             return null;
         }
@@ -41,7 +40,6 @@ export class MacAddress extends Address {
         if (MacAddress.regex.test(mac)) {
             let macArray: string[] = mac.split(':');
             let result = new MacAddress(mac, macArray);
-            database.set(mac, result);
             return result;
         }
         else {

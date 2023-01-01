@@ -18,7 +18,7 @@ export class Subnet extends LogicalNode {
     gateways: Map<string, number> = new Map(); //(routerId, portIndex)
     currentDefaultGateway: [string, number];
 
-    private constructor(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, Ipv4Address>) {
+    private constructor(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, string>) {
         super(color);
         this.id = 'subnet' + Subnet.counter;
         Subnet.counter++;
@@ -54,6 +54,7 @@ export class Subnet extends LogicalNode {
 
         this.networkAddress = networkId != null ? networkId : null;
         this.name = (this.networkAddress != null && this.bitmask != undefined) ? this.networkAddress.address + " /" + this.bitmask : "";
+        Ipv4Address.addAddressToDatabase(this.networkAddress, database, this.id, this.bitmask);
     }
 
     static validateSubnetMask(subnetmask: string): boolean {
@@ -90,7 +91,7 @@ export class Subnet extends LogicalNode {
      * @param database 
      * @returns 
      */
-    static createSubnet(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, Ipv4Address>): Subnet {
+    static createSubnet(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, string>): Subnet {
         let bitmaskValid: boolean = !(bitmask == null || bitmask == undefined || Number.isNaN(bitmask) || bitmask < 0 || bitmask > 32);
         let subnetmaskValid: boolean = !(subnetmask == null || subnetmask == undefined || subnetmask == "" || !Subnet.validateSubnetMask(subnetmask));
 
@@ -119,7 +120,7 @@ export class Subnet extends LogicalNode {
      * @param ip The Ipv4 Address of a new host
      * @param database Ipv4 database
      */
-    static calculateCIDRGivenNewHost(subnet: Subnet, ip: Ipv4Address, database: Map<string, Ipv4Address>): void {
+    static calculateCIDRGivenNewHost(subnet: Subnet, ip: Ipv4Address, database: Map<string, string>): void {
         if (Subnet.mode != "HOST_BASED" || ip.matchesNetworkCidr(subnet)) {
             return;
         }
@@ -138,11 +139,12 @@ export class Subnet extends LogicalNode {
         this.testPossibleSubnetAddresses(count, candidateId, subnet, database);
     }
 
-    private static testPossibleSubnetAddresses(count: number, candidateId: string, subnet: Subnet, database: Map<string, Ipv4Address>): void {
+    private static testPossibleSubnetAddresses(count: number, candidateId: string, subnet: Subnet, database: Map<string, string>): void {
         if (Subnet.mode != "HOST_BASED") return;
         if (subnet.networkAddress != null && subnet.networkAddress != undefined) {
             database.delete(subnet.networkAddress.address); //delete the old subnet ID from database
             database.delete(AddressingHelper.getBroadcastAddress(subnet.networkAddress.address, subnet.bitmask));
+            Ipv4Address.removeAddressFromDatabase(subnet.networkAddress, database, subnet.bitmask);
         }
 
         let candidateIdFormatted = AddressingHelper.binaryToDecimalOctets(candidateId).join('.');
@@ -164,6 +166,7 @@ export class Subnet extends LogicalNode {
         else {
             subnet.setSubnetInfo(candidateAddress, count, AddressingHelper.binaryToDecimalOctets("".padStart(count, '1').padEnd(32, '0')).join('.'),
                 "".padStart(count, '1').padEnd(32, '0'), false);
+            Ipv4Address.addAddressToDatabase(subnet.networkAddress, database, subnet.id, subnet.bitmask);
         }
     }
 
@@ -175,7 +178,7 @@ export class Subnet extends LogicalNode {
      * @param database Ipv4 database
      * @param bitmask of the subnet
      */
-    static calculateCIDRGivenNewSubnet(supernet: Subnet, subnet: Subnet, database: Map<string, Ipv4Address>): void {
+    static calculateCIDRGivenNewSubnet(supernet: Subnet, subnet: Subnet, database: Map<string, string>): void {
         if (Subnet.mode != "HOST_BASED" || supernet.isSupernetOf(subnet) || subnet.cssClass.includes('unconfigured-subnet')) return;
 
         let count: number;
@@ -326,7 +329,10 @@ export class Subnet extends LogicalNode {
                         nodeData.portData.forEach(data => {
                             let ip4 = data.get('IPv4');
                             if (ip4 != null && !ip4.matchesNetworkCidr(this)) {
-                                data.set('IPv4', Ipv4Address.generateNewIpGivenSubnet(network.ipv4Database, ip4, this));
+                                Ipv4Address.removeAddressFromDatabase(ip4, network.ipv4Database);
+                                let newIpv4 = Ipv4Address.generateNewIpGivenSubnet(network.ipv4Database, ip4, this);
+                                data.set('IPv4', newIpv4);
+                                Ipv4Address.addAddressToDatabase(newIpv4, network.ipv4Database, nodeData.id);
                             }
                         });
                     }
@@ -346,7 +352,10 @@ export class Subnet extends LogicalNode {
                     let gateway = network._graph.$('#' + id);
                     let ip4 = gateway.data('portData').get(port).get('IPv4');
                     if (ip4 != null && !ip4.matchesNetworkCidr(this)) {
-                        gateway.data('portData').get(port).set('IPv4', Ipv4Address.generateNewIpGivenSubnet(network.ipv4Database, ip4, this));
+                        Ipv4Address.removeAddressFromDatabase(ip4, network.ipv4Database);
+                        let newIp4 = Ipv4Address.generateNewIpGivenSubnet(network.ipv4Database, ip4, this);
+                        gateway.data('portData').get(port).set('IPv4', newIp4);
+                        Ipv4Address.addAddressToDatabase(newIp4, network.ipv4Database, gateway.id());
                     }
                 });
                 break;

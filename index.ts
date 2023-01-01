@@ -56,9 +56,9 @@ export class ComputerNetwork extends LitElementWw {
   })
   editable: boolean = true;
 
-  ipv4Database: Map<string, Ipv4Address> = new Map<string, Ipv4Address>();
-  macDatabase: Map<string, MacAddress> = new Map<string, MacAddress>();
-  ipv6Database: Map<string, MacAddress> = new Map<string, MacAddress>();
+  ipv4Database: Map<string, string> = new Map<string, string>(); //(address, nodeId)
+  macDatabase: Map<string, string> = new Map<string, string>();
+  ipv6Database: Map<string, string> = new Map<string, string>();
 
   static styles =
     css`

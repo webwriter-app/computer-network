@@ -27,7 +27,7 @@ export class Ipv4Address extends Address {
      * @param bitmask only needed if the passed Address is of a subnet
      * @returns Ipv4 address from passed address string | null if the passed address string is not valid
      */
-    static override validateAddress(ip: string, database: Map<string, Ipv4Address>, bitmask?: number): Ipv4Address {
+    static override validateAddress(ip: string, database: Map<string, string>, bitmask?: number): Ipv4Address {
         let isNetworkId: boolean = (bitmask != null && !Number.isNaN(bitmask) && bitmask != undefined);
 
         if (ip == null || ip == undefined || ip == "" || database.has(ip)) return null;
@@ -56,11 +56,7 @@ export class Ipv4Address extends Address {
         if (isNetworkId && parseInt(binArray.join('').slice(bitmask)) * 10 != 0 && bitmask < 32) return null;
 
         if (isNetworkId) {
-            database.set(ip, result);
             database.set(AddressingHelper.getBroadcastAddress(ip, bitmask), null); //add the broadcast address to database also
-        }
-        else {
-            database.set(ip, result);
         }
 
         return result;
@@ -73,7 +69,7 @@ export class Ipv4Address extends Address {
      * @param subnet the current subnet that host's in
      * @returns current ipv4 if it matches network CIDR, else a random new address that matches network CIDR (except for reserved addresses of subnet)
      */
-    static generateNewIpGivenSubnet(database: Map<string, Ipv4Address>, oldIp: Ipv4Address, subnet: Subnet): Ipv4Address {
+    static generateNewIpGivenSubnet(database: Map<string, string>, oldIp: Ipv4Address, subnet: Subnet): Ipv4Address {
 
         if (subnet.cssClass.includes('unconfigured-subnet')) return null;
 
@@ -126,5 +122,19 @@ export class Ipv4Address extends Address {
             return true;
         }
         return false;
+    }
+
+    static override addAddressToDatabase(address: Address, database: Map<string, string>, nodeId: string, bitmask?: number): void {
+        database.set(address.address, nodeId);
+        if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
+            database.set(AddressingHelper.getBroadcastAddress(address.address, bitmask), nodeId + "|" + "broadcast");
+        }
+    }
+
+    static override removeAddressFromDatabase(address: Address, database: Map<string, string>, bitmask?: number): void {
+        database.delete(address.address);
+        if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
+            database.delete(AddressingHelper.getBroadcastAddress(address.address, bitmask));
+        }
     }
 }

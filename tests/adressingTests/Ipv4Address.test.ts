@@ -13,7 +13,7 @@ test('should generate loop-back address correctly', () => {
 });
 
 test('properly validate IPv4 Address of host', () => {
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     let ip4 = Ipv4Address.validateAddress('192.0.2.255', database);
     expect(ip4.address).toBe('192.0.2.255');
     expect(ip4.layer).toBe(3);
@@ -25,7 +25,7 @@ test('properly validate IPv4 Address of host', () => {
 });
 
 test('properly validate IPv4 Address of subnet', () => {
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     let subnetId = Ipv4Address.validateAddress('255.0.0.0', database, 8);
     expect(subnetId.address).toBe('255.0.0.0');
     expect(subnetId.layer).toBe(3);
@@ -38,7 +38,7 @@ test('properly validate IPv4 Address of subnet', () => {
 });
 
 test('properly classify invalid IPv4 Address of subnet', () => {
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     expect(Ipv4Address.validateAddress('255.128.0.0', database, 8)).toBeNull();
     expect(Ipv4Address.validateAddress('256.0.0.0', database, 8)).toBeNull();
     expect(Ipv4Address.validateAddress('255.0.0.0', database, -1)).toBeNull();
@@ -49,13 +49,13 @@ test('properly classify invalid IPv4 Address of subnet', () => {
 });
 
 test('properly validate IPv4 Address of host against database', () => {
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     Ipv4Address.validateAddress('192.0.2.255', database);
     expect(Ipv4Address.validateAddress('192.0.2.255', database)).toBeNull();
 });
 
 test('properly validate loopback against database', () => {
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     expect(Ipv4Address.validateAddress("127.0.0.1", database).address).toBe("127.0.0.1");
     expect(Ipv4Address.validateAddress("127.0.0.1", database).address).toBe("127.0.0.1");
     expect(database.size).toBe(0);
@@ -77,7 +77,7 @@ test('should not match network CIDR', () => {
 });
 
 test('should generate new Ip for host', () => {
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     let subnet = Subnet.createSubnet("", "128.0.0.0", "255.0.0.0", 8, database);
     let hostOldId = Ipv4Address.validateAddress("129.0.0.0", database);
 
@@ -86,7 +86,7 @@ test('should generate new Ip for host', () => {
 });
 
 test('should not generate new Ip for host in subnet if no address is valid', () => {
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     let subnet = Subnet.createSubnet("", "255.255.255.255", "255.255.255.255", 32, database);
     let hostOldId = Ipv4Address.validateAddress("129.0.0.0", database);
 
@@ -95,7 +95,7 @@ test('should not generate new Ip for host in subnet if no address is valid', () 
 });
 
 test('should not generate new Ip for host in subnet if subnet is not configured', () => {
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     Subnet.setMode("MANUAL");
     let subnet = Subnet.createSubnet("", "255.255.255.255", "", -1, database);
     let hostOldId = Ipv4Address.validateAddress("129.0.0.0", database);

@@ -79,7 +79,7 @@ test('host-based/manual: should create unconfigured Subnet for valid subnetNum a
     ["128.3.0.0", "", NaN, 3], ["128.4.0.0", null, null, 4], ["128.5.0.0", undefined, null, 5], ["128.6.0.0", "256.255.0.0", null, 6]];
     nonstrictMode.forEach(mode => {
         Subnet.setMode(mode);
-        let database: Map<string, Ipv4Address> = new Map();
+        let database: Map<string, string> = new Map();
         inputs.forEach(([networkId, subnetmask, bitmask, totalNumOfAddresses]) => {
             let subnet: Subnet = Subnet.createSubnet("", networkId, subnetmask, bitmask, database);
             expect(subnet).toBeTruthy();
@@ -95,7 +95,7 @@ test('host-based/manual: should create unconfigured Subnet for valid subnetNum a
 test('SUBNET_BASED: should not create Subnet for valid subnetNum and invalid subnetMask, bitmask', () => {
     Subnet.setMode("SUBNET_BASED");
     let inputs: [string, number][] = [["", -1], ["", null], [null, null], [undefined, null], ["256.255.0.0", null], ["", NaN]];
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
 
     inputs.forEach(([subnetmask, bitmask]) => {
         let subnet: Subnet = Subnet.createSubnet("", "128.1.0.0", subnetmask, bitmask, database);
@@ -107,7 +107,7 @@ test('SUBNET_BASED: should not create Subnet for valid subnetNum and invalid sub
 test('should create Subnet for valid subnetNum, bitmask and invalid subnetMask', () => {
     modes.forEach(mode => {
         Subnet.setMode(mode);
-        let database: Map<string, Ipv4Address> = new Map();
+        let database: Map<string, string> = new Map();
         let subnet: Subnet = Subnet.createSubnet("", "128.1.0.0", "", 16, database);
         expect(subnet.networkAddress).toStrictEqual(new Ipv4Address("128.1.0.0", ["128", "1", "0", "0"], ["10000000", "00000001", "00000000", "00000000"], [128, 1, 0, 0]));
         expect(subnet.binarySubnetMask).toBe("11111111111111110000000000000000");
@@ -122,7 +122,7 @@ test('should create Subnet for valid subnetNum, bitmask and invalid subnetMask',
 test('should create Subnet for valid subnetNum, subnetmask and invalid bitmask', () => {
     modes.forEach(mode => {
         Subnet.setMode(mode);
-        let database: Map<string, Ipv4Address> = new Map();
+        let database: Map<string, string> = new Map();
         let subnet: Subnet = Subnet.createSubnet("", "128.1.0.0", "", 16, database);
         expect(subnet.networkAddress).toStrictEqual(new Ipv4Address("128.1.0.0", ["128", "1", "0", "0"], ["10000000", "00000001", "00000000", "00000000"], [128, 1, 0, 0]));
         expect(subnet.binarySubnetMask).toBe("11111111111111110000000000000000");
@@ -140,7 +140,7 @@ test('should create Subnet for valid subnetNum, subnetmask and invalid bitmask',
 test('test supernet should be correct', () => {
     modes.forEach(mode => {
         Subnet.setMode(mode);
-        let database: Map<string, Ipv4Address> = new Map();
+        let database: Map<string, string> = new Map();
         let subnet: Subnet = Subnet.createSubnet("", "128.1.0.0", "", 16, database);
         let supernet: Subnet = Subnet.createSubnet("", "128.0.0.0", "", 15, database);
         expect(database.size).toBe(3); //same broadcast address
@@ -154,7 +154,7 @@ test('test supernet should be correct', () => {
 test('test not supernet case should be correct', () => {
     modes.forEach(mode => {
         Subnet.setMode(mode);
-        let database: Map<string, Ipv4Address> = new Map();
+        let database: Map<string, string> = new Map();
         let subnet: Subnet = Subnet.createSubnet("", "255.1.0.0", "", 16, database);
         let supernet: Subnet = Subnet.createSubnet("", "255.0.0.0", "", 16, database);
         expect(database.size).toBe(4);
@@ -176,7 +176,7 @@ test('test not supernet case should be correct', () => {
 test('test supernet for unconfigured subnet/supernet', () => {
     modes.forEach(mode => {
         Subnet.setMode(mode);
-        let database: Map<string, Ipv4Address> = new Map();
+        let database: Map<string, string> = new Map();
         let unconfiguredSubnet: Subnet = Subnet.createSubnet("", "255.0.128.0", "", NaN, database);
         let unconfiguredSupernet: Subnet = Subnet.createSubnet("", "0.0.0.0", "", NaN, database);
         let supernet: Subnet = Subnet.createSubnet("", "255.0.0.0", "", 16, database);
@@ -193,7 +193,7 @@ test('test supernet for unconfigured subnet/supernet', () => {
 
 test('should extend existed subnet for new host', () => {
     Subnet.setMode("HOST_BASED");
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let ipOfNewHost: Ipv4Address = Ipv4Address.validateAddress("128.128.0.0", database);
 
@@ -215,7 +215,7 @@ test("shouldn't extend existed subnet for new host if not HOST_BASED mode", () =
 
     modes.forEach(mode => {
         Subnet.setMode(mode);
-        let database: Map<string, Ipv4Address> = new Map();
+        let database: Map<string, string> = new Map();
         let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
         let ipOfNewHost: Ipv4Address = Ipv4Address.validateAddress("128.128.0.0", database);
 
@@ -235,7 +235,7 @@ test("shouldn't extend existed subnet for new host if not HOST_BASED mode", () =
 
 test('should not extend existed subnet for matching new host', () => {
     Subnet.setMode("HOST_BASED");
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let ipOfNewHost: Ipv4Address = Ipv4Address.validateAddress("128.0.255.128", database);
 
@@ -254,7 +254,7 @@ test('should not extend existed subnet for matching new host', () => {
 
 test('should not extend existed subnet for loopback address', () => {
     Subnet.setMode("HOST_BASED");
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let ipOfNewHost: Ipv4Address = Ipv4Address.validateAddress("127.0.0.1", database);
 
@@ -272,7 +272,7 @@ test('should not extend existed subnet for loopback address', () => {
 
 test('should extend existed supernet for new subnet (of same bitmask)', () => {
     Subnet.setMode("HOST_BASED");
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     let supernet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let subnet: Subnet = Subnet.createSubnet("", "128.0.254.0", "", 24, database);
 
@@ -290,7 +290,7 @@ test('should extend existed supernet for new subnet (of same bitmask)', () => {
 
 test('should extend existed supernet for new subnet - lower bound', () => {
     Subnet.setMode("HOST_BASED");
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     let supernet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let subnet: Subnet = Subnet.createSubnet("", "128.0.0.0", "", 24, database);
 
@@ -308,7 +308,7 @@ test('should extend existed supernet for new subnet - lower bound', () => {
 
 test('should set supernet as unconfigured when no valid address available', () => {
     Subnet.setMode("HOST_BASED");
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     database.set("0.0.0.0", null); //mock address
     let supernet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let subnet: Subnet = Subnet.createSubnet("", "128.0.0.0", "", 24, database);
@@ -327,7 +327,7 @@ test('should set supernet as unconfigured when no valid address available', () =
 
 test('should set subnet as unconfigured when no valid address available (new host)', () => {
     Subnet.setMode("HOST_BASED");
-    let database: Map<string, Ipv4Address> = new Map();
+    let database: Map<string, string> = new Map();
     database.set("0.0.0.0", null); //mock address
     let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let hostIp: Ipv4Address = Ipv4Address.validateAddress("1.0.0.0", database);

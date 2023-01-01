@@ -13,7 +13,7 @@ export class Ipv6Address extends Address {
         return new Ipv6Address("0:0:0:0:0:0:0:1", ["0","0","0","0","0","0","0","1"]);
     }
 
-    static override validateAddress(address: string, database: Map<string, Address>): Address {
+    static override validateAddress(address: string, database: Map<string, string>): Address {
         if (database.has(address) || address=="" || address==undefined || address==null) {
             return null;
         }
@@ -23,7 +23,6 @@ export class Ipv6Address extends Address {
         if (Ipv6Address.regex.test(address)) {
             let octets: string[] = address.split(':');
             let result = new Ipv6Address(address, octets);
-            database.set(address, result);
             return result;
         }
         else {
