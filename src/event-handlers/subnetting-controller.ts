@@ -52,6 +52,7 @@ export class SubnettingController {
             if ((((mouse.x > pos.x1 - 15 && mouse.x < pos.x1 + 15) || (mouse.x > pos.x2 - 15 && mouse.x < pos.x2 + 15)) && (mouse.y > pos.y1 && mouse.y < pos.y2)) ||
                 (((mouse.y > pos.y1 - 15 && mouse.y < pos.y1 + 15) || (mouse.y > pos.y2 - 15 && mouse.y < pos.y2 + 15)) && (mouse.x > pos.x1 && mouse.x < pos.x2))) {
                 router.data('subnets').push(subnet.data()); //add subnet to router node
+                router.data('cssClass').push("gateway-node");
                 router.toggleClass("gateway-node", true);
                 let gatewayList = subnet.data('gateways');
                 if (!gatewayList.has(router.id)) gatewayList.set(router.id(), null); // add gateway to the subnet, with undefined port

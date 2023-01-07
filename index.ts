@@ -11,6 +11,7 @@ import { EdgeController } from "./src/event-handlers/edge-controller";
 import { DialogFactory } from "./src/event-handlers/dialog-content";
 import { SubnettingController } from "./src/event-handlers/subnetting-controller";
 import { Subnet } from "./src/components/logicalNodes/Subnet";
+import { PacketSimulator } from "./src/event-handlers/packet-simulator";
 
 
 @customElement("computer-network")
@@ -210,7 +211,7 @@ export class ComputerNetwork extends LitElementWw {
     sl-input::part(base), sl-input::part(input) {
       border: none;
       font-size: max(0.8cqw, 12px);
-			height: 1.5cqw;
+			height: max(40px, 1.5cqw);
     }
     .label-on-left::part(form-control) {
       display: grid;
@@ -229,11 +230,15 @@ export class ComputerNetwork extends LitElementWw {
 
     sl-checkbox::part(base), sl-checkbox::part(label) {
       font-size: max(0.8cqw, 12px);
-      height: 1.5cqw;
+      height: max(40px, 1.5cqw);
     }
     sl-menu-item::part(base), sl-menu-item::part(label) {
       font-size: max(0.8cqw, 12px);
-      height: 1.5cqw;
+      height: max(40px, 1.5cqw);
+    }
+    .blue-button::part(base) {
+      background-color: LightBlue;
+      border: none;
     }
     sl-details::part(base) {
       background-color: LightBlue;
@@ -355,13 +360,22 @@ export class ComputerNetwork extends LitElementWw {
           </sl-select>
           <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: max(0.1cqw, 12px) !important;">Activate Draw-and-drop</sl-menu-item>
           <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: max(0.1cqw, 12px) !important;">Drag to assign gateway</sl-menu-item>
-          <sl-button @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button>
+          <sl-menu-item><sl-button class="blue-button" @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button></sl-menu-item>
         </sl-details>
         <sl-details summary="Packet sending extension">
           <sl-menu-label>Some explanations for the extension</sl-menu-label>
-          <sl-menu-item>etc</sl-menu-item>
-          <sl-menu-item>etc</sl-menu-item>
-          <sl-menu-item>etc</sl-menu-item>
+          <sl-menu-item><sl-button class="blue-button" @click="${(event) => PacketSimulator.setSource(event, this)}">Set source</sl-button></sl-menu-item>
+          <sl-menu-item><sl-button class="blue-button" @click="${(event) => PacketSimulator.setTarget(event, this)}">Set target</sl-button></sl-menu-item>
+          <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.delay=event.target.value}" label="Latency" id="ports" type='number' min="1"></sl-input></sl-menu-item>
+          <sl-menu-item><sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
+          <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="pause" label="Pause simulation session"></sl-icon></sl-button>
+          <sl-button class="blue-button" @click="${() => PacketSimulator.resetDatabase(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
+          <sl-menu-item>
+            <sl-details id="tables-for-packet-simulator" summary="Track tables" open>
+          
+            </sl-details>
+          </sl-menu-item>
+          
         </sl-details>
       </sl-menu>
     </div>
