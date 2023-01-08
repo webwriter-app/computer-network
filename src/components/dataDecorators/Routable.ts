@@ -86,7 +86,9 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
     sendArpRequest(macSender: string, ipSender: string, ipReceiver: string, network: ComputerNetwork): void {
         let arpRequest: Packet = Packet.createArpRequest(network.currentColor, macSender, ipSender, ipReceiver);
-        let arpNode = PacketSimulator.initMessage(network._graph.$('#'+network.ipv4Database.get(ipSender)), arpRequest, network);
+        PacketSimulator.initMessage(network._graph.$('#'+network.ipv4Database.get(ipSender)), arpRequest, network);
+        let arpNode = network._graph.$('#'+arpRequest.id);
+        console.log(arpNode);
         this.sendDataInSameNetwork(arpNode, macSender, ipSender, arpRequest.layer2header.macReceiver, ipReceiver, network);
     }
 

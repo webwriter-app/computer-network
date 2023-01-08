@@ -120,7 +120,7 @@ export class PacketSimulator {
         this.directSend(sourceNode, targetNode, network._graph.$('#' + data.id), network);
     }
 
-    static initMessage(sourceNode: any, data: Data, network: ComputerNetwork): any {
+    static initMessage(sourceNode: any, data: Data, network: ComputerNetwork): void {
         let sourcePosition = sourceNode.position();
 
         network._graph.add({
@@ -129,8 +129,6 @@ export class PacketSimulator {
             position: { x: sourcePosition.x, y: sourcePosition.y - 20 },
             classes: data.cssClass,
         });
-
-        return network._graph.$('#' + data.id);
     }
 
     static endToEndSend(sourceNode: any, targetNode: any, dataNode: any, network: ComputerNetwork): void {

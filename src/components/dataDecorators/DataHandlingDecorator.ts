@@ -2,7 +2,7 @@ import { ComputerNetwork } from "../../..";
 import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { PacketSimulator } from "../../event-handlers/packet-simulator";
 import { GraphEdge } from "../GraphEdge";
-import { Data } from "../logicalNodes/DataNode";
+import { Data, Frame, Packet } from "../logicalNodes/DataNode";
 import { PhysicalNode } from "../physicalNodes/PhysicalNode";
 
 export class DataHandlingDecorator implements PhysicalNode {
@@ -72,20 +72,25 @@ export class DataHandlingDecorator implements PhysicalNode {
 
     flood(dataNode: any, previousId: string, port: number, network: ComputerNetwork): void {
         this.portLinkMapping.forEach(linkId => {
-            let edge: GraphEdge = network._graph.$('#'+linkId).data();
-            if(edge.target == previousId && edge.outPort == port){
-                //do not flood the incoming port
-            }
-            else if(edge.source == previousId && edge.inPort == port){
-                //do not flood the incoming port
-            }
-            else {
-                let directTargetId = edge.target==this.id ? edge.source : edge.target;
-                let newData = Data.duplicateData(dataNode.data() as Data);
-                let nextHop = network._graph.$('#'+directTargetId);
-                let finalTarget = network._graph.$('#'+ network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
-                PacketSimulator.initThenDirectSend(network._graph.$('#'+this.id), nextHop, newData, network);
-                //PacketSimulator.endToEndSend(nextHop, finalTarget, network._graph.$('#'+newData.id), network);
+            if (linkId != null && linkId != undefined && linkId != "") {
+                let edge: GraphEdge = network._graph.$('#' + linkId).data();
+                if (previousId != null && port != null && edge.target == previousId && edge.outPort == port) {
+                    //do not flood the incoming port
+                }
+                else if (previousId != null && port != null && edge.source == previousId && edge.inPort == port) {
+                    //do not flood the incoming port
+                }
+                else {
+                    let directTargetId = edge.target == this.id ? edge.source : edge.target;
+                    let newData = (dataNode.data() instanceof Frame) ? Frame.duplicateData(dataNode.data()) : Packet.duplicateData(dataNode.data());
+                    let nextHop = network._graph.$('#' + directTargetId);
+                    let finalTarget = network._graph.$('#' + network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
+                    console.log(dataNode);
+                    console.log(dataNode.data());
+                    console.log(newData);
+                    PacketSimulator.initThenDirectSend(network._graph.$('#' + this.id), nextHop, newData, network);
+                    //PacketSimulator.endToEndSend(nextHop, finalTarget, network._graph.$('#'+newData.id), network);
+                }
             }
         });
         dataNode.remove();

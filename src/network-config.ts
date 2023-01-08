@@ -168,6 +168,20 @@ export function initNetwork(network: ComputerNetwork): void {
                     },
                 }
             },
+            {
+                "selector": ".data-node",
+                "style": {
+                    "text-valign": "center",
+                    "text-halign": "center",
+                    "shape": "round-rectangle",
+                    "height": 15,
+                    "width": 60,
+                    "font-size": 10,
+                    "text-wrap": "wrap",
+                    "background-image": "data(backgroundPath)",
+                    "font-family": "monospace",
+                }
+            }
         ],
 
         layout: {

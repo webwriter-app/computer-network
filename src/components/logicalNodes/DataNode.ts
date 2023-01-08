@@ -10,9 +10,6 @@ export abstract class Data extends LogicalNode {
         this.cssClass.push('data-node');
     }
 
-    static duplicateData(data: Data): Data {
-        return null;
-    }
 }
 
 export class Frame extends Data {
@@ -32,7 +29,7 @@ export class Frame extends Data {
         Frame.counter++;
         this.layer2header.macSender = macSender;
         this.layer2header.macReceiver = macReceiver;
-        this.layer3header.ipSender = ipv4Sender;
+        this.layer3header.ipSender = ipv4Sender;Frame.counter
         this.layer3header.ipReceiver = ipv4Receiver;
         this.cssClass.push('frame-node');
         if (macSender != "" && macReceiver != "") {
@@ -47,7 +44,7 @@ export class Frame extends Data {
     }
 
     static duplicateData(data: Frame): Frame {
-        let newData = data;
+        let newData: Frame = data;
         newData.id = 'frame' + Frame.counter;
         Frame.counter++;
         return newData;
@@ -66,16 +63,16 @@ export class Packet extends Data {
 
     private constructor(color: string) {
         super(color);
-        this.id = 'packet' + Frame.counter;
-        Frame.counter++;
+        this.id = 'packet' + Packet.counter;
+        Packet.counter++;
         this.cssClass.push('frame-node');
         this.backgroundPath = "doc/datagram/2header.png";
     }
 
     static duplicateData(data: Packet): Packet {
-        let newData = data;
+        let newData: Packet = data;
         newData.id = 'packet' + Packet.counter;
-        Frame.counter++;
+        Packet.counter++;
         return newData;
     }
 

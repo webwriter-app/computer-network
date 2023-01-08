@@ -1,12 +1,12 @@
 import { ComputerNetwork } from "../../..";
 import { PacketSimulator } from "../../event-handlers/packet-simulator";
 import { GraphEdge } from "../GraphEdge";
-import { Data } from "../logicalNodes/DataNode";
+import { Data, Frame, Packet } from "../logicalNodes/DataNode";
 import { PhysicalNode } from "../physicalNodes/PhysicalNode";
 import { DataHandlingDecorator } from "./DataHandlingDecorator";
 
 export class SimpleDecorator extends DataHandlingDecorator {
-    
+
     constructor(component?: PhysicalNode) {
         super(component);
         this.cssClass.push('simple-decorated');
@@ -26,7 +26,7 @@ export class SimpleDecorator extends DataHandlingDecorator {
             }
             else {
                 let directTargetId = edge.target == this.id ? edge.source : edge.target;
-                let newData = Data.duplicateData(dataNode.data());
+                let newData = (dataNode.data() instanceof Frame) ? Frame.duplicateData(dataNode.data()) : Packet.duplicateData(dataNode.data());
                 let nextHop = network._graph.$('#' + directTargetId);
                 let finalTarget = network._graph.$('#' + network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
                 PacketSimulator.initThenDirectSend(network._graph.$('#' + this.id), nextHop, newData, network);
