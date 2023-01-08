@@ -2,9 +2,15 @@ import { ComputerNetwork } from "../../..";
 import { PacketSimulator } from "../../event-handlers/packet-simulator";
 import { GraphEdge } from "../GraphEdge";
 import { Data } from "../logicalNodes/DataNode";
+import { PhysicalNode } from "../physicalNodes/PhysicalNode";
 import { DataHandlingDecorator } from "./DataHandlingDecorator";
 
 export class SimpleDecorator extends DataHandlingDecorator {
+    
+    constructor(component?: PhysicalNode) {
+        super(component);
+        this.cssClass.push('simple-decorated');
+    }
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork) {
         let previousId = previousNode.id();
@@ -28,5 +34,11 @@ export class SimpleDecorator extends DataHandlingDecorator {
             }
         });
         dataNode.remove();
+    }
+
+    static injectMethods(decoratorWithoutMethods: SimpleDecorator): SimpleDecorator {
+        let realDecorator = new SimpleDecorator();
+        realDecorator = Object.assign(realDecorator, decoratorWithoutMethods);
+        return realDecorator;
     }
 }

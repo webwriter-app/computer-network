@@ -7,13 +7,19 @@ import { Data, Frame, Packet } from "../logicalNodes/DataNode";
 import { Subnet } from "../logicalNodes/Subnet";
 import { Router } from "../physicalNodes/Connector";
 import { Host } from "../physicalNodes/Host";
+import { PhysicalNode } from "../physicalNodes/PhysicalNode";
 import { DataHandlingDecorator } from "./DataHandlingDecorator";
 
 export class RoutableDecorator extends DataHandlingDecorator {
-    arpTable: Map<string, string>; //(ip, mac)
-    routingTable: Map<string, [string, number, string]>; // (CIDR 0.0.0.0 /0/ port) [interface-name, port, DC?]
+    arpTable: Map<string, string> = new Map(); //(ip, mac)
+    routingTable: Map<string, [string, number, string]> = new Map(); // (CIDR 0.0.0.0 /0/ port) [interface-name, port, DC?]
 
     pendingFrames: Map<String, Array<any>> = new Map();
+
+    constructor(component?: PhysicalNode) {
+        super(component);
+        this.cssClass.push('routable-decorated');
+    }
 
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
@@ -63,14 +69,14 @@ export class RoutableDecorator extends DataHandlingDecorator {
         }
     }
 
-    sendData(dataNode: any, network: ComputerNetwork): void {
+    sendData(dataNode: any, network: ComputerNetwork, senderNode?: any): void {
         let data: Frame = dataNode.data();
         let receiverIp = data.layer3header.ipReceiver;
-        let subnet: Subnet = dataNode.parent().data() as Subnet;
+        let subnet: Subnet = senderNode.parent().data() as Subnet;
 
         //check if in same network
-        if (subnet.binarySubnetMask.slice(0, subnet.bitmask) == AddressingHelper.decimalStringWithDotToBinary(receiverIp).slice(0, subnet.bitmask)) {
-            this.sendDataInSameNetwork(data, data.layer2header.macSender, data.layer3header.ipSender, data.layer2header.macReceiver, data.layer3header.ipReceiver, network);
+        if (subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask) == AddressingHelper.decimalStringWithDotToBinary(receiverIp).slice(0, subnet.bitmask)) {
+            this.sendDataInSameNetwork(dataNode, data.layer2header.macSender, data.layer3header.ipSender, data.layer2header.macReceiver, data.layer3header.ipReceiver, network);
         }
         else {
             this.sendDataToAnotherNetwork(dataNode, data.layer2header.macSender, data.layer3header.ipSender, data.layer2header.macReceiver,
@@ -80,8 +86,10 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
     sendArpRequest(macSender: string, ipSender: string, ipReceiver: string, network: ComputerNetwork): void {
         let arpRequest: Packet = Packet.createArpRequest(network.currentColor, macSender, ipSender, ipReceiver);
-        this.sendDataInSameNetwork(arpRequest, macSender, ipSender, arpRequest.layer2header.macReceiver, ipReceiver, network);
+        let arpNode = PacketSimulator.initMessage(network._graph.$('#'+network.ipv4Database.get(ipSender)), arpRequest, network);
+        this.sendDataInSameNetwork(arpNode, macSender, ipSender, arpRequest.layer2header.macReceiver, ipReceiver, network);
     }
+
     receiveArpRequest(macSender: string, ipSender: string, ipReceiver: string, network: ComputerNetwork): void {
         let macReceiver: string = "";
         if (network.ipv4Database.get(ipReceiver) == this.id) {
@@ -93,14 +101,30 @@ export class RoutableDecorator extends DataHandlingDecorator {
         }
     }
 
-    sendDataInSameNetwork(data: Data, macSender: string, ipSender: string,
+    sendDataInSameNetwork(dataNode: any, macSender: string, ipSender: string,
         macReceiver: string, ipReceiver: string, network: ComputerNetwork): void {
         let senderNode = network._graph.$('#' + network.ipv4Database.get(ipSender));
         let receiverNode = network._graph.$('#' + network.ipv4Database.get(ipReceiver));
 
+        console.log(dataNode);
+        //tìm port to send? k thì ARP
+        if(macReceiver=="FF:FF:FF:FF:FF:FF"){
+            this.flood(dataNode, null, null, network);
+        }
+        else if (this.arpTable.has(ipReceiver)) {
+            let data: Data = dataNode.data() as Data;
+            this.addLayer2Header(data, data.layer2header.macSender, this.arpTable.get(ipReceiver));
+            PacketSimulator.endToEndSend(senderNode, receiverNode, dataNode, network);
+        }
+        else {
+            //TODO: arp request (mac & ip): của this. chứ kp của original --> mac ip của port nào?
+            this.sendArpRequest(macSender, ipSender, ipReceiver, network);
+            this.pendingFrames.set(ipReceiver, dataNode);
+        }
+
         if (!senderNode.parent().same(receiverNode.parent())) return;
 
-        PacketSimulator.endToEndSend(senderNode, receiverNode, data, network);
+        
 
     }
     sendDataToAnotherNetwork(dataNode: any, macSender: string, ipSender: string,
@@ -111,9 +135,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
         if (senderNode.parent().same(receiverNode.parent())) return;
 
         if (this.arpTable.has(gatewayIp)) {
-            let data: Data = dataNode.data() as Data;
-            this.addLayer2Header(data, data.layer2header.macSender, this.arpTable.get(gatewayIp));
-            this.sendDataInSameNetwork(data, macSender, ipSender, this.arpTable.get(gatewayIp), gatewayIp, network);
+            this.sendDataInSameNetwork(dataNode, macSender, ipSender, this.arpTable.get(gatewayIp), gatewayIp, network);
         }
         else {
             this.sendArpRequest(macSender, ipSender, gatewayIp, network);
@@ -196,6 +218,12 @@ export class RoutableDecorator extends DataHandlingDecorator {
             }
         });
         return null;
+    }
+
+    static injectMethods(decoratorWithoutMethods: RoutableDecorator): RoutableDecorator {
+        let realDecorator = new RoutableDecorator();
+        realDecorator = Object.assign(realDecorator, decoratorWithoutMethods);
+        return realDecorator;
     }
 
 }

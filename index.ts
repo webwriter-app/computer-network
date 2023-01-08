@@ -349,24 +349,32 @@ export class ComputerNetwork extends LitElementWw {
     <div class="sidebar">
       <sl-menu style="background-color: LightBlue; border: transparent; height: fit-content;">
         <sl-details summary="Subnetting extension" open>
-          <sl-tooltip style="overflow: hidden;" placement="bottom">
-            <div slot="content"><strong>Subnet-based: </strong>A top-down auto adaptation of IPv4 addresses for hosts according to subnet number.<br/><strong>Host-based: </strong>A bottom-up auto-extension of subnet number according to dragged component.</div>
-            <sl-menu-label>Choose a mode:</sl-menu-label>
-          </sl-tooltip>
-          <sl-select id="current-subnet-mode" @sl-change="${(event)=>{Subnet.setMode(event.target.value)}}" value="MANUAL">
+          <sl-menu-label>Choose a mode:
+            <sl-select id="current-subnet-mode" @sl-change="${(event)=>{Subnet.setMode(event.target.value)}}" value="MANUAL">
             <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
             <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
             <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
           </sl-select>
+          </sl-menu-label>
           <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: max(0.1cqw, 12px) !important;">Activate Draw-and-drop</sl-menu-item>
           <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: max(0.1cqw, 12px) !important;">Drag to assign gateway</sl-menu-item>
           <sl-menu-item><sl-button class="blue-button" @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button></sl-menu-item>
         </sl-details>
+
         <sl-details summary="Packet sending extension">
-          <sl-menu-label>Some explanations for the extension</sl-menu-label>
-          <sl-menu-item><sl-button class="blue-button" @click="${(event) => PacketSimulator.setSource(event, this)}">Set source</sl-button></sl-menu-item>
-          <sl-menu-item><sl-button class="blue-button" @click="${(event) => PacketSimulator.setTarget(event, this)}">Set target</sl-button></sl-menu-item>
-          <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.delay=event.target.value}" label="Latency" id="ports" type='number' min="1"></sl-input></sl-menu-item>
+          <sl-menu-item style="display: flex;">
+            <sl-button style="display: inline-block;" class="blue-button" id="setSourceBtn" @click="${(event) => PacketSimulator.setSource(event, this)}">Choose sender</sl-button>
+            <sl-select id="ip-source-select" style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event)=>{PacketSimulator.sourceIp = event.target.value}}" value="127.0.0.1">
+            <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
+            </sl-select>
+          </sl-menu-item>
+          <sl-menu-item>
+            <sl-button style="display: inline-block;" class="blue-button" id="setTargetBtn" @click="${(event) => PacketSimulator.setTarget(event, this)}">Choose receiver</sl-button>
+            <sl-select id="ip-target-select" style="display: inline-block;" @sl-change="${(event)=>{PacketSimulator.targetIp = event.target.value}}" value="127.0.0.1">
+            <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
+            </sl-select>
+          </sl-menu-item>
+          <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.delay=event.target.value}" label="Latency" type='number' min="1"></sl-input></sl-menu-item>
           <sl-menu-item><sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="pause" label="Pause simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.resetDatabase(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>

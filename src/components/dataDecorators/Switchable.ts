@@ -2,10 +2,16 @@ import { ComputerNetwork } from "../../..";
 import { PacketSimulator } from "../../event-handlers/packet-simulator";
 import { GraphEdge } from "../GraphEdge";
 import { Data } from "../logicalNodes/DataNode";
+import { PhysicalNode } from "../physicalNodes/PhysicalNode";
 import { DataHandlingDecorator } from "./DataHandlingDecorator";
 
 export class SwitchableDecorator extends DataHandlingDecorator {
     macAddressTable: Map<string, number> = new Map(); //(mac, port)
+
+    constructor(component?: PhysicalNode) {
+        super(component);
+        this.cssClass.push('switchable-decorated');
+    }
 
     learn(data: Data, previousId: String, network: ComputerNetwork): void {
         let senderMac: string = data.layer2header.macSender;
@@ -22,27 +28,6 @@ export class SwitchableDecorator extends DataHandlingDecorator {
             }
         });
         PacketSimulator.addOrUpdateTable(this.id, 'MacAddressTable', this.macAddressTable, network);
-    }
-
-    flood(dataNode: any, previousId: string, port: number, network: ComputerNetwork): void {
-        this.portLinkMapping.forEach(linkId => {
-            let edge: GraphEdge = network._graph.$('#'+linkId).data();
-            if(edge.target == previousId && edge.outPort == port){
-                //do not flood the incoming port
-            }
-            else if(edge.source == previousId && edge.inPort == port){
-                //do not flood the incoming port
-            }
-            else {
-                let directTargetId = edge.target==this.id ? edge.source : edge.target;
-                let newData = Data.duplicateData(dataNode.data());
-                let nextHop = network._graph.$('#'+directTargetId);
-                let finalTarget = network._graph.$('#'+ network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
-                PacketSimulator.initThenDirectSend(network._graph.$('#'+this.id), nextHop, newData, network);
-                PacketSimulator.endToEndSend(nextHop, finalTarget, network._graph.$('#'+newData.id), network);
-            }
-        });
-        dataNode.remove();
     }
 
     forward(previousNode: any, dataNode: any, network: ComputerNetwork): boolean {
@@ -62,6 +47,12 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         let data: Data = dataNode.data();
         this.learn(data, previousNode.id(), network);
         if(!this.forward(previousNode, dataNode, network)) this.flood(dataNode, previousNode.id(), this.macAddressTable.get(data.layer2header.macSender), network);
+    }
+
+    static injectMethods(decoratorWithoutMethods: SwitchableDecorator): SwitchableDecorator {
+        let realDecorator = new SwitchableDecorator();
+        realDecorator = Object.assign(realDecorator, decoratorWithoutMethods);
+        return realDecorator;
     }
 
 }

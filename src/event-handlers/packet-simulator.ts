@@ -1,4 +1,4 @@
-import { SlButton, SlDetails } from "@shoelace-style/shoelace";
+import { SlButton, SlDetails, SlSelect } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "../..";
 import { DataHandlingDecorator } from "../components/dataDecorators/DataHandlingDecorator";
 import { RoutableDecorator } from "../components/dataDecorators/Routable";
@@ -6,8 +6,6 @@ import { SimpleDecorator } from "../components/dataDecorators/SimpleDecorator";
 import { SwitchableDecorator } from "../components/dataDecorators/Switchable";
 import { GraphEdge } from "../components/GraphEdge";
 import { Data, Frame } from "../components/logicalNodes/DataNode";
-import { Router, Switch } from "../components/physicalNodes/Connector";
-import { Host } from "../components/physicalNodes/Host";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
 
@@ -15,6 +13,8 @@ export class PacketSimulator {
 
     static sourceEndPoint: string = "";
     static targetEndPoint: string = "";
+    static sourceIp: string = "";
+    static targetIp: string = "";
     static delay: number = 0;
 
     static setSource(buttonEvent, network: ComputerNetwork) {
@@ -26,6 +26,17 @@ export class PacketSimulator {
             PacketSimulator.sourceEndPoint = event.target.id();
             sourceButton.loading = false;
             targetButton.disabled = false;
+            let selects = network.renderRoot.querySelector('#ip-source-select') as SlSelect;
+            selects.innerHTML = "";
+            let node = event.target.data() as PhysicalNode;
+            if (node.layer < 3) {
+                AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "Currently the widget only supports host as sender and receiver.");
+            }
+            else {
+                node.portData.forEach((value, port) => {
+                    selects.innerHTML += `<sl-menu-item value="` + value.get('IPv4').address + `">` + port + `: ` + value.get('IPv4').address + `</sl-menu-item>`;
+                });
+            }
         });
     }
 
@@ -38,6 +49,17 @@ export class PacketSimulator {
             PacketSimulator.targetEndPoint = event.target.id();
             targetButton.loading = false;
             sourceButton.disabled = false;
+            let selects = network.renderRoot.querySelector('#ip-target-select') as SlSelect;
+            selects.innerHTML = "";
+            let node = event.target.data() as PhysicalNode;
+            if (node.layer < 3) {
+                AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "Currently the widget only supports host as sender and receiver.");
+            }
+            else {
+                node.portData.forEach((value, port) => {
+                    selects.innerHTML += `<sl-menu-item value="` + value.get('IPv4').address + `">` + port + `: ` + value.get('IPv4').address + `</sl-menu-item>`;
+                });
+            }
         });
     }
 
@@ -52,30 +74,41 @@ export class PacketSimulator {
         }
 
         network._graph.nodes('physical-node').forEach(node => {
+            let nodeData: PhysicalNode = node.data() as PhysicalNode;
             if (node.hasClass('host-node') || node.hasClass('router-node')) {
-                const decorated = new RoutableDecorator(node.data());
+                const decorated = new RoutableDecorator(nodeData);
                 decorated.initiateRoutingTable(network);
                 node.data(decorated);
             }
             else if (node.hasClass('switch-node') || node.hasClass('bridge-node')) {
-                const decorated = new SwitchableDecorator(node.data());
+                const decorated = new SwitchableDecorator(nodeData);
                 node.data(decorated);
             }
             else {
-                const decorated = new SimpleDecorator(node.data());
+                const decorated = new SimpleDecorator(nodeData);
                 node.data(decorated);
             }
         });
 
+        let data: Frame = new Frame(network.currentColor, "", "", this.sourceIp, this.targetIp);
+        let sourceNode = network._graph.$('#'+this.sourceEndPoint);
+        let sender: RoutableDecorator = RoutableDecorator.injectMethods(sourceNode.data() as RoutableDecorator);
 
-        //tạo chỗ cho các bảng trong sidebar
+        let sourcePosition = sourceNode.position();
 
-        //gọi sendData
+        network._graph.add({
+            group: 'nodes',
+            data: data,
+            position: { x: sourcePosition.x, y: sourcePosition.y - 20 },
+            classes: data.cssClass,
+        });
+
+        console.log(sender);
+        sender.sendData(network._graph.$('#'+data.id), network, sourceNode);
     }
 
     static initThenDirectSend(sourceNode: any, targetNode: any, data: Data, network: ComputerNetwork): void {
         let sourcePosition = sourceNode.position();
-        let targetPosition = targetNode.position();
 
         network._graph.add({
             group: 'nodes',
@@ -87,25 +120,38 @@ export class PacketSimulator {
         this.directSend(sourceNode, targetNode, network._graph.$('#' + data.id), network);
     }
 
+    static initMessage(sourceNode: any, data: Data, network: ComputerNetwork): any {
+        let sourcePosition = sourceNode.position();
+
+        network._graph.add({
+            group: 'nodes',
+            data: data,
+            position: { x: sourcePosition.x, y: sourcePosition.y - 20 },
+            classes: data.cssClass,
+        });
+
+        return network._graph.$('#' + data.id);
+    }
+
     static endToEndSend(sourceNode: any, targetNode: any, dataNode: any, network: ComputerNetwork): void {
         let source = sourceNode.data();
         let macReceiver: string = (dataNode.data() as Data).layer2header.macReceiver;
 
-        if (source instanceof SwitchableDecorator) {
+        if (source.cssClass.includes('switchable-decorated')) {
             let port: number = source.macAddressTable.get(macReceiver);
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
             let nextHopId: string = link.source == source.id ? link.target : link.source;
             let nextHop: any = network._graph.$('#' + nextHopId);
             PacketSimulator.directSend(sourceNode, nextHop, dataNode, network);
         }
-        else if (source instanceof RoutableDecorator) {
+        else if (source.cssClass.includes('routable-decorated')) {
             let port: number = source.findPortToSend(source.arpTable.get(macReceiver));
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
             let nextHopId: string = link.source == source.id ? link.target : link.source;
             let nextHop: any = network._graph.$('#' + nextHopId);
             PacketSimulator.directSend(sourceNode, nextHop, dataNode, network);
         }
-        else if (source instanceof PhysicalNode) {
+        else if (source.cssClass.includes('simple-decorated')) {
             //source = routable? switchable? else --> broadcast
             source.portLinkMapping.forEach(linkId => {
                 let link: GraphEdge = network._graph.$('#' + linkId).data();
