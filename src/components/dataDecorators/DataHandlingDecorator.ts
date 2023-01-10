@@ -53,20 +53,20 @@ export class DataHandlingDecorator implements PhysicalNode {
 
     getPortIn(previousId: String, network: ComputerNetwork): number {
         console.log(previousId);
-        let port: number = null;
-        this.portLinkMapping.forEach(linkId => {
+        let portIn: number = null;
+        this.portLinkMapping.forEach((linkId, port) => {
             console.log(linkId);
             if (linkId != "" && linkId != null && linkId != undefined) {
                 let edge: GraphEdge = network._graph.$('#' + linkId).data();
                 if (edge.source == this.id && edge.target == previousId) {
-                    port = edge.outPort;
+                    portIn = port;
                 }
                 else if (edge.target == this.id && edge.source == previousId) {
-                    port = edge.inPort;
+                    portIn = port;
                 }
             }
         });
-        return port;
+        return portIn;
     }
 
     static injectMethods(decoratorWithoutMethods: DataHandlingDecorator): DataHandlingDecorator {

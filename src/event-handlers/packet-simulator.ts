@@ -16,9 +16,8 @@ export class PacketSimulator {
     static sourceIp: string = "";
     static targetIp: string = "";
     static duration: number = 0;
-    static delay: number = 0;
 
-    
+
 
     static setSource(buttonEvent, network: ComputerNetwork) {
         let sourceButton = buttonEvent.target;
@@ -94,7 +93,7 @@ export class PacketSimulator {
         });
 
         let data: Frame = new Frame(network.currentColor, "", "", this.sourceIp, this.targetIp);
-        let sourceNode = network._graph.$('#'+this.sourceEndPoint);
+        let sourceNode = network._graph.$('#' + this.sourceEndPoint);
         let sender: RoutableDecorator = RoutableDecorator.injectMethods(sourceNode.data() as RoutableDecorator);
 
         let sourcePosition = sourceNode.position();
@@ -105,9 +104,8 @@ export class PacketSimulator {
             position: { x: sourcePosition.x, y: sourcePosition.y - 20 },
             classes: data.cssClass,
         });
-        sender.sendData(network._graph.$('#'+data.id), network, sourceNode);
-        
-        PacketSimulator.delay = PacketSimulator.duration;
+        sender.sendData(network._graph.$('#' + data.id), network, sourceNode);
+
     }
 
     static initThenDirectSend(sourceNode: any, targetNode: any, data: Data, network: ComputerNetwork): void {
@@ -165,32 +163,33 @@ export class PacketSimulator {
 
     static directSend(previousNode: any, targetNode: any, dataNode: any, network: ComputerNetwork): void {
         let targetPosition = targetNode.position();
-        
-        network._graph.$('#' + dataNode.id())
-        .delay(PacketSimulator.delay)
-        .animate({
-            position: { x: targetPosition.x, y: targetPosition.y - 20 },
-        }, {
-            duration: PacketSimulator.duration
-        });
 
-        PacketSimulator.delay += PacketSimulator.duration;
+        let a = network._graph.$('#' + dataNode.id())
+            .animation({
+                position: { x: targetPosition.x, y: targetPosition.y - 20 },
+            }, {
+                duration: PacketSimulator.duration
+            });
+
 
         console.log('checkpoint-0');
         let target = targetNode.data();
 
-        if (target.cssClass.includes('routable-decorated')) {
-            console.log('check-point-11');
-            RoutableDecorator.injectMethods(target as RoutableDecorator).handleDataIn(dataNode, previousNode, network);
-        }
-        else if(target.cssClass.includes('switchable-decorated')){
-            console.log('check-point-12');
-            SwitchableDecorator.injectMethods(target as SwitchableDecorator).handleDataIn(dataNode, previousNode, network);
-        }
-        else if(target.cssClass.includes('simple-decorated')){
-            console.log('check-point-13');
-            SimpleDecorator.injectMethods(target as SimpleDecorator).handleDataIn(dataNode, previousNode, network);
-        }
+        a.play().promise().then(() => {
+            if (target.cssClass.includes('routable-decorated')) {
+                console.log('check-point-11');
+                RoutableDecorator.injectMethods(target as RoutableDecorator).handleDataIn(dataNode, previousNode, network);
+            }
+            else if (target.cssClass.includes('switchable-decorated')) {
+                console.log('check-point-12');
+                SwitchableDecorator.injectMethods(target as SwitchableDecorator).handleDataIn(dataNode, previousNode, network);
+            }
+            else if (target.cssClass.includes('simple-decorated')) {
+                console.log('check-point-13');
+                SimpleDecorator.injectMethods(target as SimpleDecorator).handleDataIn(dataNode, previousNode, network);
+            }
+        });
+
     }
 
     static addOrUpdateTable(nodeId: string, tableType: TableType, tableData: any, network: ComputerNetwork): void {

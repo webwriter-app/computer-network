@@ -37,7 +37,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
             console.log(data instanceof Packet);
             console.log(data.name.includes('ARP req'));
             //check layer2header xem có phải cho mình k nếu k thì throw
-            if (network.macDatabase.get(receiverMac) != this.id) return;
+            if (receiverMac!='FF:FF:FF:FF:FF:FF' && network.macDatabase.get(receiverMac) != this.id) return;
             //có --> arpRes ? arpReq ? Data
             if (data instanceof Packet && data.name.includes('ARP res') && network.macDatabase.get(data.layer2header.macReceiver)==this.id) {
                 console.log('checkpoint-2');
