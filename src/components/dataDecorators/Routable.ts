@@ -23,22 +23,32 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
+        console.log('check-point-3');
         let data = dataNode.data();
         //router: if mac match --> scrap L2 header, đọc L3 header --> findPort để gửi sang network khác
         let receiverMac = data.layer2header.macReceiver;
+        console.log(data);
 
         if (data instanceof Data) {
+            console.log('checkpoint-1');
+            console.log(previousNode);
             let port: number = this.getPortIn(previousNode.data('id'), network);
+            console.log(port);
+            console.log(data instanceof Packet);
+            console.log(data.name.includes('ARP req'));
             //check layer2header xem có phải cho mình k nếu k thì throw
             if (network.macDatabase.get(receiverMac) != this.id) return;
             //có --> arpRes ? arpReq ? Data
-            if (data instanceof Packet && data.name.includes('ARP res')) {
+            if (data instanceof Packet && data.name.includes('ARP res') && network.macDatabase.get(data.layer2header.macReceiver)==this.id) {
+                console.log('checkpoint-2');
                 this.populateArpTable(data.layer2header.ipSender, data.layer2header.macSender, network);
             }
-            else if (data.name.includes('ARP req')) {
+            else if (data instanceof Packet && data.name.includes('ARP req') && network.ipv4Database.get(data.layer2header.ipReceiver)==this.id) {
+                console.log('receiver should call this');
                 this.receiveArpRequest(data.layer2header.macSender, data.layer2header.ipSender, data.layer2header.ipReceiver, network);
             }
             else if (data instanceof Frame && data.name.includes('DATA')) {
+                console.log('checkpoint-3');
                 if (receiverMac != this.portData.get(port).get('MAC')) {
                     //TODO: visualize throw packet here
                     return;
@@ -86,20 +96,23 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
     sendArpRequest(macSender: string, ipSender: string, ipReceiver: string, network: ComputerNetwork): void {
         let arpRequest: Packet = Packet.createArpRequest(network.currentColor, macSender, ipSender, ipReceiver);
-        PacketSimulator.initMessage(network._graph.$('#'+network.ipv4Database.get(ipSender)), arpRequest, network);
-        let arpNode = network._graph.$('#'+arpRequest.id);
-        console.log(arpNode);
+        PacketSimulator.initMessage(network._graph.$('#' + network.ipv4Database.get(ipSender)), arpRequest, network);
+        let arpNode = network._graph.$('#' + arpRequest.id);
         this.sendDataInSameNetwork(arpNode, macSender, ipSender, arpRequest.layer2header.macReceiver, ipReceiver, network);
     }
 
     receiveArpRequest(macSender: string, ipSender: string, ipReceiver: string, network: ComputerNetwork): void {
         let macReceiver: string = "";
+        console.log('should call this -1');
         if (network.ipv4Database.get(ipReceiver) == this.id) {
+            console.log('should call this -2');
             this.portData.forEach(value => {
                 if (value.get('IPv4') == ipReceiver) macReceiver = value.get('MAC');
             })
             let arpRes: Packet = Packet.createArpResponse(network.currentColor, macReceiver, macSender, ipReceiver, ipSender);
-            this.sendDataInSameNetwork(arpRes, macReceiver, ipReceiver, macSender, ipSender, network);
+            PacketSimulator.initMessage(network._graph.$('#' + network.ipv4Database.get(ipSender)), arpRes, network);
+            let arpNode = network._graph.$('#' + arpRes.id);
+            this.sendDataInSameNetwork(arpNode, macReceiver, ipReceiver, macSender, ipSender, network);
         }
     }
 
@@ -109,8 +122,9 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let receiverNode = network._graph.$('#' + network.ipv4Database.get(ipReceiver));
 
         console.log(dataNode);
+        console.log(macReceiver);
         //tìm port to send? k thì ARP
-        if(macReceiver=="FF:FF:FF:FF:FF:FF"){
+        if (macReceiver == "FF:FF:FF:FF:FF:FF") {
             this.flood(dataNode, null, null, network);
         }
         else if (this.arpTable.has(ipReceiver)) {
@@ -126,7 +140,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
         if (!senderNode.parent().same(receiverNode.parent())) return;
 
-        
+
 
     }
     sendDataToAnotherNetwork(dataNode: any, macSender: string, ipSender: string,

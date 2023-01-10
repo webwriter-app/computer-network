@@ -43,10 +43,9 @@ export class Frame extends Data {
 
     }
 
-    static duplicateData(data: Frame): Frame {
-        let newData: Frame = data;
-        newData.id = 'frame' + Frame.counter;
-        Frame.counter++;
+    static cloneData(data: Frame): Frame {
+        let newData: Frame = new Frame(data.color, data.layer2header.macSender, data.layer2header.macReceiver, 
+            data.layer3header.ipSender, data.layer3header.ipReceiver);
         return newData;
     }
 }
@@ -69,10 +68,12 @@ export class Packet extends Data {
         this.backgroundPath = "doc/datagram/2header.png";
     }
 
-    static duplicateData(data: Packet): Packet {
-        let newData: Packet = data;
-        newData.id = 'packet' + Packet.counter;
-        Packet.counter++;
+    static cloneData(data: Packet): Packet {
+        let newData: Packet = new Packet(data.color);
+        newData.backgroundPath = data.backgroundPath;
+        newData.cssClass = data.cssClass;
+        newData.layer2header = data.layer2header;
+        newData.name = data.name;
         return newData;
     }
 

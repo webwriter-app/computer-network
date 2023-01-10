@@ -44,6 +44,7 @@ export class SwitchableDecorator extends DataHandlingDecorator {
     }
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
+        console.log('check-point-4');
         let data: Data = dataNode.data();
         this.learn(data, previousNode.id(), network);
         if(!this.forward(previousNode, dataNode, network)) this.flood(dataNode, previousNode.id(), this.macAddressTable.get(data.layer2header.macSender), network);

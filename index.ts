@@ -374,7 +374,7 @@ export class ComputerNetwork extends LitElementWw {
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>
-          <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.delay=event.target.value}" label="Latency" type='number' min="1"></sl-input></sl-menu-item>
+          <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.duration=event.target.value}" label="Latency" type='number' min="1"></sl-input></sl-menu-item>
           <sl-menu-item><sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="pause" label="Pause simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.resetDatabase(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>

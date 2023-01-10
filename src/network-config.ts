@@ -20,6 +20,7 @@ import { Subnet } from "./components/logicalNodes/Subnet";
 import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
 import { Router } from "./components/physicalNodes/Connector";
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
+import { Data } from "./components/logicalNodes/DataNode";
 
 
 // register extension
@@ -272,6 +273,17 @@ export function initNetwork(network: ComputerNetwork): void {
                 show: true, // Whether the item will be shown or not
                 hasTrailingDivider: true, // Whether the item will have a trailing divider
                 coreAsWell: false // Whether core instance have this item on cxttap
+            },
+            {
+                id: "details-data",
+                content: "View Details...",
+                tooltipText: "View Details",
+                selector: ".data-node",
+                onClickFunction: function (event) {
+                    let node = event.target.data();
+                    DialogFactory.showDataHeaders(node as Data, network);
+                },
+                hasTrailingDivider: true
             },
 
         ],

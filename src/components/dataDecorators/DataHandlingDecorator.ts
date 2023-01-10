@@ -52,16 +52,21 @@ export class DataHandlingDecorator implements PhysicalNode {
     }
 
     getPortIn(previousId: String, network: ComputerNetwork): number {
+        console.log(previousId);
+        let port: number = null;
         this.portLinkMapping.forEach(linkId => {
-            let edge: GraphEdge = network._graph.$('#' + linkId).data();
-            if (edge.source == this.id && edge.target == previousId) {
-                return edge.outPort;
-            }
-            else if (edge.target == this.id && edge.source == previousId) {
-                return edge.inPort;
+            console.log(linkId);
+            if (linkId != "" && linkId != null && linkId != undefined) {
+                let edge: GraphEdge = network._graph.$('#' + linkId).data();
+                if (edge.source == this.id && edge.target == previousId) {
+                    port = edge.outPort;
+                }
+                else if (edge.target == this.id && edge.source == previousId) {
+                    port = edge.inPort;
+                }
             }
         });
-        return null;
+        return port;
     }
 
     static injectMethods(decoratorWithoutMethods: DataHandlingDecorator): DataHandlingDecorator {
@@ -71,6 +76,8 @@ export class DataHandlingDecorator implements PhysicalNode {
     }
 
     flood(dataNode: any, previousId: string, port: number, network: ComputerNetwork): void {
+        dataNode = dataNode.remove();
+
         this.portLinkMapping.forEach(linkId => {
             if (linkId != null && linkId != undefined && linkId != "") {
                 let edge: GraphEdge = network._graph.$('#' + linkId).data();
@@ -82,17 +89,13 @@ export class DataHandlingDecorator implements PhysicalNode {
                 }
                 else {
                     let directTargetId = edge.target == this.id ? edge.source : edge.target;
-                    let newData = (dataNode.data() instanceof Frame) ? Frame.duplicateData(dataNode.data()) : Packet.duplicateData(dataNode.data());
+                    let newData = (dataNode.data() instanceof Frame) ? Frame.cloneData(dataNode.data()) : Packet.cloneData(dataNode.data());
                     let nextHop = network._graph.$('#' + directTargetId);
                     let finalTarget = network._graph.$('#' + network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
-                    console.log(dataNode);
-                    console.log(dataNode.data());
-                    console.log(newData);
                     PacketSimulator.initThenDirectSend(network._graph.$('#' + this.id), nextHop, newData, network);
                     //PacketSimulator.endToEndSend(nextHop, finalTarget, network._graph.$('#'+newData.id), network);
                 }
             }
-        });
-        dataNode.remove();
+        });  
     }
 }

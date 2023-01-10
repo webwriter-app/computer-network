@@ -214,7 +214,6 @@ export class GraphNodeFactory {
             }
             network._graph.$('#' + subnet.id).children().forEach(child => {
                 let oldGateway = child.data('defaultGateway');
-                console.log(oldGateway);
                 if (oldGateway != null && oldGateway != undefined &&
                     oldGateway[0] == node.id() && oldGateway[1] == port) {
                     if (subnet.currentDefaultGateway != null && subnet.currentDefaultGateway != undefined) {
@@ -224,9 +223,7 @@ export class GraphNodeFactory {
                         child.data('defaultGateway', null);
                         child.toggleClass('default-gateway-not-found', true);
                     }
-                    console.log(child.data('defaultGateway'));
                 }
-                console.log(child);
             });
         });
 

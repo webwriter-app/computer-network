@@ -13,8 +13,11 @@ export class SimpleDecorator extends DataHandlingDecorator {
     }
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork) {
+        dataNode = dataNode.remove();
+        console.log('check-point-2');
         let previousId = previousNode.id();
         let port = this.getPortIn(previousId, network);
+        console.log(port);
 
         this.portLinkMapping.forEach(linkId => {
             let edge: GraphEdge = network._graph.$('#' + linkId).data();
@@ -26,14 +29,14 @@ export class SimpleDecorator extends DataHandlingDecorator {
             }
             else {
                 let directTargetId = edge.target == this.id ? edge.source : edge.target;
-                let newData = (dataNode.data() instanceof Frame) ? Frame.duplicateData(dataNode.data()) : Packet.duplicateData(dataNode.data());
+                let newData = (dataNode.data() instanceof Frame) ? Frame.cloneData(dataNode.data()) : Packet.cloneData(dataNode.data());
                 let nextHop = network._graph.$('#' + directTargetId);
                 let finalTarget = network._graph.$('#' + network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
                 PacketSimulator.initThenDirectSend(network._graph.$('#' + this.id), nextHop, newData, network);
-                PacketSimulator.endToEndSend(nextHop, finalTarget, network._graph.$('#' + newData.id), network);
+                //PacketSimulator.endToEndSend(nextHop, finalTarget, network._graph.$('#' + newData.id), network);
             }
         });
-        dataNode.remove();
+        
     }
 
     static injectMethods(decoratorWithoutMethods: SimpleDecorator): SimpleDecorator {
