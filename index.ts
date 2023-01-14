@@ -364,13 +364,13 @@ export class ComputerNetwork extends LitElementWw {
         <sl-details summary="Packet sending extension">
           <sl-menu-item style="display: flex;">
             <sl-button style="display: inline-block;" class="blue-button" id="setSourceBtn" @click="${(event) => PacketSimulator.setSource(event, this)}">Choose sender</sl-button>
-            <sl-select id="ip-source-select" style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event)=>{PacketSimulator.sourceIp = event.target.value}}" value="127.0.0.1">
+            <sl-select id="ip-source-select" hoist style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event)=>{PacketSimulator.sourceIp = event.target.value}}" value="127.0.0.1">
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>
           <sl-menu-item>
             <sl-button style="display: inline-block;" class="blue-button" id="setTargetBtn" @click="${(event) => PacketSimulator.setTarget(event, this)}">Choose receiver</sl-button>
-            <sl-select id="ip-target-select" style="display: inline-block;" @sl-change="${(event)=>{PacketSimulator.targetIp = event.target.value}}" value="127.0.0.1">
+            <sl-select id="ip-target-select" hoist style="display: inline-block;" @sl-change="${(event)=>{PacketSimulator.targetIp = event.target.value}}" value="127.0.0.1">
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>

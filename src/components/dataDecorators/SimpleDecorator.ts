@@ -14,17 +14,14 @@ export class SimpleDecorator extends DataHandlingDecorator {
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork) {
         dataNode = dataNode.remove();
-        console.log('check-point-2');
         let previousId = previousNode.id();
-        let port = this.getPortIn(previousId, network);
-        console.log(port);
 
         this.portLinkMapping.forEach(linkId => {
             let edge: GraphEdge = network._graph.$('#' + linkId).data();
-            if (edge.target == previousId && edge.outPort == port) {
+            if (edge.target == previousId) {
                 //do not flood the incoming port
             }
-            else if (edge.source == previousId && edge.inPort == port) {
+            else if (edge.source == previousId) {
                 //do not flood the incoming port
             }
             else {
@@ -39,9 +36,4 @@ export class SimpleDecorator extends DataHandlingDecorator {
         
     }
 
-    static injectMethods(decoratorWithoutMethods: SimpleDecorator): SimpleDecorator {
-        let realDecorator = new SimpleDecorator();
-        realDecorator = Object.assign(realDecorator, decoratorWithoutMethods);
-        return realDecorator;
-    }
 }

@@ -37,23 +37,16 @@ export class SwitchableDecorator extends DataHandlingDecorator {
             let nextHopId: string = edge.target==this.id ? edge.source : edge.target;
             let nextHop = network._graph.$('#'+nextHopId);
             PacketSimulator.directSend(previousNode, nextHop, dataNode, network);
-            PacketSimulator.endToEndSend(nextHop, network._graph.$('#'+ network.macDatabase.get(receiverMac)), dataNode, network);
+            PacketSimulator.findNextHopThenSend(nextHop, network._graph.$('#'+ network.macDatabase.get(receiverMac)), dataNode, network);
             return true;
         }
         return false;
     }
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
-        console.log('check-point-4');
         let data: Data = dataNode.data();
         this.learn(data, previousNode.id(), network);
         if(!this.forward(previousNode, dataNode, network)) this.flood(dataNode, previousNode.id(), this.macAddressTable.get(data.layer2header.macSender), network);
-    }
-
-    static injectMethods(decoratorWithoutMethods: SwitchableDecorator): SwitchableDecorator {
-        let realDecorator = new SwitchableDecorator();
-        realDecorator = Object.assign(realDecorator, decoratorWithoutMethods);
-        return realDecorator;
     }
 
 }

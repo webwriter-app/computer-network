@@ -59,8 +59,9 @@ export class PacketSimulator {
             }
             else {
                 node.portData.forEach((value, port) => {
-                    selects.innerHTML += `<sl-menu-item value="` + value.get('IPv4').address + `">` + port + `: ` + value.get('IPv4').address + `</sl-menu-item>`;
+                    selects.innerHTML += `<sl-menu-item value="` + value.get('IPv4').address + `">` + port + `: ` + value.get('IPv4').address + `</sl-menu-item>\n`;
                 });
+                
             }
         });
     }
@@ -77,24 +78,30 @@ export class PacketSimulator {
 
         network._graph.nodes('physical-node').forEach(node => {
             let nodeData: PhysicalNode = node.data() as PhysicalNode;
-            if (node.hasClass('host-node') || node.hasClass('router-node')) {
-                const decorated = new RoutableDecorator(nodeData);
-                decorated.initiateRoutingTable(network);
-                node.data(decorated);
-            }
-            else if (node.hasClass('switch-node') || node.hasClass('bridge-node')) {
-                const decorated = new SwitchableDecorator(nodeData);
-                node.data(decorated);
-            }
-            else {
-                const decorated = new SimpleDecorator(nodeData);
-                node.data(decorated);
+            if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
+                if (node.hasClass('host-node') || node.hasClass('router-node')) {
+                    const decorated: RoutableDecorator = new RoutableDecorator(nodeData);
+                    decorated.initiateRoutingTable(network);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+                else if (node.hasClass('switch-node') || node.hasClass('bridge-node')) {
+                    const decorated: SwitchableDecorator = new SwitchableDecorator(nodeData);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+                else {
+                    const decorated: SimpleDecorator = new SimpleDecorator(nodeData);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
             }
         });
 
+
         let data: Frame = new Frame(network.currentColor, "", "", this.sourceIp, this.targetIp);
         let sourceNode = network._graph.$('#' + this.sourceEndPoint);
-        let sender: RoutableDecorator = RoutableDecorator.injectMethods(sourceNode.data() as RoutableDecorator);
+        let sender: RoutableDecorator = sourceNode.data() as RoutableDecorator;
 
         let sourcePosition = sourceNode.position();
 
@@ -132,32 +139,30 @@ export class PacketSimulator {
         });
     }
 
-    static endToEndSend(sourceNode: any, targetNode: any, dataNode: any, network: ComputerNetwork): void {
-        let source = sourceNode.data();
-        let macReceiver: string = (dataNode.data() as Data).layer2header.macReceiver;
+    static findNextHopThenSend(portIn: number, sourceNode: any, dataNode: any, network: ComputerNetwork): void {
+        let source: DataHandlingDecorator = sourceNode.data();
+        let macReceiver: string = dataNode.data().layer2header.macReceiver;
 
-        if (source.cssClass.includes('switchable-decorated')) {
+        if (source instanceof SwitchableDecorator) {
             let port: number = source.macAddressTable.get(macReceiver);
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
             let nextHopId: string = link.source == source.id ? link.target : link.source;
             let nextHop: any = network._graph.$('#' + nextHopId);
             PacketSimulator.directSend(sourceNode, nextHop, dataNode, network);
         }
-        else if (source.cssClass.includes('routable-decorated')) {
-            let port: number = source.findPortToSend(source.arpTable.get(macReceiver));
+        else if (source instanceof RoutableDecorator) {
+            console.log(source);
+            console.log(macReceiver);
+            console.log((source as RoutableDecorator).arpTableMacIp.get(macReceiver));
+            let port: number = source.findPortToSend((source as RoutableDecorator).arpTableMacIp.get(macReceiver));
+            console.log(port);
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
             let nextHopId: string = link.source == source.id ? link.target : link.source;
             let nextHop: any = network._graph.$('#' + nextHopId);
             PacketSimulator.directSend(sourceNode, nextHop, dataNode, network);
         }
-        else if (source.cssClass.includes('simple-decorated')) {
-            //source = routable? switchable? else --> broadcast
-            source.portLinkMapping.forEach(linkId => {
-                let link: GraphEdge = network._graph.$('#' + linkId).data();
-                let nextHopId: string = link.source == source.id ? link.target : link.source;
-                let nextHop: any = network._graph.$('#' + nextHopId);
-                PacketSimulator.initThenDirectSend(sourceNode, nextHop, dataNode, network);
-            });
+        else if (source instanceof SimpleDecorator) {
+            source.flood(dataNode, null, portIn, network);
         }
     }
 
@@ -171,22 +176,17 @@ export class PacketSimulator {
                 duration: PacketSimulator.duration
             });
 
-
-        console.log('checkpoint-0');
         let target = targetNode.data();
 
         a.play().promise().then(() => {
             if (target.cssClass.includes('routable-decorated')) {
-                console.log('check-point-11');
-                RoutableDecorator.injectMethods(target as RoutableDecorator).handleDataIn(dataNode, previousNode, network);
+                (target as RoutableDecorator).handleDataIn(dataNode, previousNode, network);
             }
             else if (target.cssClass.includes('switchable-decorated')) {
-                console.log('check-point-12');
-                SwitchableDecorator.injectMethods(target as SwitchableDecorator).handleDataIn(dataNode, previousNode, network);
+                (target as SwitchableDecorator).handleDataIn(dataNode, previousNode, network);
             }
             else if (target.cssClass.includes('simple-decorated')) {
-                console.log('check-point-13');
-                SimpleDecorator.injectMethods(target as SimpleDecorator).handleDataIn(dataNode, previousNode, network);
+                (target as SimpleDecorator).handleDataIn(dataNode, previousNode, network);
             }
         });
 

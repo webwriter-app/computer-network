@@ -487,15 +487,15 @@ export class DialogFactory {
     dialog.label = data.id;
 
     if (data instanceof Frame){
-      dialog.innerHTML += "Mac Address of Sender:" + data.layer2header.macSender;
-      dialog.innerHTML += "IP Address of Sender:" + data.layer3header.ipSender;
-      dialog.innerHTML += "Mac Address of Receiver:" + data.layer2header.macReceiver;
+      dialog.innerHTML += "Mac Address of Sender:" + data.layer2header.macSender + "<br/>";
+      dialog.innerHTML += "IP Address of Sender:" + data.layer3header.ipSender + "<br/>";
+      dialog.innerHTML += "Mac Address of Receiver:" + data.layer2header.macReceiver + "<br/>";
       dialog.innerHTML += "IP Address of Receiver:" + data.layer3header.ipReceiver;
     }
     else if(data instanceof Packet){
-      dialog.innerHTML += "Mac Address of Sender:" + data.layer2header.macSender;
-      dialog.innerHTML += "IP Address of Sender:" + data.layer2header.ipSender;
-      dialog.innerHTML += "Mac Address of Receiver:" + data.layer2header.macReceiver;
+      dialog.innerHTML += "Mac Address of Sender:" + data.layer2header.macSender + "<br/>";
+      dialog.innerHTML += "IP Address of Sender:" + data.layer2header.ipSender + "<br/>";
+      dialog.innerHTML += "Mac Address of Receiver:" + data.layer2header.macReceiver + "<br/>";
       dialog.innerHTML += "IP Address of Receiver:" + data.layer2header.ipReceiver;  
     }
 
