@@ -39,7 +39,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
                 this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
                 this.populateArpTable(data.layer2header.ipSender, data.layer2header.macSender, network);
             }
-            else if (data instanceof Packet && data.name.includes('ARP req')) {
+            else if (data instanceof Packet && data.name.includes('ARP req') && thisIp==receiverIp) {
                 this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
                 this.receiveArpRequest(portIn, data.layer2header.macSender, data.layer2header.ipSender, data.layer2header.ipReceiver, network);
             }
@@ -123,14 +123,11 @@ export class RoutableDecorator extends DataHandlingDecorator {
         if (macReceiver == "FF:FF:FF:FF:FF:FF") {
             this.flood(dataNode, null, null, network);
         }
-        else if (this.arpTableMacIp.has(macReceiver)) {
+        else if (this.arpTableMacIp.has(macReceiver) || this.arpTableIpMac.has(ipReceiver)) {
             if (data instanceof Packet) {
                 PacketSimulator.findNextHopThenSend(lastPortIn, thisNode, dataNode, network);
             }
             else if (data instanceof Frame) {
-                console.log('should run this');
-                console.log(this.arpTableIpMac);
-                console.log(this.arpTableMacIp);
                 let macReceiver: string = this.arpTableIpMac.get(ipReceiver);
                 let port = this.findPortToSend(ipReceiver);
                 let macSender: string = this.portData.get(port).get('IPv4').address;

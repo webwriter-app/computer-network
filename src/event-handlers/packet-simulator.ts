@@ -15,7 +15,7 @@ export class PacketSimulator {
     static targetEndPoint: string = "";
     static sourceIp: string = "";
     static targetIp: string = "";
-    static duration: number = 0;
+    static duration: number = 1000;
 
 
 
@@ -30,8 +30,8 @@ export class PacketSimulator {
             targetButton.disabled = false;
             let selects = network.renderRoot.querySelector('#ip-source-select') as SlSelect;
             selects.innerHTML = "";
-            let node = event.target.data() as PhysicalNode;
-            if (node.layer < 3) {
+            let node = event.target.data();
+            if (!(node instanceof PhysicalNode || node instanceof DataHandlingDecorator) || node.layer < 3) {
                 AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "Currently the widget only supports host as sender and receiver.");
             }
             else {
@@ -53,8 +53,8 @@ export class PacketSimulator {
             sourceButton.disabled = false;
             let selects = network.renderRoot.querySelector('#ip-target-select') as SlSelect;
             selects.innerHTML = "";
-            let node = event.target.data() as PhysicalNode;
-            if (node.layer < 3) {
+            let node = event.target.data();
+            if (!(node instanceof PhysicalNode || node instanceof DataHandlingDecorator) || node.layer < 3) {
                 AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "Currently the widget only supports host as sender and receiver.");
             }
             else {
@@ -97,7 +97,6 @@ export class PacketSimulator {
                 }
             }
         });
-
 
         let data: Frame = new Frame(network.currentColor, "", "", this.sourceIp, this.targetIp);
         let sourceNode = network._graph.$('#' + this.sourceEndPoint);
@@ -199,7 +198,7 @@ export class PacketSimulator {
         switch (tableType) {
             case 'ArpTable':
                 if (!(tableData instanceof Map<string, string>)) return;
-                label = "ARP Table -" + nodeId;
+                label = "ARP Table";
                 tableId = "arp-table-" + nodeId;
                 tableRows += `<caption>` + label + `</caption>`;
                 (tableData as Map<string, string>).forEach((mac, ip) => {
@@ -209,7 +208,7 @@ export class PacketSimulator {
 
             case 'RoutingTable':
                 if (!(tableData instanceof Map<string, [string, number, string]>)) return;
-                label = "Routing Table -" + nodeId;
+                label = "Routing Table"
                 tableId = "routing-table-" + nodeId;
                 tableRows += `<table id="` + tableId + `"><caption>` + label + `</caption>`;
                 (tableData as Map<string, [string, number, string]>).forEach(([interfaceName, _port, connection], mask) => {
@@ -219,7 +218,7 @@ export class PacketSimulator {
 
             case 'MacAddressTable':
                 if (!(tableData instanceof Map<string, number>)) return;
-                label = "Mac Address Table -" + nodeId;
+                label = "Mac Address Table";
                 tableId = "mac-address-table-" + nodeId;
                 tableRows += `<table id="` + tableId + `"><caption>` + label + `</caption>`;
                 (tableData as Map<string, number>).forEach((port, mac) => {
@@ -232,7 +231,8 @@ export class PacketSimulator {
         if (detail == null) {
             detail = new SlDetails();
             detail.id = 'tables-for-' + nodeId;
-            detail.summary = label;
+            detail.summary = "Tables of "+nodeId;
+            detail.open = true;
             switch (tableType) {
                 case 'ArpTable': case 'RoutingTable':
                     detail.innerHTML = `<table id="arp-table-` + nodeId + `"></table>` + `<table id="routing-table-` + nodeId + `"></table>`;
@@ -246,9 +246,23 @@ export class PacketSimulator {
 
         let tableElement = (network.renderRoot.querySelector('#' + tableId) as HTMLElement);
         tableElement.innerHTML = tableRows;
+        console.log((network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML);
     }
 
     static resetDatabase(network: ComputerNetwork) {
+        (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
+
+        network._graph.nodes('switchable-decorated').forEach(node => {
+            let nodeData: SwitchableDecorator = node.data();
+            nodeData.macAddressTable = new Map();
+        });
+
+        network._graph.nodes('routable-decorated').forEach(node => {
+            let nodeData: RoutableDecorator = node.data();
+            nodeData.routingTable = new Map();
+            nodeData.arpTableIpMac = new Map();
+            nodeData.arpTableMacIp = new Map();
+        });
 
     }
 }

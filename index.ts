@@ -244,11 +244,18 @@ export class ComputerNetwork extends LitElementWw {
       background-color: LightBlue;
       border: none;
     }
+    #packet-sending-extension::part(content) {
+      height: fit-content;
+      overflow-y: scroll;
+    }
     sl-details::part(summary) {
       font-size: 14px;
       font-weight: 600;
       color: 	#567d96;
       font-family: sans-serif;
+    }
+    th, td {
+      padding: 15px;
     }
 
 
@@ -361,7 +368,7 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item><sl-button class="blue-button" @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button></sl-menu-item>
         </sl-details>
 
-        <sl-details summary="Packet sending extension">
+        <sl-details id="packet-sending-extension" summary="Packet sending extension">
           <sl-menu-item style="display: flex;">
             <sl-button style="display: inline-block;" class="blue-button" id="setSourceBtn" @click="${(event) => PacketSimulator.setSource(event, this)}">Choose sender</sl-button>
             <sl-select id="ip-source-select" hoist style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event)=>{PacketSimulator.sourceIp = event.target.value}}" value="127.0.0.1">
@@ -380,7 +387,7 @@ export class ComputerNetwork extends LitElementWw {
           <sl-button class="blue-button" @click="${() => PacketSimulator.resetDatabase(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
           <sl-menu-item>
             <sl-details id="tables-for-packet-simulator" summary="Track tables" open>
-          
+
             </sl-details>
           </sl-menu-item>
           
