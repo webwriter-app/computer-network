@@ -12,7 +12,7 @@ export abstract class Data extends LogicalNode {
 
 }
 
-export class Frame extends Data {
+export class Packet extends Data {
     static counter = 0;
     layer2header = {
         macSender: "",
@@ -25,13 +25,13 @@ export class Frame extends Data {
 
     constructor(color: string, macSender: string, macReceiver: string, ipv4Sender: string, ipv4Receiver: string) {
         super(color);
-        this.id = 'frame' + Frame.counter;
-        Frame.counter++;
+        this.id = 'packet' + Packet.counter;
+        Packet.counter++;
         this.layer2header.macSender = macSender;
         this.layer2header.macReceiver = macReceiver;
-        this.layer3header.ipSender = ipv4Sender;Frame.counter
+        this.layer3header.ipSender = ipv4Sender;Packet.counter
         this.layer3header.ipReceiver = ipv4Receiver;
-        this.cssClass.push('frame-node');
+        this.cssClass.push('packet-node');
         if (macSender != "" && macReceiver != "") {
             this.backgroundPath = "doc/datagram/2header-3header.png";
             this.name = "L2 L3 DATA";
@@ -43,14 +43,14 @@ export class Frame extends Data {
 
     }
 
-    static cloneData(data: Frame): Frame {
-        let newData: Frame = new Frame(data.color, data.layer2header.macSender, data.layer2header.macReceiver, 
+    static cloneData(data: Packet): Packet {
+        let newData: Packet = new Packet(data.color, data.layer2header.macSender, data.layer2header.macReceiver, 
             data.layer3header.ipSender, data.layer3header.ipReceiver);
         return newData;
     }
 }
 
-export class Packet extends Data {
+export class Frame extends Data {
     static counter = 0;
 
     layer2header = {
@@ -62,14 +62,14 @@ export class Packet extends Data {
 
     private constructor(color: string) {
         super(color);
-        this.id = 'packet' + Packet.counter;
-        Packet.counter++;
+        this.id = 'frame' + Frame.counter;
+        Frame.counter++;
         this.cssClass.push('frame-node');
         this.backgroundPath = "doc/datagram/2header.png";
     }
 
-    static cloneData(data: Packet): Packet {
-        let newData: Packet = new Packet(data.color);
+    static cloneData(data: Frame): Frame {
+        let newData: Frame = new Frame(data.color);
         newData.backgroundPath = data.backgroundPath;
         newData.cssClass = data.cssClass;
         newData.layer2header = data.layer2header;
@@ -77,8 +77,8 @@ export class Packet extends Data {
         return newData;
     }
 
-    static createArpRequest(color: string, macSender: string, ipSender: string, ipReceiver: string): Packet {
-        let arpReq: Packet = new Packet(color);
+    static createArpRequest(color: string, macSender: string, ipSender: string, ipReceiver: string): Frame {
+        let arpReq: Frame = new Frame(color);
         arpReq.layer2header.macSender = macSender;
         arpReq.layer2header.macReceiver = "FF:FF:FF:FF:FF:FF"; //broadcast
         arpReq.layer2header.ipSender = ipSender;
@@ -87,8 +87,8 @@ export class Packet extends Data {
         return arpReq;
     }
 
-    static createArpResponse(color: string, macSender: string, macReceiver: string, ipSender: string, ipReceiver: string): Packet {
-        let arpRes: Packet = new Packet(color);
+    static createArpResponse(color: string, macSender: string, macReceiver: string, ipSender: string, ipReceiver: string): Frame {
+        let arpRes: Frame = new Frame(color);
         arpRes.layer2header.macSender = macSender;
         arpRes.layer2header.macReceiver = macReceiver;
         arpRes.layer2header.ipSender = ipSender;

@@ -18,15 +18,9 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         
         if(this.macAddressTable.has(senderMac)) return;
 
-        this.portLinkMapping.forEach(linkId => {
-            let edge: GraphEdge = network._graph.$('#'+linkId).data();
-            if(edge.source == this.id && edge.target == previousId){
-                this.macAddressTable.set(senderMac, edge.outPort);
-            }
-            else if(edge.target == this.id && edge.source == previousId){
-                this.macAddressTable.set(senderMac, edge.inPort);
-            }
-        });
+        let port = this.getPortIn(previousId, network);
+        this.macAddressTable.set(senderMac, port);
+
         PacketSimulator.addOrUpdateTable(this.id, 'MacAddressTable', this.macAddressTable, network);
     }
 
@@ -36,8 +30,8 @@ export class SwitchableDecorator extends DataHandlingDecorator {
             let edge: GraphEdge = network._graph.$('#'+this.portLinkMapping.get(this.macAddressTable.get(receiverMac))).data();
             let nextHopId: string = edge.target==this.id ? edge.source : edge.target;
             let nextHop = network._graph.$('#'+nextHopId);
-            PacketSimulator.directSend(previousNode, nextHop, dataNode, network);
-            PacketSimulator.findNextHopThenSend(nextHop, network._graph.$('#'+ network.macDatabase.get(receiverMac)), dataNode, network);
+            PacketSimulator.directSend(network._graph.$('#'+this.id), nextHop, dataNode, network);
+            //PacketSimulator.findNextHopThenSend(nextHop, network._graph.$('#'+ network.macDatabase.get(receiverMac)), dataNode, network);
             return true;
         }
         return false;

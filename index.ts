@@ -254,7 +254,7 @@ export class ComputerNetwork extends LitElementWw {
       color: 	#567d96;
       font-family: sans-serif;
     }
-    th, td {
+    sl-details th, sl-details td {
       padding: 15px;
     }
 

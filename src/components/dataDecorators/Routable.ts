@@ -4,7 +4,7 @@ import { PacketSimulator } from "../../event-handlers/packet-simulator";
 import { AddressingHelper } from "../../utils/AdressingHelper";
 import { AlertHelper } from "../../utils/AlertHelper";
 import { GraphEdge } from "../GraphEdge";
-import { Data, Frame, Packet } from "../logicalNodes/DataNode";
+import { Data, Packet, Frame } from "../logicalNodes/DataNode";
 import { Subnet } from "../logicalNodes/Subnet";
 import { Router } from "../physicalNodes/Connector";
 import { Host } from "../physicalNodes/Host";
@@ -16,7 +16,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
     arpTableIpMac: Map<string, string> = new Map();
     routingTable: Map<string, [string, number, string]> = new Map(); // (CIDR 0.0.0.0 /0/ port) [interface-name, port, DC?]
 
-    pendingFrames: Map<string, string[]> = new Map<string, string[]>(); //ip of receiver / list of ids of pending frames
+    pendingPackets: Map<string, string[]> = new Map<string, string[]>(); //ip of receiver / list of ids of pending Parcels
 
     constructor(component?: PhysicalNode) {
         super(component);
@@ -25,25 +25,28 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
         let data = dataNode.data();
+        console.log(data);
         let receiverMac: string = data.layer2header.macReceiver;
-        let receiverIp: string = data instanceof Frame ? data.layer3header.ipReceiver : data.layer2header.ipReceiver;
+        let receiverIp: string = data instanceof Packet ? data.layer3header.ipReceiver : data.layer2header.ipReceiver;
 
         let portIn: number = this.getPortIn(previousNode.data('id'), network);
+        console.log(portIn);
         let thisMac: string = this.portData.get(portIn).get('MAC').address;
+        console.log(this.portData);
         let thisIp: string = this.portData.get(portIn).get('IPv4').address;
 
         if (receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) return;
 
         if (data instanceof Data) {
-            if (data instanceof Packet && data.name.includes('ARP res')) {
+            if (data instanceof Frame && data.name.includes('ARP res')) {
                 this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
                 this.populateArpTable(data.layer2header.ipSender, data.layer2header.macSender, network);
             }
-            else if (data instanceof Packet && data.name.includes('ARP req') && thisIp==receiverIp) {
+            else if (data instanceof Frame && data.name.includes('ARP req') && thisIp==receiverIp) {
                 this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
                 this.receiveArpRequest(portIn, data.layer2header.macSender, data.layer2header.ipSender, data.layer2header.ipReceiver, network);
             }
-            else if (data instanceof Frame) {
+            else if (data instanceof Packet) {
                 if (receiverIp == thisIp) {
                     AlertHelper.toastAlert('success', 'check2-all', "", "Your receiver has received the message!");
                 }
@@ -56,9 +59,8 @@ export class RoutableDecorator extends DataHandlingDecorator {
                             this.sendArpRequest(portIn, this.portData.get(portToSend).get('MAC'),
                                 this.portData.get(portToSend).get('IPv4'),
                                 data.layer3header.ipReceiver, network);
-                            if (!this.pendingFrames.has(data.layer3header.ipReceiver)) this.pendingFrames.set(data.layer3header.ipReceiver, []);
-                            this.pendingFrames.get(data.layer3header.ipReceiver).push(dataNode.id());
-                            console.log(this.pendingFrames);
+                            if (!this.pendingPackets.has(data.layer3header.ipReceiver)) this.pendingPackets.set(data.layer3header.ipReceiver, []);
+                            this.pendingPackets.get(data.layer3header.ipReceiver).push(dataNode.id());
                         }
                         else {
                             let link: GraphEdge = network._graph.$('#' + this.portLinkMapping.get(this.findPortToSend(data.layer3header.ipReceiver))).data();
@@ -77,7 +79,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
 
     sendData(dataNode: any, network: ComputerNetwork, senderNode?: any): void {
-        let data: Frame = dataNode.data();
+        let data: Packet = dataNode.data();
         let receiverIp = data.layer3header.ipReceiver;
         let subnet: Subnet = senderNode.parent().data() as Subnet;
 
@@ -92,7 +94,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
     }
 
     sendArpRequest(portIn: number, macSender: string, ipSender: string, ipReceiver: string, network: ComputerNetwork): void {
-        let arpRequest: Packet = Packet.createArpRequest(network.currentColor, macSender, ipSender, ipReceiver);
+        let arpRequest: Frame = Frame.createArpRequest(network.currentColor, macSender, ipSender, ipReceiver);
         PacketSimulator.initMessage(network._graph.$('#' + network.ipv4Database.get(ipSender)), arpRequest, network);
         let arpNode = network._graph.$('#' + arpRequest.id);
         this.sendDataInSameNetwork(portIn, arpNode, macSender, ipSender, arpRequest.layer2header.macReceiver, ipReceiver, network);
@@ -102,7 +104,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let macReceiver: string = this.portData.get(portIn).get('MAC').address;
         this.populateArpTable(ipSender, macSender, network);
 
-        let arpRes: Packet = Packet.createArpResponse(network.currentColor, macReceiver, macSender,
+        let arpRes: Frame = Frame.createArpResponse(network.currentColor, macReceiver, macSender,
             ipReceiver, ipSender);
         PacketSimulator.initMessage(network._graph.$('#' + this.id), arpRes, network);
         let arpNode = network._graph.$('#' + arpRes.id);
@@ -115,7 +117,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let thisNode = network._graph.$('#' + this.id);
         let receiverNode = network._graph.$('#' + network.ipv4Database.get(ipReceiver));
         let data = dataNode.data();
-        console.log(data);
 
         if (!thisNode.parent().same(receiverNode.parent())) return;
 
@@ -124,13 +125,13 @@ export class RoutableDecorator extends DataHandlingDecorator {
             this.flood(dataNode, null, null, network);
         }
         else if (this.arpTableMacIp.has(macReceiver) || this.arpTableIpMac.has(ipReceiver)) {
-            if (data instanceof Packet) {
+            if (data instanceof Frame) {
                 PacketSimulator.findNextHopThenSend(lastPortIn, thisNode, dataNode, network);
             }
-            else if (data instanceof Frame) {
+            else if (data instanceof Packet) {
                 let macReceiver: string = this.arpTableIpMac.get(ipReceiver);
                 let port = this.findPortToSend(ipReceiver);
-                let macSender: string = this.portData.get(port).get('IPv4').address;
+                let macSender: string = this.portData.get(port).get('MAC').address;
 
                 this.addLayer2Header(data, macSender, macReceiver);
                 PacketSimulator.findNextHopThenSend(lastPortIn, thisNode, dataNode, network);
@@ -139,9 +140,8 @@ export class RoutableDecorator extends DataHandlingDecorator {
         else {
             //TODO: arp request (mac & ip): của this. chứ kp của original --> mac ip của port nào?
             this.sendArpRequest(lastPortIn, macSender, ipSender, ipReceiver, network);
-            if (!this.pendingFrames.has(ipReceiver)) this.pendingFrames.set(ipReceiver, []);
-            this.pendingFrames.get(ipReceiver).push(dataNode.id());
-            console.log(this.pendingFrames);
+            if (!this.pendingPackets.has(ipReceiver)) this.pendingPackets.set(ipReceiver, []);
+            this.pendingPackets.get(ipReceiver).push(dataNode.id());
         }
     }
 
@@ -157,18 +157,18 @@ export class RoutableDecorator extends DataHandlingDecorator {
         }
         else {
             this.sendArpRequest(lastPortIn, macSender, ipSender, gatewayIp, network);
-            if (!this.pendingFrames.has(gatewayIp)) this.pendingFrames.set(gatewayIp, []);
-            this.pendingFrames.get(gatewayIp).push(dataNode.id());
+            if (!this.pendingPackets.has(gatewayIp)) this.pendingPackets.set(gatewayIp, []);
+            this.pendingPackets.get(gatewayIp).push(dataNode.id());
         }
     }
 
-    addLayer2Header(data: Frame, macSender: string, macReceiver: string): void {
+    addLayer2Header(data: Packet, macSender: string, macReceiver: string): void {
         data.backgroundPath = "doc/datagram/2header-3header.png";
         data.layer2header.macSender = macSender;
         data.layer2header.macReceiver = macReceiver;
         data.name = "L2 L3 DATA";
     }
-    removeLayer2Header(data: Frame): void {
+    removeLayer2Header(data: Packet): void {
         data.backgroundPath = "doc/datagram/3header.png";
         data.layer2header.macSender = "";
         data.layer2header.macReceiver = "";
@@ -180,13 +180,12 @@ export class RoutableDecorator extends DataHandlingDecorator {
         this.arpTableIpMac.set(ip, mac);
         PacketSimulator.addOrUpdateTable(this.id, 'ArpTable', this.arpTableIpMac, network);
 
-        console.log(this.pendingFrames);
-        //send out pending frames after getting ARP table populated
-        if (this.pendingFrames.has(ip)) {
-            console.log(this.pendingFrames.get(ip));
-            this.pendingFrames.get(ip).forEach(dataId => {
+        //send out pending Parcels after getting ARP table populated
+        if (this.pendingPackets.has(ip)) {
+
+            this.pendingPackets.get(ip).forEach(dataId => {
                 let dataNode = network._graph.$('#' + dataId);
-                let data: Frame = dataNode.data() as Frame;
+                let data: Packet = dataNode.data() as Packet;
                 let source: PhysicalNode = network._graph.$('#' + network.ipv4Database.get(data.layer3header.ipSender)).data();
                 let portToSend: number = null;
                 source.portData.forEach((value, port) => {
@@ -194,10 +193,9 @@ export class RoutableDecorator extends DataHandlingDecorator {
                         portToSend = port;
                     }
                 });
-                console.log(data);
                 this.sendDataInSameNetwork(portToSend, dataNode, data.layer2header.macSender, data.layer3header.ipSender, mac, ip, network);
             });
-            this.pendingFrames.set(ip, []);
+            this.pendingPackets.set(ip, []);
         }
     }
 
@@ -226,22 +224,21 @@ export class RoutableDecorator extends DataHandlingDecorator {
     populateRoutingTableOnNewPacket(previousId: string, dataNode: any, network: ComputerNetwork): void {
         let gateway = network._graph.$('#' + this.id);
         let data = dataNode.data();
-        console.log(previousId);
         let portIn = this.getPortIn(previousId, network);
-        console.log(portIn);
+   
         if (!this.cssClass.includes('gateway-node')) {
-            if (data instanceof Packet) {
+            if (data instanceof Frame) {
                 this.routingTable.set(dataNode.data().layer2header.ipSender, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
             }
-            else if (data instanceof Frame) {
+            else if (data instanceof Packet) {
                 this.routingTable.set(dataNode.data().layer3header.ipSender, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
             }
         }
         else {
-            if (data instanceof Packet) {
+            if (data instanceof Frame) {
                 return;
             }
-            else if (data instanceof Frame) {
+            else if (data instanceof Packet) {
                 let senderId = network.ipv4Database.get(data.layer3header.ipSender);
                 let subnet = network._graph.$('#' + senderId).parent().data() as Subnet;
 
@@ -254,7 +251,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
     }
 
     findPortToSend(ip: string): number {
-        console.log(ip);
         if (ip == "127.0.0.1") return null;
         if (this.routingTable.has(ip)) return this.routingTable.get(ip)[1];
 

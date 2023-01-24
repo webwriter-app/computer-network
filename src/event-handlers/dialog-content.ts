@@ -5,7 +5,7 @@ import { Ipv4Address } from "../adressing/Ipv4Address";
 import { Ipv6Address } from "../adressing/Ipv6Address";
 import { MacAddress } from "../adressing/MacAddress";
 import { GraphEdge } from "../components/GraphEdge";
-import { Data, Frame, Packet } from "../components/logicalNodes/DataNode";
+import { Data, Packet, Frame } from "../components/logicalNodes/DataNode";
 import { Subnet } from "../components/logicalNodes/Subnet";
 import { Router } from "../components/physicalNodes/Connector";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
@@ -486,13 +486,13 @@ export class DialogFactory {
     let dialog = new SlDialog();
     dialog.label = data.id;
 
-    if (data instanceof Frame){
+    if (data instanceof Packet){
       dialog.innerHTML += "Mac Address of Sender:" + data.layer2header.macSender + "<br/>";
       dialog.innerHTML += "IP Address of Sender:" + data.layer3header.ipSender + "<br/>";
       dialog.innerHTML += "Mac Address of Receiver:" + data.layer2header.macReceiver + "<br/>";
       dialog.innerHTML += "IP Address of Receiver:" + data.layer3header.ipReceiver;
     }
-    else if(data instanceof Packet){
+    else if(data instanceof Frame){
       dialog.innerHTML += "Mac Address of Sender:" + data.layer2header.macSender + "<br/>";
       dialog.innerHTML += "IP Address of Sender:" + data.layer2header.ipSender + "<br/>";
       dialog.innerHTML += "Mac Address of Receiver:" + data.layer2header.macReceiver + "<br/>";

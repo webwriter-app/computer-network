@@ -5,7 +5,7 @@ import { RoutableDecorator } from "../components/dataDecorators/Routable";
 import { SimpleDecorator } from "../components/dataDecorators/SimpleDecorator";
 import { SwitchableDecorator } from "../components/dataDecorators/Switchable";
 import { GraphEdge } from "../components/GraphEdge";
-import { Data, Frame, Packet } from "../components/logicalNodes/DataNode";
+import { Data, Packet, Frame } from "../components/logicalNodes/DataNode";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
 
@@ -73,7 +73,7 @@ export class PacketSimulator {
         let target = network._graph.$('#' + PacketSimulator.targetEndPoint);
 
         if ((source.data() as PhysicalNode).layer < 3 || (target.data() as PhysicalNode).layer < 3) {
-            AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "The widget currently only support sending frame between layer 3 components");
+            AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "The widget currently only support sending Parcel between layer 3 components");
         }
 
         network._graph.nodes('physical-node').forEach(node => {
@@ -98,7 +98,7 @@ export class PacketSimulator {
             }
         });
 
-        let data: Frame = new Frame(network.currentColor, "", "", this.sourceIp, this.targetIp);
+        let data: Packet = new Packet(network.currentColor, "", "", this.sourceIp, this.targetIp);
         let sourceNode = network._graph.$('#' + this.sourceEndPoint);
         let sender: RoutableDecorator = sourceNode.data() as RoutableDecorator;
 
@@ -150,11 +150,7 @@ export class PacketSimulator {
             PacketSimulator.directSend(sourceNode, nextHop, dataNode, network);
         }
         else if (source instanceof RoutableDecorator) {
-            console.log(source);
-            console.log(macReceiver);
-            console.log((source as RoutableDecorator).arpTableMacIp.get(macReceiver));
             let port: number = source.findPortToSend((source as RoutableDecorator).arpTableMacIp.get(macReceiver));
-            console.log(port);
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
             let nextHopId: string = link.source == source.id ? link.target : link.source;
             let nextHop: any = network._graph.$('#' + nextHopId);
@@ -246,7 +242,6 @@ export class PacketSimulator {
 
         let tableElement = (network.renderRoot.querySelector('#' + tableId) as HTMLElement);
         tableElement.innerHTML = tableRows;
-        console.log((network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML);
     }
 
     static resetDatabase(network: ComputerNetwork) {
