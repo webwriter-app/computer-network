@@ -233,19 +233,18 @@ export class ComputerNetwork extends LitElementWw {
     }
     sl-menu-item::part(base), sl-menu-item::part(label) {
       font-size: max(0.8cqw, 12px);
-      height: max(40px, 1.5cqw);
     }
     .blue-button::part(base) {
       background-color: LightBlue;
       border: none;
     }
     sl-details::part(base) {
+      height: fit-content;
       background-color: LightBlue;
       border: none;
     }
     #packet-sending-extension::part(content) {
       height: fit-content;
-      overflow-y: scroll;
     }
     sl-details::part(summary) {
       font-size: 14px;
@@ -254,8 +253,11 @@ export class ComputerNetwork extends LitElementWw {
       font-family: sans-serif;
     }
     sl-details th, sl-details td {
-      padding: 15px;
+      border: 1px solid #ddd;
+      padding: 8px;
     }
+
+    sl-details tr {background-color: #f2f2f2;}
 
 
     sl-dropdown {
@@ -353,11 +355,11 @@ export class ComputerNetwork extends LitElementWw {
 
     <div class="main-container">
     <div class="sidebar">
-      <sl-menu style="background-color: LightBlue; border: transparent; height: fit-content;">
+      <sl-menu style="background-color: LightBlue; border: transparent; height: 100%;">
       
         <sl-details summary="Subnetting extension" open>
           <sl-menu-label>Choose a mode:
-            <sl-select id="current-subnet-mode" @sl-change="${(event)=>{Subnet.setMode(event.target.value)}}" value="MANUAL">
+            <sl-select id="current-subnet-mode" @sl-change="${(event) => { Subnet.setMode(event.target.value) }}" value="MANUAL">
             <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
             <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
             <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
@@ -371,17 +373,17 @@ export class ComputerNetwork extends LitElementWw {
         <sl-details id="packet-sending-extension" summary="Packet sending extension">
           <sl-menu-item style="display: flex;">
             <sl-button style="display: inline-block;" class="blue-button" id="setSourceBtn" @click="${(event) => PacketSimulator.setSource(event, this)}">Choose sender</sl-button>
-            <sl-select id="ip-source-select" hoist style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event)=>{PacketSimulator.sourceIp = event.target.value}}" value="127.0.0.1">
+            <sl-select id="ip-source-select" hoist style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event) => { PacketSimulator.sourceIp = event.target.value }}" value="127.0.0.1">
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>
           <sl-menu-item>
             <sl-button style="display: inline-block;" class="blue-button" id="setTargetBtn" @click="${(event) => PacketSimulator.setTarget(event, this)}">Choose receiver</sl-button>
-            <sl-select id="ip-target-select" hoist style="display: inline-block;" @sl-change="${(event)=>{PacketSimulator.targetIp = event.target.value}}" value="127.0.0.1">
+            <sl-select id="ip-target-select" hoist style="display: inline-block;" @sl-change="${(event) => { PacketSimulator.targetIp = event.target.value }}" value="127.0.0.1">
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>
-          <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.duration=event.target.value*1000}" label="Latency" type='number' min="1"></sl-input></sl-menu-item>
+          <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.duration = event.target.value * 1000}" label="Latency" type='number' min="1"></sl-input></sl-menu-item>
           <sl-menu-item><sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="pause" label="Pause simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.resetDatabase(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
@@ -497,17 +499,17 @@ export class ComputerNetwork extends LitElementWw {
       case 'router': case 'access-point': case 'hub': case 'repeater': case 'bridge': case 'switch':
         nodeToHighLight = 'connector';
         break;
-      default: 
+      default:
         nodeToHighLight = this.currentComponentToAdd;
-      break;
+        break;
     }
 
     this.renderRoot.querySelectorAll('.btn').forEach(e => {
-      if(e.id==nodeToHighLight){
+      if (e.id == nodeToHighLight) {
         //highlight the chosen component
         (e as HTMLElement).style.border = "dashed rgb(50,50,50)";
       }
-      else{
+      else {
         //un-highlight other components
         (e as HTMLElement).style.border = "dashed transparent";
       }
@@ -519,14 +521,14 @@ export class ComputerNetwork extends LitElementWw {
   private clickOnColor(e: Event): void {
     this.currentColor = (e.target as HTMLElement).getAttribute('id');
     this.renderRoot.querySelectorAll('.colorButton').forEach(e => {
-      if(e.id==this.currentColor){
+      if (e.id == this.currentColor) {
         (e as HTMLElement).style.border = "dashed rgb(80,80,80)";
       }
-      else{
+      else {
         (e as HTMLElement).style.border = "dashed transparent";
       }
     });
-    
+
   }
 
 }

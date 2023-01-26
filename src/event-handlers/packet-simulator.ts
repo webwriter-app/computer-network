@@ -196,7 +196,7 @@ export class PacketSimulator {
                 if (!(tableData instanceof Map<string, string>)) return;
                 label = "ARP Table";
                 tableId = "arp-table-" + nodeId;
-                tableRows += `<caption>` + label + `</caption>`;
+                tableRows += `<caption>` + label + `</caption style="font-weight: bold;">`;
                 (tableData as Map<string, string>).forEach((mac, ip) => {
                     tableRows += `<tr><td>` + ip + `</td><td>` + mac + `</td></tr>`
                 });
@@ -206,7 +206,7 @@ export class PacketSimulator {
                 if (!(tableData instanceof Map<string, [string, number, string]>)) return;
                 label = "Routing Table"
                 tableId = "routing-table-" + nodeId;
-                tableRows += `<table id="` + tableId + `"><caption>` + label + `</caption>`;
+                tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
                 (tableData as Map<string, [string, number, string]>).forEach(([interfaceName, _port, connection], mask) => {
                     tableRows += `<tr><td>` + interfaceName + `</td><td>` + mask + `</td><td>` + connection + `</td></tr>`
                 });
@@ -216,7 +216,7 @@ export class PacketSimulator {
                 if (!(tableData instanceof Map<string, number>)) return;
                 label = "Mac Address Table";
                 tableId = "mac-address-table-" + nodeId;
-                tableRows += `<table id="` + tableId + `"><caption>` + label + `</caption>`;
+                tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
                 (tableData as Map<string, number>).forEach((port, mac) => {
                     tableRows += `<tr><td>` + port + `</td><td>` + mac + `</td></tr>`
                 });
