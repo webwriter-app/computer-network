@@ -31,159 +31,165 @@ cytoscape.use(nodeHtmlLabel);
 
 
 export function initNetwork(network: ComputerNetwork): void {
+
+    let style = [
+        {
+            "selector": "[name]",
+            "style": {
+                "label": "data(name)"
+            }
+        },
+        {
+            "selector": ":selected",
+            "style": {
+                "background-color": "grey",
+                "line-color": "black",
+                "target-arrow-color": "black",
+                "source-arrow-color": "black",
+                "text-outline-color": "black"
+            }
+        },
+        {
+            "selector": "edge",
+            "style": {
+                "width": 1,
+                "curve-style": "straight",
+            }
+        },
+        {
+            "selector": ".color-edge",
+            "style": {
+                "line-color": "data(color)",
+                "color": "black"
+            }
+        },
+        {
+            "selector": ".unconfigured-edge",
+            "style": {
+                "line-style": "dotted",
+                "line-opacity": 0.8,
+                "font-size": 5,
+                "label": "please assign the ports/ interfaces",
+                "edge-text-rotation": "autorotate"
+            }
+        },
+        {
+            "selector": ".labelled-edge",
+            "style": {
+                "text-wrap": "wrap",
+                "font-size": 8,
+                "edge-text-rotation": "autorotate",
+                'source-text-offset': 50,
+                'source-text-rotation': 'autorotate',
+                'target-text-offset': 50,
+                'target-text-rotation': 'autorotate',
+                "source-label": function (edge) {
+                    console.log(edge);
+                    console.log(edge.data());
+                    let source: PhysicalNode = edge.data('from');
+                    let port: number = edge.data('inPort');
+                    let portData: Map<string, any> = source.portData.get(port);
+                    let label = "";
+                    //TOEXTEND:hide IPv6 since the widget doesn't support IPv6 atm
+                    portData.forEach((value, key) => label += (key == 'Connection Type' || key == 'IPv6') ? "" :
+                        (value instanceof Address ? key + ": " + value.address + "\n" : value + "\n"));
+                    return label;
+                },
+                "target-label": function (edge) {
+                    let target: PhysicalNode = edge.data('to');
+                    let port: number = edge.data('outPort');
+                    let portData: Map<string, any> = target.portData.get(port);
+                    let label = "";
+                    portData.forEach((value, key) => label += (key == 'Connection Type' || key == 'IPv6') ? "" :
+                        (value instanceof Address ? key + ": " + value.address + "\n" : value + "\n"));
+                    return label;
+                },
+                "label": ""
+            }
+        },
+        {
+            "selector": ".wireless-edge",
+            "style": {
+                "line-style": "dashed",
+                "line-dash-pattern": [6, 3]
+            }
+        },
+        {
+            "selector": ".wired-edge",
+            "style": {
+                "line-style": "solid",
+            }
+        },
+        {
+            "selector": ".physical-node",
+            "style": {
+                "text-valign": "bottom",
+                "text-halign": "center",
+                "shape": "round-rectangle",
+                "height": 20,
+                "width": 20,
+                "font-size": 15,
+                "text-wrap": "wrap",
+                "background-color": "data(color)",
+                "background-image": "data(backgroundPath)",
+                "font-family": "monospace",
+            }
+        },
+        {
+            "selector": ".unconfigured-subnet",
+            "style": {
+                "label": "unconfigured"
+            }
+        },
+        {
+            "selector": ".subnet-node",
+            "style": {
+                "text-valign": "top",
+                "text-halign": "center",
+                "shape": "round-rectangle",
+                "height": 50,
+                "width": 50,
+                "font-size": 8,
+                "text-wrap": "wrap",
+                "font-family": "monospace",
+                "background-opacity": 0.4,
+                "background-color": "data(color)",
+            }
+        },
+        {
+            "selector": ".gateway-node",
+            "style": {
+                "background-fill": "linear-gradient",
+                "background-gradient-stop-colors": function (gateway) {
+                    let colors: string[] = (gateway.data() as Router).colorsForGateway();
+                    return colors.join(' ');
+                },
+            }
+        },
+        {
+            "selector": ".data-node",
+            "style": {
+                "text-valign": "center",
+                "text-halign": "center",
+                "shape": "round-rectangle",
+                "height": 15,
+                "width": 60,
+                "font-size": 10,
+                "text-wrap": "wrap",
+                "background-image": "data(backgroundPath)",
+                "font-family": "monospace",
+            }
+        }
+    ];
+
+
     network._graph = cytoscape({
         container: network._cy,
 
         boxSelectionEnabled: false,
         autounselectify: true,
 
-        style: [
-            {
-                "selector": "[name]",
-                "style": {
-                    "label": "data(name)"
-                }
-            },
-            {
-                "selector": ":selected",
-                "style": {
-                    "background-color": "grey",
-                    "line-color": "black",
-                    "target-arrow-color": "black",
-                    "source-arrow-color": "black",
-                    "text-outline-color": "black"
-                }
-            },
-            {
-                "selector": "edge",
-                "style": {
-                    "width": 1,
-                    "curve-style": "straight",
-                }
-            },
-            {
-                "selector": ".color-edge",
-                "style": {
-                    "line-color": "data(color)",
-                    "color": "black"
-                }
-            },
-            {
-                "selector": ".unconfigured-edge",
-                "style": {
-                    "line-style": "dotted",
-                    "line-opacity": 0.8,
-                    "font-size": 5,
-                    "label": "please assign the ports/ interfaces",
-                    "edge-text-rotation": "autorotate"
-                }
-            },
-            {
-                "selector": ".labelled-edge",
-                "style": {
-                    "text-wrap": "wrap",
-                    "font-size": 8,
-                    "edge-text-rotation": "autorotate",
-                    'source-text-offset': 50,
-                    'source-text-rotation': 'autorotate',
-                    'target-text-offset': 50,
-                    'target-text-rotation': 'autorotate',
-                    "source-label": function (edge) {
-                        let source: PhysicalNode = edge.data('from');
-                        let port: number = edge.data('inPort');
-                        let portData: Map<string, any> = source.portData.get(port);
-                        let label = "";
-                        //TOEXTEND:hide IPv6 since the widget doesn't support IPv6 atm
-                        portData.forEach((value, key) => label += (key == 'Connection Type' || key == 'IPv6') ? "" :
-                            (value instanceof Address ? key + ": " + value.address + "\n" : value + "\n"));
-                        return label;
-                    },
-                    "target-label": function (edge) {
-                        let target: PhysicalNode = edge.data('to');
-                        let port: number = edge.data('outPort');
-                        let portData: Map<string, any> = target.portData.get(port);
-                        let label = "";
-                        portData.forEach((value, key) => label += (key == 'Connection Type' || key == 'IPv6') ? "" :
-                            (value instanceof Address ? key + ": " + value.address + "\n" : value + "\n"));
-                        return label;
-                    },
-                    "label": ""
-                }
-            },
-            {
-                "selector": ".wireless-edge",
-                "style": {
-                    "line-style": "dashed",
-                    "line-dash-pattern": [6, 3]
-                }
-            },
-            {
-                "selector": ".wired-edge",
-                "style": {
-                    "line-style": "solid",
-                }
-            },
-            {
-                "selector": ".physical-node",
-                "style": {
-                    "text-valign": "bottom",
-                    "text-halign": "center",
-                    "shape": "round-rectangle",
-                    "height": 20,
-                    "width": 20,
-                    "font-size": 15,
-                    "text-wrap": "wrap",
-                    "background-color": "data(color)",
-                    "background-image": "data(backgroundPath)",
-                    "font-family": "monospace",
-                }
-            },
-            {
-                "selector": ".unconfigured-subnet",
-                "style": {
-                    "label": "unconfigured"
-                }
-            },
-            {
-                "selector": ".subnet-node",
-                "style": {
-                    "text-valign": "top",
-                    "text-halign": "center",
-                    "shape": "round-rectangle",
-                    "height": 50,
-                    "width": 50,
-                    "font-size": 8,
-                    "text-wrap": "wrap",
-                    "font-family": "monospace",
-                    "background-opacity": 0.4,
-                    "background-color": "data(color)",
-                }
-            },
-            {
-                "selector": ".gateway-node",
-                "style": {
-                    "background-fill": "linear-gradient",
-                    "background-gradient-stop-colors": function (gateway) {
-                        let colors: string[] = (gateway.data() as Router).colorsForGateway();
-                        return colors.join(' ');
-                    },
-                }
-            },
-            {
-                "selector": ".data-node",
-                "style": {
-                    "text-valign": "center",
-                    "text-halign": "center",
-                    "shape": "round-rectangle",
-                    "height": 15,
-                    "width": 60,
-                    "font-size": 10,
-                    "text-wrap": "wrap",
-                    "background-image": "data(backgroundPath)",
-                    "font-family": "monospace",
-                }
-            }
-        ],
+        style: style,
 
         layout: {
             name: 'grid',
@@ -195,7 +201,6 @@ export function initNetwork(network: ComputerNetwork): void {
         minZoom: 1,
         maxZoom: 1e50,
     });
-
 
     //options for context menu
     let menuOptions = {

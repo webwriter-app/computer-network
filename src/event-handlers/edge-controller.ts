@@ -4,6 +4,7 @@ import { GraphEdge } from "../components/GraphEdge";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
 import NodeSingular from "cytoscape";
+import { DataHandlingDecorator } from "../components/dataDecorators/DataHandlingDecorator";
 
 
 export class EdgeController {
@@ -35,8 +36,10 @@ export class EdgeController {
 
         let sourceNode = source.data();
         let targetNode = target.data();
+        let sourceCheck: boolean = source.hasClass('physical-node');
+        let targetCheck: boolean = target.hasClass('physical-node');
 
-        if (!(sourceNode instanceof PhysicalNode) || !(targetNode instanceof PhysicalNode)) return false;
+        if (!sourceCheck || !targetCheck) return false;
 
         //the edgehandles extensions use a ghost edge, that increases the degree by 1 from the source
         if (source.degree() > sourceNode.numberOfInterfacesOrPorts) {

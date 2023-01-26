@@ -55,10 +55,6 @@ export class DataHandlingDecorator implements PhysicalNode {
         let portIn: number = null;
         this.portLinkMapping.forEach((linkId, port) => {
             if (linkId != "" && linkId != null && linkId != undefined) {
-                console.log(linkId);
-                console.log(port);
-                console.log(this.id)
-                console.log(previousId);
                 let edge: GraphEdge = network._graph.$('#' + linkId).data();
                 if (edge.source == this.id && edge.target == previousId) {
                     portIn = port;

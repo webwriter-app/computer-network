@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@shoelace-style/shoelace": "^2.0.0-beta.83",
+    "@types/node": "^18.11.18",
     "@webwriter/lit": "latest",
     "cytoscape": "^3.23.0",
     "cytoscape-compound-drag-and-drop": "^1.1.0",

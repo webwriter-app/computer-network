@@ -4,14 +4,13 @@ import { customElement, property, query } from "lit/decorators.js"
 import "@shoelace-style/shoelace/dist/themes/light.css"
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { Ipv4Address } from "./src/adressing/Ipv4Address"
-import { MacAddress } from "./src/adressing/MacAddress"
 import { GraphNodeFactory } from "./src/event-handlers/component-manipulation";
 import { EdgeController } from "./src/event-handlers/edge-controller";
 import { DialogFactory } from "./src/event-handlers/dialog-content";
 import { SubnettingController } from "./src/event-handlers/subnetting-controller";
 import { Subnet } from "./src/components/logicalNodes/Subnet";
 import { PacketSimulator } from "./src/event-handlers/packet-simulator";
+import { ImportExportController } from "./src/exporting/importExportController";
 
 
 @customElement("computer-network")
@@ -355,6 +354,7 @@ export class ComputerNetwork extends LitElementWw {
     <div class="main-container">
     <div class="sidebar">
       <sl-menu style="background-color: LightBlue; border: transparent; height: fit-content;">
+      
         <sl-details summary="Subnetting extension" open>
           <sl-menu-label>Choose a mode:
             <sl-select id="current-subnet-mode" @sl-change="${(event)=>{Subnet.setMode(event.target.value)}}" value="MANUAL">
@@ -397,6 +397,12 @@ export class ComputerNetwork extends LitElementWw {
 
     <div class="base">
     <div class="componentMenu">
+    <form autocomplete="off"
+    style="position: fixed; top: 0; left: 0; background: rgba(255, 255, 255, 0.75)">
+      <input type="file" id="import-file">
+      <button type='button' @click="${() => ImportExportController.importFile(this)}">Import</button>
+      <button type='button' @click="${() => ImportExportController.exportFile(this)}">Export</button>
+      </form>
       <sl-dropdown placement="bottom">
         <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
         <sl-menu>

@@ -25,14 +25,11 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
         let data = dataNode.data();
-        console.log(data);
         let receiverMac: string = data.layer2header.macReceiver;
         let receiverIp: string = data instanceof Packet ? data.layer3header.ipReceiver : data.layer2header.ipReceiver;
 
         let portIn: number = this.getPortIn(previousNode.data('id'), network);
-        console.log(portIn);
         let thisMac: string = this.portData.get(portIn).get('MAC').address;
-        console.log(this.portData);
         let thisIp: string = this.portData.get(portIn).get('IPv4').address;
 
         if (receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) return;
