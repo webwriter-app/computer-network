@@ -17,6 +17,7 @@ export class DataHandlingDecorator implements PhysicalNode {
     id: string;
     color: string;
     cssClass: string[] = [];
+    parent?: string;
 
     constructor(component?: PhysicalNode) {
         if (component != null) {
@@ -32,6 +33,7 @@ export class DataHandlingDecorator implements PhysicalNode {
             this.color = component.color;
             this.cssClass = component.cssClass;
             this.cssClass.push('decorated-node');
+            this.parent = component.parent;
         }
     }
 

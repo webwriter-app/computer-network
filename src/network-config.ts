@@ -84,8 +84,6 @@ export function initNetwork(network: ComputerNetwork): void {
                 'target-text-offset': 50,
                 'target-text-rotation': 'autorotate',
                 "source-label": function (edge) {
-                    console.log(edge);
-                    console.log(edge.data());
                     let source: PhysicalNode = edge.data('from');
                     let port: number = edge.data('inPort');
                     let portData: Map<string, any> = source.portData.get(port);

@@ -7,7 +7,7 @@ import { GraphNode } from '../components/GraphNode';
 import { Subnet } from '../components/logicalNodes/Subnet';
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from '../components/physicalNodes/Connector';
 import { Host } from '../components/physicalNodes/Host';
-import { PhysicalNode } from '../components/physicalNodes/PhysicalNode';
+import { ConnectionType, PhysicalNode } from '../components/physicalNodes/PhysicalNode';
 import { initNetwork } from '../network-config';
 
 export class ImportExportController {
@@ -22,7 +22,6 @@ export class ImportExportController {
         let edges = [];
 
         network._graph.nodes('.physical-node').forEach(e => {
-            console.log(e.data());
             let i = {};
             i['dataExport'] = e.data();
             let portData = [];
@@ -50,14 +49,12 @@ export class ImportExportController {
             physicalNodes.push(i);
         });
         network._graph.nodes('.subnet-node').forEach(e => {
-            console.log(e.data());
             let i = {};
             i['dataExport'] = e.data();
             i['position'] = e.position();
             logicalNodes.push(i);
         });
         network._graph.edges().forEach(e => {
-            console.log(e.data());
             let i = {};
             i['dataExport'] = e.data();
             edges.push(i);
@@ -117,54 +114,64 @@ export class ImportExportController {
             json['physical-nodes'].forEach(element => {
                 let data: PhysicalNode;
                 let cssClasses: string[] = element['dataExport']['cssClass'];
-                if (cssClasses.includes('router-node')) {
-                    data = element['dataExport'] as Router;
-                }
-                else if (cssClasses.includes('repeater-node')) {
-                    data = element['dataExport'] as Repeater;
-                }
-                else if (cssClasses.includes('hub-node')) {
-                    data = element['dataExport'] as Hub;
-                }
-                else if (cssClasses.includes('switch-node')) {
-                    data = element['dataExport'] as Switch;
-                }
-                else if (cssClasses.includes('bridge-node')) {
-                    data = element['dataExport'] as Bridge;
-                }
-                else if (cssClasses.includes('access-point-node')) {
-                    data = element['dataExport'] as AccessPoint;
-                }
-                else if (cssClasses.includes('host-node')) {
-                    data = element['dataExport'] as Host;
-                }
-                data.portData = new Map();
+                let nameMap: Map<number, string> = new Map();
+                let connectionMap: Map<number, ConnectionType> = new Map();
+                let macMap: Map<number, MacAddress> = new Map();
+                let ipv4Map: Map<number, Ipv4Address> = new Map();
+                let ipv6Map: Map<number, Ipv6Address> = new Map();
+
 
                 element['portData'].forEach(p => {
-                    data.portData.set(p['index'], new Map<string, any>([
-                        ["Name", p["Name"]],
-                        ["Connection Type", p["Connection Type"]],
-                        ["MAC", MacAddress.validateAddress(p["MAC"]["address"], network.macDatabase)],
-                        ["IPv4", Ipv4Address.validateAddress(p["IPv4"]["address"], network.ipv4Database)],
-                        ["IPv6", Ipv6Address.validateAddress(p["IPv6"]["address"], network.ipv6Database)],
-                    ]));
+                    nameMap.set(p['index'], p["Name"]);
+                    connectionMap.set(p['index'], p["Connection Type"]);
+                    if (p.hasOwnProperty('MAC')) macMap.set(p['index'], MacAddress.validateAddress(p["MAC"]["address"], network.macDatabase));
+                    if (p.hasOwnProperty('IPv4')) ipv4Map.set(p['index'], Ipv4Address.validateAddress(p["IPv4"]["address"], network.ipv4Database));
+                    if (p.hasOwnProperty('IPv6')) ipv6Map.set(p['index'], Ipv6Address.validateAddress(p["IPv6"]["address"], network.ipv6Database));
                 });
 
-                data.portLinkMapping = new Map();
+                if (cssClasses.includes('router-node')) {
+                    data = new Router(element['dataExport']['color'], element['dataExport']['numberOfInterfacesOrPorts'], nameMap,
+                        connectionMap, macMap, ipv4Map, ipv6Map, element['dataExport']['name'], element['dataExport']['id']);
+                }
+                else if (cssClasses.includes('repeater-node')) {
+                    data = new Repeater(element['dataExport']['color'], connectionMap, element['dataExport']['name'], element['dataExport']['id']);
+                }
+                else if (cssClasses.includes('hub-node')) {
+                    data = new Hub(element['dataExport']['color'], element['dataExport']['numberOfInterfacesOrPorts'],
+                        element['dataExport']['name'], element['dataExport']['id']);
+                }
+                else if (cssClasses.includes('switch-node')) {
+                    data = new Switch(element['dataExport']['color'], element['dataExport']['numberOfInterfacesOrPorts'],
+                        macMap, element['dataExport']['name'], element['dataExport']['id']);
+                }
+                else if (cssClasses.includes('bridge-node')) {
+                    data = new Bridge(element['dataExport']['color'], connectionMap, macMap, element['dataExport']['name'], element['dataExport']['id']);
+                }
+                else if (cssClasses.includes('access-point-node')) {
+                    data = new AccessPoint(element['dataExport']['color'], element['dataExport']['numberOfInterfacesOrPorts'],
+                        macMap, element['dataExport']['name'], element['dataExport']['id']);
+                }
+                else if (cssClasses.includes('host-node')) {
+                    data = new Host(element['dataExport']['color'], element['dataExport']['backgroundPath'].split('/')[7].split('.')[0],
+                        element['dataExport']['numberOfInterfacesOrPorts'], nameMap, connectionMap, macMap, ipv4Map, ipv6Map,
+                        element['dataExport']['name'], element['dataExport']['id']);
+                }
+
                 element['portLink'].forEach(p => {
                     data.portLinkMapping.set(p['index'], p['linkId']);
                 })
 
-                console.log(data);
-
-                if (element.hasOwnProperty('parent')) {
+                if (element['dataExport'].hasOwnProperty('parent')) {
+                    console.log(element['dataExport']['parent']);
+                    console.log(network._graph.$('#' + element['dataExport']['parent']));
                     network._graph.add({
                         group: 'nodes',
                         data: data,
                         classes: data.cssClass,
                         position: element['position'],
-                        //parent: element['parent']
+                        parent: network._graph.$('#' + element['dataExport']['parent'])
                     });
+                    console.log(network._graph.$('#' + data.id));
                 }
                 else {
                     network._graph.add({
@@ -176,14 +183,10 @@ export class ImportExportController {
                 }
             });
 
-            await this.delay(10000);
-
             json['edges'].forEach(edge => {
                 let graphEdge = edge['dataExport'] as GraphEdge;
-                graphEdge.from = network._graph.$('#' + edge.source).data() as PhysicalNode;
-                graphEdge.to = network._graph.$('#' + edge.target).data() as PhysicalNode;
-                console.log(network._graph.$('#' + edge.source).data());
-                console.log(network._graph.$('#' + edge.source).data() as PhysicalNode);
+                graphEdge.from = network._graph.$('#' + graphEdge.source).data() as PhysicalNode;
+                graphEdge.to = network._graph.$('#' + graphEdge.target).data() as PhysicalNode;
                 network._graph.add({
                     group: 'edges',
                     data: graphEdge,
