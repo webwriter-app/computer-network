@@ -18,10 +18,18 @@ export class Subnet extends LogicalNode {
     gateways: Map<string, number> = new Map(); //(routerId, portIndex)
     currentDefaultGateway: [string, number];
 
-    private constructor(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, string>) {
+    constructor(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, string>, id?: string) {
         super(color);
-        this.id = 'subnet' + Subnet.counter;
+        
+        if (id != null && id != undefined && id != "") {
+            this.id = id;
+            Subnet.counter = +id.charAt(id.length - 1);
+        }
+        else {
+            this.id = 'subnet' + Subnet.counter;
+        }
         Subnet.counter++;
+
         this.cssClass.push('subnet-node');
 
         //if bitmask is not null, calculate equivalent subnet mask
@@ -294,8 +302,8 @@ export class Subnet extends LogicalNode {
         }
 
 
-        if (this.networkAddress!=null && newSubnetNum == this.networkAddress.address 
-            && (this.bitmask==undefined || this.bitmask==null || this.bitmask >= newBitmask)) {
+        if (this.networkAddress != null && newSubnetNum == this.networkAddress.address
+            && (this.bitmask == undefined || this.bitmask == null || this.bitmask >= newBitmask)) {
             network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask));
             this.setSubnetInfo(this.networkAddress, newBitmask, newSubnetMask, AddressingHelper.decimalStringWithDotToBinary(newSubnetMask), false);
             network.ipv4Database.set(AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask), null);

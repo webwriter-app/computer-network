@@ -229,7 +229,7 @@ export class DialogFactory {
   static handleChangesInDialogForPhysicalNode(id: string, node: any, network: ComputerNetwork, isGateway: boolean, subnet?: Subnet) {
     let physicalNode: PhysicalNode = node.data();
     let dialog: SlDialog = new SlDialog();
-    dialog.label = "Details about ports of this component:";
+    dialog.label = "Details about ports of this component: "+physicalNode.id+" "+physicalNode.name;
     let table: string = `<table cellspacing="10"><tr>`;
     table += `<td>Index</td>`;
     physicalNode.portData.entries().next().value[1].forEach((_, columnName) => table += `<td>` + columnName + `</td>`);

@@ -101,9 +101,11 @@ export class ImportExportController {
                 json = JSON.parse(ImportExportController.reader.result);
             }
             json['logical-nodes'].forEach(subnet => {
-                let data: Subnet = subnet['dataExport'] as Subnet;
-                data.networkAddress = Ipv4Address.validateAddress(subnet['dataExport']['networkAddress']['address'],
-                    network.ipv4Database, subnet['dataExport']['bitmask']);
+                //let data: Subnet = subnet['dataExport'] as Subnet;
+                //let import: any = subnet['dataExport'];
+                let data: Subnet = new Subnet(subnet['dataExport']['color'], subnet['dataExport']['networkAddress']['address'], 
+                subnet['dataExport']['subnetMask'], subnet['dataExport']['bitmask'], network.ipv4Database, subnet['dataExport']['id']);
+  
                 network._graph.add({
                     group: 'nodes',
                     data: data,
@@ -111,6 +113,7 @@ export class ImportExportController {
                     position: subnet['position']
                 });
             });
+
             json['physical-nodes'].forEach(element => {
                 let data: PhysicalNode;
                 let cssClasses: string[] = element['dataExport']['cssClass'];
