@@ -76,17 +76,17 @@ export class DataHandlingDecorator implements PhysicalNode {
         this.portLinkMapping.forEach(linkId => {
             if (linkId != null && linkId != undefined && linkId != "") {
                 let edge: GraphEdge = network._graph.$('#' + linkId).data();
-                if (previousId != null && port != null && edge.target == previousId && edge.outPort == port) {
-                    //do not flood the incoming port
-                }
-                else if (previousId != null && port != null && edge.source == previousId && edge.inPort == port) {
+                console.log(edge);
+                console.log(previousId);
+                console.log(port);
+                if (previousId != null && port != null && (edge.target == previousId || edge.source == previousId)) {
                     //do not flood the incoming port
                 }
                 else {
                     let directTargetId = edge.target == this.id ? edge.source : edge.target;
                     let newData = (dataNode.data() instanceof Packet) ? Packet.cloneData(dataNode.data()) : Frame.cloneData(dataNode.data());
                     let nextHop = network._graph.$('#' + directTargetId);
-                    let finalTarget = network._graph.$('#' + network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
+                    //let finalTarget = network._graph.$('#' + network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
                     PacketSimulator.initThenDirectSend(network._graph.$('#' + this.id), nextHop, newData, network);
                     //PacketSimulator.endToEndSend(nextHop, finalTarget, network._graph.$('#'+newData.id), network);
                 }

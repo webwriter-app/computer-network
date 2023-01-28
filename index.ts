@@ -410,7 +410,7 @@ export class ComputerNetwork extends LitElementWw {
       <button class="btn" id="subnet" @click="${this.clickOnComponentButton}"><sl-icon name="diagram-3"></sl-icon></button>
     </div>
 
-    <sl-divider vertical style="--width: 0.5cqw; --color: white;"></sl-divider>
+    <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
 
     <div class="nameBox">
     <sl-tab-group>
@@ -431,13 +431,13 @@ export class ComputerNetwork extends LitElementWw {
     </div>
       
 
-    <sl-divider vertical style="--width: 0.5cqw; --color: white;"></sl-divider>
+    <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
 
     <div class="colorPalette">
       ${colorOptions}
     </div>
 
-    <sl-divider vertical style="--width: 0.5cqw; --color: white;"></sl-divider>
+    <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
 
     <div class="addOption">
       <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7cqw;">
