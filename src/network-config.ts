@@ -174,10 +174,53 @@ export function initNetwork(network: ComputerNetwork): void {
                 "width": 60,
                 "font-size": 10,
                 "text-wrap": "wrap",
-                "background-image": "data(backgroundPath)",
                 "font-family": "monospace",
             }
-        }
+        },
+        {
+            "selector": ".data-node-layer2-layer3",
+            "style": {
+                "background-image": "doc/datagram/2header-3header.png",
+                "label": "L2 L3 DATA",
+            }
+        },
+        {
+            "selector": ".arp-req-node",
+            "style": {
+                "background-image": "doc/datagram/2header.png",
+                "label": "L2 ARP req",
+            }
+        },
+        {
+            "selector": ".arp-res-node",
+            "style": {
+                "background-image": "doc/datagram/2header.png",
+                "label": "L2 ARP res",
+            }
+        },
+        {
+            "selector": ".data-node-layer3",
+            "style": {
+                "background-image": "doc/datagram/3header.png",
+                "label": "L3    DATA",
+            }
+        },
+        {
+            "selector": ".processing-data-node",
+            "style": {
+                "border-color": "green",
+                "border-width": "2",
+                "border-style": "solid",
+            }
+        },
+        {
+            "selector": ".discard-data-node",
+            "style": {
+                "border-color": "red",
+                "border-width": "2",
+                "border-style": "solid",
+            }
+        },
     ];
 
 
@@ -261,7 +304,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 tooltipText: 'Remove this component', // Tooltip text for menu item
                 // Filters the elements to have this menu item on cxttap
                 // If the selector is not truthy no elements will have this menu item on cxttap
-                selector: "node, edge",
+                selector: ".deleteable",
                 onClickFunction: (event) => { // The function to be executed on click
                     let component = event.target;
                     if (component.isEdge()) {

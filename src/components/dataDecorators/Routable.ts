@@ -3,6 +3,7 @@ import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { PacketSimulator } from "../../event-handlers/packet-simulator";
 import { AddressingHelper } from "../../utils/AdressingHelper";
 import { AlertHelper } from "../../utils/AlertHelper";
+import { AnimationHelper } from "../../utils/AnimationHelper";
 import { GraphEdge } from "../GraphEdge";
 import { Data, Packet, Frame } from "../logicalNodes/DataNode";
 import { Subnet } from "../logicalNodes/Subnet";
@@ -32,14 +33,18 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let thisMac: string = this.portData.get(portIn).get('MAC').address;
         let thisIp: string = this.portData.get(portIn).get('IPv4').address;
 
-        if (receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) return;
+        if (receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) {
+            console.log('checkpoint');
+            AnimationHelper.blinkingThenRemoveNode('discard-data-node', dataNode.id(), network);
+            return;
+        }
 
         if (data instanceof Data) {
             if (data instanceof Frame && data.name.includes('ARP res')) {
                 this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
                 this.populateArpTable(data.layer2header.ipSender, data.layer2header.macSender, network);
             }
-            else if (data instanceof Frame && data.name.includes('ARP req') && thisIp==receiverIp) {
+            else if (data instanceof Frame && data.name.includes('ARP req') && thisIp == receiverIp) {
                 this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
                 this.receiveArpRequest(portIn, data.layer2header.macSender, data.layer2header.ipSender, data.layer2header.ipReceiver, network);
             }
@@ -49,7 +54,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
                 }
                 else if (this instanceof Router && this.cssClass.includes('gateway-node')) {
                     //data --> bóc layer 2, đọc layer 3 --> nếu layer 3 k phải mình + gateway --> remove layer 2 data, gửi tiếp:?
-                    this.removeLayer2Header(data);
+                    this.removeLayer2Header(data, network);
                     let portToSend = this.findPortToSend(data.layer3header.ipReceiver);
                     if (portToSend != null) {
                         if (data.layer2header.macReceiver == "") {
@@ -130,7 +135,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
                 let port = this.findPortToSend(ipReceiver);
                 let macSender: string = this.portData.get(port).get('MAC').address;
 
-                this.addLayer2Header(data, macSender, macReceiver);
+                this.addLayer2Header(data, macSender, macReceiver, network);
                 PacketSimulator.findNextHopThenSend(lastPortIn, thisNode, dataNode, network);
             }
         }
@@ -159,17 +164,19 @@ export class RoutableDecorator extends DataHandlingDecorator {
         }
     }
 
-    addLayer2Header(data: Packet, macSender: string, macReceiver: string): void {
-        data.backgroundPath = "doc/datagram/2header-3header.png";
+    addLayer2Header(data: Packet, macSender: string, macReceiver: string, network: ComputerNetwork): void {
         data.layer2header.macSender = macSender;
         data.layer2header.macReceiver = macReceiver;
         data.name = "L2 L3 DATA";
+        network._graph.$('#' + data.id).toggleClass('data-node-layer2-layer3', true);
+        network._graph.$('#' + data.id).toggleClass('data-node-layer3', false);
     }
-    removeLayer2Header(data: Packet): void {
-        data.backgroundPath = "doc/datagram/3header.png";
+    removeLayer2Header(data: Packet, network: ComputerNetwork): void {
         data.layer2header.macSender = "";
         data.layer2header.macReceiver = "";
         this.name = "L3    DATA";
+        network._graph.$('#' + data.id).toggleClass('data-node-layer2-layer3', false);
+        network._graph.$('#' + data.id).toggleClass('data-node-layer3', true);
     }
 
     populateArpTable(ip: string, mac: string, network: ComputerNetwork): void {
@@ -177,7 +184,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
         this.arpTableIpMac.set(ip, mac);
         PacketSimulator.addOrUpdateTable(this.id, 'ArpTable', this.arpTableIpMac, network);
 
-        //send out pending Parcels after getting ARP table populated
+        //send out pending Packets after getting ARP table populated
         if (this.pendingPackets.has(ip)) {
 
             this.pendingPackets.get(ip).forEach(dataId => {
@@ -222,13 +229,16 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let gateway = network._graph.$('#' + this.id);
         let data = dataNode.data();
         let portIn = this.getPortIn(previousId, network);
-   
+
+
         if (!this.cssClass.includes('gateway-node')) {
             if (data instanceof Frame) {
                 this.routingTable.set(dataNode.data().layer2header.ipSender, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
+                PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
             }
             else if (data instanceof Packet) {
                 this.routingTable.set(dataNode.data().layer3header.ipSender, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
+                PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
             }
         }
         else {
@@ -241,10 +251,12 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
                 if (!this.routingTable.has(subnet.name)) {
                     this.routingTable.set(subnet.name, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
+                    PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
                 }
             }
         }
-        PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
+
+        AnimationHelper.blinkingThenRemoveNode('processing-data-node', dataNode.id(), network);
     }
 
     findPortToSend(ip: string): number {

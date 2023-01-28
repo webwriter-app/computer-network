@@ -11,6 +11,7 @@ import { SubnettingController } from "./src/event-handlers/subnetting-controller
 import { Subnet } from "./src/components/logicalNodes/Subnet";
 import { PacketSimulator } from "./src/event-handlers/packet-simulator";
 import { ImportExportController } from "./src/exporting/importExportController";
+import { SlSelect } from "@shoelace-style/shoelace";
 
 
 @customElement("computer-network")
@@ -29,8 +30,8 @@ export class ComputerNetwork extends LitElementWw {
   @property({ type: String, reflect: true })
   currentColor: string = "white";
 
-  @property() colors = ['Tomato', '#FFA6B4', '#FF938B', '#FFA07A', 'Plum', '#CECEFA', '#B2D0F5', '#AEE0E8', 
-  'LightSeaGreen', '#67DEBA','#C1FA89', '#EAFF86', '#9E9E9E', '#C0C0C0', '#D4D4D4', '#E6E6E6'];
+  @property() colors = ['Plum', '#CEC0E8', '#A9C5E8', '#A8D9E0', 'LightSeaGreen', '#67DEBA', '#B9F083', '#DEF27F',
+    'Tomato', '#FFA6B4', '#FF938B', '#FFA07A', '#9E9E9E', '#C0C0C0', '#E6D1C1', '#D4B6A0'];
 
   @property({ type: Boolean, reflect: true })
   networkAvailable: Boolean = false;
@@ -55,6 +56,12 @@ export class ComputerNetwork extends LitElementWw {
     reflect: true
   })
   editable: boolean = true;
+
+  @property({
+    type: Boolean,
+    reflect: true
+  })
+  automate: boolean = true;
 
   ipv4Database: Map<string, string> = new Map<string, string>(); //(address, nodeId)
   macDatabase: Map<string, string> = new Map<string, string>();
@@ -87,8 +94,8 @@ export class ComputerNetwork extends LitElementWw {
         height: 4cqw;
         margin: auto;
     }
-    .btn:hover {
-        background-color: #0291DB;
+    button:hover:enabled {
+      background-color: #0291DB;
     }
     .addOption {
         width: 12cqw;
@@ -108,8 +115,11 @@ export class ComputerNetwork extends LitElementWw {
         width: 3cqw;
         height: 3cqw;
     }
-    .addBtn:hover {
-        background-color: #0291DB;
+    button:disabled,
+    button[disabled]{
+      border: 1px solid #BFBFBF;
+      background-color: #E8E8E8;
+      color: #858585;
     }
     .colorPalette {
         position: flex;
@@ -366,7 +376,7 @@ export class ComputerNetwork extends LitElementWw {
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>
-          <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.duration = event.target.value * 1000}" label="Latency" type='number' min="1"></sl-input></sl-menu-item>
+          <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.duration = event.target.value * 1000}" label="Speed" type='number' min="1"></sl-input></sl-menu-item>
           <sl-menu-item><sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="pause" label="Pause simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.resetDatabase(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
@@ -441,7 +451,7 @@ export class ComputerNetwork extends LitElementWw {
 
     <div class="addOption">
       <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7cqw;">
-        <button class="addBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
+        <button class="addBtn" id="addCompBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
       </sl-tooltip>
       <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7cqw;">
         <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1cqw;">
@@ -511,6 +521,42 @@ export class ComputerNetwork extends LitElementWw {
         (e as HTMLElement).style.border = "solid 1px #ADADAD";
       }
     });
+
+  }
+
+  updated(changedProperties: Map<string, unknown>) {
+    if (changedProperties.has("editable")) {
+      // new value is 
+      const newValue = this.editable;
+      console.log(newValue);
+      if (newValue) {
+        if (this.networkAvailable) this._graph.elements().toggleClass('deleteable', true);
+        ['host', 'connector', 'edge', 'subnet', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
+          (this.renderRoot.querySelector('#' + buttonId) as HTMLButtonElement).disabled = false;
+        });
+      }
+      else {
+        if (this.networkAvailable) this._graph.elements().toggleClass('deleteable', false);
+        ['host', 'connector', 'edge', 'subnet', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
+          (this.renderRoot.querySelector('#' + buttonId) as HTMLButtonElement).disabled = true;
+        });
+      }
+    }
+
+    if (changedProperties.has("automate")) {
+      // new value is 
+      const newValue = this.automate;
+      console.log(newValue);
+      if (newValue) {
+        (this.renderRoot.querySelector('#current-subnet-mode') as SlSelect).disabled = false;
+      }
+      else {
+        (this.renderRoot.querySelector('#current-subnet-mode') as SlSelect).value = 'MANUAL';
+        (this.renderRoot.querySelector('#current-subnet-mode') as SlSelect).disabled = true;
+        Subnet.setMode('MANUAL');
+      }
+    }
+
 
   }
 

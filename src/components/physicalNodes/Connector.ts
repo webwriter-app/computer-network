@@ -22,11 +22,13 @@ export abstract class Connector extends PhysicalNode {
         }
 
         if (connectionType != null && connectionType != undefined) {
-            this.portData.forEach((data) => data.set('Connection Type', connectionType));
+            this.portData.forEach((data, port) => {
+                if (port <= this.numberOfInterfacesOrPorts) data.set('Connection Type', connectionType);
+            });
         }
         else if (portConnectionTypes != null) {
             portConnectionTypes.forEach((connectionType, port) => {
-                this.portData.get(port).set('Connection Type', connectionType);
+                if (port <= this.numberOfInterfacesOrPorts) this.portData.get(port).set('Connection Type', connectionType);
             });
         }
         this.cssClass.push("connector-node");
@@ -184,7 +186,7 @@ export class Bridge extends Connector {
         }
 
         portMacMapping.forEach((macAddress, port) => {
-            this.portData.get(port).set('MAC', macAddress);
+            if (port <= this.numberOfInterfacesOrPorts) this.portData.get(port).set('MAC', macAddress);
         });
 
         this.cssClass.push('bridge-node');

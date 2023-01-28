@@ -2,7 +2,6 @@ import { LogicalNode } from "./LogicalNode";
 
 
 export abstract class Data extends LogicalNode {
-    backgroundPath: string;
     layer2header;
 
     constructor(color: string) {
@@ -33,12 +32,10 @@ export class Packet extends Data {
         this.layer3header.ipReceiver = ipv4Receiver;
         this.cssClass.push('packet-node');
         if (macSender != "" && macReceiver != "") {
-            this.backgroundPath = "doc/datagram/2header-3header.png";
-            this.name = "L2 L3 DATA";
+            this.cssClass.push('data-node-layer2-layer3');
         }
         else {
-            this.backgroundPath = "doc/datagram/3header.png";
-            this.name = "L3    DATA";
+            this.cssClass.push('data-node-layer3');
         }
 
     }
@@ -65,12 +62,10 @@ export class Frame extends Data {
         this.id = 'frame' + Frame.counter;
         Frame.counter++;
         this.cssClass.push('frame-node');
-        this.backgroundPath = "doc/datagram/2header.png";
     }
 
     static cloneData(data: Frame): Frame {
         let newData: Frame = new Frame(data.color);
-        newData.backgroundPath = data.backgroundPath;
         newData.cssClass = data.cssClass;
         newData.layer2header = data.layer2header;
         newData.name = data.name;
@@ -84,6 +79,7 @@ export class Frame extends Data {
         arpReq.layer2header.ipSender = ipSender;
         arpReq.layer2header.ipReceiver = ipReceiver;
         arpReq.name = "L2 ARP req";
+        arpReq.cssClass.push('arp-req-node');
         return arpReq;
     }
 
@@ -94,6 +90,7 @@ export class Frame extends Data {
         arpRes.layer2header.ipSender = ipSender;
         arpRes.layer2header.ipReceiver = ipReceiver;
         arpRes.name = "L2 ARP res";
+        arpRes.cssClass.push('arp-res-node');
         return arpRes;
     }
 }

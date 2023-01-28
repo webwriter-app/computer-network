@@ -76,9 +76,6 @@ export class DataHandlingDecorator implements PhysicalNode {
         this.portLinkMapping.forEach(linkId => {
             if (linkId != null && linkId != undefined && linkId != "") {
                 let edge: GraphEdge = network._graph.$('#' + linkId).data();
-                console.log(edge);
-                console.log(previousId);
-                console.log(port);
                 if (previousId != null && port != null && (edge.target == previousId || edge.source == previousId)) {
                     //do not flood the incoming port
                 }

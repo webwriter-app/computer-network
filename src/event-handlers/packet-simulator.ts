@@ -15,7 +15,7 @@ export class PacketSimulator {
     static targetEndPoint: string = "";
     static sourceIp: string = "";
     static targetIp: string = "";
-    static duration: number = 1000;
+    static duration: number = 2000;
 
 
 

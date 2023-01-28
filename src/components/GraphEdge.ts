@@ -23,6 +23,7 @@ export class GraphEdge {
         this.color = color;
         this.cssClass.push("color-edge");
         this.cssClass.push("unconfigured-edge");
+        this.cssClass.push('deleteable');
         this.from = from;
         this.to = to;
         this.source = this.from.id;
