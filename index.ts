@@ -29,8 +29,8 @@ export class ComputerNetwork extends LitElementWw {
   @property({ type: String, reflect: true })
   currentColor: string = "white";
 
-  @property() colors = ['AntiqueWhite', 'Lavender', 'LemonChiffon', 'LavenderBlush', 'LightCoral', 'LightPink', 'LightGreen', 'LightSalmon', 'PaleTurquoise', 'Tomato',
-    'Plum', 'Aquamarine', 'Chartreuse', 'LightGrey', 'GreenYellow', 'LightSeaGreen'];
+  @property() colors = ['Tomato', '#FFA6B4', '#FF938B', '#FFA07A', 'Plum', '#CECEFA', '#B2D0F5', '#AEE0E8', 
+  'LightSeaGreen', '#67DEBA','#C1FA89', '#EAFF86', '#9E9E9E', '#C0C0C0', '#D4D4D4', '#E6E6E6'];
 
   @property({ type: Boolean, reflect: true })
   networkAvailable: Boolean = false;
@@ -72,14 +72,13 @@ export class ComputerNetwork extends LitElementWw {
       width: 75cqw;
       height: 12cqw;
       min-height: 192px;
-      margin-top: 1cqw;
       margin-bottom: 1cqw;
-      background-color: LightBlue;
+      background-color: #F1F1F1;
     }
     .btn {
         border-radius: 0.5cqw;
-        background-color: DodgerBlue;
-        border: dashed transparent;
+        background-color: #8BA8CC;
+        border: solid 1px transparent;
         color: white;
         align-items: center;
         font-size: 1.6cqw;
@@ -89,7 +88,7 @@ export class ComputerNetwork extends LitElementWw {
         margin: auto;
     }
     .btn:hover {
-        background-color: rgb(2, 132, 199);
+        background-color: #0291DB;
     }
     .addOption {
         width: 12cqw;
@@ -100,8 +99,8 @@ export class ComputerNetwork extends LitElementWw {
     }
     .addBtn {
         border-radius: 0.5cqw;
-        background-color: DodgerBlue;
-        border: dashed transparent;
+        background-color: #8BA8CC;
+        border: solid 1px transparent;
         color: white;
         align-items: center;
         font-size: 1cqw;
@@ -110,7 +109,7 @@ export class ComputerNetwork extends LitElementWw {
         height: 3cqw;
     }
     .addBtn:hover {
-        background-color: rgb(2, 132, 199);
+        background-color: #0291DB;
     }
     .colorPalette {
         position: flex;
@@ -123,7 +122,7 @@ export class ComputerNetwork extends LitElementWw {
     }
     .colorButton {
         border-radius: 0.3cqw;
-        border: dashed transparent;
+        border: solid 1px #ADADAD;
         cursor: pointer;
         width: 1.5cqw;
         height: 1.5cqw;
@@ -131,34 +130,13 @@ export class ComputerNetwork extends LitElementWw {
     #myCanvas {
         position: relative;
         width: 75cqw;
-        height: calc(100vh - 15cqw);
-        border: 1px solid SteelBlue;
-        flex-grow: 1;
+        height: calc(100cqh - 14cqw);
+        border: 1px solid #ADADAD;
     }
     #cy {
         height: 100%;
         width: 100%;
         position: absolute;
-    }
-    .rainbowBtn {
-        display: inline-block;
-        background: linear-gradient(#faceca, #fae1ca, #ecfaca, #cafae4), linear-gradient(#faceca, #fae1ca, #ecfaca, #cafae4);
-        color: white;
-        background-clip:  border-box, text;
-        background-position: center center;
-        box-shadow:inset 0 0 0 100px DodgerBlue;
-        background-size:  110% 110%;
-
-        border-radius: 0.5cqw;
-        border: dashed transparent;
-        align-items: center;
-        font-size: 1cqw;
-        cursor: pointer;
-        width: 3cqw;
-        height: 3cqw;
-    }
-    .rainbowBtn:hover {
-        box-shadow: inset 0 0 0 100px rgb(2, 132, 199);
     }
     .componentMenu {
       position:relative; 
@@ -189,7 +167,7 @@ export class ComputerNetwork extends LitElementWw {
         box-shadow: none !important;
     }
     .custom-menu-item:hover {
-        background-color: LightBlue !important;
+        background-color: #F1F1F1 !important;
     }
     .custom-context-menu {
         border: none !important;
@@ -235,12 +213,12 @@ export class ComputerNetwork extends LitElementWw {
       font-size: max(0.8cqw, 12px);
     }
     .blue-button::part(base) {
-      background-color: LightBlue;
+      background-color: #F1F1F1;
       border: none;
     }
     sl-details::part(base) {
       height: fit-content;
-      background-color: LightBlue;
+      background-color: #F1F1F1;
       border: none;
     }
     #packet-sending-extension::part(content) {
@@ -249,15 +227,20 @@ export class ComputerNetwork extends LitElementWw {
     sl-details::part(summary) {
       font-size: 14px;
       font-weight: 600;
-      color: 	#567d96;
+      color: 	#F2F2F2;
       font-family: sans-serif;
     }
-    sl-details th, sl-details td {
-      border: 1px solid #ddd;
-      padding: 8px;
+    sl-details::part(header) {
+      background-color: #8BA8CC;
+    }
+    sl-details table, sl-details th, sl-details td {
+      border: 1px solid black;
+      border-collapse: collapse;
     }
 
-    sl-details tr {background-color: #f2f2f2;}
+    sl-details th, sl-details td {
+      padding: 10px;
+    }
 
 
     sl-dropdown {
@@ -275,10 +258,10 @@ export class ComputerNetwork extends LitElementWw {
     }
 
     .sidebar {
-      height: calc(100vh - 1.8cqw);
+      height: calc(100cqh - 1cqw);
       position: fixed;
       right: 0;
-      background: LightBlue;
+      background: #F1F1F1;
       width: 23.7cqw;
     }
 
@@ -355,7 +338,7 @@ export class ComputerNetwork extends LitElementWw {
 
     <div class="main-container">
     <div class="sidebar">
-      <sl-menu style="background-color: LightBlue; border: transparent; height: 100%;">
+      <sl-menu style="background-color: #F1F1F1; border: transparent; height: 100%;">
       
         <sl-details summary="Subnetting extension" open>
           <sl-menu-label>Choose a mode:
@@ -466,7 +449,7 @@ export class ComputerNetwork extends LitElementWw {
         </button>
         </sl-tooltip>
         <sl-tooltip content="Click to change color of existing components" placement="left" style="--max-width: 9cqw;">
-          <button class="rainbowBtn" id="resetColorBtn" @click="${() => GraphNodeFactory.toggleResetColor(this)}">
+          <button class="addBtn" id="resetColorBtn" @click="${() => GraphNodeFactory.toggleResetColor(this)}">
             <sl-icon id="changeColorMode" name="eyedropper"></sl-icon>
           </button>
         </sl-tooltip>
@@ -507,11 +490,11 @@ export class ComputerNetwork extends LitElementWw {
     this.renderRoot.querySelectorAll('.btn').forEach(e => {
       if (e.id == nodeToHighLight) {
         //highlight the chosen component
-        (e as HTMLElement).style.border = "dashed rgb(50,50,50)";
+        (e as HTMLElement).style.border = "solid 2px #404040";
       }
       else {
         //un-highlight other components
-        (e as HTMLElement).style.border = "dashed transparent";
+        (e as HTMLElement).style.border = "solid 1px transparent";
       }
     });
 
@@ -522,10 +505,10 @@ export class ComputerNetwork extends LitElementWw {
     this.currentColor = (e.target as HTMLElement).getAttribute('id');
     this.renderRoot.querySelectorAll('.colorButton').forEach(e => {
       if (e.id == this.currentColor) {
-        (e as HTMLElement).style.border = "dashed rgb(80,80,80)";
+        (e as HTMLElement).style.border = "solid 2px #404040";
       }
       else {
-        (e as HTMLElement).style.border = "dashed transparent";
+        (e as HTMLElement).style.border = "solid 1px #ADADAD";
       }
     });
 

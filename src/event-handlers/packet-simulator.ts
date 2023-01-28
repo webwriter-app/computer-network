@@ -196,7 +196,7 @@ export class PacketSimulator {
                 if (!(tableData instanceof Map<string, string>)) return;
                 label = "ARP Table";
                 tableId = "arp-table-" + nodeId;
-                tableRows += `<caption>` + label + `</caption style="font-weight: bold;">`;
+                tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
                 (tableData as Map<string, string>).forEach((mac, ip) => {
                     tableRows += `<tr><td>` + ip + `</td><td>` + mac + `</td></tr>`
                 });

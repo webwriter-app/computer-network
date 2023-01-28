@@ -269,14 +269,14 @@ export class GraphNodeFactory {
         if (!network.resetColorModeOn) {
             network._graph.on('tap', changeColorHandler);
             (network.renderRoot.querySelector('#changeColorMode') as SlButton).name = "pause";
-            (network.renderRoot.querySelector('.rainbowBtn') as HTMLElement).style.boxShadow = "inset 0 0 0 100px rgb(2, 132, 199)";
+            (network.renderRoot.querySelector('#resetColorBtn') as HTMLElement).style.backgroundColor = "#0291DB";
             (network.renderRoot.querySelector('#drawBtn') as HTMLButtonElement).disabled = true;
         }
         else {
             // just remove handler
             network._graph.removeListener('tap');
             (network.renderRoot.querySelector('#changeColorMode') as SlButton).name = "eyedropper";
-            (network.renderRoot.querySelector('.rainbowBtn') as HTMLElement).style.boxShadow = "inset 0 0 0 100px DodgerBlue";
+            (network.renderRoot.querySelector('#resetColorBtn') as HTMLElement).style.backgroundColor = "#8BA8CC";
             (network.renderRoot.querySelector('#drawBtn') as HTMLButtonElement).disabled = false;
         }
         network.resetColorModeOn = !network.resetColorModeOn;

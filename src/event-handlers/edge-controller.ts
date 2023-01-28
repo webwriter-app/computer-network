@@ -16,13 +16,13 @@ export class EdgeController {
             }
             network._edgeHandles.enableDrawMode();
             (network.renderRoot.querySelector('#drawMode') as SlButton).name = "pause";
-            (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "rgb(2, 132, 199)";
+            (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "#0291DB";
             (network.renderRoot.querySelector('#resetColorBtn') as HTMLButtonElement).disabled = true;
         }
         else {
             network._edgeHandles.disableDrawMode();
             (network.renderRoot.querySelector('#drawMode') as SlButton).name = "share";
-            (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "DodgerBlue";
+            (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "#8BA8CC";
             (network.renderRoot.querySelector('#resetColorBtn') as HTMLButtonElement).disabled = false;
         }
         network.drawModeOn = !network.drawModeOn;
