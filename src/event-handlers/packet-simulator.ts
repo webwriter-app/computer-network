@@ -76,7 +76,7 @@ export class PacketSimulator {
             AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "The widget currently only support sending Parcel between layer 3 components");
         }
 
-        network._graph.nodes('physical-node').forEach(node => {
+        network._graph.nodes('.physical-node').forEach(node => {
             let nodeData: PhysicalNode = node.data() as PhysicalNode;
             if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
                 if (node.hasClass('host-node') || node.hasClass('router-node')) {

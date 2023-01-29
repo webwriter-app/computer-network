@@ -1,12 +1,15 @@
+import { Ipv4Address } from "./Ipv4Address";
+import { Ipv6Address } from "./Ipv6Address";
+
 export abstract class Address {
     layer: number;
     address: string;
     octets: string[];
 
 
-    constructor(layer: number){
+    constructor(layer: number) {
         this.layer = layer;
-        if(layer<2){
+        if (layer < 2) {
             this.address = "";
         }
     }
@@ -23,11 +26,12 @@ export abstract class Address {
         return null;
     }
 
-    static removeAddressFromDatabase(address: Address, database: Map<string, string>){
+    static removeAddressFromDatabase(address: Address, database: Map<string, string>) {
         database.delete(address.address);
     }
 
-    static addAddressToDatabase(address: Address, database: Map<string, string>, nodeId: string){
+    static addAddressToDatabase(address: Address, database: Map<string, string>, nodeId: string) {
+        if (address.address == "127.0.0.1" || address.address == "0:0:0:0:0:0:0:1") return;
         database.set(address.address, nodeId);
     }
 }

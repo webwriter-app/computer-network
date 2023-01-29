@@ -116,9 +116,11 @@ export class ComputerNetwork extends LitElementWw {
         height: 3cqw;
     }
     button:disabled,
-    button[disabled]{
+    button[disabled],
+    #drawBtn:disabled,
+    #resetColorBtn:disabled{
       border: 1px solid #BFBFBF;
-      background-color: #E8E8E8;
+      background-color: #E8E8E8 !important;
       color: #858585;
     }
     .colorPalette {
@@ -197,8 +199,8 @@ export class ComputerNetwork extends LitElementWw {
     }
     sl-input::part(base), sl-input::part(input) {
       border: none;
-      font-size: max(0.8cqw, 12px);
-			height: max(40px, 1.5cqw);
+      font-size: max(0.8cqw, 11px);
+			height: max(35px, 1.5cqw);
     }
     .label-on-left::part(form-control) {
       display: grid;
@@ -208,19 +210,15 @@ export class ComputerNetwork extends LitElementWw {
     }
     .label-on-left::part(form-control-label) {
       text-align: right;
-      font-size: max(0.8cqw, 12px);
+      font-size: max(0.8cqw, 11px);
     }
     .label-on-left::part(form-control-help-text) {
       grid-column: span 2;
       padding-left: calc(var(--label-width) + var(--gap-width));
     }
 
-    sl-checkbox::part(base), sl-checkbox::part(label) {
-      font-size: max(0.8cqw, 12px);
-      height: max(40px, 1.5cqw);
-    }
     sl-menu-item::part(base), sl-menu-item::part(label) {
-      font-size: max(0.8cqw, 12px);
+      font-size: max(0.8cqw, 11px);
     }
     .blue-button::part(base) {
       background-color: #F1F1F1;
@@ -251,7 +249,9 @@ export class ComputerNetwork extends LitElementWw {
     sl-details th, sl-details td {
       padding: 10px;
     }
-
+    sl-tab-panel::part(base){
+      font-size: max(0.8cqw, 11px);
+    }
 
     sl-dropdown {
       display:flex;
@@ -286,6 +286,9 @@ export class ComputerNetwork extends LitElementWw {
         width: 11cqw;
         height: 11cqw;
         gap: 1.5cqw;
+      }
+      sl-button::part(base) {
+        font-size: 0.1cqw;
       }
     }
     @container (max-width: 1123px) {
@@ -411,9 +414,9 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item id="router" @click="${this.clickOnComponentButton}">Router <sl-icon name="router"></sl-menu-item>
           <sl-menu-item id="access-point" @click="${this.clickOnComponentButton}">Access Point <sl-icon name="broadcast-pin"></sl-menu-item>
           <sl-menu-item id="repeater" @click="${this.clickOnComponentButton}">Repeater <sl-icon name="hdd"></sl-menu-item>
-          <sl-menu-item id="hub" @click="${this.clickOnComponentButton}">Hub <sl-icon src="doc/icons/hub.svg"></sl-menu-item>
-          <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}">Bridge <sl-icon src="doc/icons/bridge.svg"></sl-menu-item>
-          <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon src="doc/icons/switch.svg"></sl-menu-item>
+          <sl-menu-item id="hub" @click="${this.clickOnComponentButton}">Hub <sl-icon src="img/icons/hub.svg"></sl-menu-item>
+          <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}">Bridge <sl-icon src="img/icons/bridge.svg"></sl-menu-item>
+          <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon src="img/icons/switch.svg"></sl-menu-item>
         </sl-menu>
       </sl-dropdown>
       <button class="btn" id="edge" @click="${this.clickOnComponentButton}"><sl-icon name="share"></sl-icon></button>
@@ -528,7 +531,6 @@ export class ComputerNetwork extends LitElementWw {
     if (changedProperties.has("editable")) {
       // new value is 
       const newValue = this.editable;
-      console.log(newValue);
       if (newValue) {
         if (this.networkAvailable) this._graph.elements().toggleClass('deleteable', true);
         ['host', 'connector', 'edge', 'subnet', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
@@ -546,7 +548,6 @@ export class ComputerNetwork extends LitElementWw {
     if (changedProperties.has("automate")) {
       // new value is 
       const newValue = this.automate;
-      console.log(newValue);
       if (newValue) {
         (this.renderRoot.querySelector('#current-subnet-mode') as SlSelect).disabled = false;
       }

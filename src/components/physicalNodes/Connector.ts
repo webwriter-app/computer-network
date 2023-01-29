@@ -134,7 +134,7 @@ export class Hub extends Connector {
         }
 
         this.cssClass.push('hub-node');
-        this.backgroundPath = "doc/icons/hub.svg";
+        this.backgroundPath = "img/icons/hub.svg";
     }
 }
 
@@ -161,7 +161,7 @@ export class Switch extends Connector {
             this.portData.get(port).set('MAC', macAddress);
         });
         this.cssClass.push('switch-node');
-        this.backgroundPath = "doc/icons/switch.svg";
+        this.backgroundPath = "img/icons/switch.svg";
     }
 }
 
@@ -191,7 +191,7 @@ export class Bridge extends Connector {
 
         this.cssClass.push('bridge-node');
         //change icon
-        this.backgroundPath = "doc/icons/bridge.svg";
+        this.backgroundPath = "img/icons/bridge.svg";
     }
 }
 

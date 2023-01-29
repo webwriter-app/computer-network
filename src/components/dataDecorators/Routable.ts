@@ -34,8 +34,8 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let thisIp: string = this.portData.get(portIn).get('IPv4').address;
 
         if (receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) {
-            console.log('checkpoint');
-            AnimationHelper.blinkingThenRemoveNode('discard-data-node', dataNode.id(), network);
+            if(data instanceof Frame) AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
+            if(data instanceof Packet) AnimationHelper.blinkingThenRemoveNode('discard-data-node-3part', dataNode.id(), network);
             return;
         }
 
@@ -44,12 +44,19 @@ export class RoutableDecorator extends DataHandlingDecorator {
                 this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
                 this.populateArpTable(data.layer2header.ipSender, data.layer2header.macSender, network);
             }
-            else if (data instanceof Frame && data.name.includes('ARP req') && thisIp == receiverIp) {
-                this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
-                this.receiveArpRequest(portIn, data.layer2header.macSender, data.layer2header.ipSender, data.layer2header.ipReceiver, network);
+            else if (data instanceof Frame && data.name.includes('ARP req')) {
+                if (thisIp != receiverIp) {
+                    AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
+                    return;
+                }
+                else {
+                    this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
+                    this.receiveArpRequest(portIn, data.layer2header.macSender, data.layer2header.ipSender, data.layer2header.ipReceiver, network);
+                }
             }
             else if (data instanceof Packet) {
                 if (receiverIp == thisIp) {
+                    AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
                     AlertHelper.toastAlert('success', 'check2-all', "", "Your receiver has received the message!");
                 }
                 else if (this instanceof Router && this.cssClass.includes('gateway-node')) {
@@ -87,9 +94,11 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
         //check if in same network
         if (subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask) == AddressingHelper.decimalStringWithDotToBinary(receiverIp).slice(0, subnet.bitmask)) {
+            console.log('checkpoint-1');
             this.sendDataInSameNetwork(null, dataNode, this.getMacProvidedIp(data.layer3header.ipSender), data.layer3header.ipSender, "", data.layer3header.ipReceiver, network);
         }
         else {
+            console.log('checkpoint-2');
             this.sendDataToAnotherNetwork(null, dataNode, data.layer2header.macSender, data.layer3header.ipSender, data.layer2header.macReceiver,
                 data.layer3header.ipReceiver, network._graph.$('#' + this.defaultGateway[0]).data().portData.get(this.defaultGateway[1]).get('IPv4'), network);
         }
@@ -120,8 +129,21 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let receiverNode = network._graph.$('#' + network.ipv4Database.get(ipReceiver));
         let data = dataNode.data();
 
+        console.log(ipReceiver);
+        console.log(network.ipv4Database);
+
+        console.log('checkpoint-3');
+        console.log(thisNode);
+        console.log(receiverNode);
+        console.log(thisNode.data());
+        console.log(receiverNode.data());
+        console.log(thisNode.parent().data());
+        console.log(receiverNode.parent().data());
+        console.log(thisNode.parent().id());
+        console.log(receiverNode.parent().id());
         if (!thisNode.parent().same(receiverNode.parent())) return;
 
+        console.log('checkpoint-4');
         //tìm port to send? k thì ARP
         if (macReceiver == "FF:FF:FF:FF:FF:FF") {
             this.flood(dataNode, null, null, network);
@@ -235,10 +257,12 @@ export class RoutableDecorator extends DataHandlingDecorator {
             if (data instanceof Frame) {
                 this.routingTable.set(dataNode.data().layer2header.ipSender, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
                 PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
+                AnimationHelper.blinkingThenRemoveNode('processing-data-node-2part', dataNode.id(), network);
             }
             else if (data instanceof Packet) {
                 this.routingTable.set(dataNode.data().layer3header.ipSender, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
                 PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
+                AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
             }
         }
         else {
@@ -252,11 +276,10 @@ export class RoutableDecorator extends DataHandlingDecorator {
                 if (!this.routingTable.has(subnet.name)) {
                     this.routingTable.set(subnet.name, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
                     PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
+                    AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
                 }
             }
         }
-
-        AnimationHelper.blinkingThenRemoveNode('processing-data-node', dataNode.id(), network);
     }
 
     findPortToSend(ip: string): number {

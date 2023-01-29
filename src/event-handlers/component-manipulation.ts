@@ -20,7 +20,6 @@ export class GraphNodeFactory {
             return;
         }
         if (!network.networkAvailable) {
-            network.networkAvailable = true;
             initNetwork(network);
         }
 
@@ -268,14 +267,14 @@ export class GraphNodeFactory {
 
         if (!network.resetColorModeOn) {
             network._graph.on('tap', changeColorHandler);
-            (network.renderRoot.querySelector('#changeColorMode') as SlButton).name = "pause";
+            (network.renderRoot.querySelector('#resetColorBtn') as SlButton).name = "pause";
             (network.renderRoot.querySelector('#resetColorBtn') as HTMLElement).style.backgroundColor = "#0291DB";
             (network.renderRoot.querySelector('#drawBtn') as HTMLButtonElement).disabled = true;
         }
         else {
             // just remove handler
             network._graph.removeListener('tap');
-            (network.renderRoot.querySelector('#changeColorMode') as SlButton).name = "eyedropper";
+            (network.renderRoot.querySelector('#resetColorBtn') as SlButton).name = "eyedropper";
             (network.renderRoot.querySelector('#resetColorBtn') as HTMLElement).style.backgroundColor = "#8BA8CC";
             (network.renderRoot.querySelector('#drawBtn') as HTMLButtonElement).disabled = false;
         }

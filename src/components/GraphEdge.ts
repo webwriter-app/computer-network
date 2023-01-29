@@ -17,9 +17,16 @@ export class GraphEdge {
     portIn: string; //can be port or interface --> TODO: different visualization for layer 2 and 3 connection
     portOut: string;
 
-    constructor(color: string, from: PhysicalNode, to: PhysicalNode) {
-        this.id = 'graphEdge' + GraphEdge.counter;
+    constructor(color: string, from: PhysicalNode, to: PhysicalNode, id?: string) {
+        if (id != null && id != undefined && id != "") {
+            this.id = id;
+            GraphEdge.counter = +id.charAt(id.length - 1);
+        }
+        else {
+            this.id = 'graphEdge' + GraphEdge.counter;
+        }
         GraphEdge.counter++;
+        
         this.color = color;
         this.cssClass.push("color-edge");
         this.cssClass.push("unconfigured-edge");
@@ -40,19 +47,19 @@ export class GraphEdge {
         }
         else if ((inPortData.get('Connection Type') == "wireless" && outPortData.get('Connection Type') == "ethernet") ||
             (inPortData.get('Connection Type') == "ethernet" && outPortData.get('Connection Type') == "wireless")) {
-            AlertHelper.toastAlert("danger", "exclamation-triangle", 
-            "The connection type of assigned ports are not compatible!", 
-            "Please re-assign your ports or dismiss this connection.");
-                return null;
+            AlertHelper.toastAlert("danger", "exclamation-triangle",
+                "The connection type of assigned ports are not compatible!",
+                "Please re-assign your ports or dismiss this connection.");
+            return null;
         }
         else {
             edge.cssClass.push("wired-edge");
         }
 
         edge.cssClass.push("labelled-edge");
-        
+
         let index;
-        if ((index=edge.cssClass.indexOf("unconfigured-edge"))>-1) edge.cssClass.splice(index, 1);
+        if ((index = edge.cssClass.indexOf("unconfigured-edge")) > -1) edge.cssClass.splice(index, 1);
 
         edge.from.portLinkMapping.set(inPort, edge.id);
         edge.to.portLinkMapping.set(outPort, edge.id);

@@ -125,6 +125,7 @@ export class Ipv4Address extends Address {
     }
 
     static override addAddressToDatabase(address: Address, database: Map<string, string>, nodeId: string, bitmask?: number): void {
+        if (address.address == "127.0.0.1") return;
         database.set(address.address, nodeId);
         if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
             database.set(AddressingHelper.getBroadcastAddress(address.address, bitmask), nodeId + "|" + "broadcast");
