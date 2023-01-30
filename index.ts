@@ -141,7 +141,7 @@ export class ComputerNetwork extends LitElementWw {
     #myCanvas {
         position: relative;
         width: 75cqw;
-        height: calc(100cqh - 14cqw);
+        height: calc(100cqh - 14.5cqw);
         max-height: calc(100cqh - 192px - 2.5cqw);
         border: 1px solid #ADADAD;
     }
