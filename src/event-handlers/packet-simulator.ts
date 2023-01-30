@@ -98,6 +98,18 @@ export class PacketSimulator {
             }
         });
 
+        network._graph.nodes('.router-node').forEach(node => {
+            let dijkstra = network._graph.nodes('.router-node').dijkstra('#'+node.id());
+            network._graph.nodes('.router-node').forEach(otherNode =>{
+                if(otherNode.id()!=node.id()){
+                    let path = dijkstra.pathTo(otherNode);
+                    path.forEach(a => console.log(a));
+                    let data = node.data() as RoutableDecorator;
+                    data.pathsToOtherRouters.set(otherNode.id(), path);
+                }
+            })
+        });
+
         let data: Packet = new Packet(network.currentColor, "", "", this.sourceIp, this.targetIp);
         let sourceNode = network._graph.$('#' + this.sourceEndPoint);
         let sender: RoutableDecorator = sourceNode.data() as RoutableDecorator;

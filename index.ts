@@ -21,35 +21,20 @@ export class ComputerNetwork extends LitElementWw {
   @query('#cy')
   _cy;
 
-  @property({ reflect: true })
   _graph;
-
-  @property({ type: String, reflect: true })
   currentComponentToAdd: string = "";
-
-  @property({ type: String, reflect: true })
   currentColor: string = "white";
-
-  @property() colors = ['Plum', '#CEC0E8', '#A9C5E8', '#A8D9E0', 'LightSeaGreen', '#67DEBA', '#B9F083', '#DEF27F',
-    'Tomato', '#FFA6B4', '#FF938B', '#FFA07A', '#9E9E9E', '#C0C0C0', '#E6D1C1', '#D4B6A0'];
-
-  @property({ type: Boolean, reflect: true })
+  colors = ['Plum', '#BAADD1', '#9CB6D6', '#9DCBD1', 'LightSeaGreen', '#5FCCAB', '#ADE07A', '#E2E379',
+    'Tomato', '#FFA6B4', '#FF938B', '#FFA07A', '#8A8A8A', '#A6A6A6', '#D4B6A0', '#C29C8D'];
   networkAvailable: Boolean = false;
-
-  @property()
   _edgeHandles; //controller for edgehandles extension
-
-  @property({ type: Boolean, reflect: true })
   drawModeOn: boolean = false;
-
-  @property()
   _instance; //controller for menu extension
-
-  @property()
   _cdnd; //controller for drag-and-drop compound nodes extension
-
-  @property({ type: Boolean, reflect: true })
   resetColorModeOn: boolean = false;
+  ipv4Database: Map<string, string> = new Map<string, string>(); //(address, nodeId)
+  macDatabase: Map<string, string> = new Map<string, string>();
+  ipv6Database: Map<string, string> = new Map<string, string>();
 
   @property({
     type: Boolean,
@@ -63,9 +48,13 @@ export class ComputerNetwork extends LitElementWw {
   })
   automate: boolean = true;
 
-  ipv4Database: Map<string, string> = new Map<string, string>(); //(address, nodeId)
-  macDatabase: Map<string, string> = new Map<string, string>();
-  ipv6Database: Map<string, string> = new Map<string, string>();
+  @property({
+    type: String,
+    reflect: true
+  })
+  screen: string = "normal"; //small/normal
+
+
 
   static styles =
     css`
@@ -94,6 +83,16 @@ export class ComputerNetwork extends LitElementWw {
         height: 4cqw;
         margin: auto;
     }
+    .importBtn {
+      border-radius: 0.3cqw;
+      background-color: #8BA8CC;
+      border: solid 1px transparent;
+      color: white;
+      align-items: center;
+      font-size: 0.8cqw;
+      cursor: pointer;
+      margin: auto;
+  }
     button:hover:enabled {
       background-color: #0291DB;
     }
@@ -143,6 +142,7 @@ export class ComputerNetwork extends LitElementWw {
         position: relative;
         width: 75cqw;
         height: calc(100cqh - 14cqw);
+        max-height: calc(100cqh - 192px - 2.5cqw);
         border: 1px solid #ADADAD;
     }
     #cy {
@@ -268,7 +268,7 @@ export class ComputerNetwork extends LitElementWw {
     }
 
     .sidebar {
-      height: calc(100cqh - 1cqw);
+      height: calc(100cqh - 1.5cqw);
       position: fixed;
       right: 0;
       background: #F1F1F1;
@@ -355,7 +355,7 @@ export class ComputerNetwork extends LitElementWw {
       
         <sl-details summary="Subnetting extension" open>
           <sl-menu-label>Choose a mode:
-            <sl-select id="current-subnet-mode" @sl-change="${(event) => { Subnet.setMode(event.target.value) }}" value="MANUAL">
+            <sl-select size=${this.screen} id="current-subnet-mode" @sl-change="${(event) => { Subnet.setMode(event.target.value) }}" value="MANUAL">
             <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
             <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
             <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
@@ -363,19 +363,19 @@ export class ComputerNetwork extends LitElementWw {
           </sl-menu-label>
           <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: max(0.1cqw, 12px) !important;">Activate Draw-and-drop</sl-menu-item>
           <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: max(0.1cqw, 12px) !important;">Drag to assign gateway</sl-menu-item>
-          <sl-menu-item><sl-button class="blue-button" @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button></sl-menu-item>
+          <sl-menu-item><sl-button size=${this.screen} class="blue-button" @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button></sl-menu-item>
         </sl-details>
 
         <sl-details id="packet-sending-extension" summary="Packet sending extension">
           <sl-menu-item style="display: flex;">
-            <sl-button style="display: inline-block;" class="blue-button" id="setSourceBtn" @click="${(event) => PacketSimulator.setSource(event, this)}">Choose sender</sl-button>
-            <sl-select id="ip-source-select" hoist style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event) => { PacketSimulator.sourceIp = event.target.value }}" value="127.0.0.1">
+            <sl-button size=${this.screen} style="display: inline-block;" class="blue-button" id="setSourceBtn" @click="${(event) => PacketSimulator.setSource(event, this)}">Choose sender</sl-button>
+            <sl-select size=${this.screen} id="ip-source-select" hoist style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event) => { PacketSimulator.sourceIp = event.target.value }}" value="127.0.0.1">
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>
           <sl-menu-item>
-            <sl-button style="display: inline-block;" class="blue-button" id="setTargetBtn" @click="${(event) => PacketSimulator.setTarget(event, this)}">Choose receiver</sl-button>
-            <sl-select id="ip-target-select" hoist style="display: inline-block;" @sl-change="${(event) => { PacketSimulator.targetIp = event.target.value }}" value="127.0.0.1">
+            <sl-button size=${this.screen} style="display: inline-block;" class="blue-button" id="setTargetBtn" @click="${(event) => PacketSimulator.setTarget(event, this)}">Choose receiver</sl-button>
+            <sl-select size=${this.screen} id="ip-target-select" hoist style="display: inline-block;" @sl-change="${(event) => { PacketSimulator.targetIp = event.target.value }}" value="127.0.0.1">
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>
@@ -396,10 +396,10 @@ export class ComputerNetwork extends LitElementWw {
     <div class="base">
     <div class="componentMenu">
     <form autocomplete="off"
-    style="position: fixed; top: 0; left: 0; background: rgba(255, 255, 255, 0.75)">
-      <input type="file" id="import-file">
-      <button type='button' @click="${() => ImportExportController.importFile(this)}">Import</button>
-      <button type='button' @click="${() => ImportExportController.exportFile(this)}">Export</button>
+    style="position: fixed; top: 0; left: 0;">
+      <input class="importBtn" type="file" id="import-file">
+      <button class="importBtn" type='button' @click="${() => ImportExportController.importFile(this)}">Import</button>
+      <button class="importBtn" type='button' @click="${() => ImportExportController.exportFile(this)}">Export</button>
       </form>
       <sl-dropdown placement="bottom">
         <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
@@ -433,7 +433,7 @@ export class ComputerNetwork extends LitElementWw {
       <sl-tab-panel name="physical">
         <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
         <sl-input class="label-on-left" label="Number of ports" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
-        <sl-button style="margin-top: 1cqw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
+        <sl-button size=${this.screen} style="margin-top: 1cqw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
       </sl-tab-panel>
       <sl-tab-panel name="logical">
       <sl-input class="label-on-left" label="Subnet Number" id="subnet-num" placeholder="Network ID"></sl-input>

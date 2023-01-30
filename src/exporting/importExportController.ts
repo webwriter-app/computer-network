@@ -24,6 +24,7 @@ export class ImportExportController {
         network._graph.nodes('.physical-node').forEach(e => {
             let i = {};
             i['dataExport'] = e.data();
+            i['dataExport']['cssClass'] = e.classes() as string[];
             let portData = [];
             let portLink = [];
             (e.data() as PhysicalNode).portData.forEach((values, port) => {
@@ -51,12 +52,14 @@ export class ImportExportController {
         network._graph.nodes('.subnet-node').forEach(e => {
             let i = {};
             i['dataExport'] = e.data();
+            i['dataExport']['cssClass'] = e.classes() as string[];
             i['position'] = e.position();
             logicalNodes.push(i);
         });
         network._graph.edges().forEach(e => {
             let i = {};
             i['dataExport'] = e.data();
+            i['dataExport']['cssClass'] = e.classes() as string[];
             edges.push(i);
         });
 
@@ -106,6 +109,8 @@ export class ImportExportController {
             json['logical-nodes'].forEach(subnet => {
                 let data: Subnet = new Subnet(subnet['dataExport']['color'], subnet['dataExport']['networkAddress']['address'],
                     subnet['dataExport']['subnetMask'], subnet['dataExport']['bitmask'], network.ipv4Database, subnet['dataExport']['id']);
+
+                data.cssClass = subnet['dataExport']['cssClass'];
 
                 network._graph.add({
                     group: 'nodes',
@@ -177,9 +182,11 @@ export class ImportExportController {
                     data.portLinkMapping.set(p['index'], p['linkId']);
                 })
 
+                data.cssClass = cssClasses;
+
                 if (element['dataExport'].hasOwnProperty('parent')) {
                     data.parent = element['dataExport']['parent'];
-                    
+
                     network._graph.add({
                         group: 'nodes',
                         data: data,
@@ -205,6 +212,8 @@ export class ImportExportController {
 
                 GraphEdge.addPorts(graphEdge, edge['dataExport']['inPort'], edge['dataExport']['outPort']);
 
+                graphEdge.cssClass = edge['dataExport']['cssClass'];
+
                 network._graph.add({
                     group: 'edges',
                     data: graphEdge,
@@ -213,12 +222,9 @@ export class ImportExportController {
             });
 
             network._graph.elements().forEach(e => {
-                console.log(e);
-                console.log(e.data());
+                console.log(e.id());
+                console.log(e.classes());
             });
-            console.log(network.macDatabase);
-            console.log(network.ipv4Database);
-            console.log(network.ipv6Database);
         }
 
         ImportExportController.reader.readAsText(selectedFile, 'UTF-8');

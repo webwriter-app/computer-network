@@ -17,7 +17,9 @@ export class RoutableDecorator extends DataHandlingDecorator {
     arpTableIpMac: Map<string, string> = new Map();
     routingTable: Map<string, [string, number, string]> = new Map(); // (CIDR 0.0.0.0 /0/ port) [interface-name, port, DC?]
 
-    pendingPackets: Map<string, string[]> = new Map<string, string[]>(); //ip of receiver / list of ids of pending Parcels
+    pendingPackets: Map<string, string[]> = new Map<string, string[]>(); //ip of receiver / list of ids of pending packets
+
+    pathsToOtherRouters?: Map<string, any> = new Map<string, any>; //(ip of other router, path from this router to other router)
 
     constructor(component?: PhysicalNode) {
         super(component);
@@ -94,11 +96,9 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
         //check if in same network
         if (subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask) == AddressingHelper.decimalStringWithDotToBinary(receiverIp).slice(0, subnet.bitmask)) {
-            console.log('checkpoint-1');
             this.sendDataInSameNetwork(null, dataNode, this.getMacProvidedIp(data.layer3header.ipSender), data.layer3header.ipSender, "", data.layer3header.ipReceiver, network);
         }
         else {
-            console.log('checkpoint-2');
             this.sendDataToAnotherNetwork(null, dataNode, data.layer2header.macSender, data.layer3header.ipSender, data.layer2header.macReceiver,
                 data.layer3header.ipReceiver, network._graph.$('#' + this.defaultGateway[0]).data().portData.get(this.defaultGateway[1]).get('IPv4'), network);
         }
@@ -128,22 +128,8 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let thisNode = network._graph.$('#' + this.id);
         let receiverNode = network._graph.$('#' + network.ipv4Database.get(ipReceiver));
         let data = dataNode.data();
-
-        console.log(ipReceiver);
-        console.log(network.ipv4Database);
-
-        console.log('checkpoint-3');
-        console.log(thisNode);
-        console.log(receiverNode);
-        console.log(thisNode.data());
-        console.log(receiverNode.data());
-        console.log(thisNode.parent().data());
-        console.log(receiverNode.parent().data());
-        console.log(thisNode.parent().id());
-        console.log(receiverNode.parent().id());
         if (!thisNode.parent().same(receiverNode.parent())) return;
 
-        console.log('checkpoint-4');
         //tìm port to send? k thì ARP
         if (macReceiver == "FF:FF:FF:FF:FF:FF") {
             this.flood(dataNode, null, null, network);
