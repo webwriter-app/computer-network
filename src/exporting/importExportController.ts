@@ -225,6 +225,7 @@ export class ImportExportController {
                 })
 
                 data.cssClass = cssClasses;
+                data.defaultGateway = element['dataExport']['defaultGateway'];
 
                 if (data instanceof Router && cssClasses.includes('gateway-node')) {
                     element['portSubnet'].forEach(p => {

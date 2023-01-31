@@ -159,7 +159,13 @@ export function initNetwork(network: ComputerNetwork): void {
             "style": {
                 "background-fill": "linear-gradient",
                 "background-gradient-stop-colors": function (gateway) {
-                    let colors: string[] = (gateway.data() as Router).colorsForGateway();
+                    let colors = [];
+                    let subnets = gateway.data('subnets');
+                    if (subnets.length == 0) colors = ['grey'];
+
+                    gateway.data('subnets').forEach(subnet => {
+                        colors.push(subnet.color);
+                    });
                     return colors.join(' ');
                 },
             }

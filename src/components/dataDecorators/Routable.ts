@@ -19,11 +19,17 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
     pendingPackets: Map<string, string[]> = new Map<string, string[]>(); //ip of receiver / list of ids of pending packets
 
-    pathsToOtherRouters?: Map<string, any> = new Map<string, any>; //(ip of other router, path from this router to other router)
+    pathsToOtherRouters?: Map<string, string[]> = new Map<string, any>; //(ip of other router, path from this router to other router)
+    subnets?: Subnet[];
+    portSubnetMapping?: Map<number, Subnet> = new Map();
 
     constructor(component?: PhysicalNode) {
         super(component);
         this.cssClass.push('routable-decorated');
+        if (component instanceof Router) {
+            this.subnets = component.subnets;
+            this.portSubnetMapping = component.portSubnetMapping;
+        }
     }
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
@@ -36,14 +42,14 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let thisIp: string = this.portData.get(portIn).get('IPv4').address;
 
         if (receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) {
-            if(data instanceof Frame) AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
-            if(data instanceof Packet) AnimationHelper.blinkingThenRemoveNode('discard-data-node-3part', dataNode.id(), network);
+            if (data instanceof Frame) AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
+            if (data instanceof Packet) AnimationHelper.blinkingThenRemoveNode('discard-data-node-3part', dataNode.id(), network);
             return;
         }
 
         if (data instanceof Data) {
             if (data instanceof Frame && data.name.includes('ARP res')) {
-                this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
+                this.populateRoutingTableOnNewData(previousNode.id(), dataNode, network);
                 this.populateArpTable(data.layer2header.ipSender, data.layer2header.macSender, network);
             }
             else if (data instanceof Frame && data.name.includes('ARP req')) {
@@ -52,7 +58,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
                     return;
                 }
                 else {
-                    this.populateRoutingTableOnNewPacket(previousNode.id(), dataNode, network);
+                    this.populateRoutingTableOnNewData(previousNode.id(), dataNode, network);
                     this.receiveArpRequest(portIn, data.layer2header.macSender, data.layer2header.ipSender, data.layer2header.ipReceiver, network);
                 }
             }
@@ -99,6 +105,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
             this.sendDataInSameNetwork(null, dataNode, this.getMacProvidedIp(data.layer3header.ipSender), data.layer3header.ipSender, "", data.layer3header.ipReceiver, network);
         }
         else {
+            console.log(this.defaultGateway);
             this.sendDataToAnotherNetwork(null, dataNode, data.layer2header.macSender, data.layer3header.ipSender, data.layer2header.macReceiver,
                 data.layer3header.ipReceiver, network._graph.$('#' + this.defaultGateway[0]).data().portData.get(this.defaultGateway[1]).get('IPv4'), network);
         }
@@ -214,26 +221,43 @@ export class RoutableDecorator extends DataHandlingDecorator {
     //initiate before simulation
     initiateRoutingTable(network: ComputerNetwork): void {
         let node = network._graph.$('#' + this.id);
-        if (this instanceof Host) {
+        if (this.cssClass.includes('host-node')) {
             this.portData.forEach((value, port) => {
                 let ipv4: Ipv4Address = value.get('IPv4');
-                if (ipv4.address != "127.0.0.1") this.routingTable.set("0.0.0.0 /0", [value.get('Name'), port, null]);
+                if (ipv4.address != "127.0.0.1") this.routingTable.set("0.0.0.0 /0", [value.get('Name'), port, 'default']);
             });
         }
-        else if (this instanceof Router) {
-            if (node.hasClass('gateway-node')) {
-                let gateway: Router = this as Router;
-                gateway.portSubnetMapping.forEach((subnet, port) => {
-                    this.routingTable.set(subnet.name, [this.portData.get(port).get('Name'), port, 'DC']);
-                });
-            }
+        else if (this.cssClass.includes('router-node')) {
+            let router: Router = this as Router;
+            router.portSubnetMapping.forEach((subnet, port) => {
+                this.routingTable.set(subnet.name, [this.portData.get(port).get('Name'), port, 'DC']);
+            });
+            network._graph.nodes('.subnet-node').forEach(node => {
+                let subnet = node.data() as Subnet;
+
+                if (!this.routingTable.has(subnet.name)) {
+                    let min = Number.MAX_VALUE;
+                    let lastGatewayId: string;
+                    subnet.gateways.forEach((_value, gatewayNodeId) => {
+                        if (this.pathsToOtherRouters.has(gatewayNodeId)) {
+                            if (min > this.pathsToOtherRouters.get(gatewayNodeId).length) {
+                                lastGatewayId = gatewayNodeId;
+                                min = this.pathsToOtherRouters.get(gatewayNodeId).length;
+                            }
+                        }
+                    });
+
+                    let port: number = this.getPortIn(this.pathsToOtherRouters.get(lastGatewayId)[1], network);
+                    this.routingTable.set(subnet.name, [this.portData.get(port).get('Name'), port, 'OSPF']);
+                }
+            });
         }
         PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
     }
 
 
     //TODO: multiple path to another network? link-state-routing? OSPF?
-    populateRoutingTableOnNewPacket(previousId: string, dataNode: any, network: ComputerNetwork): void {
+    populateRoutingTableOnNewData(previousId: string, dataNode: any, network: ComputerNetwork): void {
         let gateway = network._graph.$('#' + this.id);
         let data = dataNode.data();
         let portIn = this.getPortIn(previousId, network);

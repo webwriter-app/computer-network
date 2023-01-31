@@ -42,16 +42,6 @@ export class Router extends Connector {
     portSubnetMapping: Map<number, Subnet> = new Map(); //(port-index, id of subnet-node)
     subnets: Subnet[] = [];
 
-    colorsForGateway(): string[] {
-        let colors = [];
-        this.subnets.forEach(subnet => {
-            colors.push(subnet.color);
-        });
-        if (this.subnets.length == 0) return ['grey'];
-        return colors;
-    }
-
-
     constructor(color: string, numberOfInterfaces: number, names: Map<number, string>, portConnectionTypes: Map<number, ConnectionType>,
         portMacMapping: Map<number, MacAddress>, portIpv4Mapping: Map<number, Ipv4Address>, portIpv6Mapping: Map<number, Ipv6Address>,
         name?: string, id?: string) {

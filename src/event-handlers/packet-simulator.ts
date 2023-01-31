@@ -61,7 +61,7 @@ export class PacketSimulator {
                 node.portData.forEach((value, port) => {
                     selects.innerHTML += `<sl-menu-item value="` + value.get('IPv4').address + `">` + port + `: ` + value.get('IPv4').address + `</sl-menu-item>\n`;
                 });
-                
+
             }
         });
     }
@@ -76,12 +76,14 @@ export class PacketSimulator {
             AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "The widget currently only support sending Parcel between layer 3 components");
         }
 
+
+        //decorate all physical nodes
         network._graph.nodes('.physical-node').forEach(node => {
             let nodeData: PhysicalNode = node.data() as PhysicalNode;
             if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
                 if (node.hasClass('host-node') || node.hasClass('router-node')) {
                     const decorated: RoutableDecorator = new RoutableDecorator(nodeData);
-                    decorated.initiateRoutingTable(network);
+                    //decorated.initiateRoutingTable(network);
                     node._private.data = decorated;
                     node.classes(decorated.cssClass);
                 }
@@ -98,28 +100,37 @@ export class PacketSimulator {
             }
         });
 
-        network._graph.nodes('.router-node').forEach(node => {
-            let dijkstra = network._graph.nodes('.router-node').dijkstra('#'+node.id());
-            network._graph.nodes('.router-node').forEach(otherNode =>{
-                if(otherNode.id()!=node.id()){
+        //init paths to other routers for each router
+        var routers = network._graph.nodes('.router-node');
+        var edges = network._graph.edges();
+        var eles = routers.union(edges);
+        routers.forEach(node => {
+            let dijkstra = eles.dijkstra('#' + node.id());
+            routers.forEach(otherNode => {
+                if (otherNode.id() != node.id()) {
                     let path = dijkstra.pathTo(otherNode);
-                    path.forEach(a => console.log(a));
+                    let nodesOnPath: string[] = [];
+                    path.forEach(n => {
+                        if(n.isNode()) nodesOnPath.push(n.id())
+                    });
                     let data = node.data() as RoutableDecorator;
-                    data.pathsToOtherRouters.set(otherNode.id(), path);
+                    data.pathsToOtherRouters.set(otherNode.id(), nodesOnPath);
                 }
-            })
+            });
         });
 
+        network._graph.nodes('.routable-decorated').forEach(node => {
+            let decorated = node.data() as RoutableDecorator;
+            decorated.initiateRoutingTable(network);
+            console.log(decorated.routingTable);
+        });
+
+        //create data packet
         let data: Packet = new Packet(network.currentColor, "", "", this.sourceIp, this.targetIp);
         let sourceNode = network._graph.$('#' + this.sourceEndPoint);
         let sender: RoutableDecorator = sourceNode.data() as RoutableDecorator;
 
         let sourcePosition = sourceNode.position();
-
-        network._graph.elements().forEach(e => {
-            console.log(e.data());
-        });
-
         network._graph.add({
             group: 'nodes',
             data: data,
@@ -243,7 +254,7 @@ export class PacketSimulator {
         if (detail == null) {
             detail = new SlDetails();
             detail.id = 'tables-for-' + nodeId;
-            detail.summary = "Tables of "+nodeId;
+            detail.summary = "Tables of " + nodeId;
             detail.open = true;
             switch (tableType) {
                 case 'ArpTable': case 'RoutingTable':
