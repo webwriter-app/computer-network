@@ -116,6 +116,10 @@ export class PacketSimulator {
 
         let sourcePosition = sourceNode.position();
 
+        network._graph.elements().forEach(e => {
+            console.log(e.data());
+        });
+
         network._graph.add({
             group: 'nodes',
             data: data,

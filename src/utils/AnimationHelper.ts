@@ -7,17 +7,17 @@ export class AnimationHelper {
 
 
     static blinkingThenRemoveNode(nodeCssClass: string, nodeId: string, network: ComputerNetwork){
-        AnimationHelper.delay(400).then(() => {
+        AnimationHelper.delay(500).then(() => {
             network._graph.$('#' + nodeId).toggleClass(nodeCssClass, true);
-            AnimationHelper.delay(400).then(() => {
+            AnimationHelper.delay(500).then(() => {
                 network._graph.$('#' + nodeId).toggleClass(nodeCssClass, false);
-                AnimationHelper.delay(400).then(() => {
+                AnimationHelper.delay(500).then(() => {
                     network._graph.$('#' + nodeId).toggleClass(nodeCssClass, true);
-                    AnimationHelper.delay(400).then(() => {
+                    AnimationHelper.delay(500).then(() => {
                         network._graph.$('#' + nodeId).toggleClass(nodeCssClass, false);
-                        AnimationHelper.delay(400).then(() => {
+                        AnimationHelper.delay(500).then(() => {
                             network._graph.$('#' + nodeId).toggleClass(nodeCssClass, true);
-                            AnimationHelper.delay(400).then(() => network._graph.$('#' + nodeId).remove());
+                            AnimationHelper.delay(500).then(() => network._graph.$('#' + nodeId).remove());
                         });
                     });
                 });
