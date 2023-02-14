@@ -15,10 +15,11 @@ test('should create new Router with 1 port correctly with loopbacks', () => {
 
     expect(router.color).toBe("mock-color");
     expect(router.name).toBe("mock-name");
-    expect(router.cssClass.length).toBe(3);
+    expect(router.cssClass.length).toBe(4);
     expect(router.cssClass.includes("router-node")).toBe(true);
     expect(router.cssClass.includes("connector-node")).toBe(true);
     expect(router.cssClass.includes("physical-node")).toBe(true);
+    expect(router.cssClass.includes("deletable")).toBe(true);
     expect(router.layer).toBe(3);
     expect(router.numberOfInterfacesOrPorts).toBe(1);
     expect(router.portData.size).toBe(1);
@@ -39,10 +40,11 @@ test('should create new Router with 1 port correctly', () => {
 
     expect(router.color).toBe("mock-color");
     expect(router.name).toBe("mock-name");
-    expect(router.cssClass.length).toBe(3);
+    expect(router.cssClass.length).toBe(4);
     expect(router.cssClass.includes("router-node")).toBe(true);
     expect(router.cssClass.includes("connector-node")).toBe(true);
     expect(router.cssClass.includes("physical-node")).toBe(true);
+    expect(router.cssClass.includes("deletable")).toBe(true);
     expect(router.layer).toBe(3);
     expect(router.numberOfInterfacesOrPorts).toBe(1);
     expect(router.portData.size).toBe(1);
@@ -73,10 +75,11 @@ test('should create new Router with multiple ports correctly', () => {
 
     expect(router.color).toBe("mock-color");
     expect(router.name).toBe("mock-name");
-    expect(router.cssClass.length).toBe(3);
+    expect(router.cssClass.length).toBe(4);
     expect(router.cssClass.includes("router-node")).toBe(true);
     expect(router.cssClass.includes("connector-node")).toBe(true);
     expect(router.cssClass.includes("physical-node")).toBe(true);
+    expect(router.cssClass.includes("deletable")).toBe(true);
     expect(router.layer).toBe(3);
     expect(router.numberOfInterfacesOrPorts).toBe(3);
     expect(router.portData.size).toBe(3);

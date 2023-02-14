@@ -50,8 +50,7 @@ test('properly classify invalid IPv4 Address of subnet', () => {
 
 test('properly validate IPv4 Address of host against database', () => {
     let database: Map<string, string> = new Map();
-    Ipv4Address.validateAddress('192.0.2.255', database);
-    expect(Ipv4Address.validateAddress('192.0.2.255', database)).toBeNull();
+    expect(Ipv4Address.validateAddress('192.0.2.255', database)).not.toBeNull();
 });
 
 test('properly validate loopback against database', () => {

@@ -19,8 +19,7 @@ test('properly validate IPv6 Address regex', () => {
 
 test('properly validate IPv6 Address against database', () => {
     let database: Map<string, string> = new Map();
-    Ipv6Address.validateAddress('2001:0db8:85a3:0000:0000:8a2e:0370:7334', database);
-    expect(Ipv6Address.validateAddress('2001:0db8:85a3:0000:0000:8a2e:0370:7334', database)).toBeNull();
+    expect(Ipv6Address.validateAddress('2001:0db8:85a3:0000:0000:8a2e:0370:7334', database)).not.toBeNull();
 });
 
 test('properly validate loopback against database', () => {

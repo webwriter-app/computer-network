@@ -608,13 +608,13 @@ export class ComputerNetwork extends LitElementWw {
       // new value is 
       const newValue = this.editable;
       if (newValue) {
-        if (this.networkAvailable) this._graph.elements().toggleClass('deleteable', true);
+        if (this.networkAvailable) this._graph.elements().toggleClass('deletable', true);
         ['host', 'connector', 'edge', 'subnet', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
           (this.renderRoot.querySelector('#' + buttonId) as HTMLButtonElement).disabled = false;
         });
       }
       else {
-        if (this.networkAvailable) this._graph.elements().toggleClass('deleteable', false);
+        if (this.networkAvailable) this._graph.elements().toggleClass('deletable', false);
         ['host', 'connector', 'edge', 'subnet', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
           (this.renderRoot.querySelector('#' + buttonId) as HTMLButtonElement).disabled = true;
         });

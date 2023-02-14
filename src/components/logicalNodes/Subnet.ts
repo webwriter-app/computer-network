@@ -127,8 +127,6 @@ export class Subnet extends LogicalNode {
     private static testPossibleSubnetAddresses(count: number, candidateId: string, subnet: Subnet, database: Map<string, string>): void {
         if (Subnet.mode != "HOST_BASED") return;
         if (subnet.networkAddress != null && subnet.networkAddress != undefined) {
-            database.delete(subnet.networkAddress.address); //delete the old subnet ID from database
-            database.delete(AddressingHelper.getBroadcastAddress(subnet.networkAddress.address, subnet.bitmask));
             Ipv4Address.removeAddressFromDatabase(subnet.networkAddress, database, subnet.bitmask);
         }
 

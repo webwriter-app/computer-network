@@ -55,10 +55,6 @@ export class Ipv4Address extends Address {
 
         if (isNetworkId && parseInt(binArray.join('').slice(bitmask)) * 10 != 0 && bitmask < 32) return null;
 
-        if (isNetworkId) {
-            database.set(AddressingHelper.getBroadcastAddress(ip, bitmask), null); //add the broadcast address to database also
-        }
-
         return result;
     }
 

@@ -25,6 +25,5 @@ test('properly validate Mac Address regex', () => {
 
 test('properly validate Mac Address against database', () => {
     let database: Map<string, string> = new Map();
-    MacAddress.validateAddress('00:B0:D0:63:C2:26', database);
-    expect(MacAddress.validateAddress('00:B0:D0:63:C2:26', database)).toBeNull();
+    expect(MacAddress.validateAddress('00:B0:D0:63:C2:26', database)).not.toBeNull();
 });

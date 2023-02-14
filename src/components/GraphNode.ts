@@ -7,7 +7,7 @@ export abstract class GraphNode {
 
     constructor(color: string) {
         this.color = color;
-        this.cssClass.push('deleteable');
+        this.cssClass.push('deletable');
     }
 
 

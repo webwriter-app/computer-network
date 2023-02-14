@@ -12,15 +12,6 @@ test('should set mode correctly', () => {
     });
 });
 
-test('should validate subnet mask correctly', () => {
-    expect(Subnet.validateSubnetMask("255.255.255.255")).toBe(true);
-    expect(Subnet.validateSubnetMask("255.255.255.0")).toBe(true);
-    expect(Subnet.validateSubnetMask("255.255.0.0")).toBe(true);
-    expect(Subnet.validateSubnetMask("255.0.0.0")).toBe(true);
-    expect(Subnet.validateSubnetMask("0.0.0.0")).toBe(true);
-    expect(Subnet.validateSubnetMask("0.1.0.0")).toBe(false);
-});
-
 test('should create Subnet for valid subnetNum, subnetMask, bitmask - upper bound', () => {
     modes.forEach(mode => {
         Subnet.setMode(mode);
@@ -196,6 +187,7 @@ test('should extend existed subnet for new host', () => {
     let database: Map<string, string> = new Map();
     let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let ipOfNewHost: Ipv4Address = Ipv4Address.validateAddress("128.128.0.0", database);
+    Ipv4Address.addAddressToDatabase(ipOfNewHost, database, "mock-node");
 
     Subnet.calculateCIDRGivenNewHost(subnet, ipOfNewHost, database);
 
@@ -206,7 +198,9 @@ test('should extend existed subnet for new host', () => {
     expect(subnet.name).toBe("128.0.0.0 /8");
     expect(subnet.cssClass.includes('unconfigured-subnet')).toBe(false);
     expect(database.has("128.0.255.0")).toBe(false);
+    expect(database.has("128.0.255.255")).toBe(false);
     expect(database.has("128.0.0.0")).toBe(true);
+    expect(database.has("128.255.255.255")).toBe(true);
     expect(database.size).toBe(3);
 });
 
@@ -218,6 +212,7 @@ test("shouldn't extend existed subnet for new host if not HOST_BASED mode", () =
         let database: Map<string, string> = new Map();
         let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
         let ipOfNewHost: Ipv4Address = Ipv4Address.validateAddress("128.128.0.0", database);
+        Ipv4Address.addAddressToDatabase(ipOfNewHost, database, "mock-node");
 
         Subnet.calculateCIDRGivenNewHost(subnet, ipOfNewHost, database);
 
@@ -229,6 +224,7 @@ test("shouldn't extend existed subnet for new host if not HOST_BASED mode", () =
         expect(subnet.cssClass.includes('unconfigured-subnet')).toBe(false);
         expect(database.size).toBe(3);
         expect(database.has("128.0.255.0")).toBe(true);
+        expect(database.has("128.0.255.255")).toBe(true);
         expect(database.has("128.128.0.0")).toBe(true);
     });
 });
@@ -238,6 +234,7 @@ test('should not extend existed subnet for matching new host', () => {
     let database: Map<string, string> = new Map();
     let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let ipOfNewHost: Ipv4Address = Ipv4Address.validateAddress("128.0.255.128", database);
+    Ipv4Address.addAddressToDatabase(ipOfNewHost, database, "mock-node");
 
     Subnet.calculateCIDRGivenNewHost(subnet, ipOfNewHost, database);
 
@@ -250,6 +247,7 @@ test('should not extend existed subnet for matching new host', () => {
     expect(database.size).toBe(3);
     expect(database.has("128.0.255.0")).toBe(true);
     expect(database.has("128.0.255.128")).toBe(true);
+    expect(database.has("128.0.255.255")).toBe(true);
 });
 
 test('should not extend existed subnet for loopback address', () => {
@@ -257,6 +255,7 @@ test('should not extend existed subnet for loopback address', () => {
     let database: Map<string, string> = new Map();
     let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let ipOfNewHost: Ipv4Address = Ipv4Address.validateAddress("127.0.0.1", database);
+    Ipv4Address.addAddressToDatabase(ipOfNewHost, database, "mock-node");
 
     Subnet.calculateCIDRGivenNewHost(subnet, ipOfNewHost, database);
 
@@ -268,6 +267,7 @@ test('should not extend existed subnet for loopback address', () => {
     expect(subnet.cssClass.includes('unconfigured-subnet')).toBe(false);
     expect(database.size).toBe(2);
     expect(database.has("128.0.255.0")).toBe(true);
+    expect(database.has("128.0.255.255")).toBe(true);
 });
 
 test('should extend existed supernet for new subnet (of same bitmask)', () => {
@@ -286,6 +286,10 @@ test('should extend existed supernet for new subnet (of same bitmask)', () => {
     expect(supernet.cssClass.includes('unconfigured-subnet')).toBe(false);
     expect(database.size).toBe(4);
     expect(database.has("128.0.255.0")).toBe(false);
+    expect(database.has("128.0.255.255")).toBe(true);
+    expect(database.has("128.0.253.255")).toBe(false);
+    expect(database.has("128.0.252.0")).toBe(true);
+    
 });
 
 test('should extend existed supernet for new subnet - lower bound', () => {
@@ -304,6 +308,7 @@ test('should extend existed supernet for new subnet - lower bound', () => {
     expect(supernet.cssClass.includes('unconfigured-subnet')).toBe(false);
     expect(database.size).toBe(4);
     expect(database.has("128.0.255.0")).toBe(false);
+    expect(database.has("128.0.255.255")).toBe(false);
 });
 
 test('should set supernet as unconfigured when no valid address available', () => {
@@ -331,6 +336,8 @@ test('should set subnet as unconfigured when no valid address available (new hos
     database.set("0.0.0.0", null); //mock address
     let subnet: Subnet = Subnet.createSubnet("", "128.0.255.0", "", 24, database);
     let hostIp: Ipv4Address = Ipv4Address.validateAddress("1.0.0.0", database);
+
+    Ipv4Address.addAddressToDatabase(hostIp, database, "mock-node");
     
     Subnet.calculateCIDRGivenNewHost(subnet, hostIp, database);
 

@@ -57,3 +57,13 @@ test('should replace digit at correct position', () => {
     expect(AddressingHelper.replaceAt('00000000000000000000000000000000',-1,'2')).toBeNull();
     expect(AddressingHelper.replaceAt('00000000000000000000000000000000',8,'2')).toBe('00000002000000000000000000000000');
 });
+
+
+test('should validate subnet mask correctly', () => {
+    expect(AddressingHelper.validateNetMask("255.255.255.255")).toBe(true);
+    expect(AddressingHelper.validateNetMask("255.255.255.0")).toBe(true);
+    expect(AddressingHelper.validateNetMask("255.255.0.0")).toBe(true);
+    expect(AddressingHelper.validateNetMask("255.0.0.0")).toBe(true);
+    expect(AddressingHelper.validateNetMask("0.0.0.0")).toBe(true);
+    expect(AddressingHelper.validateNetMask("0.1.0.0")).toBe(false);
+});

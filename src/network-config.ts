@@ -317,7 +317,7 @@ export function initNetwork(network: ComputerNetwork): void {
                 tooltipText: 'Remove this component', // Tooltip text for menu item
                 // Filters the elements to have this menu item on cxttap
                 // If the selector is not truthy no elements will have this menu item on cxttap
-                selector: ".deleteable",
+                selector: ".deletable",
                 onClickFunction: (event) => { // The function to be executed on click
                     let component = event.target;
                     if (component.isEdge()) {
