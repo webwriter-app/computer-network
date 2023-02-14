@@ -463,7 +463,7 @@ export class ComputerNetwork extends LitElementWw {
           <sl-button class="blue-button" @click="${() => PacketSimulator.initSession(this)}">Init</sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.pauseOrResumeSession(this)}"><sl-icon id="pause-ani" src="/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg" label="Pause simulation session"></sl-icon></sl-button>
-          <sl-button class="blue-button" @click="${() => PacketSimulator.resetDatabase(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
+          <sl-button class="blue-button" @click="${() => PacketSimulator.stopSession(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
           <sl-menu-item>
             <sl-details id="tables-for-packet-simulator" summary="Track tables" open>
 

@@ -92,8 +92,6 @@ export class PacketSimulator {
     }
 
     static startSession(network: ComputerNetwork) {
-        if(!PacketSimulator.inited) PacketSimulator.initSession(network);
-
         network._graph.$('node').lock();
 
         let source = network._graph.$('#' + PacketSimulator.sourceEndPoint);
@@ -118,31 +116,45 @@ export class PacketSimulator {
         sender.sendData(network._graph.$('#' + data.id), network, sourceNode);
     }
 
-    static initSession(network: ComputerNetwork){
-        (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
-        
-        //decorate all physical nodes
-        network._graph.nodes('.physical-node').forEach(node => {
-            let nodeData: PhysicalNode = node.data() as PhysicalNode;
-            if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
-                if (node.hasClass('host-node') || node.hasClass('router-node')) {
-                    const decorated: RoutableDecorator = new RoutableDecorator(nodeData, network);
-                    node._private.data = decorated;
-                    node.classes(decorated.cssClass);
+    static initSession(network: ComputerNetwork) {
+        if (!PacketSimulator.inited) {
+            //decorate all physical nodes
+            network._graph.nodes('.physical-node').forEach(node => {
+                let nodeData: PhysicalNode = node.data() as PhysicalNode;
+                if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
+                    if (node.hasClass('host-node') || node.hasClass('router-node')) {
+                        const decorated: RoutableDecorator = new RoutableDecorator(nodeData, network);
+                        node._private.data = decorated;
+                        node.classes(decorated.cssClass);
+                    }
+                    else if (node.hasClass('switch-node') || node.hasClass('bridge-node')) {
+                        const decorated: SwitchableDecorator = new SwitchableDecorator(nodeData, network);
+                        node._private.data = decorated;
+                        node.classes(decorated.cssClass);
+                    }
+                    else {
+                        const decorated: SimpleDecorator = new SimpleDecorator(nodeData);
+                        node._private.data = decorated;
+                        node.classes(decorated.cssClass);
+                    }
                 }
-                else if (node.hasClass('switch-node') || node.hasClass('bridge-node')) {
-                    const decorated: SwitchableDecorator = new SwitchableDecorator(nodeData, network);
-                    node._private.data = decorated;
-                    node.classes(decorated.cssClass);
-                }
-                else {
-                    const decorated: SimpleDecorator = new SimpleDecorator(nodeData);
-                    node._private.data = decorated;
-                    node.classes(decorated.cssClass);
-                }
-            }
-        });
-        PacketSimulator.inited = true;
+            });
+            PacketSimulator.inited = true;
+        }
+        else {
+            (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
+            //init tables again
+            network._graph.nodes('.routable-decorated').forEach(node => {
+                let nodeData: RoutableDecorator = node.data() as RoutableDecorator;
+                PacketSimulator.initTable(nodeData.id, 'ArpTable', network);
+                PacketSimulator.initTable(nodeData.id, 'RoutingTable', network);
+            });
+
+            network._graph.nodes('.switchable-decorated').forEach(node => {
+                let nodeData: SwitchableDecorator = node.data() as SwitchableDecorator;
+                PacketSimulator.initTable(nodeData.id, 'MacAddressTable', network);
+            });
+        }
     }
 
     static initThenDirectSend(sourceNode: any, targetNode: any, data: Data, network: ComputerNetwork): void {
@@ -287,8 +299,8 @@ export class PacketSimulator {
         detail.append(removeButton);
         detail.append(saveButton);
     }
-    
-    static resetDatabase(network: ComputerNetwork) {
+
+    static stopSession(network: ComputerNetwork) {
         (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
 
         network._graph.nodes('switchable-decorated').forEach(node => {
@@ -303,6 +315,14 @@ export class PacketSimulator {
             nodeData.arpTableMacIp = new Map();
         });
 
+        //stop all animations and remove related packet/frame nodes
+        PacketSimulator.currentAnimations.forEach(ani => {
+            ani.stop();
+            ani._private.target.remove();
+        });
+
+        PacketSimulator.currentAnimations = new Map();
+        network._graph.nodes('.data-node').forEach(node => node.remove());
     }
 }
 
