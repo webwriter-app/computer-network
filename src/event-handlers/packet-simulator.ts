@@ -119,6 +119,8 @@ export class PacketSimulator {
     }
 
     static initSession(network: ComputerNetwork){
+        (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
+        
         //decorate all physical nodes
         network._graph.nodes('.physical-node').forEach(node => {
             let nodeData: PhysicalNode = node.data() as PhysicalNode;

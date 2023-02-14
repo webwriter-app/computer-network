@@ -347,10 +347,10 @@ export class ComputerNetwork extends LitElementWw {
         width: 20px;
     }
     table.fixedArp td:nth-of-type(2) {
-        width: 38%;
+        width: 40%;
     }
     table.fixedMac td:nth-of-type(3) {
-        width: 54%;
+        width: 52%;
     }
   
     /** Container queries **/

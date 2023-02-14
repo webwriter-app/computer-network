@@ -1,13 +1,19 @@
+import { SlDetails } from '@shoelace-style/shoelace';
 import { ComputerNetwork } from '../..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { Ipv6Address } from '../adressing/Ipv6Address';
 import { MacAddress } from '../adressing/MacAddress';
+import { RoutableDecorator } from '../components/dataDecorators/Routable';
+import { SwitchableDecorator } from '../components/dataDecorators/Switchable';
 import { GraphEdge } from '../components/GraphEdge';
 import { Subnet } from '../components/logicalNodes/Subnet';
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from '../components/physicalNodes/Connector';
 import { Host } from '../components/physicalNodes/Host';
 import { ConnectionType, PhysicalNode } from '../components/physicalNodes/PhysicalNode';
+import { PacketSimulator } from '../event-handlers/packet-simulator';
 import { initNetwork } from '../network-config';
+import { RoutingData } from '../utils/routingData';
+import { TableHelper } from '../utils/TableHelper';
 
 export class ImportExportController {
 
@@ -100,9 +106,67 @@ export class ImportExportController {
             edges.push(i);
         });
 
+        if (PacketSimulator.inited) {
+            data['inited'] = true;
+            let switchableTables = [];
+            network._graph.nodes('.switchable-decorated').forEach(e => {
+                let i = {};
+                let switchable: SwitchableDecorator = e.data();
+                i['id'] = switchable.id;
+                let table = [];
+                if (switchable.macAddressTable.size > 0) {
+                    switchable.macAddressTable.forEach((port, mac) => {
+                        let row = {};
+                        row['port'] = port;
+                        row['mac'] = mac;
+                        table.push(row);
+                    });
+                }
+                i['table'] = table;
+                switchableTables.push(i);
+            });
+
+            let routableTables = [];
+            network._graph.nodes('.routable-decorated').forEach(e => {
+                let i = {};
+                let routable: RoutableDecorator = e.data();
+                i['id'] = routable.id;
+                let arpTable = [];
+                if (routable.arpTableIpMac.size > 0) {
+                    routable.arpTableIpMac.forEach((mac, ip) => {
+                        let row = {};
+                        row['ip'] = ip;
+                        row['mac'] = mac;
+                        arpTable.push(row);
+                    });
+                }
+                i['arpTable'] = arpTable;
+
+                let routingTable = [];
+                if (routable.routingTable.size > 0) {
+                    routable.routingTable.forEach(routingData => {
+                        let row = {};
+                        row['destination'] = routingData.destination;
+                        row['gateway'] = routingData.gateway;
+                        row['interfaceName'] = routingData.interfaceName;
+                        row['bitmask'] = routingData.bitmask;
+                        row['netmask'] = routingData.netmask;
+                        row['port'] = routingData.port;
+                        row['metric'] = routingData.metric;
+                        routingTable.push(row);
+                    });
+                }
+                i['routingTable'] = routingTable;
+                routableTables.push(i);
+            });
+            data['switchable'] = switchableTables;
+            data['routable'] = routableTables;
+        }
+
         data['physical-nodes'] = physicalNodes;
         data['logical-nodes'] = logicalNodes;
         data['edges'] = edges;
+
 
         let myblob = new Blob([JSON.stringify(data)], {
             type: 'application/json'
@@ -272,6 +336,47 @@ export class ImportExportController {
                     classes: graphEdge.cssClass
                 });
             });
+
+            if (json.hasOwnProperty('inited')) {
+                PacketSimulator.initSession(network);
+            }
+            else {
+                (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
+            }
+
+            if (json.hasOwnProperty('switchable')) {
+                json['switchable'].forEach(element => {
+                    let rows: any[] = element['table'];
+                    let map: Map<string, number> = (network._graph.$('#' + element['id']).data() as SwitchableDecorator).macAddressTable;
+                    rows.forEach(row => {
+                        map.set(row['mac'], +row['port']);
+                        TableHelper.addRow('mac-address-table-' + element['id'], 'MacAddressTable', network, [row['port'], row['mac']]);
+                    });
+                });
+            }
+            if (json.hasOwnProperty('routable')) {
+                json['routable'].forEach(element => {
+                    let routingRows: any[] = element['routingTable'];
+                    let routingMap: Map<string, RoutingData> = (network._graph.$('#' + element['id']).data() as RoutableDecorator).routingTable;
+                    routingRows.forEach(row => {
+                        routingMap.set(row['destination'], new RoutingData(row['destination'], row['gateway'], +row['bitmask'],
+                            row['interfaceName'], +row['port'], +row['metric']));
+                        TableHelper.addRow('routing-table-' + element['id'], 'RoutingTable', network, [row['destination'], row['gateway'],
+                        +row['bitmask'], +row['port'], +row['metric']]);
+                    });
+
+
+                    let arpRows: any[] = element['arpTable'];
+                    let arpMapIpMac: Map<string, string> = (network._graph.$('#' + element['id']).data() as RoutableDecorator).arpTableIpMac;
+                    let arpMapMacIp: Map<string, string> = (network._graph.$('#' + element['id']).data() as RoutableDecorator).arpTableMacIp;
+
+                    arpRows.forEach(row => {
+                        arpMapIpMac.set(row['ip'], row['mac']);
+                        arpMapMacIp.set(row['mac'], row['ip']);
+                        TableHelper.addRow('arp-table-' + element['id'], 'ArpTable', network, [row['ip'], row['mac']]);
+                    });
+                });
+            }
         }
 
         ImportExportController.reader.readAsText(selectedFile, 'UTF-8');
