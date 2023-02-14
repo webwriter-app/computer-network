@@ -1,21 +1,21 @@
 import { ComputerNetwork } from "../../..";
-import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { PacketSimulator } from "../../event-handlers/packet-simulator";
 import { AddressingHelper } from "../../utils/AdressingHelper";
 import { AlertHelper } from "../../utils/AlertHelper";
 import { AnimationHelper } from "../../utils/AnimationHelper";
+import { RoutingData } from "../../utils/routingData";
+import { TableHelper } from "../../utils/TableHelper";
 import { GraphEdge } from "../GraphEdge";
 import { Data, Packet, Frame } from "../logicalNodes/DataNode";
 import { Subnet } from "../logicalNodes/Subnet";
 import { Router } from "../physicalNodes/Connector";
-import { Host } from "../physicalNodes/Host";
 import { PhysicalNode } from "../physicalNodes/PhysicalNode";
 import { DataHandlingDecorator } from "./DataHandlingDecorator";
 
 export class RoutableDecorator extends DataHandlingDecorator {
     arpTableMacIp: Map<string, string> = new Map(); //(mac, ip)
     arpTableIpMac: Map<string, string> = new Map();
-    routingTable: Map<string, [string, number, string]> = new Map(); // (CIDR 0.0.0.0 /0/ port) [interface-name, port, DC?]
+    routingTable: Map<string, RoutingData> = new Map(); // (destination-address, routingAttributes)
 
     pendingPackets: Map<string, string[]> = new Map<string, string[]>(); //ip of receiver / list of ids of pending packets
 
@@ -23,13 +23,15 @@ export class RoutableDecorator extends DataHandlingDecorator {
     subnets?: Subnet[];
     portSubnetMapping?: Map<number, Subnet> = new Map();
 
-    constructor(component?: PhysicalNode) {
+    constructor(component: PhysicalNode, network: ComputerNetwork) {
         super(component);
         this.cssClass.push('routable-decorated');
         if (component instanceof Router) {
             this.subnets = component.subnets;
             this.portSubnetMapping = component.portSubnetMapping;
         }
+        PacketSimulator.initTable(this.id, 'ArpTable', network);
+        PacketSimulator.initTable(this.id, 'RoutingTable', network);
     }
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
@@ -44,6 +46,8 @@ export class RoutableDecorator extends DataHandlingDecorator {
         if (receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) {
             if (data instanceof Frame) AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
             if (data instanceof Packet) AnimationHelper.blinkingThenRemoveNode('discard-data-node-3part', dataNode.id(), network);
+            //if (data instanceof Frame) AnimationHelper.otherBlinking('img/datagram/2part-red.png', dataNode.id(), network);
+            //if (data instanceof Packet) AnimationHelper.otherBlinking('img/datagram/3part-red.png', dataNode.id(), network);
             return;
         }
 
@@ -55,6 +59,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
             else if (data instanceof Frame && data.name.includes('ARP req')) {
                 if (thisIp != receiverIp) {
                     AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
+                    //AnimationHelper.otherBlinking('img/datagram/2part-red.png', dataNode.id(), network);
                     return;
                 }
                 else {
@@ -65,6 +70,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
             else if (data instanceof Packet) {
                 if (receiverIp == thisIp) {
                     AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
+                    //AnimationHelper.otherBlinking('img/datagram/3part-green.png', dataNode.id(), network);
                     AlertHelper.toastAlert('success', 'check2-all', "", "Your receiver has received the message!");
                 }
                 else if (this instanceof Router && this.cssClass.includes('gateway-node')) {
@@ -105,7 +111,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
             this.sendDataInSameNetwork(null, dataNode, this.getMacProvidedIp(data.layer3header.ipSender), data.layer3header.ipSender, "", data.layer3header.ipReceiver, network);
         }
         else {
-            console.log(this.defaultGateway);
             this.sendDataToAnotherNetwork(null, dataNode, data.layer2header.macSender, data.layer3header.ipSender, data.layer2header.macReceiver,
                 data.layer3header.ipReceiver, network._graph.$('#' + this.defaultGateway[0]).data().portData.get(this.defaultGateway[1]).get('IPv4'), network);
         }
@@ -197,7 +202,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
     populateArpTable(ip: string, mac: string, network: ComputerNetwork): void {
         this.arpTableMacIp.set(mac, ip);
         this.arpTableIpMac.set(ip, mac);
-        PacketSimulator.addOrUpdateTable(this.id, 'ArpTable', this.arpTableIpMac, network);
+        TableHelper.addRow('arp-table-' + this.id, "ArpTable", network, [ip, mac]);
 
         //send out pending Packets after getting ARP table populated
         if (this.pendingPackets.has(ip)) {
@@ -218,93 +223,54 @@ export class RoutableDecorator extends DataHandlingDecorator {
         }
     }
 
-    //initiate before simulation
-    initiateRoutingTable(network: ComputerNetwork): void {
-        let node = network._graph.$('#' + this.id);
-        if (this.cssClass.includes('host-node')) {
-            this.portData.forEach((value, port) => {
-                let ipv4: Ipv4Address = value.get('IPv4');
-                if (ipv4.address != "127.0.0.1") this.routingTable.set("0.0.0.0 /0", [value.get('Name'), port, 'default']);
-            });
-        }
-        else if (this.cssClass.includes('router-node')) {
-            let router: Router = this as Router;
-            router.portSubnetMapping.forEach((subnet, port) => {
-                this.routingTable.set(subnet.name, [this.portData.get(port).get('Name'), port, 'DC']);
-            });
-            network._graph.nodes('.subnet-node').forEach(node => {
-                let subnet = node.data() as Subnet;
 
-                if (!this.routingTable.has(subnet.name)) {
-                    let min = Number.MAX_VALUE;
-                    let lastGatewayId: string;
-                    subnet.gateways.forEach((_value, gatewayNodeId) => {
-                        if (this.pathsToOtherRouters.has(gatewayNodeId)) {
-                            if (min > this.pathsToOtherRouters.get(gatewayNodeId).length) {
-                                lastGatewayId = gatewayNodeId;
-                                min = this.pathsToOtherRouters.get(gatewayNodeId).length;
-                            }
-                        }
-                    });
-
-                    let port: number = this.getPortIn(this.pathsToOtherRouters.get(lastGatewayId)[1], network);
-                    this.routingTable.set(subnet.name, [this.portData.get(port).get('Name'), port, 'OSPF']);
-                }
-            });
-        }
-        PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
-    }
-
-
-    //TODO: multiple path to another network? link-state-routing? OSPF?
     populateRoutingTableOnNewData(previousId: string, dataNode: any, network: ComputerNetwork): void {
-        let gateway = network._graph.$('#' + this.id);
         let data = dataNode.data();
         let portIn = this.getPortIn(previousId, network);
 
-
-        if (!this.cssClass.includes('gateway-node')) {
-            if (data instanceof Frame) {
-                this.routingTable.set(dataNode.data().layer2header.ipSender, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
-                PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
-                AnimationHelper.blinkingThenRemoveNode('processing-data-node-2part', dataNode.id(), network);
+        if (data instanceof Frame) {
+            let destination: string = dataNode.data().layer2header.ipSender;
+            if (this.checkIfSameNetwork(destination, network)) {
+                let routingData = new RoutingData(destination, "on-link", 32, this.portData.get(portIn).get('Name'), portIn);
+                this.routingTable.set(destination, routingData);
+                TableHelper.addRow('routing-table-' + this.id, "RoutingTable", network, [routingData.destination, routingData.gateway, routingData.bitmask,
+                routingData.port, routingData.metric]);
             }
-            else if (data instanceof Packet) {
-                this.routingTable.set(dataNode.data().layer3header.ipSender, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
-                PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
-                AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
+            else {
+                //frame shouldn't be send to other network?
             }
+            AnimationHelper.blinkingThenRemoveNode('processing-data-node-2part', dataNode.id(), network);
+            //AnimationHelper.otherBlinking('img/datagram/2part-green.png', dataNode.id(), network);
         }
-        else {
-            if (data instanceof Frame) {
-                return;
-            }
-            else if (data instanceof Packet) {
-                let senderId = network.ipv4Database.get(data.layer3header.ipSender);
-                let subnet = network._graph.$('#' + senderId).parent().data() as Subnet;
-
-                if (!this.routingTable.has(subnet.name)) {
-                    this.routingTable.set(subnet.name, [this.portData.get(portIn).get('Name'), portIn, 'Dyn.']);
-                    PacketSimulator.addOrUpdateTable(this.id, 'RoutingTable', this.routingTable, network);
-                    AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
-                }
-            }
+        else if (data instanceof Packet) {
+            let senderIp = data.layer3header.ipSender;
+            let gatewayIp = this.arpTableMacIp.get(data.layer2header.macSender);
+            let routingData = new RoutingData(senderIp, gatewayIp, 32, this.portData.get(portIn).get('Name'), portIn);
+            this.routingTable.set(senderIp, routingData);
+            TableHelper.addRow('routing-table-' + this.id, "RoutingTable", network, [routingData.destination, routingData.gateway, routingData.bitmask,
+            routingData.port, routingData.metric]);
+            AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
+            //AnimationHelper.otherBlinking('img/datagram/3part-green.png', dataNode.id(), network);
         }
     }
 
+    //longest match
     findPortToSend(ip: string): number {
-        if (ip == "127.0.0.1") return null;
-        if (this.routingTable.has(ip)) return this.routingTable.get(ip)[1];
+        let longestPrefixMatch: number = 0;
+        let metric: number;
+        let port: number;
 
-        this.routingTable.forEach(([_interface, port], cidrOrIp) => {
-            let masking = cidrOrIp.split(' /');
-            let binaryMask = AddressingHelper.decimalStringWithDotToBinary(masking[0]);
-            let binaryNode = AddressingHelper.decimalStringWithDotToBinary(ip);
-            if (binaryMask.slice(0, +masking[1]) == binaryNode.slice(0, +masking[1])) {
-                return port;
+        this.routingTable.forEach((attributes, address) => {
+            let numOfMatchedPrefix = AddressingHelper.getPrefix([AddressingHelper.decimalStringWithDotToBinary(address),
+                AddressingHelper.decimalStringWithDotToBinary(ip)]).length;
+            if (numOfMatchedPrefix >= attributes.bitmask && (attributes.bitmask > longestPrefixMatch ||
+                (attributes.bitmask == longestPrefixMatch && (attributes.metric < metric || metric == undefined)))) {
+                longestPrefixMatch = attributes.bitmask;
+                metric = attributes.metric;
+                port = attributes.port;
             }
         });
-        return null;
+        return port;
     }
 
 
@@ -314,6 +280,18 @@ export class RoutableDecorator extends DataHandlingDecorator {
             if (value.get('IPv4').address == ip) mac = value.get('MAC').address;
         });
         return mac;
+    }
+
+    checkIfSameNetwork(destination: string, network: ComputerNetwork): boolean {
+        let subnet: Subnet = network._graph.$('#' + this.id).parent().data() as Subnet;
+
+        //check if in same network
+        if (subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask) == AddressingHelper.decimalStringWithDotToBinary(destination).slice(0, subnet.bitmask)) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
 }

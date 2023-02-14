@@ -1,5 +1,6 @@
 import { ComputerNetwork } from "../../..";
 import { PacketSimulator } from "../../event-handlers/packet-simulator";
+import { TableHelper } from "../../utils/TableHelper";
 import { GraphEdge } from "../GraphEdge";
 import { Data } from "../logicalNodes/DataNode";
 import { PhysicalNode } from "../physicalNodes/PhysicalNode";
@@ -8,9 +9,10 @@ import { DataHandlingDecorator } from "./DataHandlingDecorator";
 export class SwitchableDecorator extends DataHandlingDecorator {
     macAddressTable: Map<string, number> = new Map(); //(mac, port)
 
-    constructor(component?: PhysicalNode) {
+    constructor(component: PhysicalNode, network: ComputerNetwork) {
         super(component);
         this.cssClass.push('switchable-decorated');
+        PacketSimulator.initTable(this.id, 'MacAddressTable', network);
     }
 
     learn(data: Data, previousId: String, network: ComputerNetwork): void {
@@ -21,7 +23,7 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         let port = this.getPortIn(previousId, network);
         this.macAddressTable.set(senderMac, port);
 
-        PacketSimulator.addOrUpdateTable(this.id, 'MacAddressTable', this.macAddressTable, network);
+        TableHelper.addRow('mac-address-table-' + this.id, "ArpTable", network, [port, senderMac]);
     }
 
     forward(previousNode: any, dataNode: any, network: ComputerNetwork): boolean {

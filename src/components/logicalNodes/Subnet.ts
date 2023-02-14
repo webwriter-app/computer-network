@@ -65,30 +65,7 @@ export class Subnet extends LogicalNode {
         Ipv4Address.addAddressToDatabase(this.networkAddress, database, this.id, this.bitmask);
     }
 
-    static validateSubnetMask(subnetmask: string): boolean {
-        if (!/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/.test(subnetmask)) return false;
-        let binMask: string = AddressingHelper.decimalStringWithDotToBinary(subnetmask);
-        if (binMask.length != 32) return false;
 
-        let ones: boolean = true;
-        let zeros: boolean = false;
-        for (let index = 0; index < binMask.length; index++) {
-            let char = binMask.charAt(index);
-            switch (char) {
-                case '0':
-                    if (ones) {
-                        ones = false;
-                        zeros = true;
-                    }
-                    break;
-                case '1':
-                    if (zeros) return false;
-                    break;
-                default: return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * Filter for valid bitmask and subnetmask
@@ -101,7 +78,7 @@ export class Subnet extends LogicalNode {
      */
     static createSubnet(color: string, subnetNum: string, subnetmask: string, bitmask: number, database: Map<string, string>): Subnet {
         let bitmaskValid: boolean = !(bitmask == null || bitmask == undefined || Number.isNaN(bitmask) || bitmask < 0 || bitmask > 32);
-        let subnetmaskValid: boolean = !(subnetmask == null || subnetmask == undefined || subnetmask == "" || !Subnet.validateSubnetMask(subnetmask));
+        let subnetmaskValid: boolean = !(subnetmask == null || subnetmask == undefined || subnetmask == "" || !AddressingHelper.validateNetMask(subnetmask));
 
         if (!bitmaskValid && !subnetmaskValid) {
             if (Subnet.mode == "SUBNET_BASED") {
@@ -277,7 +254,7 @@ export class Subnet extends LogicalNode {
 
     handleChangesOnNewSubnetInfo(newSubnetNum: string, newSubnetMask: string, newBitmask: number, network: ComputerNetwork): boolean {
         let bitmaskValid: boolean = !(newBitmask == null || newBitmask == undefined || Number.isNaN(newBitmask) || newBitmask < 0 || newBitmask > 32);
-        let subnetmaskValid: boolean = !(newSubnetMask == null || newSubnetMask == undefined || newSubnetMask == "" || !Subnet.validateSubnetMask(newSubnetMask));
+        let subnetmaskValid: boolean = !(newSubnetMask == null || newSubnetMask == undefined || newSubnetMask == "" || !AddressingHelper.validateNetMask(newSubnetMask));
 
 
         let networkToFree: [string, number] = !this.cssClass.includes('unconfigured-subnet') ? [this.networkAddress.address, this.bitmask] : null;

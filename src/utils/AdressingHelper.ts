@@ -61,6 +61,31 @@ export class AddressingHelper {
         if (index == 0) return replacement + origin.substring(1);
         return origin.substring(0, index-1) + replacement + origin.substring(index);
     }
+
+    static validateNetMask(subnetmask: string): boolean {
+        if (!/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/.test(subnetmask)) return false;
+        let binMask: string = AddressingHelper.decimalStringWithDotToBinary(subnetmask);
+        if (binMask.length != 32) return false;
+
+        let ones: boolean = true;
+        let zeros: boolean = false;
+        for (let index = 0; index < binMask.length; index++) {
+            let char = binMask.charAt(index);
+            switch (char) {
+                case '0':
+                    if (ones) {
+                        ones = false;
+                        zeros = true;
+                    }
+                    break;
+                case '1':
+                    if (zeros) return false;
+                    break;
+                default: return false;
+            }
+        }
+        return true;
+    }
 }
 
 

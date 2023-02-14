@@ -11,6 +11,8 @@ import { Router } from "../components/physicalNodes/Connector";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
 import { SubnettingController } from "./subnetting-controller";
+import { RoutableDecorator } from "../components/dataDecorators/Routable";
+import { TableType } from "./packet-simulator";
 
 
 export class DialogFactory {
@@ -229,7 +231,7 @@ export class DialogFactory {
   static handleChangesInDialogForPhysicalNode(id: string, node: any, network: ComputerNetwork, isGateway: boolean, subnet?: Subnet) {
     let physicalNode: PhysicalNode = node.data();
     let dialog: SlDialog = new SlDialog();
-    dialog.label = "Details about ports of this component: "+physicalNode.id+" "+physicalNode.name;
+    dialog.label = "Details about ports of this component: " + physicalNode.id + " " + physicalNode.name;
     let table: string = `<table cellspacing="10"><tr>`;
     table += `<td>Index</td>`;
     physicalNode.portData.entries().next().value[1].forEach((_, columnName) => table += `<td>` + columnName + `</td>`);
@@ -482,27 +484,28 @@ export class DialogFactory {
     dialog.show();
   }
 
-  static showDataHeaders(data: Data, network: ComputerNetwork): void{
+  static showDataHeaders(data: Data, network: ComputerNetwork): void {
     let dialog = new SlDialog();
     dialog.label = data.id;
 
-    if (data instanceof Packet){
+    if (data instanceof Packet) {
       dialog.innerHTML += "Mac Address of Sender:" + data.layer2header.macSender + "<br/>";
       dialog.innerHTML += "IP Address of Sender:" + data.layer3header.ipSender + "<br/>";
       dialog.innerHTML += "Mac Address of Receiver:" + data.layer2header.macReceiver + "<br/>";
       dialog.innerHTML += "IP Address of Receiver:" + data.layer3header.ipReceiver;
     }
-    else if(data instanceof Frame){
+    else if (data instanceof Frame) {
       dialog.innerHTML += "Mac Address of Sender:" + data.layer2header.macSender + "<br/>";
       dialog.innerHTML += "IP Address of Sender:" + data.layer2header.ipSender + "<br/>";
       dialog.innerHTML += "Mac Address of Receiver:" + data.layer2header.macReceiver + "<br/>";
-      dialog.innerHTML += "IP Address of Receiver:" + data.layer2header.ipReceiver;  
+      dialog.innerHTML += "IP Address of Receiver:" + data.layer2header.ipReceiver;
     }
 
     (network.renderRoot.querySelector('#inputDialog') as HTMLElement).innerHTML = "";
     (network.renderRoot.querySelector('#inputDialog') as HTMLElement).append(dialog);
     dialog.show();
   }
+
 }
 
 

@@ -1,4 +1,4 @@
-import { SlButton } from "@shoelace-style/shoelace";
+import { SlButton, SlIcon } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "../..";
 import { GraphEdge } from "../components/GraphEdge";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
@@ -15,13 +15,13 @@ export class EdgeController {
                 return;
             }
             network._edgeHandles.enableDrawMode();
-            (network.renderRoot.querySelector('#drawMode') as SlButton).name = "pause";
+            (network.renderRoot.querySelector('#drawMode') as SlIcon).name = "pause";
             (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "#0291DB";
             (network.renderRoot.querySelector('#resetColorBtn') as HTMLButtonElement).disabled = true;
         }
         else {
             network._edgeHandles.disableDrawMode();
-            (network.renderRoot.querySelector('#drawMode') as SlButton).name = "share";
+            (network.renderRoot.querySelector('#drawMode') as SlIcon).name = "share";
             (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "#8BA8CC";
             (network.renderRoot.querySelector('#resetColorBtn') as HTMLButtonElement).disabled = false;
         }

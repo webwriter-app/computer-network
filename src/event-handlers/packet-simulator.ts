@@ -1,4 +1,4 @@
-import { SlButton, SlDetails, SlSelect } from "@shoelace-style/shoelace";
+import { SlButton, SlDetails, SlIcon, SlSelect } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "../..";
 import { DataHandlingDecorator } from "../components/dataDecorators/DataHandlingDecorator";
 import { RoutableDecorator } from "../components/dataDecorators/Routable";
@@ -8,6 +8,7 @@ import { GraphEdge } from "../components/GraphEdge";
 import { Data, Packet, Frame } from "../components/logicalNodes/DataNode";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
+import { TableHelper } from "../utils/TableHelper";
 
 export class PacketSimulator {
 
@@ -15,9 +16,33 @@ export class PacketSimulator {
     static targetEndPoint: string = "";
     static sourceIp: string = "";
     static targetIp: string = "";
+
     static duration: number = 2000;
+    static aniCounter: number = 0;
+    static currentAnimations: Map<number, any> = new Map();
+    static isPaused: boolean = false;
+
+    static inited: boolean = false;
 
 
+    static pauseOrResumeSession(network: ComputerNetwork) {
+        if (PacketSimulator.isPaused) {
+            //resume
+            (network.renderRoot.querySelector('#pause-ani') as SlIcon).src = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg";
+            PacketSimulator.currentAnimations.forEach((ani) => {
+                if (!ani.playing()) ani.play();
+            });
+            PacketSimulator.isPaused = false;
+        }
+        else {
+            //pause
+            (network.renderRoot.querySelector('#pause-ani') as SlIcon).src = "img/icons/resume.svg";
+            PacketSimulator.currentAnimations.forEach((ani) => {
+                if (ani.playing()) ani.pause();
+            });
+            PacketSimulator.isPaused = true;
+        }
+    }
 
     static setSource(buttonEvent, network: ComputerNetwork) {
         let sourceButton = buttonEvent.target;
@@ -67,6 +92,8 @@ export class PacketSimulator {
     }
 
     static startSession(network: ComputerNetwork) {
+        if(!PacketSimulator.inited) PacketSimulator.initSession(network);
+
         network._graph.$('node').lock();
 
         let source = network._graph.$('#' + PacketSimulator.sourceEndPoint);
@@ -75,55 +102,6 @@ export class PacketSimulator {
         if ((source.data() as PhysicalNode).layer < 3 || (target.data() as PhysicalNode).layer < 3) {
             AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "The widget currently only support sending Parcel between layer 3 components");
         }
-
-
-        //decorate all physical nodes
-        network._graph.nodes('.physical-node').forEach(node => {
-            let nodeData: PhysicalNode = node.data() as PhysicalNode;
-            if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
-                if (node.hasClass('host-node') || node.hasClass('router-node')) {
-                    const decorated: RoutableDecorator = new RoutableDecorator(nodeData);
-                    //decorated.initiateRoutingTable(network);
-                    node._private.data = decorated;
-                    node.classes(decorated.cssClass);
-                }
-                else if (node.hasClass('switch-node') || node.hasClass('bridge-node')) {
-                    const decorated: SwitchableDecorator = new SwitchableDecorator(nodeData);
-                    node._private.data = decorated;
-                    node.classes(decorated.cssClass);
-                }
-                else {
-                    const decorated: SimpleDecorator = new SimpleDecorator(nodeData);
-                    node._private.data = decorated;
-                    node.classes(decorated.cssClass);
-                }
-            }
-        });
-
-        //init paths to other routers for each router
-        var routers = network._graph.nodes('.router-node');
-        var edges = network._graph.edges();
-        var eles = routers.union(edges);
-        routers.forEach(node => {
-            let dijkstra = eles.dijkstra('#' + node.id());
-            routers.forEach(otherNode => {
-                if (otherNode.id() != node.id()) {
-                    let path = dijkstra.pathTo(otherNode);
-                    let nodesOnPath: string[] = [];
-                    path.forEach(n => {
-                        if(n.isNode()) nodesOnPath.push(n.id())
-                    });
-                    let data = node.data() as RoutableDecorator;
-                    data.pathsToOtherRouters.set(otherNode.id(), nodesOnPath);
-                }
-            });
-        });
-
-        network._graph.nodes('.routable-decorated').forEach(node => {
-            let decorated = node.data() as RoutableDecorator;
-            decorated.initiateRoutingTable(network);
-            console.log(decorated.routingTable);
-        });
 
         //create data packet
         let data: Packet = new Packet(network.currentColor, "", "", this.sourceIp, this.targetIp);
@@ -138,7 +116,31 @@ export class PacketSimulator {
             classes: data.cssClass,
         });
         sender.sendData(network._graph.$('#' + data.id), network, sourceNode);
+    }
 
+    static initSession(network: ComputerNetwork){
+        //decorate all physical nodes
+        network._graph.nodes('.physical-node').forEach(node => {
+            let nodeData: PhysicalNode = node.data() as PhysicalNode;
+            if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
+                if (node.hasClass('host-node') || node.hasClass('router-node')) {
+                    const decorated: RoutableDecorator = new RoutableDecorator(nodeData, network);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+                else if (node.hasClass('switch-node') || node.hasClass('bridge-node')) {
+                    const decorated: SwitchableDecorator = new SwitchableDecorator(nodeData, network);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+                else {
+                    const decorated: SimpleDecorator = new SimpleDecorator(nodeData);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+            }
+        });
+        PacketSimulator.inited = true;
     }
 
     static initThenDirectSend(sourceNode: any, targetNode: any, data: Data, network: ComputerNetwork): void {
@@ -199,8 +201,13 @@ export class PacketSimulator {
             });
 
         let target = targetNode.data();
+        let aniId = PacketSimulator.aniCounter;
+
+        PacketSimulator.currentAnimations.set(aniId, a);
+        PacketSimulator.aniCounter++;
 
         a.play().promise().then(() => {
+            PacketSimulator.currentAnimations.delete(aniId);
             if (target.cssClass.includes('routable-decorated')) {
                 (target as RoutableDecorator).handleDataIn(dataNode, previousNode, network);
             }
@@ -214,62 +221,127 @@ export class PacketSimulator {
 
     }
 
-    static addOrUpdateTable(nodeId: string, tableType: TableType, tableData: any, network: ComputerNetwork): void {
-        let tableRows = "";
+    static initTable(nodeId: string, tableType: TableType, network: ComputerNetwork): void {
         let label = "";
         let tableId = "";
+        let tableCols = "";
         switch (tableType) {
             case 'ArpTable':
-                if (!(tableData instanceof Map<string, string>)) return;
                 label = "ARP Table";
                 tableId = "arp-table-" + nodeId;
-                tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
-                (tableData as Map<string, string>).forEach((mac, ip) => {
-                    tableRows += `<tr><td>` + ip + `</td><td>` + mac + `</td></tr>`
-                });
+                tableCols = "<tr><td></td><td>IP</td><td>MAC</td></tr>";
                 break;
 
             case 'RoutingTable':
-                if (!(tableData instanceof Map<string, [string, number, string]>)) return;
                 label = "Routing Table"
                 tableId = "routing-table-" + nodeId;
-                tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
-                (tableData as Map<string, [string, number, string]>).forEach(([interfaceName, _port, connection], mask) => {
-                    tableRows += `<tr><td>` + interfaceName + `</td><td>` + mask + `</td><td>` + connection + `</td></tr>`
-                });
+                tableCols = "<tr><td></td><td>IP</td><td>Gateway</td><td>Bitmask</td><td>Port</td><td>Metric</td></tr>";
                 break;
 
             case 'MacAddressTable':
-                if (!(tableData instanceof Map<string, number>)) return;
                 label = "Mac Address Table";
                 tableId = "mac-address-table-" + nodeId;
-                tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
-                (tableData as Map<string, number>).forEach((port, mac) => {
-                    tableRows += `<tr><td>` + port + `</td><td>` + mac + `</td></tr>`
-                });
+                tableCols = "<tr><td></td><td>Port</td><td>MAC</td></tr>";
                 break;
         }
 
-        let detail = (network.renderRoot.querySelector('#tables-for-' + nodeId) as SlDetails);
+        let detail = (network.renderRoot.querySelector('#details-for-' + tableId) as SlDetails);
         if (detail == null) {
             detail = new SlDetails();
-            detail.id = 'tables-for-' + nodeId;
-            detail.summary = "Tables of " + nodeId;
+            detail.id = '#details-for-' + tableId;
+            detail.summary = label + " of " + nodeId;
+            detail.className = "details-for-table";
             detail.open = true;
-            switch (tableType) {
-                case 'ArpTable': case 'RoutingTable':
-                    detail.innerHTML = `<table id="arp-table-` + nodeId + `"></table>` + `<table id="routing-table-` + nodeId + `"></table>`;
-                    break;
-                case 'MacAddressTable':
-                    detail.innerHTML = `<table id="mac-address-table-` + nodeId + `"></table>`;
-                    break;
-            }
             (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).appendChild(detail);
         }
+        switch (tableType) {
+            case 'ArpTable':
+                detail.innerHTML += `<table class="fixedArp" id="arp-table-` + nodeId + `">` + tableCols + `</table></div><br/>`;
+                break;
+            case 'RoutingTable':
+                detail.innerHTML += `<table class="fixedRout" id="routing-table-` + nodeId + `">` + tableCols + `</table></div><br/>`;
+                break;
+            case 'MacAddressTable':
+                detail.innerHTML += `<table class="fixedMac" id="mac-address-table-` + nodeId + `">` + tableCols + `</table></div><br/>`;
+                break;
+        }
 
-        let tableElement = (network.renderRoot.querySelector('#' + tableId) as HTMLElement);
-        tableElement.innerHTML = tableRows;
+        let addButton = new SlButton();
+        addButton.size = "small";
+        addButton.innerHTML = "Add";
+        addButton.addEventListener('click', () => TableHelper.addRow(tableId, tableType, network));
+
+        let removeButton = new SlButton();
+        removeButton.size = "small";
+        removeButton.innerHTML = "Remove";
+        removeButton.addEventListener('click', () => TableHelper.deleteRow(tableId, network));
+
+        let saveButton = new SlButton();
+        saveButton.size = "small";
+        saveButton.innerHTML = "Save";
+        saveButton.addEventListener('click', () => TableHelper.updateTable(tableId, tableType, network));
+
+        detail.append(addButton);
+        detail.append(removeButton);
+        detail.append(saveButton);
     }
+
+    // static addOrUpdateTable(nodeId: string, tableType: TableType, tableData: any, network: ComputerNetwork): void {
+    //     let tableRows = "";
+    //     let label = "";
+    //     let tableId = "";
+    //     switch (tableType) {
+    //         case 'ArpTable':
+    //             if (!(tableData instanceof Map<string, string>)) return;
+    //             label = "ARP Table";
+    //             tableId = "arp-table-" + nodeId;
+    //             tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
+    //             (tableData as Map<string, string>).forEach((mac, ip) => {
+    //                 tableRows += `<tr><td>` + ip + `</td><td>` + mac + `</td></tr>`
+    //             });
+    //             break;
+
+    //         case 'RoutingTable':
+    //             if (!(tableData instanceof Map<string, [string, number, string]>)) return;
+    //             label = "Routing Table"
+    //             tableId = "routing-table-" + nodeId;
+    //             tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
+    //             (tableData as Map<string, [string, number, string]>).forEach(([interfaceName, _port, connection], mask) => {
+    //                 tableRows += `<tr><td>` + interfaceName + `</td><td>` + mask + `</td><td>` + connection + `</td></tr>`
+    //             });
+    //             break;
+
+    //         case 'MacAddressTable':
+    //             if (!(tableData instanceof Map<string, number>)) return;
+    //             label = "Mac Address Table";
+    //             tableId = "mac-address-table-" + nodeId;
+    //             tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
+    //             (tableData as Map<string, number>).forEach((port, mac) => {
+    //                 tableRows += `<tr><td>` + port + `</td><td>` + mac + `</td></tr>`
+    //             });
+    //             break;
+    //     }
+
+    //     let detail = (network.renderRoot.querySelector('#tables-for-' + nodeId) as SlDetails);
+    //     if (detail == null) {
+    //         detail = new SlDetails();
+    //         detail.id = 'tables-for-' + nodeId;
+    //         detail.summary = "Tables of " + nodeId;
+    //         detail.open = true;
+    //         switch (tableType) {
+    //             case 'ArpTable': case 'RoutingTable':
+    //                 detail.innerHTML = `<table id="arp-table-` + nodeId + `"></table>` + `<table id="routing-table-` + nodeId + `"></table>`;
+    //                 break;
+    //             case 'MacAddressTable':
+    //                 detail.innerHTML = `<table id="mac-address-table-` + nodeId + `"></table>`;
+    //                 break;
+    //         }
+    //         (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).appendChild(detail);
+    //     }
+
+    //     let tableElement = (network.renderRoot.querySelector('#' + tableId) as HTMLElement);
+    //     tableElement.innerHTML = tableRows;
+    // }
 
     static resetDatabase(network: ComputerNetwork) {
         (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
@@ -289,4 +361,4 @@ export class PacketSimulator {
     }
 }
 
-type TableType = "RoutingTable" | "ArpTable" | "MacAddressTable"
+export type TableType = "RoutingTable" | "ArpTable" | "MacAddressTable"

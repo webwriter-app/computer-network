@@ -52,7 +52,7 @@ export class ComputerNetwork extends LitElementWw {
     type: String,
     reflect: true
   })
-  screen: string = "normal"; //small/normal
+  screen: string = "medium"; //small/medium
 
 
 
@@ -163,6 +163,24 @@ export class ComputerNetwork extends LitElementWw {
       position: relative; 
       margin: 0 auto;
     }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    /* Track */
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 5px; 
+    }
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+      background: #8BA8CC;
+      border-radius: 5px;
+    }
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0291DB; 
+    }
   
     /** CONTEXTUAL MENU - cytoscape **/
     .custom-menu-item {
@@ -229,6 +247,11 @@ export class ComputerNetwork extends LitElementWw {
       background-color: #F1F1F1;
       border: none;
     }
+    .details-for-table::part(content) {
+      width: 320px;
+      overflow: auto;
+    }
+
     #packet-sending-extension::part(content) {
       height: fit-content;
     }
@@ -242,8 +265,9 @@ export class ComputerNetwork extends LitElementWw {
       background-color: #8BA8CC;
     }
     sl-details table, sl-details th, sl-details td {
-      border: 1px solid black;
+      border: 1px solid #8BA8CC;
       border-collapse: collapse;
+      color: black !important;
     }
 
     sl-details th, sl-details td {
@@ -274,6 +298,24 @@ export class ComputerNetwork extends LitElementWw {
       background: #F1F1F1;
       width: 23.7cqw;
     }
+
+    table.fixedRout {table-layout:fixed; width: 100%;}/*Setting the table width is important!*/
+    table.fixedRout td:nth-of-type(1) {width: 20px;}/*Setting the width of column 1.*/
+    table.fixedRout td:nth-of-type(2) {width: 110px;}/*Setting the width of column 2.*/
+    table.fixedRout td:nth-of-type(3) {width: 110px;}/*Setting the width of column 2.*/
+    table.fixedRout td:nth-of-type(4) {width: 70px;}/*Setting the width of column 2.*/
+    table.fixedRout td:nth-of-type(5) {width: 70px;}/*Setting the width of column 2.*/
+    table.fixedRout td:nth-of-type(6) {width: 100px;}/*Setting the width of column 2.*/
+
+    table.fixedArp {table-layout:fixed; width: 100%;}/*Setting the table width is important!*/
+    table.fixedArp td:nth-of-type(1) {width: 20px;}/*Setting the width of column 1.*/
+    table.fixedArp td:nth-of-type(2) {width: 50%;}/*Setting the width of column ip.*/
+    table.fixedArp td:nth-of-type(3) {width: 42%;}/*Setting the width of column mac.*/
+
+    table.fixedMac {table-layout:fixed; width: 100%;}/*Setting the table width is important!*/
+    table.fixedMac td:nth-of-type(1) {width: 20px;}/*Setting the width of column 1.*/
+    table.fixedArp td:nth-of-type(2) {width: 38%;}/*Setting the width of column port.*/
+    table.fixedMac td:nth-of-type(3) {width: 54%;}/*Setting the width of column mac.*/
 
     @container (max-width: 1550px) {
       .addOption {
@@ -380,8 +422,10 @@ export class ComputerNetwork extends LitElementWw {
             </sl-select>
           </sl-menu-item>
           <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.duration = event.target.value * 1000}" label="Speed" type='number' min="1"></sl-input></sl-menu-item>
-          <sl-menu-item><sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
-          <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="pause" label="Pause simulation session"></sl-icon></sl-button>
+          <sl-menu-item>
+          <sl-button class="blue-button" @click="${() => PacketSimulator.initSession(this)}">Init</sl-icon></sl-button>
+          <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
+          <sl-button class="blue-button" @click="${() => PacketSimulator.pauseOrResumeSession(this)}"><sl-icon id="pause-ani" src="/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg" label="Pause simulation session"></sl-icon></sl-button>
           <sl-button class="blue-button" @click="${() => PacketSimulator.resetDatabase(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
           <sl-menu-item>
             <sl-details id="tables-for-packet-simulator" summary="Track tables" open>
