@@ -18,7 +18,6 @@ import { Address } from "./adressing/Address";
 import { GraphEdge } from "./components/GraphEdge";
 import { Subnet } from "./components/logicalNodes/Subnet";
 import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
-import { Router } from "./components/physicalNodes/Connector";
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 import { Data } from "./components/logicalNodes/DataNode";
 

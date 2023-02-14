@@ -1,9 +1,7 @@
 import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { GraphNode } from "../GraphNode";
-import { Router } from "./Connector";
 
 export abstract class PhysicalNode extends GraphNode {
-    [x: string]: any;
     layer: number;
     numberOfInterfacesOrPorts: number;
     portData: Map<number, Map<string, any>> = new Map(); //update on changing data on edges

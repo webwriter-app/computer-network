@@ -26,14 +26,13 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         TableHelper.addRow('mac-address-table-' + this.id, "ArpTable", network, [port, senderMac]);
     }
 
-    forward(previousNode: any, dataNode: any, network: ComputerNetwork): boolean {
+    forward(_previousNode: any, dataNode: any, network: ComputerNetwork): boolean {
         let receiverMac = (dataNode.data() as Data).layer2header.macReceiver;
         if (this.macAddressTable.has(receiverMac)){
             let edge: GraphEdge = network._graph.$('#'+this.portLinkMapping.get(this.macAddressTable.get(receiverMac))).data();
             let nextHopId: string = edge.target==this.id ? edge.source : edge.target;
             let nextHop = network._graph.$('#'+nextHopId);
             PacketSimulator.directSend(network._graph.$('#'+this.id), nextHop, dataNode, network);
-            //PacketSimulator.findNextHopThenSend(nextHop, network._graph.$('#'+ network.macDatabase.get(receiverMac)), dataNode, network);
             return true;
         }
         return false;

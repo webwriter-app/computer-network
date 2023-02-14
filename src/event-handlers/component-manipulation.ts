@@ -3,14 +3,12 @@ import { ComputerNetwork } from "../..";
 import { Ipv4Address } from "../adressing/Ipv4Address";
 import { Ipv6Address } from "../adressing/Ipv6Address";
 import { MacAddress } from "../adressing/MacAddress";
-import { GraphNode } from "../components/GraphNode";
 import { Subnet } from "../components/logicalNodes/Subnet";
 import { Repeater, Hub, Switch, Bridge, AccessPoint, Router } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
 import { ConnectionType, PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { initNetwork } from "../network-config";
 import { AddressingHelper } from "../utils/AdressingHelper";
-import { EdgeController } from "./edge-controller";
 
 
 export class GraphNodeFactory {

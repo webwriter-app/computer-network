@@ -28,9 +28,7 @@ export class SimpleDecorator extends DataHandlingDecorator {
                 let directTargetId = edge.target == this.id ? edge.source : edge.target;
                 let newData = (dataNode.data() instanceof Packet) ? Packet.cloneData(dataNode.data()) : Frame.cloneData(dataNode.data());
                 let nextHop = network._graph.$('#' + directTargetId);
-                let finalTarget = network._graph.$('#' + network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
                 PacketSimulator.initThenDirectSend(network._graph.$('#' + this.id), nextHop, newData, network);
-                //PacketSimulator.endToEndSend(nextHop, finalTarget, network._graph.$('#' + newData.id), network);
             }
         });
         

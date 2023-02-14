@@ -11,8 +11,6 @@ import { Router } from "../components/physicalNodes/Connector";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
 import { SubnettingController } from "./subnetting-controller";
-import { RoutableDecorator } from "../components/dataDecorators/Routable";
-import { TableType } from "./packet-simulator";
 
 
 export class DialogFactory {

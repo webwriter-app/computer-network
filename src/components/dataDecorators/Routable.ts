@@ -46,8 +46,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
         if (receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) {
             if (data instanceof Frame) AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
             if (data instanceof Packet) AnimationHelper.blinkingThenRemoveNode('discard-data-node-3part', dataNode.id(), network);
-            //if (data instanceof Frame) AnimationHelper.otherBlinking('img/datagram/2part-red.png', dataNode.id(), network);
-            //if (data instanceof Packet) AnimationHelper.otherBlinking('img/datagram/3part-red.png', dataNode.id(), network);
             return;
         }
 
@@ -59,7 +57,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
             else if (data instanceof Frame && data.name.includes('ARP req')) {
                 if (thisIp != receiverIp) {
                     AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
-                    //AnimationHelper.otherBlinking('img/datagram/2part-red.png', dataNode.id(), network);
                     return;
                 }
                 else {
@@ -70,11 +67,9 @@ export class RoutableDecorator extends DataHandlingDecorator {
             else if (data instanceof Packet) {
                 if (receiverIp == thisIp) {
                     AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
-                    //AnimationHelper.otherBlinking('img/datagram/3part-green.png', dataNode.id(), network);
                     AlertHelper.toastAlert('success', 'check2-all', "", "Your receiver has received the message!");
                 }
                 else if (this instanceof Router && this.cssClass.includes('gateway-node')) {
-                    //data --> bóc layer 2, đọc layer 3 --> nếu layer 3 k phải mình + gateway --> remove layer 2 data, gửi tiếp:?
                     this.removeLayer2Header(data, network);
                     let portToSend = this.findPortToSend(data.layer3header.ipReceiver);
                     if (portToSend != null) {
@@ -90,8 +85,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
                             let nextHopId: string = link.source == this.id ? link.target : link.source;
                             let nextHop: any = network._graph.$('#' + nextHopId);
                             PacketSimulator.directSend(previousNode, nextHop, dataNode, network);
-                            // PacketSimulator.findNextHopThenSend(nextHop, network._graph.$('#' + network.ipv4Database.get(data.layer3header.ipReceiver)),
-                            //     dataNode, network);
                         }
 
                     }
@@ -142,7 +135,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let data = dataNode.data();
         if (!thisNode.parent().same(receiverNode.parent())) return;
 
-        //tìm port to send? k thì ARP
         if (macReceiver == "FF:FF:FF:FF:FF:FF") {
             this.flood(dataNode, null, null, network);
         }
@@ -160,7 +152,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
             }
         }
         else {
-            //TODO: arp request (mac & ip): của this. chứ kp của original --> mac ip của port nào?
             this.sendArpRequest(lastPortIn, macSender, ipSender, ipReceiver, network);
             if (!this.pendingPackets.has(ipReceiver)) this.pendingPackets.set(ipReceiver, []);
             this.pendingPackets.get(ipReceiver).push(dataNode.id());
@@ -240,7 +231,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
                 //frame shouldn't be send to other network?
             }
             AnimationHelper.blinkingThenRemoveNode('processing-data-node-2part', dataNode.id(), network);
-            //AnimationHelper.otherBlinking('img/datagram/2part-green.png', dataNode.id(), network);
         }
         else if (data instanceof Packet) {
             let senderIp = data.layer3header.ipSender;
@@ -250,7 +240,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
             TableHelper.addRow('routing-table-' + this.id, "RoutingTable", network, [routingData.destination, routingData.gateway, routingData.bitmask,
             routingData.port, routingData.metric]);
             AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
-            //AnimationHelper.otherBlinking('img/datagram/3part-green.png', dataNode.id(), network);
         }
     }
 
@@ -262,7 +251,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
         this.routingTable.forEach((attributes, address) => {
             let numOfMatchedPrefix = AddressingHelper.getPrefix([AddressingHelper.decimalStringWithDotToBinary(address),
-                AddressingHelper.decimalStringWithDotToBinary(ip)]).length;
+            AddressingHelper.decimalStringWithDotToBinary(ip)]).length;
             if (numOfMatchedPrefix >= attributes.bitmask && (attributes.bitmask > longestPrefixMatch ||
                 (attributes.bitmask == longestPrefixMatch && (attributes.metric < metric || metric == undefined)))) {
                 longestPrefixMatch = attributes.bitmask;
@@ -284,9 +273,8 @@ export class RoutableDecorator extends DataHandlingDecorator {
 
     checkIfSameNetwork(destination: string, network: ComputerNetwork): boolean {
         let subnet: Subnet = network._graph.$('#' + this.id).parent().data() as Subnet;
-
-        //check if in same network
-        if (subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask) == AddressingHelper.decimalStringWithDotToBinary(destination).slice(0, subnet.bitmask)) {
+        if (subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask)
+            == AddressingHelper.decimalStringWithDotToBinary(destination).slice(0, subnet.bitmask)) {
             return true;
         }
         else {

@@ -20,7 +20,6 @@ export class ComputerNetwork extends LitElementWw {
 
   @query('#cy')
   _cy;
-
   _graph;
   currentComponentToAdd: string = "";
   currentColor: string = "white";
@@ -59,18 +58,68 @@ export class ComputerNetwork extends LitElementWw {
   static styles =
     css`
     .main-container {
-      container-type: inline-size;
-      height: 100%;
-      width: 100%;
+        container-type: inline-size;
+        height: 100%;
+        width: 100%;
     }
     .base {
-      display: flex;
-      width: 75cqw;
-      height: 12cqw;
-      min-height: 192px;
-      margin-bottom: 1cqw;
-      background-color: #F1F1F1;
+        display: flex;
+        width: 75cqw;
+        height: 12cqw;
+        min-height: 192px;
+        margin-bottom: 1cqw;
+        background-color: #F1F1F1;
     }
+    .addOption {
+        width: 12cqw;
+        display: flex;
+        flex-direction: row;
+        gap: 1.5cqw;
+        margin: auto;
+    }
+    .colorPalette {
+        position: flex;
+        width: 10.2cqw;
+        margin: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.4cqw;
+        height: 10.2cqw;
+    }
+    #myCanvas {
+        position: relative;
+        width: 75cqw;
+        height: calc(100cqh - 14.5cqw);
+        max-height: calc(100cqh - 192px - 2.5cqw);
+        border: 1px solid #ADADAD;
+    }
+    #cy {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+    }
+    .componentMenu {
+        position: relative;
+        width: 25cqw;
+        display: flex;
+        flex-direction: row;
+        gap: auto;
+        padding: auto;
+        margin: auto;
+    }
+    .nameBox {
+        position: relative;
+        margin: 0 auto;
+    } 
+    .sidebar {
+        height: calc(100cqh - 1.5cqw);
+        position: fixed;
+        right: 0;
+        background: #F1F1F1;
+        width: 23.7cqw;
+    }
+  
+    /** Buttons **/
     .btn {
         border-radius: 0.5cqw;
         background-color: #8BA8CC;
@@ -84,24 +133,17 @@ export class ComputerNetwork extends LitElementWw {
         margin: auto;
     }
     .importBtn {
-      border-radius: 0.3cqw;
-      background-color: #8BA8CC;
-      border: solid 1px transparent;
-      color: white;
-      align-items: center;
-      font-size: 0.8cqw;
-      cursor: pointer;
-      margin: auto;
-  }
-    button:hover:enabled {
-      background-color: #0291DB;
-    }
-    .addOption {
-        width: 12cqw;
-        display: flex;
-        flex-direction: row;
-        gap: 1.5cqw;
+        border-radius: 0.3cqw;
+        background-color: #8BA8CC;
+        border: solid 1px transparent;
+        color: white;
+        align-items: center;
+        font-size: 0.8cqw;
+        cursor: pointer;
         margin: auto;
+    }
+    button:hover:enabled {
+        background-color: #0291DB;
     }
     .addBtn {
         border-radius: 0.5cqw;
@@ -117,19 +159,10 @@ export class ComputerNetwork extends LitElementWw {
     button:disabled,
     button[disabled],
     #drawBtn:disabled,
-    #resetColorBtn:disabled{
-      border: 1px solid #BFBFBF;
-      background-color: #E8E8E8 !important;
-      color: #858585;
-    }
-    .colorPalette {
-        position: flex;
-        width: 10.2cqw;
-        margin: auto;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.4cqw;
-        height: 10.2cqw;
+    #resetColorBtn:disabled {
+        border: 1px solid #BFBFBF;
+        background-color: #E8E8E8 !important;
+        color: #858585;
     }
     .colorButton {
         border-radius: 0.3cqw;
@@ -138,50 +171,27 @@ export class ComputerNetwork extends LitElementWw {
         width: 1.5cqw;
         height: 1.5cqw;
     }
-    #myCanvas {
-        position: relative;
-        width: 75cqw;
-        height: calc(100cqh - 14.5cqw);
-        max-height: calc(100cqh - 192px - 2.5cqw);
-        border: 1px solid #ADADAD;
+    .blue-button::part(base) {
+      background-color: #F1F1F1;
+      border: none;
     }
-    #cy {
-        height: 100%;
-        width: 100%;
-        position: absolute;
-    }
-    .componentMenu {
-      position:relative; 
-      width: 25cqw; 
-      display: flex; 
-      flex-direction: row; 
-      gap: auto; 
-      padding: auto;
-      margin: auto;
-    }
-    .nameBox {
-      position: relative; 
-      margin: 0 auto;
-    }
-
+    
+    /** scrollbar **/
     ::-webkit-scrollbar {
-      width: 6px;
+        width: 6px;
     }
-    /* Track */
     ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 5px; 
+        background: #f1f1f1;
+        border-radius: 5px;
     }
-    /* Handle */
     ::-webkit-scrollbar-thumb {
-      background: #8BA8CC;
-      border-radius: 5px;
+        background: #8BA8CC;
+        border-radius: 5px;
     }
-    /* Handle on hover */
     ::-webkit-scrollbar-thumb:hover {
-      background: #0291DB; 
+        background: #0291DB;
     }
-  
+    
     /** CONTEXTUAL MENU - cytoscape **/
     .custom-menu-item {
         border: none !important;
@@ -208,178 +218,205 @@ export class ComputerNetwork extends LitElementWw {
         box-shadow: 0px 0px 8px 0px rgb(0, 0, 0, 0.12),
             0px 8px 8px 0px rgb(0, 0, 0, 0.24) !important;
     }
-
+    
     /** SL-INPUT **/
+    sl-input::part(base),
+    sl-input::part(input) {
+        border: none;
+        font-size: max(0.8cqw, 11px);
+        height: max(35px, 1.5cqw);
+    }
     .label-on-left {
-      --label-width: 3cqw;
-      --gap-width: 2cqw;
-      margin: auto;
-    }
-    sl-input::part(base), sl-input::part(input) {
-      border: none;
-      font-size: max(0.8cqw, 11px);
-			height: max(35px, 1.5cqw);
-    }
-    .label-on-left::part(form-control) {
-      display: grid;
-      grid: auto / var(--label-width) 1fr;
-      gap: 1cqw;
-      align-items: center;
-    }
-    .label-on-left::part(form-control-label) {
-      text-align: right;
-      font-size: max(0.8cqw, 11px);
-    }
-    .label-on-left::part(form-control-help-text) {
-      grid-column: span 2;
-      padding-left: calc(var(--label-width) + var(--gap-width));
-    }
-
-    sl-menu-item::part(base), sl-menu-item::part(label) {
-      font-size: max(0.8cqw, 11px);
-    }
-    .blue-button::part(base) {
-      background-color: #F1F1F1;
-      border: none;
-    }
-    sl-details::part(base) {
-      height: fit-content;
-      background-color: #F1F1F1;
-      border: none;
-    }
-    .details-for-table::part(content) {
-      width: 320px;
-      overflow: auto;
-    }
-
-    #packet-sending-extension::part(content) {
-      height: fit-content;
-    }
-    sl-details::part(summary) {
-      font-size: 14px;
-      font-weight: 600;
-      color: 	#F2F2F2;
-      font-family: sans-serif;
-    }
-    sl-details::part(header) {
-      background-color: #8BA8CC;
-    }
-    sl-details table, sl-details th, sl-details td {
-      border: 1px solid #8BA8CC;
-      border-collapse: collapse;
-      color: black !important;
-    }
-
-    sl-details th, sl-details td {
-      padding: 10px;
-    }
-    sl-tab-panel::part(base){
-      font-size: max(0.8cqw, 11px);
-    }
-
-    sl-dropdown {
-      display:flex;
-      justify-content: space-between;
-      margin: auto;
-    }
-
-    sl-dialog::part(base), sl-select::part(base) {
-      --width: fit-content;
-    }
-
-    td {
-      text-align: center;
-    }
-
-    .sidebar {
-      height: calc(100cqh - 1.5cqw);
-      position: fixed;
-      right: 0;
-      background: #F1F1F1;
-      width: 23.7cqw;
-    }
-
-    table.fixedRout {table-layout:fixed; width: 100%;}/*Setting the table width is important!*/
-    table.fixedRout td:nth-of-type(1) {width: 20px;}/*Setting the width of column 1.*/
-    table.fixedRout td:nth-of-type(2) {width: 110px;}/*Setting the width of column 2.*/
-    table.fixedRout td:nth-of-type(3) {width: 110px;}/*Setting the width of column 2.*/
-    table.fixedRout td:nth-of-type(4) {width: 70px;}/*Setting the width of column 2.*/
-    table.fixedRout td:nth-of-type(5) {width: 70px;}/*Setting the width of column 2.*/
-    table.fixedRout td:nth-of-type(6) {width: 100px;}/*Setting the width of column 2.*/
-
-    table.fixedArp {table-layout:fixed; width: 100%;}/*Setting the table width is important!*/
-    table.fixedArp td:nth-of-type(1) {width: 20px;}/*Setting the width of column 1.*/
-    table.fixedArp td:nth-of-type(2) {width: 50%;}/*Setting the width of column ip.*/
-    table.fixedArp td:nth-of-type(3) {width: 42%;}/*Setting the width of column mac.*/
-
-    table.fixedMac {table-layout:fixed; width: 100%;}/*Setting the table width is important!*/
-    table.fixedMac td:nth-of-type(1) {width: 20px;}/*Setting the width of column 1.*/
-    table.fixedArp td:nth-of-type(2) {width: 38%;}/*Setting the width of column port.*/
-    table.fixedMac td:nth-of-type(3) {width: 54%;}/*Setting the width of column mac.*/
-
-    @container (max-width: 1550px) {
-      .addOption {
-        width: 5cqw;
-        flex-direction: column;
-      }
-    }
-    @container (max-width: 1215px) {
-      .colorPalette {
-        width: 11cqw;
-        height: 11cqw;
-        gap: 1.5cqw;
-      }
-      sl-button::part(base) {
-        font-size: 0.1cqw;
-      }
-    }
-    @container (max-width: 1123px) {
-      .colorPalette {
-        gap: 1.4cqw;
-      }
-    }
-    @container (max-width: 1086px) {
-      .colorPalette {
-        width: 12cqw;
-        height: 12cqw;
-      }
-    } 
-    @container (max-width: 1041px) {
-      .colorPalette {
-        width: 13cqw;
-        height: 13cqw;
-      }
-    }
-    @container (max-width: 1019px) {
-      .colorPalette {
-        width: 13.5cqw;
-        height: 13.5cqw;
-      }
-    }
-    @container (max-width: 988px) {
-      .colorPalette {
-        width: 14cqw;
-        height: 14cqw;
-      }
-      .componentMenu {
-        width: 9cqw; 
-        flex-direction: column;
-        gap: 0.5cqw;
-        padding-left: 1cqw;
-      }
-      .nameBox {
-        width: 30cqw;
-      }
-      .label-on-left {
-        --label-width: 6cqw;
+        --label-width: 3cqw;
         --gap-width: 2cqw;
         margin: auto;
-      }
-      sl-input::part(input) {
-        width: 10cqw;
-      }
+    }
+    .label-on-left::part(form-control) {
+        display: grid;
+        grid: auto / var(--label-width) 1fr;
+        gap: 1cqw;
+        align-items: center;
+    }
+    .label-on-left::part(form-control-label) {
+        text-align: right;
+        font-size: max(0.8cqw, 11px);
+    }
+    .label-on-left::part(form-control-help-text) {
+        grid-column: span 2;
+        padding-left: calc(var(--label-width) + var(--gap-width));
     }
     
+    /** SL-MENU-ITEM **/
+    sl-menu-item::part(base),
+    sl-menu-item::part(label) {
+        font-size: max(0.8cqw, 11px);
+    }
+    
+    /** SL-DETAILS **/
+    #packet-sending-extension::part(content) {
+        height: fit-content;
+    }
+    .details-for-table::part(content) {
+        width: 320px;
+        overflow: auto;
+    }
+    sl-details::part(base) {
+        height: fit-content;
+        background-color: #F1F1F1;
+        border: none;
+    }
+    sl-details::part(summary) {
+        font-size: 14px;
+        font-weight: 600;
+        color: #F2F2F2;
+        font-family: sans-serif;
+    }
+    sl-details::part(header) {
+        background-color: #8BA8CC;
+    }
+    sl-details table,
+    sl-details th,
+    sl-details td {
+        border: 1px solid #8BA8CC;
+        border-collapse: collapse;
+        color: black !important;
+    }
+    sl-details th,
+    sl-details td {
+        padding: 10px;
+    }
+    sl-tab-panel::part(base) {
+        font-size: max(0.8cqw, 11px);
+    }
+  
+    sl-dropdown {
+        display: flex;
+        justify-content: space-between;
+        margin: auto;
+    }
+    
+    sl-dialog::part(base),
+    sl-select::part(base) {
+        --width: fit-content;
+    }
+    
+    /** tables **/
+    td {
+        text-align: center;
+    }
+    table.fixedRout {
+        table-layout: fixed;
+        width: 100%;
+    }
+    table.fixedRout td:nth-of-type(1) {
+        width: 20px;
+    }
+    table.fixedRout td:nth-of-type(2) {
+        width: 110px;
+    }
+    table.fixedRout td:nth-of-type(3) {
+        width: 110px;
+    }
+    table.fixedRout td:nth-of-type(4) {
+        width: 70px;
+    }
+    table.fixedRout td:nth-of-type(5) {
+        width: 70px;
+    }
+    table.fixedRout td:nth-of-type(6) {
+        width: 100px;
+    }
+    table.fixedArp {
+        table-layout: fixed;
+        width: 100%;
+    }
+    table.fixedArp td:nth-of-type(1) {
+        width: 20px;
+    }
+    table.fixedArp td:nth-of-type(2) {
+        width: 50%;
+    }
+    table.fixedArp td:nth-of-type(3) {
+        width: 42%;
+    }
+    table.fixedMac {
+        table-layout: fixed;
+        width: 100%;
+    }
+    table.fixedMac td:nth-of-type(1) {
+        width: 20px;
+    }
+    table.fixedArp td:nth-of-type(2) {
+        width: 38%;
+    }
+    table.fixedMac td:nth-of-type(3) {
+        width: 54%;
+    }
+  
+    /** Container queries **/
+    
+    @container (max-width: 1550px) {
+        .addOption {
+            width: 5cqw;
+            flex-direction: column;
+        }
+    }
+    @container (max-width: 1215px) {
+        .colorPalette {
+            width: 11cqw;
+            height: 11cqw;
+            gap: 1.5cqw;
+        }
+        sl-button::part(base) {
+            font-size: 0.1cqw;
+        }
+    }
+    @container (max-width: 1123px) {
+        .colorPalette {
+            gap: 1.4cqw;
+        }
+    }
+    @container (max-width: 1086px) {
+        .colorPalette {
+            width: 12cqw;
+            height: 12cqw;
+        }
+    }
+    @container (max-width: 1041px) {
+        .colorPalette {
+            width: 13cqw;
+            height: 13cqw;
+        }
+    }
+    @container (max-width: 1019px) {
+        .colorPalette {
+            width: 13.5cqw;
+            height: 13.5cqw;
+        }
+    }
+    @container (max-width: 988px) {
+        .colorPalette {
+            width: 14cqw;
+            height: 14cqw;
+        }
+        .componentMenu {
+            width: 9cqw;
+            flex-direction: column;
+            gap: 0.5cqw;
+            padding-left: 1cqw;
+        }
+        .nameBox {
+            width: 30cqw;
+        }
+        .label-on-left {
+            --label-width: 6cqw;
+            --gap-width: 2cqw;
+            margin: auto;
+        }
+        sl-input::part(input) {
+            width: 10cqw;
+        }
+    }     
 `;
 
 
@@ -518,11 +555,6 @@ export class ComputerNetwork extends LitElementWw {
     <div id="cy"></div>
   </div>
 
-    
-
-
-    
-
     <div id="inputDialog"/>
 
     </div>
@@ -601,8 +633,6 @@ export class ComputerNetwork extends LitElementWw {
         Subnet.setMode('MANUAL');
       }
     }
-
-
   }
 
 }

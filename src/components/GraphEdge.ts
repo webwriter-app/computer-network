@@ -1,5 +1,5 @@
 import { AlertHelper } from "../utils/AlertHelper";
-import { ConnectionType, PhysicalNode } from "./physicalNodes/PhysicalNode";
+import { PhysicalNode } from "./physicalNodes/PhysicalNode";
 
 export class GraphEdge {
     id: string;

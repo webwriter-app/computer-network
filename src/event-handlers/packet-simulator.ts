@@ -5,7 +5,7 @@ import { RoutableDecorator } from "../components/dataDecorators/Routable";
 import { SimpleDecorator } from "../components/dataDecorators/SimpleDecorator";
 import { SwitchableDecorator } from "../components/dataDecorators/Switchable";
 import { GraphEdge } from "../components/GraphEdge";
-import { Data, Packet, Frame } from "../components/logicalNodes/DataNode";
+import { Data, Packet } from "../components/logicalNodes/DataNode";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
 import { TableHelper } from "../utils/TableHelper";
@@ -285,64 +285,7 @@ export class PacketSimulator {
         detail.append(removeButton);
         detail.append(saveButton);
     }
-
-    // static addOrUpdateTable(nodeId: string, tableType: TableType, tableData: any, network: ComputerNetwork): void {
-    //     let tableRows = "";
-    //     let label = "";
-    //     let tableId = "";
-    //     switch (tableType) {
-    //         case 'ArpTable':
-    //             if (!(tableData instanceof Map<string, string>)) return;
-    //             label = "ARP Table";
-    //             tableId = "arp-table-" + nodeId;
-    //             tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
-    //             (tableData as Map<string, string>).forEach((mac, ip) => {
-    //                 tableRows += `<tr><td>` + ip + `</td><td>` + mac + `</td></tr>`
-    //             });
-    //             break;
-
-    //         case 'RoutingTable':
-    //             if (!(tableData instanceof Map<string, [string, number, string]>)) return;
-    //             label = "Routing Table"
-    //             tableId = "routing-table-" + nodeId;
-    //             tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
-    //             (tableData as Map<string, [string, number, string]>).forEach(([interfaceName, _port, connection], mask) => {
-    //                 tableRows += `<tr><td>` + interfaceName + `</td><td>` + mask + `</td><td>` + connection + `</td></tr>`
-    //             });
-    //             break;
-
-    //         case 'MacAddressTable':
-    //             if (!(tableData instanceof Map<string, number>)) return;
-    //             label = "Mac Address Table";
-    //             tableId = "mac-address-table-" + nodeId;
-    //             tableRows += `<table id="` + tableId + `"><caption style="font-weight: bold;">` + label + `</caption>`;
-    //             (tableData as Map<string, number>).forEach((port, mac) => {
-    //                 tableRows += `<tr><td>` + port + `</td><td>` + mac + `</td></tr>`
-    //             });
-    //             break;
-    //     }
-
-    //     let detail = (network.renderRoot.querySelector('#tables-for-' + nodeId) as SlDetails);
-    //     if (detail == null) {
-    //         detail = new SlDetails();
-    //         detail.id = 'tables-for-' + nodeId;
-    //         detail.summary = "Tables of " + nodeId;
-    //         detail.open = true;
-    //         switch (tableType) {
-    //             case 'ArpTable': case 'RoutingTable':
-    //                 detail.innerHTML = `<table id="arp-table-` + nodeId + `"></table>` + `<table id="routing-table-` + nodeId + `"></table>`;
-    //                 break;
-    //             case 'MacAddressTable':
-    //                 detail.innerHTML = `<table id="mac-address-table-` + nodeId + `"></table>`;
-    //                 break;
-    //         }
-    //         (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).appendChild(detail);
-    //     }
-
-    //     let tableElement = (network.renderRoot.querySelector('#' + tableId) as HTMLElement);
-    //     tableElement.innerHTML = tableRows;
-    // }
-
+    
     static resetDatabase(network: ComputerNetwork) {
         (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
 

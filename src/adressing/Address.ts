@@ -1,6 +1,3 @@
-import { Ipv4Address } from "./Ipv4Address";
-import { Ipv6Address } from "./Ipv6Address";
-
 export abstract class Address {
     layer: number;
     address: string;

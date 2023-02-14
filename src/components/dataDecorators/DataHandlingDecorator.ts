@@ -2,7 +2,7 @@ import { ComputerNetwork } from "../../..";
 import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { PacketSimulator } from "../../event-handlers/packet-simulator";
 import { GraphEdge } from "../GraphEdge";
-import { Data, Packet, Frame } from "../logicalNodes/DataNode";
+import { Packet, Frame } from "../logicalNodes/DataNode";
 import { PhysicalNode } from "../physicalNodes/PhysicalNode";
 
 export class DataHandlingDecorator implements PhysicalNode {
@@ -83,9 +83,7 @@ export class DataHandlingDecorator implements PhysicalNode {
                     let directTargetId = edge.target == this.id ? edge.source : edge.target;
                     let newData = (dataNode.data() instanceof Packet) ? Packet.cloneData(dataNode.data()) : Frame.cloneData(dataNode.data());
                     let nextHop = network._graph.$('#' + directTargetId);
-                    //let finalTarget = network._graph.$('#' + network.macDatabase.get((dataNode.data() as Data).layer2header.macReceiver));
                     PacketSimulator.initThenDirectSend(network._graph.$('#' + this.id), nextHop, newData, network);
-                    //PacketSimulator.endToEndSend(nextHop, finalTarget, network._graph.$('#'+newData.id), network);
                 }
             }
         });  
