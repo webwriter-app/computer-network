@@ -16,7 +16,7 @@ import { AlertHelper } from "./utils/AlertHelper";
 import { SubnettingController } from "./event-handlers/subnetting-controller";
 import { Address } from "./adressing/Address";
 import { GraphEdge } from "./components/GraphEdge";
-import { Subnet } from "./components/logicalNodes/Subnet";
+import { Net } from "./components/logicalNodes/Net";
 import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 import { Data } from "./components/logicalNodes/DataNode";
@@ -133,13 +133,13 @@ export function initNetwork(network: ComputerNetwork): void {
             }
         },
         {
-            "selector": ".unconfigured-subnet",
+            "selector": ".unconfigured-net",
             "style": {
                 "label": "unconfigured"
             }
         },
         {
-            "selector": ".subnet-node",
+            "selector": ".net-node",
             "style": {
                 "text-valign": "top",
                 "text-halign": "center",
@@ -159,11 +159,11 @@ export function initNetwork(network: ComputerNetwork): void {
                 "background-fill": "linear-gradient",
                 "background-gradient-stop-colors": function (gateway) {
                     let colors = [];
-                    let subnets = gateway.data('subnets');
-                    if (subnets.length == 0) colors = ['grey'];
+                    let nets = gateway.data('nets');
+                    if (nets.length == 0) colors = ['grey'];
 
-                    gateway.data('subnets').forEach(subnet => {
-                        colors.push(subnet.color);
+                    gateway.data('nets').forEach(net => {
+                        colors.push(net.color);
                     });
                     return colors.join(' ');
                 },
@@ -278,15 +278,15 @@ export function initNetwork(network: ComputerNetwork): void {
                 hasTrailingDivider: true
             },
             {
-                id: "details-for-subnet",
+                id: "details-for-net",
                 content: "View Details...",
                 tooltipText: "View Details",
-                selector: ".subnet-node",
+                selector: ".net-node",
                 onClickFunction: function (event) {
                     let node = event.target;
                     let id = node.data().id;
 
-                    DialogFactory.handleChangesInDialogForSubnet(id, node, network);
+                    DialogFactory.handleChangesInDialogForNet(id, node, network);
                 },
                 hasTrailingDivider: true
             },
@@ -379,26 +379,26 @@ export function initNetwork(network: ComputerNetwork): void {
 
     //options for drap-and-drop compound nodes - no handle on drag out of compound
     const subnettingOptions = {
-        grabbedNode: node => { return node.connectedEdges().length == 0; }, // nodes valid to grab and drop into subnet: ones that don't have any link
+        grabbedNode: node => { return node.connectedEdges().length == 0; }, // nodes valid to grab and drop into net: ones that don't have any link
         dropTarget: (dropTarget, grabbedNode) => {
 
             grabbedNode.on('cdnddrop', (event, target, sibling) => {
                 let parent = target != null ? target : sibling;
-                if (parent.data() instanceof Subnet) {
-                    switch (Subnet.mode) {
+                if (parent.data() instanceof Net) {
+                    switch (Net.mode) {
                         case 'HOST_BASED': //subnet's info get regenerated based on hosts in host_mode
                             SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
                             break;
-                        case 'SUBNET_BASED': //the subnet must be configured to drag hosts into (subnet_mode)
+                        case 'NET_BASED': //the subnet must be configured to drag hosts into (net_mode)
                             let bitmask: number = parent.data().bitmask;
                             if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
-                                //check if current num. of hosts exceed allowed && subnet is configured
-                                if (((Math.pow(2, 32 - bitmask) - 2) > parent.children().length) && !parent.hasClass('unconfigured-subnet')) {
+                                //check if current num. of hosts exceed allowed && net is configured
+                                if (((Math.pow(2, 32 - bitmask) - 2) > parent.children().length) && !parent.hasClass('unconfigured-net')) {
                                     SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
                                 }
                             }
                             else {
-                                AlertHelper.toastAlert('danger', 'exclamation-triangle', "Subnet-based mode activated:", "Unable to drag hosts into unconfigured subnet.");
+                                AlertHelper.toastAlert('danger', 'exclamation-triangle', "Net-based mode activated:", "Unable to drag hosts into unconfigured net.");
                             }
                             break;
                         default:
@@ -408,12 +408,12 @@ export function initNetwork(network: ComputerNetwork): void {
                 }
             });
 
-            if (dropTarget.hasClass('unconfigured-subnet') && Subnet.mode == "SUBNET_BASED") return false;
-            return dropTarget.data() instanceof Subnet;
+            if (dropTarget.hasClass('unconfigured-net') && Net.mode == "NET_BASED") return false;
+            return dropTarget.data() instanceof Net;
         }, // filter function to specify which parent nodes are valid drop targets
-        dropSibling: (dropSibling, grabbedNode) => { return (dropSibling.data() instanceof Subnet); }, // filter function to specify which orphan nodes are valid drop siblings
+        dropSibling: (dropSibling, grabbedNode) => { return (dropSibling.data() instanceof Net); }, // filter function to specify which orphan nodes are valid drop siblings
         newParentNode: (grabbedNode, dropSibling) => {
-            if (dropSibling.data() instanceof Subnet) return dropSibling;
+            if (dropSibling.data() instanceof Net) return dropSibling;
         }, // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
         boundingBoxOptions: { // same as https://js.cytoscape.org/#eles.boundingBox, used when calculating if one node is dragged over another
             includeOverlays: false,

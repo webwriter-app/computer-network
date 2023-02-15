@@ -7,7 +7,7 @@ import { RoutingData } from "../../utils/routingData";
 import { TableHelper } from "../../utils/TableHelper";
 import { GraphEdge } from "../GraphEdge";
 import { Data, Packet, Frame } from "../logicalNodes/DataNode";
-import { Subnet } from "../logicalNodes/Subnet";
+import { Net } from "../logicalNodes/Net";
 import { Router } from "../physicalNodes/Connector";
 import { PhysicalNode } from "../physicalNodes/PhysicalNode";
 import { DataHandlingDecorator } from "./DataHandlingDecorator";
@@ -20,15 +20,15 @@ export class RoutableDecorator extends DataHandlingDecorator {
     pendingPackets: Map<string, string[]> = new Map<string, string[]>(); //ip of receiver / list of ids of pending packets
 
     pathsToOtherRouters?: Map<string, string[]> = new Map<string, any>; //(ip of other router, path from this router to other router)
-    subnets?: Subnet[];
-    portSubnetMapping?: Map<number, Subnet> = new Map();
+    nets?: Net[];
+    portNetMapping?: Map<number, Net> = new Map();
 
     constructor(component: PhysicalNode, network: ComputerNetwork) {
         super(component);
         this.cssClass.push('routable-decorated');
         if (component instanceof Router) {
-            this.subnets = component.subnets;
-            this.portSubnetMapping = component.portSubnetMapping;
+            this.nets = component.nets;
+            this.portNetMapping = component.portNetMapping;
         }
         PacketSimulator.initTable(this.id, 'ArpTable', network);
         PacketSimulator.initTable(this.id, 'RoutingTable', network);
@@ -97,10 +97,10 @@ export class RoutableDecorator extends DataHandlingDecorator {
     sendData(dataNode: any, network: ComputerNetwork, senderNode?: any): void {
         let data: Packet = dataNode.data();
         let receiverIp = data.layer3header.ipReceiver;
-        let subnet: Subnet = senderNode.parent().data() as Subnet;
+        let net: Net = senderNode.parent().data() as Net;
 
         //check if in same network
-        if (subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask) == AddressingHelper.decimalStringWithDotToBinary(receiverIp).slice(0, subnet.bitmask)) {
+        if (net.networkAddress.binaryOctets.join('').slice(0, net.bitmask) == AddressingHelper.decimalStringWithDotToBinary(receiverIp).slice(0, net.bitmask)) {
             this.sendDataInSameNetwork(null, dataNode, this.getMacProvidedIp(data.layer3header.ipSender), data.layer3header.ipSender, "", data.layer3header.ipReceiver, network);
         }
         else {
@@ -272,9 +272,9 @@ export class RoutableDecorator extends DataHandlingDecorator {
     }
 
     checkIfSameNetwork(destination: string, network: ComputerNetwork): boolean {
-        let subnet: Subnet = network._graph.$('#' + this.id).parent().data() as Subnet;
-        if (subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask)
-            == AddressingHelper.decimalStringWithDotToBinary(destination).slice(0, subnet.bitmask)) {
+        let net: Net = network._graph.$('#' + this.id).parent().data() as Net;
+        if (net.networkAddress.binaryOctets.join('').slice(0, net.bitmask)
+            == AddressingHelper.decimalStringWithDotToBinary(destination).slice(0, net.bitmask)) {
             return true;
         }
         else {

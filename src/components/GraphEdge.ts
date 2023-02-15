@@ -69,7 +69,7 @@ export class GraphEdge {
 
         return edge;
 
-        //check if one node belongs to a subnet, if yes --> other node must be a router
+        //check if one node belongs to a net, if yes --> other node must be a router
     }
 }
 

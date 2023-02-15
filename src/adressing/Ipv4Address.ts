@@ -1,4 +1,4 @@
-import { Subnet } from "../components/logicalNodes/Subnet";
+import { Net } from "../components/logicalNodes/Net";
 import { AddressingHelper } from "../utils/AdressingHelper";
 import { AlertHelper } from "../utils/AlertHelper";
 import { Address } from "./Address";
@@ -24,7 +24,7 @@ export class Ipv4Address extends Address {
      * 
      * @param ip an Ipv4 address (string) that's not validated
      * @param database of all "worldwide" addresses
-     * @param bitmask only needed if the passed Address is of a subnet
+     * @param bitmask only needed if the passed Address is of a net
      * @returns Ipv4 address from passed address string | null if the passed address string is not valid
      */
     static override validateAddress(ip: string, database: Map<string, string>, bitmask?: number): Ipv4Address {
@@ -62,21 +62,21 @@ export class Ipv4Address extends Address {
      * 
      * @param database ipv4 database
      * @param oldIp current ipv4 address of a host
-     * @param subnet the current subnet that host's in
-     * @returns current ipv4 if it matches network CIDR, else a random new address that matches network CIDR (except for reserved addresses of subnet)
+     * @param net the current network that host's in
+     * @returns current ipv4 if it matches network CIDR, else a random new address that matches network CIDR (except for reserved addresses of net)
      */
-    static generateNewIpGivenSubnet(database: Map<string, string>, oldIp: Ipv4Address, subnet: Subnet): Ipv4Address {
+    static generateNewIpGivenNet(database: Map<string, string>, oldIp: Ipv4Address, net: Net): Ipv4Address {
 
-        if (subnet.cssClass.includes('unconfigured-subnet')) return null;
+        if (net.cssClass.includes('unconfigured-net')) return null;
 
-        if (oldIp.matchesNetworkCidr(subnet)) {
+        if (oldIp.matchesNetworkCidr(net)) {
             return oldIp;
         }
 
-        let subnetPrefix: string = subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask);
-        let candidateIp: string = subnetPrefix;
+        let netPrefix: string = net.networkAddress.binaryOctets.join('').slice(0, net.bitmask);
+        let candidateIp: string = netPrefix;
 
-        let reservedAddresses: string[] = ["127.0.0.1", subnetPrefix.padEnd(32, '1'), subnetPrefix.padEnd(32, '0')];
+        let reservedAddresses: string[] = ["127.0.0.1", netPrefix.padEnd(32, '1'), netPrefix.padEnd(32, '0')];
 
         while (candidateIp.length != 32) {
             candidateIp += AddressingHelper.randomBetween(0, 1);
@@ -86,7 +86,7 @@ export class Ipv4Address extends Address {
         let n: number = 10; //TODO: how many iterations is appropriate?
         //if randomized ip exists/reserved, regenerate another IP (set timeout to n iterations)
         while (n > 0 && (database.has(ip) || reservedAddresses.includes(candidateIp))) {
-            candidateIp = subnetPrefix;
+            candidateIp = netPrefix;
             while (candidateIp.length != 32) {
                 candidateIp += AddressingHelper.randomBetween(0, 1);
             }
@@ -105,16 +105,16 @@ export class Ipv4Address extends Address {
 
     /**
      * 
-     * @param subnet 
+     * @param net 
      * @returns whether this ipv4 address matches network CIDR
      */
-    matchesNetworkCidr(subnet: Subnet): boolean {
+    matchesNetworkCidr(net: Net): boolean {
         if (this.address == "127.0.0.1") return true; //exclude loop-back address
-        if (subnet.cssClass.includes('unconfigured-subnet')) return false;
+        if (net.cssClass.includes('unconfigured-net')) return false;
 
-        let binaryCompoundArray = subnet.networkAddress.binaryOctets;
+        let binaryCompoundArray = net.networkAddress.binaryOctets;
         let binaryNodeArray = this.binaryOctets;
-        if (binaryCompoundArray.join('').slice(0, subnet.bitmask) == binaryNodeArray.join('').slice(0, subnet.bitmask)) {
+        if (binaryCompoundArray.join('').slice(0, net.bitmask) == binaryNodeArray.join('').slice(0, net.bitmask)) {
             return true;
         }
         return false;

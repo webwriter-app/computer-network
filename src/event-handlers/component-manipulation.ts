@@ -3,7 +3,7 @@ import { ComputerNetwork } from "../..";
 import { Ipv4Address } from "../adressing/Ipv4Address";
 import { Ipv6Address } from "../adressing/Ipv6Address";
 import { MacAddress } from "../adressing/MacAddress";
-import { Subnet } from "../components/logicalNodes/Subnet";
+import { Net } from "../components/logicalNodes/Net";
 import { Repeater, Hub, Switch, Bridge, AccessPoint, Router } from "../components/physicalNodes/Connector";
 import { Host } from "../components/physicalNodes/Host";
 import { ConnectionType, PhysicalNode } from "../components/physicalNodes/PhysicalNode";
@@ -24,8 +24,8 @@ export class GraphNodeFactory {
         switch (network.currentComponentToAdd) {
             case 'edge': //edge is not added with the "plus-button"
                 break;
-            case 'subnet':
-                this.addSubnetNode(network);
+            case 'net':
+                this.addNetNode(network);
                 break;
             default:
                 //default is adding physical node
@@ -35,18 +35,18 @@ export class GraphNodeFactory {
 
     }
 
-    static addSubnetNode(network: ComputerNetwork): void {
-        let subnetNum: string = (network.renderRoot.querySelector('#subnet-num') as SlInput).value.trim();
-        let subnetMask: string = (network.renderRoot.querySelector('#subnet-mask') as SlInput).value.trim();
-        let bitmask: number = (network.renderRoot.querySelector('#subnet-bitmask') as SlInput).valueAsNumber;
+    static addNetNode(network: ComputerNetwork): void {
+        let netId: string = (network.renderRoot.querySelector('#net-num') as SlInput).value.trim();
+        let netmask: string = (network.renderRoot.querySelector('#net-mask') as SlInput).value.trim();
+        let bitmask: number = (network.renderRoot.querySelector('#net-bitmask') as SlInput).valueAsNumber;
 
-        let newSubnet = Subnet.createSubnet(network.currentColor, subnetNum, subnetMask, bitmask, network.ipv4Database);
+        let newNet = Net.createNet(network.currentColor, netId, netmask, bitmask, network.ipv4Database);
 
-        if (newSubnet != null) {
+        if (newNet != null) {
             network._graph.add({
                 group: 'nodes',
-                data: newSubnet,
-                classes: newSubnet.cssClass,
+                data: newNet,
+                classes: newNet.cssClass,
             });
         }
     }
@@ -170,8 +170,8 @@ export class GraphNodeFactory {
     }
 
     static removeNode(node: any, network: ComputerNetwork): void {
-        if (node.hasClass('subnet-node')) {
-            this.removeSubnet(node, network);
+        if (node.hasClass('net-node')) {
+            this.removeNet(node, network);
         }
         else if (node.hasClass('gateway-node')) {
             this.removeGateway(node, network);
@@ -188,33 +188,33 @@ export class GraphNodeFactory {
 
     static removeGateway(node: any, network: ComputerNetwork): void {
         let gateway: Router = node.data();
-        gateway.portSubnetMapping.forEach((subnet, port) => {
-            subnet.gateways.delete(gateway.id);
-            if (subnet.currentDefaultGateway != undefined && subnet.currentDefaultGateway != null &&
-                subnet.currentDefaultGateway[0] == gateway.id && subnet.currentDefaultGateway[1] == port) {
-                if (subnet.gateways.size > 0) {
-                    let iter = subnet.gateways.entries();
+        gateway.portNetMapping.forEach((net, port) => {
+            net.gateways.delete(gateway.id);
+            if (net.currentDefaultGateway != undefined && net.currentDefaultGateway != null &&
+                net.currentDefaultGateway[0] == gateway.id && net.currentDefaultGateway[1] == port) {
+                if (net.gateways.size > 0) {
+                    let iter = net.gateways.entries();
                     let temp = iter.next();
                     while (temp.value != undefined && temp.value[1] == null) {
                         temp = iter.next();
                     }
                     if (temp.value != undefined && temp.value[1] != null) {
-                        subnet.currentDefaultGateway = temp.value;
+                        net.currentDefaultGateway = temp.value;
                     }
                     else {
-                        subnet.currentDefaultGateway = null;
+                        net.currentDefaultGateway = null;
                     }
                 }
                 else {
-                    subnet.currentDefaultGateway = null;
+                    net.currentDefaultGateway = null;
                 }
             }
-            network._graph.$('#' + subnet.id).children().forEach(child => {
+            network._graph.$('#' + net.id).children().forEach(child => {
                 let oldGateway = child.data('defaultGateway');
                 if (oldGateway != null && oldGateway != undefined &&
                     oldGateway[0] == node.id() && oldGateway[1] == port) {
-                    if (subnet.currentDefaultGateway != null && subnet.currentDefaultGateway != undefined) {
-                        child.data('defaultGateway', subnet.currentDefaultGateway);
+                    if (net.currentDefaultGateway != null && net.currentDefaultGateway != undefined) {
+                        child.data('defaultGateway', net.currentDefaultGateway);
                     }
                     else {
                         child.data('defaultGateway', null);
@@ -229,30 +229,30 @@ export class GraphNodeFactory {
         });
     }
 
-    static removeSubnet(node: any, network: ComputerNetwork): void {
+    static removeNet(node: any, network: ComputerNetwork): void {
         //free addresses of all children
         node.children().forEach(child => {
             this.removeNode(child, network);
         });
-        let subnet: Subnet = node.data() as Subnet;
-        if (subnet.networkAddress != null && subnet.networkAddress != undefined) {
-            network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(subnet.networkAddress.address, subnet.bitmask)); //remove the broadcast address
-            network.ipv4Database.delete(subnet.networkAddress.address); //free ID of network   
+        let net: Net = node.data() as Net;
+        if (net.networkAddress != null && net.networkAddress != undefined) {
+            network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(net.networkAddress.address, net.bitmask)); //remove the broadcast address
+            network.ipv4Database.delete(net.networkAddress.address); //free ID of network   
         }
         //free the port of the gateways
-        subnet.gateways.forEach((port, gatewayId) => {
+        net.gateways.forEach((port, gatewayId) => {
             let gateway: Router = network._graph.$('#' + gatewayId).data();
             if (port != null && port != undefined && !Number.isNaN(port)) {
-                gateway.portSubnetMapping.set(port, null);
+                gateway.portNetMapping.set(port, null);
                 gateway.portLinkMapping.set(port, null);
             }
 
-            gateway.subnets.forEach((nw, index, array) => {
-                if (nw.id == subnet.id) {
+            gateway.nets.forEach((nw, index, array) => {
+                if (nw.id == net.id) {
                     array.splice(index, 1);
                 }
             });
-            if (gateway.subnets.length == 0) network._graph.$('#' + gatewayId).toggleClass('gateway-node', false); //if the gateway has no networks --> back to router-node
+            if (gateway.nets.length == 0) network._graph.$('#' + gatewayId).toggleClass('gateway-node', false); //if the gateway has no networks --> back to router-node
         });
     }
 

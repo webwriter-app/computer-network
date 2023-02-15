@@ -2,7 +2,7 @@
 import { Ipv4Address } from "../../adressing/Ipv4Address";
 import { Ipv6Address } from "../../adressing/Ipv6Address";
 import { MacAddress } from "../../adressing/MacAddress";
-import { Subnet } from "../logicalNodes/Subnet";
+import { Net } from "../logicalNodes/Net";
 import { ConnectionType, PhysicalNode } from "./PhysicalNode";
 
 export abstract class Connector extends PhysicalNode {
@@ -38,9 +38,9 @@ export abstract class Connector extends PhysicalNode {
 
 export class Router extends Connector {
     //TODO: portLinkMapping bị xóa
-    //--> check + remove router (remove bằng routerid + port index) from list of gateways của subnet
-    portSubnetMapping: Map<number, Subnet> = new Map(); //(port-index, id of subnet-node)
-    subnets: Subnet[] = [];
+    //--> check + remove router (remove bằng routerid + port index) from list of gateways của net
+    portNetMapping: Map<number, Net> = new Map(); //(port-index, id of net-node)
+    nets: Net[] = [];
 
     constructor(color: string, numberOfInterfaces: number, names: Map<number, string>, portConnectionTypes: Map<number, ConnectionType>,
         portMacMapping: Map<number, MacAddress>, portIpv4Mapping: Map<number, Ipv4Address>, portIpv6Mapping: Map<number, Ipv6Address>,

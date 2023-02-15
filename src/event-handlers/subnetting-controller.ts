@@ -1,7 +1,7 @@
 import { ComputerNetwork } from "../..";
 import { Ipv4Address } from "../adressing/Ipv4Address";
 import { GraphNode } from "../components/GraphNode";
-import { Subnet } from "../components/logicalNodes/Subnet";
+import { Net } from "../components/logicalNodes/Net";
 import { Router } from "../components/physicalNodes/Connector";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
@@ -46,75 +46,75 @@ export class SubnettingController {
         var router = event.target;
         if (!(router.data() instanceof Router)) return;
         var mouse = event.position;
-        network._graph.$('.subnet-node').forEach(subnet => {
-            var pos = subnet.boundingBox();
-            //drag router onto the edge of a subnet
+        network._graph.$('.net-node').forEach(net => {
+            var pos = net.boundingBox();
+            //drag router onto the edge of a net
             if ((((mouse.x > pos.x1 - 15 && mouse.x < pos.x1 + 15) || (mouse.x > pos.x2 - 15 && mouse.x < pos.x2 + 15)) && (mouse.y > pos.y1 && mouse.y < pos.y2)) ||
                 (((mouse.y > pos.y1 - 15 && mouse.y < pos.y1 + 15) || (mouse.y > pos.y2 - 15 && mouse.y < pos.y2 + 15)) && (mouse.x > pos.x1 && mouse.x < pos.x2))) {
-                router.data('subnets').push(subnet.data()); //add subnet to router node
+                router.data('nets').push(net.data()); //add net to router node
                 router.data('cssClass').push("gateway-node");
                 router.toggleClass("gateway-node", true);
-                let gatewayList = subnet.data('gateways');
-                if (!gatewayList.has(router.id)) gatewayList.set(router.id(), null); // add gateway to the subnet, with undefined port
+                let gatewayList = net.data('gateways');
+                if (!gatewayList.has(router.id)) gatewayList.set(router.id(), null); // add gateway to the net, with undefined port
             }
         });
     }
 
     static onDragInACompound(grabbedNode, compound, database: Map<string, string>): void {
-        let subnet: Subnet = compound.data();
+        let net: Net = compound.data();
         let node: PhysicalNode = grabbedNode.data();
 
         //reset the IP address of a host based on the network ID
-        if (Subnet.mode == "SUBNET_BASED") {
+        if (Net.mode == "NET_BASED") {
             if (node instanceof PhysicalNode && node.layer > 2) {
                 node.portData.forEach(data => {
                     let ip4 = data.get('IPv4');
-                    if (ip4 != null && !ip4.matchesNetworkCidr(subnet)) {
+                    if (ip4 != null && !ip4.matchesNetworkCidr(net)) {
                         Ipv4Address.removeAddressFromDatabase(ip4, database);
-                        let newIpv4 = Ipv4Address.generateNewIpGivenSubnet(database, ip4, subnet);
+                        let newIpv4 = Ipv4Address.generateNewIpGivenNet(database, ip4, net);
                         data.set('IPv4', newIpv4);
                         Ipv4Address.addAddressToDatabase(newIpv4, database, node.id);
                     }
                 });
-                if (subnet.currentDefaultGateway != undefined && subnet.currentDefaultGateway != null) {
-                    node.defaultGateway = subnet.currentDefaultGateway;
+                if (net.currentDefaultGateway != undefined && net.currentDefaultGateway != null) {
+                    node.defaultGateway = net.currentDefaultGateway;
                     grabbedNode.addClass('gateway-changeable');
                 }
                 else {
                     grabbedNode.addClass('default-gateway-not-found');
                 }
             }
-            else if (node instanceof Subnet) {
-                //if the subnet doesn't match supernet's CIDR
-                if (!subnet.isSupernetOf(node)) {
-                    database.delete(node.networkAddress.address) //delete the subnet from database
+            else if (node instanceof Net) {
+                //if the net doesn't match supernet's CIDR
+                if (!net.isSupernetOf(node)) {
+                    database.delete(node.networkAddress.address) //delete the net from database
                     database.delete(AddressingHelper.getBroadcastAddress(node.networkAddress.address, node.bitmask));
-                    node.networkAddress = null; //delete the subnet Address
-                    grabbedNode.addClass("unconfigured-subnet"); //seems redundant? no direct mapping between cssClass and classes of cytopscape?
-                    node.cssClass.push("unconfigured-subnet");
+                    node.networkAddress = null; //delete the net Address
+                    grabbedNode.addClass("unconfigured-net"); //seems redundant? no direct mapping between cssClass and classes of cytopscape?
+                    node.cssClass.push("unconfigured-net");
                     node.name = "";
                 }
             }
         }//reset the Network ID based on new element
-        else if (Subnet.mode == "HOST_BASED") {
+        else if (Net.mode == "HOST_BASED") {
 
             if (node instanceof PhysicalNode && node.layer > 2) {
                 node.portData.forEach(data => {
                     let ip4 = data.get('IPv4');
-                    if (ip4 != null && ip4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet, ip4, database);
-                    compound.classes(subnet.cssClass);
+                    if (ip4 != null && ip4 != undefined) Net.calculateCIDRGivenNewHost(net, ip4, database);
+                    compound.classes(net.cssClass);
                 });
-                if (subnet.currentDefaultGateway != undefined && subnet.currentDefaultGateway != null) {
-                    node.defaultGateway = subnet.currentDefaultGateway;
+                if (net.currentDefaultGateway != undefined && net.currentDefaultGateway != null) {
+                    node.defaultGateway = net.currentDefaultGateway;
                     grabbedNode.addClass('gateway-changeable');
                 }
                 else {
                     grabbedNode.addClass('default-gateway-not-found');
                 }
             }
-            else if (node instanceof Subnet) {
-                Subnet.calculateCIDRGivenNewSubnet(subnet, node, database);
-                compound.classes(subnet.cssClass);
+            else if (node instanceof Net) {
+                Net.calculateCIDRGivenNewSubnet(net, node, database);
+                compound.classes(net.cssClass);
             }
         }
         else {
@@ -125,34 +125,34 @@ export class SubnettingController {
     }
 
     //TODO: automatically run this before the packet simulation
-    static validateAllSubnets(network: ComputerNetwork): void {
-        let subnets = network._graph.$('.subnet-node');
+    static validateAllNets(network: ComputerNetwork): void {
+        let nets = network._graph.$('.net-node');
         let allCorrect = true;
         let alert = "";
         let unconfig = false;
 
-        subnets.forEach(networkNode => {
-            if (networkNode.hasClass('unconfigured-subnet')) {
+        nets.forEach(networkNode => {
+            if (networkNode.hasClass('unconfigured-net')) {
                 unconfig = true;
             }
             else {
-                let nw: Subnet = networkNode.data() as Subnet;
+                let nw: Net = networkNode.data() as Net;
                 let hosts: GraphNode[] = [];
                 let gateways: Router[] = [];
-                //check if each subnet is correctly assigned locally
+                //check if each net is correctly assigned locally
                 networkNode.children().forEach(node => hosts.push(node.data()));
                 nw.gateways.forEach((_port, id) => gateways.push(network._graph.$('#' + id)));
-                if (!nw.validateSubnetLocally(hosts, gateways)) allCorrect = false;
+                if (!nw.validateNetLocally(hosts, gateways)) allCorrect = false;
 
-                subnets.forEach(subnet => {
-                    let isSupernet: boolean = (nw as Subnet).isSupernetOf(subnet.data());
-                    let contains: boolean = networkNode.children().contains(subnet);
+                nets.forEach(net => {
+                    let isSupernet: boolean = (nw as Net).isSupernetOf(net.data());
+                    let contains: boolean = networkNode.children().contains(net);
                     if (isSupernet && !contains) {
-                        alert += "<li>" + nw.name + " should contain subnet " + subnet.data().name + "</li>";
+                        alert += "<li>" + nw.name + " should contain subnet " + net.data().name + "</li>";
                         allCorrect = false;
                     }
                     else if (!isSupernet && contains) {
-                        alert += "<li>" + nw.name + " is not a supernet of " + subnet.data().name + "</li>";
+                        alert += "<li>" + nw.name + " is not a supernet of " + net.data().name + "</li>";
                         allCorrect = false;
                     }
                 });
@@ -160,10 +160,10 @@ export class SubnettingController {
         });
 
         if (allCorrect && !unconfig) {
-            AlertHelper.toastAlert("success", "check2-circle", "Well done!", "All subnets are correctly configured!")
+            AlertHelper.toastAlert("success", "check2-circle", "Well done!", "All nets are correctly configured!")
         }
         else {
-            alert += "<li>Unconfigured subnet still exists.</li>";
+            alert += "<li>Unconfigured net still exists.</li>";
         }
 
         if (alert != "") AlertHelper.toastAlert("warning", "exclamation-triangle", "", alert);
@@ -172,30 +172,30 @@ export class SubnettingController {
 
     static setUpGateway(gateway: NodeSingular, host: NodeSingular, gatewayPort: number, database: Map<string, string>): void {
         if (host.isChild() && gateway.hasClass('gateway-node')) {
-            let subnet = host.parent();
+            let net = host.parent();
             let gatewayNodeId = gateway.data().id;
-            let gatewayList: Map<string, number> = subnet.data('gateways');
+            let gatewayList: Map<string, number> = net.data('gateways');
             if (!gatewayList.has(gatewayNodeId)) return;
             gatewayList.set(gatewayNodeId, gatewayPort);
-            gateway.data('portSubnetMapping').set(gatewayPort, subnet.data());
+            gateway.data('portNetMapping').set(gatewayPort, net.data());
             let ip4 = gateway.data('portData').get(gatewayPort).get('IPv4');
 
-            if (subnet.data('currentDefaultGateway') == undefined) subnet.data('currentDefaultGateway', [gatewayNodeId, gatewayPort]);
+            if (net.data('currentDefaultGateway') == undefined) net.data('currentDefaultGateway', [gatewayNodeId, gatewayPort]);
 
-            switch (Subnet.mode) {
+            switch (Net.mode) {
                 case 'HOST_BASED':
-                    if (ip4 != null && ip4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet.data() as Subnet, ip4, database);
-                    subnet.classes(subnet.data('cssClass'));
+                    if (ip4 != null && ip4 != undefined) Net.calculateCIDRGivenNewHost(net.data() as Net, ip4, database);
+                    net.classes(net.data('cssClass'));
                     break;
-                case 'SUBNET_BASED':
-                    if (subnet.hasClass('unconfigured-subnet')) {
+                case 'NET_BASED':
+                    if (net.hasClass('unconfigured-net')) {
                         gateway.data('portData').get(gatewayPort).set('IPv4', Ipv4Address.getLoopBackAddress());
-                        AlertHelper.toastAlert("warning", "exclamation-triangle", "Subnet-based mode on:", "Unconfigured subnet, automatically set Ipv4 address to loop-back.");
+                        AlertHelper.toastAlert("warning", "exclamation-triangle", "Net-based mode on:", "Unconfigured net, automatically set Ipv4 address to loop-back.");
                     }
-                    else if (ip4 != null && !ip4.matchesNetworkCidr(subnet.data() as Subnet)) {
+                    else if (ip4 != null && !ip4.matchesNetworkCidr(net.data() as Net)) {
 
                         Ipv4Address.removeAddressFromDatabase(ip4, database);
-                        let newIp4 = Ipv4Address.generateNewIpGivenSubnet(database, ip4, subnet.data() as Subnet);
+                        let newIp4 = Ipv4Address.generateNewIpGivenNet(database, ip4, net.data() as Net);
                         gateway.data('portData').get(gatewayPort).set('IPv4', newIp4);
                         Ipv4Address.addAddressToDatabase(newIp4, database, gateway.id());
                     }

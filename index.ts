@@ -8,7 +8,7 @@ import { GraphNodeFactory } from "./src/event-handlers/component-manipulation";
 import { EdgeController } from "./src/event-handlers/edge-controller";
 import { DialogFactory } from "./src/event-handlers/dialog-content";
 import { SubnettingController } from "./src/event-handlers/subnetting-controller";
-import { Subnet } from "./src/components/logicalNodes/Subnet";
+import { Net } from "./src/components/logicalNodes/Net";
 import { PacketSimulator } from "./src/event-handlers/packet-simulator";
 import { ImportExportController } from "./src/exporting/importExportController";
 import { SlSelect } from "@shoelace-style/shoelace";
@@ -434,15 +434,15 @@ export class ComputerNetwork extends LitElementWw {
       
         <sl-details summary="Subnetting extension" open>
           <sl-menu-label>Choose a mode:
-            <sl-select size=${this.screen} id="current-subnet-mode" @sl-change="${(event) => { Subnet.setMode(event.target.value) }}" value="MANUAL">
+            <sl-select size=${this.screen} id="current-subnet-mode" @sl-change="${(event) => { Net.setMode(event.target.value) }}" value="MANUAL">
             <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
-            <sl-menu-item value="SUBNET_BASED">Subnet-based Mode</sl-menu-item>
+            <sl-menu-item value="NET_BASED">Net-based Mode</sl-menu-item>
             <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
           </sl-select>
           </sl-menu-label>
           <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: max(0.1cqw, 12px) !important;">Activate Draw-and-drop</sl-menu-item>
           <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: max(0.1cqw, 12px) !important;">Drag to assign gateway</sl-menu-item>
-          <sl-menu-item><sl-button size=${this.screen} class="blue-button" @click="${() => SubnettingController.validateAllSubnets(this)}">Check</sl-button></sl-menu-item>
+          <sl-menu-item><sl-button size=${this.screen} class="blue-button" @click="${() => SubnettingController.validateAllNets(this)}">Check</sl-button></sl-menu-item>
         </sl-details>
 
         <sl-details id="packet-sending-extension" summary="Packet sending extension">
@@ -460,10 +460,11 @@ export class ComputerNetwork extends LitElementWw {
           </sl-menu-item>
           <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.duration = event.target.value * 1000}" label="Speed" type='number' min="1"></sl-input></sl-menu-item>
           <sl-menu-item>
-          <sl-button class="blue-button" @click="${() => PacketSimulator.initSession(this)}">Init</sl-icon></sl-button>
-          <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
-          <sl-button class="blue-button" @click="${() => PacketSimulator.pauseOrResumeSession(this)}"><sl-icon id="pause-ani" src="/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg" label="Pause simulation session"></sl-icon></sl-button>
-          <sl-button class="blue-button" @click="${() => PacketSimulator.stopSession(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
+          <b><i>Session: </i></b>
+          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.initSession(this)}">Init</sl-icon></sl-button>
+          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
+          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.pauseOrResumeSession(this)}"><sl-icon id="pause-ani" src="/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg" label="Pause simulation session"></sl-icon></sl-button>
+          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.stopSession(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
           <sl-menu-item>
             <sl-details id="tables-for-packet-simulator" summary="Track tables" open>
 
@@ -501,7 +502,7 @@ export class ComputerNetwork extends LitElementWw {
         </sl-menu>
       </sl-dropdown>
       <button class="btn" id="edge" @click="${this.clickOnComponentButton}"><sl-icon name="share"></sl-icon></button>
-      <button class="btn" id="subnet" @click="${this.clickOnComponentButton}"><sl-icon name="diagram-3"></sl-icon></button>
+      <button class="btn" id="net" @click="${this.clickOnComponentButton}"><sl-icon name="diagram-3"></sl-icon></button>
     </div>
 
     <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
@@ -517,9 +518,9 @@ export class ComputerNetwork extends LitElementWw {
         <sl-button size=${this.screen} style="margin-top: 1cqw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
       </sl-tab-panel>
       <sl-tab-panel name="logical">
-      <sl-input class="label-on-left" label="Subnet Number" id="subnet-num" placeholder="Network ID"></sl-input>
-      <sl-input class="label-on-left" label="Subnet Mask" id="subnet-mask" placeholder="255.255.255.255"></sl-input>
-      <sl-input class="label-on-left" label="Bitmask" id="subnet-bitmask" placeholder="" type='number' min="0" max="32"></sl-input>
+      <sl-input class="label-on-left" label="NetID" id="net-num" placeholder="0.0.0.0"></sl-input>
+      <sl-input class="label-on-left" label="Netmask" id="net-mask" placeholder="255.255.255.255"></sl-input>
+      <sl-input class="label-on-left" label="Bitmask" id="net-bitmask" placeholder="" type='number' min="0" max="32"></sl-input>
       </sl-tab-panel>
     </sl-tab-group>
     </div>
@@ -609,13 +610,13 @@ export class ComputerNetwork extends LitElementWw {
       const newValue = this.editable;
       if (newValue) {
         if (this.networkAvailable) this._graph.elements().toggleClass('deletable', true);
-        ['host', 'connector', 'edge', 'subnet', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
+        ['host', 'connector', 'edge', 'net', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
           (this.renderRoot.querySelector('#' + buttonId) as HTMLButtonElement).disabled = false;
         });
       }
       else {
         if (this.networkAvailable) this._graph.elements().toggleClass('deletable', false);
-        ['host', 'connector', 'edge', 'subnet', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
+        ['host', 'connector', 'edge', 'net', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
           (this.renderRoot.querySelector('#' + buttonId) as HTMLButtonElement).disabled = true;
         });
       }
@@ -630,7 +631,7 @@ export class ComputerNetwork extends LitElementWw {
       else {
         (this.renderRoot.querySelector('#current-subnet-mode') as SlSelect).value = 'MANUAL';
         (this.renderRoot.querySelector('#current-subnet-mode') as SlSelect).disabled = true;
-        Subnet.setMode('MANUAL');
+        Net.setMode('MANUAL');
       }
     }
   }

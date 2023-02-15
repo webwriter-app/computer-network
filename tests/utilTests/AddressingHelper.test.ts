@@ -59,7 +59,7 @@ test('should replace digit at correct position', () => {
 });
 
 
-test('should validate subnet mask correctly', () => {
+test('should validate netmask correctly', () => {
     expect(AddressingHelper.validateNetMask("255.255.255.255")).toBe(true);
     expect(AddressingHelper.validateNetMask("255.255.255.0")).toBe(true);
     expect(AddressingHelper.validateNetMask("255.255.0.0")).toBe(true);

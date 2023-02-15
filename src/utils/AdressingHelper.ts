@@ -62,9 +62,9 @@ export class AddressingHelper {
         return origin.substring(0, index-1) + replacement + origin.substring(index);
     }
 
-    static validateNetMask(subnetmask: string): boolean {
-        if (!/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/.test(subnetmask)) return false;
-        let binMask: string = AddressingHelper.decimalStringWithDotToBinary(subnetmask);
+    static validateNetMask(netmask: string): boolean {
+        if (!/^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/.test(netmask)) return false;
+        let binMask: string = AddressingHelper.decimalStringWithDotToBinary(netmask);
         if (binMask.length != 32) return false;
 
         let ones: boolean = true;

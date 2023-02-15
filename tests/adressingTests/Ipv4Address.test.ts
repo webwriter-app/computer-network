@@ -1,6 +1,6 @@
 import { test, expect } from '@jest/globals';
 import { Ipv4Address } from '../../src/adressing/Ipv4Address';
-import { Subnet } from '../../src/components/logicalNodes/Subnet';
+import { Net } from '../../src/components/logicalNodes/Net';
 
 
 test('should generate loop-back address correctly', () => {
@@ -24,27 +24,27 @@ test('properly validate IPv4 Address of host', () => {
     expect(Ipv4Address.validateAddress('256.128.0.0', database)).toBeNull();
 });
 
-test('properly validate IPv4 Address of subnet', () => {
+test('properly validate IPv4 Address of net', () => {
     let database: Map<string, string> = new Map();
-    let subnetId = Ipv4Address.validateAddress('255.0.0.0', database, 8);
-    expect(subnetId.address).toBe('255.0.0.0');
-    expect(subnetId.layer).toBe(3);
-    expect(subnetId.binaryOctets).toStrictEqual(['11111111', '00000000', '00000000', '00000000']);
-    expect(subnetId.decimalOctets).toStrictEqual([255, 0, 0, 0]);
-    expect(subnetId.octets).toStrictEqual(['255', '0', '0', '0']);
+    let netId = Ipv4Address.validateAddress('255.0.0.0', database, 8);
+    expect(netId.address).toBe('255.0.0.0');
+    expect(netId.layer).toBe(3);
+    expect(netId.binaryOctets).toStrictEqual(['11111111', '00000000', '00000000', '00000000']);
+    expect(netId.decimalOctets).toStrictEqual([255, 0, 0, 0]);
+    expect(netId.octets).toStrictEqual(['255', '0', '0', '0']);
 
     expect(Ipv4Address.validateAddress('0.0.0.0', database, 0).address).toBe('0.0.0.0');
     expect(Ipv4Address.validateAddress('1.1.1.1', database, 32).address).toBe('1.1.1.1');
 });
 
-test('properly classify invalid IPv4 Address of subnet', () => {
+test('properly classify invalid IPv4 Address of net', () => {
     let database: Map<string, string> = new Map();
     expect(Ipv4Address.validateAddress('255.128.0.0', database, 8)).toBeNull();
     expect(Ipv4Address.validateAddress('256.0.0.0', database, 8)).toBeNull();
     expect(Ipv4Address.validateAddress('255.0.0.0', database, -1)).toBeNull();
     expect(Ipv4Address.validateAddress('255.0.0.0', database, 33)).toBeNull();
 
-    //not valid subnet ID shouldn't be add to database
+    //not valid net ID shouldn't be add to database
     expect(Ipv4Address.validateAddress('255.0.0.0', database, 8)).not.toBeNull();
 });
 
@@ -58,46 +58,46 @@ test('properly validate loopback against database', () => {
     expect(Ipv4Address.validateAddress("127.0.0.1", database).address).toBe("127.0.0.1");
     expect(Ipv4Address.validateAddress("127.0.0.1", database).address).toBe("127.0.0.1");
     expect(database.size).toBe(0);
-    expect(Ipv4Address.validateAddress("127.0.0.1", database, 1)).toBeNull(); //can't use a loopback address for subnet ID
+    expect(Ipv4Address.validateAddress("127.0.0.1", database, 1)).toBeNull(); //can't use a loopback address for net ID
 });
 
 test('loopback address should match network CIDR', () => {
-    expect(Ipv4Address.getLoopBackAddress().matchesNetworkCidr(Subnet.createSubnet("", "128.0.0.0", "255.0.0.0", 8, new Map()))).toBe(true);
+    expect(Ipv4Address.getLoopBackAddress().matchesNetworkCidr(Net.createNet("", "128.0.0.0", "255.0.0.0", 8, new Map()))).toBe(true);
 });
 
 test('should match network CIDR', () => {
     let ipv4 = Ipv4Address.validateAddress("128.128.0.0", new Map());
-    expect(ipv4.matchesNetworkCidr(Subnet.createSubnet("", "128.0.0.0", "255.0.0.0", 8, new Map()))).toBe(true);
+    expect(ipv4.matchesNetworkCidr(Net.createNet("", "128.0.0.0", "255.0.0.0", 8, new Map()))).toBe(true);
 });
 
 test('should not match network CIDR', () => {
     let ipv4 = Ipv4Address.validateAddress("129.0.0.0", new Map());
-    expect(ipv4.matchesNetworkCidr(Subnet.createSubnet("", "128.0.0.0", "255.0.0.0", 8, new Map()))).toBe(false);
+    expect(ipv4.matchesNetworkCidr(Net.createNet("", "128.0.0.0", "255.0.0.0", 8, new Map()))).toBe(false);
 });
 
 test('should generate new Ip for host', () => {
     let database: Map<string, string> = new Map();
-    let subnet = Subnet.createSubnet("", "128.0.0.0", "255.0.0.0", 8, database);
+    let net = Net.createNet("", "128.0.0.0", "255.0.0.0", 8, database);
     let hostOldId = Ipv4Address.validateAddress("129.0.0.0", database);
 
-    let newId = Ipv4Address.generateNewIpGivenSubnet(database, hostOldId, subnet);
-    expect(newId.binaryOctets.join('').slice(0, subnet.bitmask)).toBe(subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask));
+    let newId = Ipv4Address.generateNewIpGivenNet(database, hostOldId, net);
+    expect(newId.binaryOctets.join('').slice(0, net.bitmask)).toBe(net.networkAddress.binaryOctets.join('').slice(0, net.bitmask));
 });
 
-test('should not generate new Ip for host in subnet if no address is valid', () => {
+test('should not generate new Ip for host in net if no address is valid', () => {
     let database: Map<string, string> = new Map();
-    let subnet = Subnet.createSubnet("", "255.255.255.255", "255.255.255.255", 32, database);
+    let net = Net.createNet("", "255.255.255.255", "255.255.255.255", 32, database);
     let hostOldId = Ipv4Address.validateAddress("129.0.0.0", database);
 
-    let newId = Ipv4Address.generateNewIpGivenSubnet(database, hostOldId, subnet);
+    let newId = Ipv4Address.generateNewIpGivenNet(database, hostOldId, net);
     expect(newId).toBeNull();
 });
 
-test('should not generate new Ip for host in subnet if subnet is not configured', () => {
+test('should not generate new Ip for host in net if net is not configured', () => {
     let database: Map<string, string> = new Map();
-    Subnet.setMode("MANUAL");
-    let subnet = Subnet.createSubnet("", "255.255.255.255", "", -1, database);
+    Net.setMode("MANUAL");
+    let net = Net.createNet("", "255.255.255.255", "", -1, database);
     let hostOldId = Ipv4Address.validateAddress("129.0.0.0", database);
-    let newId = Ipv4Address.generateNewIpGivenSubnet(database, hostOldId, subnet);
+    let newId = Ipv4Address.generateNewIpGivenNet(database, hostOldId, net);
     expect(newId).toBeNull();
 });

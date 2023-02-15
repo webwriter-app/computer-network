@@ -6,7 +6,7 @@ import { MacAddress } from '../adressing/MacAddress';
 import { RoutableDecorator } from '../components/dataDecorators/Routable';
 import { SwitchableDecorator } from '../components/dataDecorators/Switchable';
 import { GraphEdge } from '../components/GraphEdge';
-import { Subnet } from '../components/logicalNodes/Subnet';
+import { Net } from '../components/logicalNodes/Net';
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from '../components/physicalNodes/Connector';
 import { Host } from '../components/physicalNodes/Host';
 import { ConnectionType, PhysicalNode } from '../components/physicalNodes/PhysicalNode';
@@ -32,8 +32,8 @@ export class ImportExportController {
             i['dataExport']['cssClass'] = e.classes() as string[];
             let portData = [];
             let portLink = [];
-            let portSubnet = [];
-            let subnets = [];
+            let portNet = [];
+            let nets = [];
             (e.data() as PhysicalNode).portData.forEach((values, port) => {
                 let newData = {};
                 newData['Name'] = values.get('Name');
@@ -55,19 +55,19 @@ export class ImportExportController {
 
             if (e.hasClass('gateway-node')) {
                 let gateway: Router = e.data();
-                if (gateway.portSubnetMapping.size != 0) {
-                    gateway.portSubnetMapping.forEach((subnet, port) => {
+                if (gateway.portNetMapping.size != 0) {
+                    gateway.portNetMapping.forEach((net, port) => {
                         let newData = {};
                         newData['index'] = port;
-                        newData['subnetId'] = subnet.id;
-                        portSubnet.push(newData);
+                        newData['netId'] = net.id;
+                        portNet.push(newData);
                     });
                 }
-                if (gateway.subnets.length != 0) {
-                    gateway.subnets.forEach(subnet => {
+                if (gateway.nets.length != 0) {
+                    gateway.nets.forEach(net => {
                         let newData = {};
-                        newData['subnetId'] = subnet.id;
-                        subnets.push(newData);
+                        newData['netId'] = net.id;
+                        nets.push(newData);
                     });
                 }
             }
@@ -80,11 +80,11 @@ export class ImportExportController {
             i['portData'] = portData;
             i['portLink'] = portLink;
             i['position'] = e.position();
-            i['portSubnet'] = portSubnet;
-            i['subnets'] = subnets;
+            i['portNet'] = portNet;
+            i['nets'] = nets;
             physicalNodes.push(i);
         });
-        network._graph.nodes('.subnet-node').forEach(e => {
+        network._graph.nodes('.net-node').forEach(e => {
             let i = {};
             let gateways = [];
             i['dataExport'] = e.data();
@@ -207,14 +207,14 @@ export class ImportExportController {
             if (typeof ImportExportController.reader.result === "string") {
                 json = JSON.parse(ImportExportController.reader.result);
             }
-            json['logical-nodes'].forEach(subnet => {
-                let data: Subnet = new Subnet(subnet['dataExport']['color'], subnet['dataExport']['networkAddress']['address'],
-                    subnet['dataExport']['subnetMask'], subnet['dataExport']['bitmask'], network.ipv4Database, subnet['dataExport']['id']);
+            json['logical-nodes'].forEach(net => {
+                let data: Net = new Net(net['dataExport']['color'], net['dataExport']['networkAddress']['address'],
+                    net['dataExport']['netmask'], net['dataExport']['bitmask'], network.ipv4Database, net['dataExport']['id']);
 
-                data.cssClass = subnet['dataExport']['cssClass'];
+                data.cssClass = net['dataExport']['cssClass'];
 
-                if (subnet['gateways'].length != 0) {
-                    subnet['gateways'].forEach(p => {
+                if (net['gateways'].length != 0) {
+                    net['gateways'].forEach(p => {
                         data.gateways.set(p['gatewayNodeId'], p['port']);
                     });
                 }
@@ -223,7 +223,7 @@ export class ImportExportController {
                     group: 'nodes',
                     data: data,
                     classes: data.cssClass,
-                    position: subnet['position']
+                    position: net['position']
                 });
             });
 
@@ -292,11 +292,11 @@ export class ImportExportController {
                 data.defaultGateway = element['dataExport']['defaultGateway'];
 
                 if (data instanceof Router && cssClasses.includes('gateway-node')) {
-                    element['portSubnet'].forEach(p => {
-                        (data as Router).portSubnetMapping.set(p['index'], network._graph.$('#' + p['subnetId']).data() as Subnet);
+                    element['portNet'].forEach(p => {
+                        (data as Router).portNetMapping.set(p['index'], network._graph.$('#' + p['netId']).data() as Net);
                     });
-                    element['subnets'].forEach(p => {
-                        (data as Router).subnets.push(network._graph.$('#' + p['subnetId']).data() as Subnet);
+                    element['nets'].forEach(p => {
+                        (data as Router).nets.push(network._graph.$('#' + p['netId']).data() as Net);
                     })
                 }
 

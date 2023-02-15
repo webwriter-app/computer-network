@@ -6,7 +6,7 @@ import { Ipv6Address } from "../adressing/Ipv6Address";
 import { MacAddress } from "../adressing/MacAddress";
 import { GraphEdge } from "../components/GraphEdge";
 import { Data, Packet, Frame } from "../components/logicalNodes/DataNode";
-import { Subnet } from "../components/logicalNodes/Subnet";
+import { Net } from "../components/logicalNodes/Net";
 import { Router } from "../components/physicalNodes/Connector";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
@@ -226,7 +226,7 @@ export class DialogFactory {
   }
 
 
-  static handleChangesInDialogForPhysicalNode(id: string, node: any, network: ComputerNetwork, isGateway: boolean, subnet?: Subnet) {
+  static handleChangesInDialogForPhysicalNode(id: string, node: any, network: ComputerNetwork, isGateway: boolean, subnet?: Net) {
     let physicalNode: PhysicalNode = node.data();
     let dialog: SlDialog = new SlDialog();
     dialog.label = "Details about ports of this component: " + physicalNode.id + " " + physicalNode.name;
@@ -291,12 +291,12 @@ export class DialogFactory {
             let keepOldIp: boolean = false;
             //if this physical node is in a network
             if (subnet != null && subnet != undefined) {
-              switch (Subnet.mode) {
+              switch (Net.mode) {
                 case 'HOST_BASED':
-                  if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(subnet, validatedIpv4, network.ipv4Database);
+                  if (validatedIpv4 != null && validatedIpv4 != undefined) Net.calculateCIDRGivenNewHost(subnet, validatedIpv4, network.ipv4Database);
                   node.parent().classes(subnet.cssClass);
                   break;
-                case 'SUBNET_BASED':
+                case 'NET_BASED':
                   if (validatedIpv4 != null && !validatedIpv4.matchesNetworkCidr(subnet)) {
                     AlertHelper.toastAlert('warning', 'exclamation-triangle', 'Subnet-based mode on:', "Inserted IPv4 doesn't match the subnet mask.");
                     keepOldIp = true;
@@ -308,13 +308,13 @@ export class DialogFactory {
             }
             //if this physical node is a gateway of some networks
             if (isGateway) {
-              let affectedNetwork: Subnet = (physicalNode as Router).portSubnetMapping.get(index);
-              switch (Subnet.mode) {
+              let affectedNetwork: Net = (physicalNode as Router).portNetMapping.get(index);
+              switch (Net.mode) {
                 case 'HOST_BASED':
-                  if (validatedIpv4 != null && validatedIpv4 != undefined) Subnet.calculateCIDRGivenNewHost(affectedNetwork, validatedIpv4, network.ipv4Database);
+                  if (validatedIpv4 != null && validatedIpv4 != undefined) Net.calculateCIDRGivenNewHost(affectedNetwork, validatedIpv4, network.ipv4Database);
                   network._graph.$('#' + affectedNetwork.id).classes(affectedNetwork.cssClass);
                   break;
-                case 'SUBNET_BASED':
+                case 'NET_BASED':
                   if (affectedNetwork != null && validatedIpv4 != null && !validatedIpv4.matchesNetworkCidr(affectedNetwork)) {
                     AlertHelper.toastAlert('warning', 'exclamation-triangle', 'Subnet-based mode on:', "Inserted IPv4 for gateway doesn't match the subnet mask or the network is not configured.");
                     keepOldIp = true;
@@ -363,18 +363,18 @@ export class DialogFactory {
 
   }
 
-  static handleChangesInDialogForSubnet(id: string, node: any, network: ComputerNetwork) {
+  static handleChangesInDialogForNet(id: string, node: any, network: ComputerNetwork) {
 
     let dialog: SlDialog = new SlDialog();
     dialog.label = "Details of this network:";
 
-    let subnet: Subnet = node.data();
+    let subnet: Net = node.data();
     dialog.innerHTML += `<sl-input id="change-id-` + id + `" label="Network Address" placeholder="`
       + ((subnet.networkAddress != undefined && subnet.networkAddress != null) ? subnet.networkAddress.address : "") + `" clearable type="string">`;
     dialog.innerHTML += `<sl-input id="change-bitmask-` + id + `" label="Bitmask" placeholder="`
       + ((subnet.bitmask != undefined && subnet.bitmask != null) ? subnet.bitmask : "") + `" clearable type="number" min=0>`;
     dialog.innerHTML += `<sl-input id="change-mask-` + id + `" label="Subnet Mask" placeholder="`
-      + ((subnet.subnetMask != undefined && subnet.subnetMask != null) ? subnet.subnetMask : "") + `" clearable type="string">`;
+      + ((subnet.netmask != undefined && subnet.netmask != null) ? subnet.netmask : "") + `" clearable type="string">`;
 
     //table for gateways
     let gateways: Map<string, number> = subnet.gateways;
@@ -407,10 +407,10 @@ export class DialogFactory {
     saveButton.addEventListener('click', () => {
       let newId = (network.renderRoot.querySelector('#change-id-' + id) as SlInput).value.trim();
       let newBitmask = (network.renderRoot.querySelector('#change-bitmask-' + id) as SlInput).value.trim();
-      let newSubnetmask = (network.renderRoot.querySelector('#change-mask-' + id) as SlInput).value.trim();
+      let newnetmask = (network.renderRoot.querySelector('#change-mask-' + id) as SlInput).value.trim();
 
-      if (subnet.handleChangesOnNewSubnetInfo(newId != "" ? newId : null, newSubnetmask != "" ? newSubnetmask : null, newBitmask != "" ? +newBitmask : null, network)) {
-        node.toggleClass('unconfigured-subnet', false);
+      if (subnet.handleChangesOnNewNetInfo(newId != "" ? newId : null, newnetmask != "" ? newnetmask : null, newBitmask != "" ? +newBitmask : null, network)) {
+        node.toggleClass('unconfigured-net', false);
       }
       dialog.hide();
     });
@@ -422,7 +422,7 @@ export class DialogFactory {
   }
 
 
-  static handleChangeDefaultGateway(subnet: Subnet, id: string, node: any, network: ComputerNetwork) {
+  static handleChangeDefaultGateway(subnet: Net, id: string, node: any, network: ComputerNetwork) {
     let dialog: SlDialog = new SlDialog();
     dialog.label = "Details of available gateways";
     let gateways: Map<string, number> = subnet.gateways; //gateway-node-id, port
