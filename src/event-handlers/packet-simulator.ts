@@ -20,7 +20,9 @@ export class PacketSimulator {
     static duration: number = 2000;
     static aniCounter: number = 0;
     static currentAnimations: Map<number, any> = new Map();
+    static elementsInAnimation: Map<number, any> = new Map();
     static isPaused: boolean = false;
+    static focus: boolean = false;
 
     static inited: boolean = false;
 
@@ -218,10 +220,36 @@ export class PacketSimulator {
         let aniId = PacketSimulator.aniCounter;
 
         PacketSimulator.currentAnimations.set(aniId, a);
+        if (!PacketSimulator.elementsInAnimation.has(aniId)) {
+            PacketSimulator.elementsInAnimation.set(aniId, previousNode.union(targetNode));
+        }
+        else {
+            PacketSimulator.elementsInAnimation.set(aniId, PacketSimulator.elementsInAnimation.get(aniId).union(previousNode).union(targetNode));
+        }
         PacketSimulator.aniCounter++;
+
+        //change viewport to contain both source and target in view
+        if (PacketSimulator.focus) {
+            let eles;
+            PacketSimulator.elementsInAnimation.forEach(e => {
+                if (eles == undefined) {
+                    eles = e;
+                }
+                else {
+                    eles = eles.union(e);
+                }
+            });
+            network._graph.animate({
+                fit: {
+                    eles: eles,
+                    padding: 80,
+                }
+            });
+        }
 
         a.play().promise().then(() => {
             PacketSimulator.currentAnimations.delete(aniId);
+            PacketSimulator.elementsInAnimation.delete(aniId);
             if (target.cssClass.includes('routable-decorated')) {
                 (target as RoutableDecorator).handleDataIn(dataNode, previousNode, network);
             }
