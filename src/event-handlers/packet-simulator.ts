@@ -277,7 +277,7 @@ export class PacketSimulator {
             case 'RoutingTable':
                 label = "Routing Table"
                 tableId = "routing-table-" + nodeId;
-                tableCols = "<tr><td></td><td>IP</td><td>Gateway</td><td>Bitmask</td><td>Port</td><td>Metric</td></tr>";
+                tableCols = "<tr><td></td><td>ID</td><td>Gateway</td><td>Bitmask</td><td>Port</td></tr>";
                 break;
 
             case 'MacAddressTable':

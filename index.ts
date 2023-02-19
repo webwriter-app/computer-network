@@ -420,15 +420,8 @@ export class ComputerNetwork extends LitElementWw {
 `;
 
 
-  render() {
-    const colorOptions = [];
-    for (const color of this.colors) {
-      colorOptions.push(html`<button class="colorButton" id=${color} style="background-color: ${color}" @click="${this.clickOnColor}"></button>`);
-    }
-
+  sidebarTemplate() {
     return html`
-
-    <div class="main-container">
     <div class="sidebar">
       <sl-menu style="background-color: #F1F1F1; border: transparent; height: 100%;">
       
@@ -475,90 +468,112 @@ export class ComputerNetwork extends LitElementWw {
         </sl-details>
       </sl-menu>
     </div>
+    `;
+  }
 
+  toolbarTemplate(){
+    const colorOptions = [];
+    for (const color of this.colors) {
+      colorOptions.push(html`<button class="colorButton" id=${color} style="background-color: ${color}" @click="${this.clickOnColor}"></button>`);
+    }
+    return html`
     <div class="base">
-    <div class="componentMenu">
-    <form autocomplete="off"
-    style="position: fixed; top: 0; left: 0;">
-      <input class="importBtn" type="file" id="import-file">
-      <button class="importBtn" type='button' @click="${() => ImportExportController.importFile(this)}">Import</button>
-      <button class="importBtn" type='button' @click="${() => ImportExportController.exportFile(this)}">Export</button>
-      </form>
-      <sl-dropdown placement="bottom">
-        <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
-        <sl-menu>
-          <sl-menu-item id="computer" @click="${this.clickOnComponentButton}"><sl-icon name="pc-display-horizontal"></sl-icon></sl-menu-item>
-          <sl-menu-item id="mobile" @click="${this.clickOnComponentButton}"><sl-icon name="phone"></sl-menu-item>
-        </sl-menu>
-      </sl-dropdown>
-      <sl-dropdown placement="bottom">
-        <button class="btn" id="connector" slot="trigger"><sl-icon name="hdd"></sl-icon></button>
-        <sl-menu>
-          <sl-menu-item id="router" @click="${this.clickOnComponentButton}">Router <sl-icon name="router"></sl-menu-item>
-          <sl-menu-item id="access-point" @click="${this.clickOnComponentButton}">Access Point <sl-icon name="broadcast-pin"></sl-menu-item>
-          <sl-menu-item id="repeater" @click="${this.clickOnComponentButton}">Repeater <sl-icon name="hdd"></sl-menu-item>
-          <sl-menu-item id="hub" @click="${this.clickOnComponentButton}">Hub <sl-icon src="img/icons/hub.svg"></sl-menu-item>
-          <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}">Bridge <sl-icon src="img/icons/bridge.svg"></sl-menu-item>
-          <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon src="img/icons/switch.svg"></sl-menu-item>
-        </sl-menu>
-      </sl-dropdown>
-      <button class="btn" id="edge" @click="${this.clickOnComponentButton}"><sl-icon name="share"></sl-icon></button>
-      <button class="btn" id="net" @click="${this.clickOnComponentButton}"><sl-icon name="diagram-3"></sl-icon></button>
-    </div>
 
-    <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
+      <div class="componentMenu">
+        <form autocomplete="off" style="position: fixed; top: 0; left: 0;">
+          <input class="importBtn" style="width: 11cqw;" type="file" id="import-file">
+          <button class="importBtn" type='button' @click="${() => ImportExportController.importFile(this)}">Import</button>
+          <button class="importBtn" type='button' @click="${() => ImportExportController.exportFile(this)}">Export</button>
+          <button class="importBtn" type='button' @click="${() => ImportExportController.chooseFromExampleFiles(this)}">Examples</button>
+          <button class="importBtn" type='button' @click="${() => DialogFactory.showHelpText()}">Help</button>
+        </form>
+        
+        <sl-dropdown placement="bottom">
+          <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
+          <sl-menu>
+            <sl-menu-item id="computer" @click="${this.clickOnComponentButton}"><sl-icon name="pc-display-horizontal"></sl-icon></sl-menu-item>
+            <sl-menu-item id="mobile" @click="${this.clickOnComponentButton}"><sl-icon name="phone"></sl-menu-item>
+          </sl-menu>
+        </sl-dropdown>
+        <sl-dropdown placement="bottom">
+          <button class="btn" id="connector" slot="trigger"><sl-icon name="hdd"></sl-icon></button>
+          <sl-menu>
+            <sl-menu-item id="router" @click="${this.clickOnComponentButton}">Router <sl-icon name="router"></sl-menu-item>
+            <sl-menu-item id="access-point" @click="${this.clickOnComponentButton}">Access Point <sl-icon name="broadcast-pin"></sl-menu-item>
+            <sl-menu-item id="repeater" @click="${this.clickOnComponentButton}">Repeater <sl-icon name="hdd"></sl-menu-item>
+            <sl-menu-item id="hub" @click="${this.clickOnComponentButton}">Hub <sl-icon src="img/icons/hub.svg"></sl-menu-item>
+            <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}">Bridge <sl-icon src="img/icons/bridge.svg"></sl-menu-item>
+            <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon src="img/icons/switch.svg"></sl-menu-item>
+          </sl-menu>
+        </sl-dropdown>
+        <button class="btn" id="edge" @click="${this.clickOnComponentButton}"><sl-icon name="share"></sl-icon></button>
+        <button class="btn" id="net" @click="${this.clickOnComponentButton}"><sl-icon name="diagram-3"></sl-icon></button>
+      </div>
 
-    <div class="nameBox">
-    <sl-tab-group>
-      <sl-tab slot="nav" panel="physical">Physical Node</sl-tab>
-      <sl-tab slot="nav" panel="logical">Logical Node</sl-tab>
+      <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
 
-      <sl-tab-panel name="physical">
-        <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
-        <sl-input class="label-on-left" label="Number of ports" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
-        <sl-button size=${this.screen} style="margin-top: 1cqw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
-      </sl-tab-panel>
-      <sl-tab-panel name="logical">
-      <sl-input class="label-on-left" label="NetID" id="net-num" placeholder="0.0.0.0"></sl-input>
-      <sl-input class="label-on-left" label="Netmask" id="net-mask" placeholder="255.255.255.255"></sl-input>
-      <sl-input class="label-on-left" label="Bitmask" id="net-bitmask" placeholder="" type='number' min="0" max="32"></sl-input>
-      </sl-tab-panel>
-    </sl-tab-group>
-    </div>
+      <div class="nameBox">
+        <sl-tab-group>
+          <sl-tab slot="nav" panel="physical">Physical Node</sl-tab>
+          <sl-tab slot="nav" panel="logical">Logical Node</sl-tab>
+
+          <sl-tab-panel name="physical">
+            <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
+            <sl-input class="label-on-left" label="Number of ports" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
+            <sl-button size=${this.screen} style="margin-top: 1cqw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
+          </sl-tab-panel>
+          <sl-tab-panel name="logical">
+            <sl-input class="label-on-left" label="NetID" id="net-num" placeholder="0.0.0.0"></sl-input>
+            <sl-input class="label-on-left" label="Netmask" id="net-mask" placeholder="255.255.255.255"></sl-input>
+            <sl-input class="label-on-left" label="Bitmask" id="net-bitmask" placeholder="" type='number' min="0" max="32"></sl-input>
+          </sl-tab-panel>
+        </sl-tab-group>
+      </div>
       
+      <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
 
-    <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
+      <div class="colorPalette">
+        ${colorOptions}
+      </div>
 
-    <div class="colorPalette">
-      ${colorOptions}
-    </div>
+      <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
 
-    <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
-
-    <div class="addOption">
-      <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7cqw;">
-        <button class="addBtn" id="addCompBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}"><sl-icon name="plus" disabled={this.editable}></sl-icon></button>
-      </sl-tooltip>
-      <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7cqw;">
-        <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1cqw;">
-          <sl-icon id="drawMode" name="plug"></sl-icon>
-        </button>
+      <div class="addOption">
+        <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7cqw;">
+          <button class="addBtn" id="addCompBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}">
+            <sl-icon name="plus" disabled={this.editable}></sl-icon>
+          </button>
+        </sl-tooltip>
+        <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7cqw;">
+          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1cqw;">
+            <sl-icon id="drawMode" name="plug"></sl-icon>
+          </button>
         </sl-tooltip>
         <sl-tooltip content="Click to change color of existing components" placement="left" style="--max-width: 9cqw;">
           <button class="addBtn" id="resetColorBtn" @click="${() => GraphNodeFactory.toggleResetColor(this)}">
             <sl-icon id="changeColorMode" name="eyedropper"></sl-icon>
           </button>
         </sl-tooltip>
-    </div>
+      </div>
 
     </div>
+    `;
+  }
 
-    <div class="canvas" id="myCanvas">
-    <div id="cy"></div>
-  </div>
+  render() {
+
+    return html`
+
+    <div class="main-container">
+      ${this.sidebarTemplate()}
+      ${this.toolbarTemplate()}
+      <div class="canvas" id="myCanvas">
+        <div id="cy">
+      </div>
+    </div>
 
     <div id="inputDialog"/>
-
+    <div id="example-graphs-container"/>
     </div>
     `
   }

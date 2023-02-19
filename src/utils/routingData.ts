@@ -7,16 +7,14 @@ export class RoutingData {
     bitmask: number;
     interfaceName: string;
     port: number;
-    metric: number;
 
-    constructor(destination: string, gateway: string, bitmask: number, interfaceName: string, port: number, metric?: number) {
+    constructor(destination: string, gateway: string, bitmask: number, interfaceName: string, port: number) {
         this.bitmask = bitmask;
         this.netmask = AddressingHelper.binaryToDecimalOctets("".padEnd(bitmask, "1").padEnd(32, "0")).join('.');
         this.port = port;
         this.interfaceName = interfaceName;
         if (RoutingData.validateAddressSchema(destination)) this.destination = destination;
         if (gateway=="on-link" || RoutingData.validateAddressSchema(gateway)) this.gateway = gateway;
-        if (metric != undefined) this.metric = metric;
     }
 
     static validateAddressSchema(address: string): boolean {

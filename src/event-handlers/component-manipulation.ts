@@ -219,6 +219,7 @@ export class GraphNodeFactory {
                     else {
                         child.data('defaultGateway', null);
                         child.toggleClass('default-gateway-not-found', true);
+                        if(!child.data('cssClass').includes('default-gateway-not-found')) child.data('cssClass').push('default-gateway-not-found');
                     }
                 }
             });

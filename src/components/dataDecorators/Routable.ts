@@ -66,27 +66,33 @@ export class RoutableDecorator extends DataHandlingDecorator {
             }
             else if (data instanceof Packet) {
                 if (receiverIp == thisIp) {
+                    this.populateRoutingTableOnNewData(previousNode.id(), dataNode, network);
+                    if (this.checkIfSameNetwork(thisIp, data.layer3header.ipSender, network)) {
+                        this.populateArpTable(data.layer3header.ipSender, data.layer2header.macSender, network);
+                    }
+
                     AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
                     AlertHelper.toastAlert('success', 'check2-all', "", "Your receiver has received the message!");
                 }
-                else if (this instanceof Router && this.cssClass.includes('gateway-node')) {
+                else if (this.cssClass.includes('gateway-node')) {
                     this.removeLayer2Header(data, network);
                     let portToSend = this.findPortToSend(data.layer3header.ipReceiver);
+
                     if (portToSend != null) {
-                        if (data.layer2header.macReceiver == "") {
-                            this.sendArpRequest(portIn, this.portData.get(portToSend).get('MAC'),
-                                this.portData.get(portToSend).get('IPv4'),
-                                data.layer3header.ipReceiver, network);
-                            if (!this.pendingPackets.has(data.layer3header.ipReceiver)) this.pendingPackets.set(data.layer3header.ipReceiver, []);
-                            this.pendingPackets.get(data.layer3header.ipReceiver).push(dataNode.id());
+                        let ipReceiver = data.layer3header.ipReceiver;
+                        let macSender = this.portData.get(portToSend).get('MAC').address;
+                        if (this.arpTableIpMac.has(ipReceiver) && this.routingTable.has(ipReceiver)) {
+                            if (data instanceof Packet) {
+                                let macReceiver: string = this.arpTableIpMac.get(ipReceiver);
+
+                                this.addLayer2Header(data, macSender, macReceiver, network);
+                                PacketSimulator.findNextHopThenSend(portIn, network._graph.$('#' + this.id), dataNode, network);
+                            }
                         }
                         else {
-                            let link: GraphEdge = network._graph.$('#' + this.portLinkMapping.get(this.findPortToSend(data.layer3header.ipReceiver))).data();
-                            let nextHopId: string = link.source == this.id ? link.target : link.source;
-                            let nextHop: any = network._graph.$('#' + nextHopId);
-                            PacketSimulator.directSend(previousNode, nextHop, dataNode, network);
+                            data.layer2header.macSender = this.portData.get(portToSend).get('MAC').address;
+                            this.sendDataInSameNetwork(portIn, dataNode, macSender, data.layer3header.ipSender, "", ipReceiver, network);
                         }
-
                     }
                 }
             }
@@ -104,8 +110,8 @@ export class RoutableDecorator extends DataHandlingDecorator {
             this.sendDataInSameNetwork(null, dataNode, this.getMacProvidedIp(data.layer3header.ipSender), data.layer3header.ipSender, "", data.layer3header.ipReceiver, network);
         }
         else {
-            this.sendDataToAnotherNetwork(null, dataNode, data.layer2header.macSender, data.layer3header.ipSender, data.layer2header.macReceiver,
-                data.layer3header.ipReceiver, network._graph.$('#' + this.defaultGateway[0]).data().portData.get(this.defaultGateway[1]).get('IPv4'), network);
+            this.sendDataToAnotherNetwork(null, dataNode, this.getMacProvidedIp(data.layer3header.ipSender), data.layer3header.ipSender, "", data.layer3header.ipReceiver,
+                network._graph.$('#' + this.defaultGateway[0]).data().portData.get(+this.defaultGateway[1]).get('IPv4').address, network);
         }
     }
 
@@ -131,12 +137,14 @@ export class RoutableDecorator extends DataHandlingDecorator {
     sendDataInSameNetwork(lastPortIn: number, dataNode: any, macSender: string, ipSender: string,
         macReceiver: string, ipReceiver: string, network: ComputerNetwork): void {
         let thisNode = network._graph.$('#' + this.id);
-        let receiverNode = network._graph.$('#' + network.ipv4Database.get(ipReceiver));
         let data = dataNode.data();
-        if (!thisNode.parent().same(receiverNode.parent())) return;
+
+        if (!(thisNode.data() as RoutableDecorator).checkIfSameNetwork(this.getIpProvidedMac(macSender), ipReceiver, network)) {
+            return;
+        }
 
         if (macReceiver == "FF:FF:FF:FF:FF:FF") {
-            this.flood(dataNode, null, null, network);
+            this.flood(dataNode, null, lastPortIn, network);
         }
         else if (this.arpTableMacIp.has(macReceiver) || this.arpTableIpMac.has(ipReceiver)) {
             if (data instanceof Frame) {
@@ -152,7 +160,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
             }
         }
         else {
-            this.sendArpRequest(lastPortIn, macSender, ipSender, ipReceiver, network);
+            this.sendArpRequest(lastPortIn, macSender, this.getIpProvidedMac(macSender), ipReceiver, network);
             if (!this.pendingPackets.has(ipReceiver)) this.pendingPackets.set(ipReceiver, []);
             this.pendingPackets.get(ipReceiver).push(dataNode.id());
         }
@@ -163,9 +171,11 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let senderNode = network._graph.$('#' + network.ipv4Database.get(ipSender));
         let receiverNode = network._graph.$('#' + network.ipv4Database.get(ipReceiver));
 
-        if (senderNode.parent().same(receiverNode.parent())) return;
+        if ((senderNode.data() as RoutableDecorator).checkIfSameNetwork(ipSender, ipReceiver, network)) return;
 
-        if (this.arpTableMacIp.has(gatewayIp)) {
+        console.log(gatewayIp);
+
+        if (this.arpTableIpMac.has(gatewayIp)) {
             this.sendDataInSameNetwork(lastPortIn, dataNode, macSender, ipSender, this.arpTableMacIp.get(gatewayIp), gatewayIp, network);
         }
         else {
@@ -193,7 +203,9 @@ export class RoutableDecorator extends DataHandlingDecorator {
     populateArpTable(ip: string, mac: string, network: ComputerNetwork): void {
         this.arpTableMacIp.set(mac, ip);
         this.arpTableIpMac.set(ip, mac);
-        TableHelper.addRow('arp-table-' + this.id, "ArpTable", network, [ip, mac]);
+        //TableHelper.addRow('arp-table-' + this.id, "ArpTable", network, [ip, mac]);
+        TableHelper.reloadTable('arp-table-' + this.id, "ArpTable", this.arpTableIpMac, network);
+
 
         //send out pending Packets after getting ARP table populated
         if (this.pendingPackets.has(ip)) {
@@ -219,26 +231,46 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let data = dataNode.data();
         let portIn = this.getPortIn(previousId, network);
 
-        if (data instanceof Frame) {
-            let destination: string = dataNode.data().layer2header.ipSender;
-            if (this.checkIfSameNetwork(destination, network)) {
-                let routingData = new RoutingData(destination, "on-link", 32, this.portData.get(portIn).get('Name'), portIn);
-                this.routingTable.set(destination, routingData);
-                TableHelper.addRow('routing-table-' + this.id, "RoutingTable", network, [routingData.destination, routingData.gateway, routingData.bitmask,
-                routingData.port, routingData.metric]);
+        if (this.cssClass.includes('router-node')) {
+            if (data instanceof Frame && data.name.includes('ARP res')) {
+                AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
+            }
+            else if (data instanceof Frame && data.name.includes('ARP req')) {
+                AnimationHelper.blinkingThenRemoveNode('processing-data-node-2part', dataNode.id(), network);
             }
             else {
-                //frame shouldn't be send to other network?
+                AnimationHelper.blinkingThenRemoveNode('discard-data-node-3part', dataNode.id(), network);
+            }
+            return;
+        }
+
+        if (data instanceof Frame) {
+            let destination: string = dataNode.data().layer2header.ipSender;
+            if (this.checkIfSameNetwork(this.portData.get(portIn).get('IPv4').address, destination, network)) {
+                let routingData = new RoutingData(destination, "on-link", 32, this.portData.get(portIn).get('Name'), portIn);
+                this.routingTable.set(destination, routingData);
+                // TableHelper.addRow('routing-table-' + this.id, "RoutingTable", network, [routingData.destination, routingData.gateway, routingData.bitmask,
+                // routingData.port]);
+                TableHelper.reloadTable('routing-table-' + this.id, "RoutingTable", this.routingTable, network);
             }
             AnimationHelper.blinkingThenRemoveNode('processing-data-node-2part', dataNode.id(), network);
         }
         else if (data instanceof Packet) {
+
             let senderIp = data.layer3header.ipSender;
             let gatewayIp = this.arpTableMacIp.get(data.layer2header.macSender);
-            let routingData = new RoutingData(senderIp, gatewayIp, 32, this.portData.get(portIn).get('Name'), portIn);
+            let routingData: RoutingData;
+            if (this.checkIfSameNetwork(data.layer3header.ipReceiver, senderIp, network)) {
+                routingData = new RoutingData(senderIp, "on-link", 32, this.portData.get(portIn).get('Name'), portIn);
+            }
+            else {
+                routingData = new RoutingData(senderIp, gatewayIp, 32, this.portData.get(portIn).get('Name'), portIn);
+            }
+
             this.routingTable.set(senderIp, routingData);
-            TableHelper.addRow('routing-table-' + this.id, "RoutingTable", network, [routingData.destination, routingData.gateway, routingData.bitmask,
-            routingData.port, routingData.metric]);
+            // TableHelper.addRow('routing-table-' + this.id, "RoutingTable", network, [routingData.destination, routingData.gateway, routingData.bitmask,
+            // routingData.port]);
+            TableHelper.reloadTable('routing-table-' + this.id, "RoutingTable", this.routingTable, network);
             AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
         }
     }
@@ -246,16 +278,13 @@ export class RoutableDecorator extends DataHandlingDecorator {
     //longest match
     findPortToSend(ip: string): number {
         let longestPrefixMatch: number = 0;
-        let metric: number;
         let port: number;
 
         this.routingTable.forEach((attributes, address) => {
             let numOfMatchedPrefix = AddressingHelper.getPrefix([AddressingHelper.decimalStringWithDotToBinary(address),
             AddressingHelper.decimalStringWithDotToBinary(ip)]).length;
-            if (numOfMatchedPrefix >= attributes.bitmask && (attributes.bitmask > longestPrefixMatch ||
-                (attributes.bitmask == longestPrefixMatch && (attributes.metric < metric || metric == undefined)))) {
+            if (numOfMatchedPrefix >= attributes.bitmask && (attributes.bitmask > longestPrefixMatch || attributes.bitmask == longestPrefixMatch)) {
                 longestPrefixMatch = attributes.bitmask;
-                metric = attributes.metric;
                 port = attributes.port;
             }
         });
@@ -271,11 +300,38 @@ export class RoutableDecorator extends DataHandlingDecorator {
         return mac;
     }
 
-    checkIfSameNetwork(destination: string, network: ComputerNetwork): boolean {
-        let net: Net = network._graph.$('#' + this.id).parent().data() as Net;
-        if (net.networkAddress.binaryOctets.join('').slice(0, net.bitmask)
-            == AddressingHelper.decimalStringWithDotToBinary(destination).slice(0, net.bitmask)) {
-            return true;
+    getIpProvidedMac(mac: string): string {
+        let ip = null;
+        this.portData.forEach(value => {
+            if (value.get('MAC').address == mac) ip = value.get('IPv4').address;
+        });
+        return ip;
+    }
+
+    checkIfSameNetwork(source: string, destination: string, network: ComputerNetwork): boolean {
+        let destId = network.ipv4Database.get(destination);
+        let thisNode = network._graph.$('#' + this.id);
+        let destNode = network._graph.$('#' + destId);
+        let net: Net;
+        if (!thisNode.isOrphan()) {
+            net = network._graph.$('#' + this.id).parent().data() as Net;
+            if (net.networkAddress.binaryOctets.join('').slice(0, net.bitmask)
+                == AddressingHelper.decimalStringWithDotToBinary(destination).slice(0, net.bitmask)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else if (!destNode.isOrphan()) {
+            net = network._graph.$('#' + destId).parent().data() as Net;
+            if (net.networkAddress.binaryOctets.join('').slice(0, net.bitmask)
+                == AddressingHelper.decimalStringWithDotToBinary(source).slice(0, net.bitmask)) {
+                return true;
+            }
+            else {
+                return false;
+            }
         }
         else {
             return false;

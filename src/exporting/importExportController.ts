@@ -1,4 +1,4 @@
-import { SlDetails } from '@shoelace-style/shoelace';
+import { SlDetails, SlDialog } from '@shoelace-style/shoelace';
 import { ComputerNetwork } from '../..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { Ipv6Address } from '../adressing/Ipv6Address';
@@ -152,7 +152,6 @@ export class ImportExportController {
                         row['bitmask'] = routingData.bitmask;
                         row['netmask'] = routingData.netmask;
                         row['port'] = routingData.port;
-                        row['metric'] = routingData.metric;
                         routingTable.push(row);
                     });
                 }
@@ -208,23 +207,35 @@ export class ImportExportController {
                 json = JSON.parse(ImportExportController.reader.result);
             }
             json['logical-nodes'].forEach(net => {
-                let data: Net = new Net(net['dataExport']['color'], net['dataExport']['networkAddress']['address'],
-                    net['dataExport']['netmask'], net['dataExport']['bitmask'], network.ipv4Database, net['dataExport']['id']);
-
+                let ad: string = net['dataExport'].hasOwnProperty('networkAddress') ? net['dataExport']['networkAddress']['address'] : null;
+                let data: Net = new Net(net['dataExport']['color'], ad, net['dataExport']['netmask'], net['dataExport']['bitmask'],
+                    network.ipv4Database, net['dataExport']['id']);
                 data.cssClass = net['dataExport']['cssClass'];
-
                 if (net['gateways'].length != 0) {
                     net['gateways'].forEach(p => {
                         data.gateways.set(p['gatewayNodeId'], p['port']);
                     });
                 }
 
-                network._graph.add({
-                    group: 'nodes',
-                    data: data,
-                    classes: data.cssClass,
-                    position: net['position']
-                });
+                if (net['dataExport'].hasOwnProperty('parent')) {
+                    data.parent = net['dataExport']['parent'];
+
+                    network._graph.add({
+                        group: 'nodes',
+                        data: data,
+                        classes: data.cssClass,
+                        position: net['position'],
+                        parent: network._graph.$('#' + net['dataExport']['parent'])
+                    });
+                }
+                else {
+                    network._graph.add({
+                        group: 'nodes',
+                        data: data,
+                        classes: data.cssClass,
+                        position: net['position']
+                    });
+                }
             });
 
             json['physical-nodes'].forEach(element => {
@@ -360,9 +371,9 @@ export class ImportExportController {
                     let routingMap: Map<string, RoutingData> = (network._graph.$('#' + element['id']).data() as RoutableDecorator).routingTable;
                     routingRows.forEach(row => {
                         routingMap.set(row['destination'], new RoutingData(row['destination'], row['gateway'], +row['bitmask'],
-                            row['interfaceName'], +row['port'], +row['metric']));
+                            row['interfaceName'], +row['port']));
                         TableHelper.addRow('routing-table-' + element['id'], 'RoutingTable', network, [row['destination'], row['gateway'],
-                        +row['bitmask'], +row['port'], +row['metric']]);
+                        +row['bitmask'], +row['port']]);
                     });
 
 
@@ -382,4 +393,25 @@ export class ImportExportController {
         ImportExportController.reader.readAsText(selectedFile, 'UTF-8');
     }
 
+    static examples: Map<string, string> = new Map<string, string>([
+        ["key1", "value1"],
+        ["key2", "value2"]
+    ]); //picture path, file path
+
+    static chooseFromExampleFiles(network: ComputerNetwork): void {
+        let dialog: SlDialog = (network.renderRoot.querySelector('#example-graphs')) as SlDialog;
+        if (dialog != null) {
+            dialog.show();
+            return;
+        }
+        else {
+            dialog = new SlDialog();
+        }
+        dialog.label = 'Choose an example graph to import';
+        dialog.id = 'example-graphs';
+
+
+        (network.renderRoot.querySelector('#example-graphs-container')).append(dialog);
+        dialog.show();
+    }
 }

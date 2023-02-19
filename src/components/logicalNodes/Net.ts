@@ -13,6 +13,8 @@ export class Net extends LogicalNode {
     netmask: string;
     binaryNetmask: string;
 
+    parent?: string;
+
     static mode: SubnettingMode = "MANUAL"; //initial is manual
     //this is updated on drag-and-drop
     gateways: Map<string, number> = new Map(); //(routerId, portIndex)
@@ -55,7 +57,10 @@ export class Net extends LogicalNode {
 
         let networkId = Ipv4Address.validateAddress(netAd, database, this.bitmask);
         if (networkId == null) {
-            AlertHelper.toastAlert("danger", "exclamation-diamond", "Provided network ID is not valid.", "");
+            if (id == null || id == undefined || id == "") {
+                AlertHelper.toastAlert("danger", "exclamation-diamond", "Provided network ID is not valid.", "");
+            }
+
             this.cssClass.push("unconfigured-net");
             return;
         }
@@ -346,8 +351,10 @@ export class Net extends LogicalNode {
                 break;
         }
 
-        network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(networkToFree[0], networkToFree[1]));
-        network.ipv4Database.delete(networkToFree[0]);
+        if (networkToFree != null) {
+            network.ipv4Database.delete(AddressingHelper.getBroadcastAddress(networkToFree[0], networkToFree[1]));
+            network.ipv4Database.delete(networkToFree[0]);
+        }
         AlertHelper.toastAlert("success", "check2-circle", "Your changes have been saved.", "");
         return true;
     }

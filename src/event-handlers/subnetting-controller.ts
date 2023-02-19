@@ -79,9 +79,11 @@ export class SubnettingController {
                 if (net.currentDefaultGateway != undefined && net.currentDefaultGateway != null) {
                     node.defaultGateway = net.currentDefaultGateway;
                     grabbedNode.addClass('gateway-changeable');
+                    if(!grabbedNode.data('cssClass').includes('gateway-changeable')) grabbedNode.data('cssClass').push('gateway-changeable');
                 }
                 else {
                     grabbedNode.addClass('default-gateway-not-found');
+                    if(!grabbedNode.data('cssClass').includes('default-gateway-not-found')) grabbedNode.data('cssClass').push('default-gateway-not-found');
                 }
             }
             else if (node instanceof Net) {
@@ -107,9 +109,11 @@ export class SubnettingController {
                 if (net.currentDefaultGateway != undefined && net.currentDefaultGateway != null) {
                     node.defaultGateway = net.currentDefaultGateway;
                     grabbedNode.addClass('gateway-changeable');
+                    if(!grabbedNode.data('cssClass').includes('gateway-changeable')) grabbedNode.data('cssClass').push('gateway-changeable');
                 }
                 else {
                     grabbedNode.addClass('default-gateway-not-found');
+                    if(!grabbedNode.data('cssClass').includes('default-gateway-not-found')) grabbedNode.data('cssClass').push('default-gateway-not-found');
                 }
             }
             else if (node instanceof Net) {
@@ -120,6 +124,7 @@ export class SubnettingController {
         else {
             if (node instanceof PhysicalNode && node.layer > 2) {
                 grabbedNode.addClass('default-gateway-not-found');
+                if(!grabbedNode.data('cssClass').includes('default-gateway-not-found')) grabbedNode.data('cssClass').push('default-gateway-not-found');
             }
         }
     }
@@ -162,7 +167,7 @@ export class SubnettingController {
         if (allCorrect && !unconfig) {
             AlertHelper.toastAlert("success", "check2-circle", "Well done!", "All nets are correctly configured!")
         }
-        else {
+        else if (unconfig) {
             alert += "<li>Unconfigured net still exists.</li>";
         }
 

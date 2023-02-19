@@ -58,17 +58,17 @@ export class TableHelper {
                 element4.type = 'number';
                 element4.min = 0;
                 element4.max = 32;
-                if (tableData != undefined) element4.value = tableData[3];
+                if (tableData != undefined) element4.value = tableData[2];
                 cell4.appendChild(element4);
 
-                for (let j = 4; j < 6; j++) {
-                    var cell = row.insertCell(j);
-                    var element = new SlInput();
-                    element.type = 'number';
-                    element.min = '0';
-                    if (tableData != undefined) element.value = tableData[j - 1];
-                    cell.appendChild(element);
-                }
+
+                var cell = row.insertCell(4);
+                var element = new SlInput();
+                element.type = 'number';
+                element.min = '0';
+                if (tableData != undefined) element.value = tableData[3];
+                cell.appendChild(element);
+
                 break;
 
             case 'MacAddressTable':
@@ -110,7 +110,6 @@ export class TableHelper {
     }
 
     static updateTable(tableID: string, tableType: TableType, network: ComputerNetwork) {
-        console.log("run updateTable " + tableID);
         //gets table
         var oTable = (network.renderRoot.querySelector('#' + tableID)) as HTMLTableElement;
 
@@ -155,7 +154,6 @@ export class TableHelper {
                 cellData.push(cellVal.value);
             }
 
-            console.log(cellData);
             switch (tableType) {
                 case 'ArpTable':
                     (node as RoutableDecorator).arpTableIpMac.set(cellData[0], cellData[1]);
@@ -167,11 +165,43 @@ export class TableHelper {
                 case 'RoutingTable':
                     let port: number = +cellData[3];
                     (node as RoutableDecorator).routingTable.set(cellData[0], new RoutingData(cellData[0], cellData[1], +cellData[2],
-                        node.portData.get(port).get('Name'), port, cellData[4]));
+                        node.portData.get(port).get('Name'), port));
                     break;
             }
         }
 
         AlertHelper.toastAlert('success', 'check2-circle', '', 'Your table is saved!');
+    }
+
+
+    /**
+     * 
+     * @param tableId 
+     * @param tableType 
+     * @param tableData (ip,mac) for ArpTable
+     * @param network 
+     */
+    static reloadTable(tableId: string, tableType: TableType, tableData: any, network: ComputerNetwork) {
+        console.log(tableId);
+        var table = (network.renderRoot.querySelector('#' + tableId)) as HTMLTableElement;
+        table.innerHTML = "";
+        switch (tableType) {
+            case 'ArpTable':
+                (tableData as Map<string, string>).forEach((mac, ip) => {
+                    TableHelper.addRow(tableId, tableType, network, [ip, mac]);
+                });
+                break;
+            case 'MacAddressTable':
+                (tableData as Map<string, number>).forEach((port, mac) => {
+                    TableHelper.addRow(tableId, tableType, network, [port, mac]);
+                });
+                break;
+            case 'RoutingTable':
+                (tableData as Map<string, RoutingData>).forEach(routingData => {
+                    TableHelper.addRow(tableId, tableType, network, [routingData.destination, routingData.gateway,
+                    routingData.bitmask, routingData.port]);
+                });
+                break;
+        }
     }
 }

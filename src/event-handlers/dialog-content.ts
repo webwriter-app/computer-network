@@ -263,14 +263,16 @@ export class DialogFactory {
       let changed: boolean = false;
       //for each interface-index
       for (let index = 1; index <= physicalNode.portData.size; index++) {
-        let newName = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "Name") as SlInput).value.trim();
+        let nameInput = network.renderRoot.querySelector('#' + id + "-" + index + "-" + "Name") as SlInput;
+        let newName = nameInput.value.trim() != "" ? nameInput.value.trim() : nameInput.placeholder;
         if (newName != "") {
           physicalNode.portData.get(index).set('Name', newName);
           changed = true;
         }
 
         if (physicalNode.layer >= 2) {
-          let newMac = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "MAC") as SlInput).value.trim();
+          let macInput = network.renderRoot.querySelector('#' + id + "-" + index + "-" + "MAC") as SlInput;
+          let newMac = macInput.value.trim() != "" ? macInput.value.trim() : macInput.placeholder;
           let validatedMac = newMac != "" ? MacAddress.validateAddress(newMac, network.macDatabase) : null;
           if (validatedMac != null) {
             MacAddress.removeAddressFromDatabase(physicalNode.portData.get(index).get('MAC'), network.macDatabase);
@@ -284,8 +286,10 @@ export class DialogFactory {
         }
 
         if (physicalNode.layer >= 3) {
-          let newIpv4 = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv4") as SlInput).value.trim();
-          let newIpv6 = (network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv6") as SlInput).value.trim();
+          let ip4Input = network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv4") as SlInput;
+          let ip6Input = network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv6") as SlInput;
+          let newIpv4 = ip4Input.value.trim() != "" ? ip4Input.value.trim() : ip4Input.placeholder;
+          let newIpv6 = ip6Input.value.trim() != "" ? ip6Input.value.trim() : ip6Input.placeholder;
           let validatedIpv4 = newIpv4 != "" ? Ipv4Address.validateAddress(newIpv4, network.ipv4Database) : null;
           if (validatedIpv4 != null) {
             let keepOldIp: boolean = false;
@@ -405,9 +409,13 @@ export class DialogFactory {
     saveButton.variant = "primary";
     saveButton.innerHTML = "Save";
     saveButton.addEventListener('click', () => {
-      let newId = (network.renderRoot.querySelector('#change-id-' + id) as SlInput).value.trim();
-      let newBitmask = (network.renderRoot.querySelector('#change-bitmask-' + id) as SlInput).value.trim();
-      let newnetmask = (network.renderRoot.querySelector('#change-mask-' + id) as SlInput).value.trim();
+      let idInput = network.renderRoot.querySelector('#change-id-' + id) as SlInput;
+      let bitmaskInput = network.renderRoot.querySelector('#change-bitmask-' + id) as SlInput;
+      let netmaskInput = network.renderRoot.querySelector('#change-mask-' + id) as SlInput;
+
+      let newId = idInput.value.trim() != "" ? idInput.value.trim() : idInput.placeholder;
+      let newBitmask = bitmaskInput.value.trim() != "" ? bitmaskInput.value.trim() : bitmaskInput.placeholder;
+      let newnetmask = netmaskInput.value.trim() != "" ? netmaskInput.value.trim() : netmaskInput.placeholder;
 
       if (subnet.handleChangesOnNewNetInfo(newId != "" ? newId : null, newnetmask != "" ? newnetmask : null, newBitmask != "" ? +newBitmask : null, network)) {
         node.toggleClass('unconfigured-net', false);
@@ -470,8 +478,14 @@ export class DialogFactory {
       let newGateway: string = (network.renderRoot.querySelector('#' + "new-gateway-" + id) as SlInput).value.trim();
       if (newGateway != "") {
         node.data('defaultGateway', newGateway.split('/'));
+        let cssClass = node.data('cssClass');
+        while (cssClass.includes('default-gateway-not-found')) {
+          cssClass.splice(cssClass.indexOf('default-gateway-not-found'), 1);
+        }
+        cssClass.push('gateway-changeable');
         node.toggleClass('default-gateway-not-found', false);
         node.toggleClass('gateway-changeable', true);
+        if(!node.data('cssClass').includes('gateway-changeable')) node.data('cssClass').push('gateway-changeable');
       }
       dialog.hide();
     });
@@ -504,6 +518,11 @@ export class DialogFactory {
     dialog.show();
   }
 
+
+
+  static showHelpText(): void {
+
+  }
 }
 
 
