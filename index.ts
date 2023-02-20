@@ -440,7 +440,6 @@ export class ComputerNetwork extends LitElementWw {
     return html`
     <div class="sidebar">
       <sl-menu style="background-color: #F1F1F1; border: transparent; height: 100%;">
-      
         <sl-details summary="CIDR/Subnetting controller" open>
           <sl-menu-label>Choose a mode:
             <sl-select size=${this.screen} id="current-subnet-mode" @sl-change="${(event) => { Net.setMode(event.target.value) }}" value="MANUAL">
@@ -471,10 +470,11 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item @click="${(event) => { event.target.checked = !event.target.checked; PacketSimulator.focus = event.target.checked; }}"">Focus on animated nodes</sl-menu-item>
           <sl-menu-item>
           <b><i>Session: </i></b>
-          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.initSession(this)}">Init</sl-icon></sl-button>
-          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play" label="Start simulation session"></sl-icon></sl-button>
-          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.pauseOrResumeSession(this)}"><sl-icon id="pause-ani" src="/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg" label="Pause simulation session"></sl-icon></sl-button>
-          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.stopSession(this)}"><sl-icon name="stop-circle" label="Stop simulation session"></sl-icon></sl-button></sl-menu-item>
+          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.initSession(this)}">Init</sl-button>
+          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play"/></sl-button>
+          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.pauseOrResumeSession(this)}"><sl-icon id="pause-ani" src="/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg"/></sl-button>
+          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.stopSession(this)}"><sl-icon name="stop-circle"/></sl-button>
+          </sl-menu-item>
           <sl-menu-item>
             <sl-details id="tables-for-packet-simulator" summary="Track tables" open>
 
