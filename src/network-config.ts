@@ -20,6 +20,7 @@ import { Net } from "./components/logicalNodes/Net";
 import { PhysicalNode } from "./components/physicalNodes/PhysicalNode";
 import { GraphNodeFactory } from "./event-handlers/component-manipulation";
 import { Data } from "./components/logicalNodes/DataNode";
+import { PacketSimulator } from "./event-handlers/packet-simulator";
 
 
 // register extension
@@ -30,6 +31,10 @@ cytoscape.use(nodeHtmlLabel);
 
 
 export function initNetwork(network: ComputerNetwork): void {
+    if (network.networkAvailable) network._graph.removeData();
+    if (PacketSimulator.inited) {
+        PacketSimulator.stopSession(network);
+    }
     network.networkAvailable = true;
     let style = [
         {

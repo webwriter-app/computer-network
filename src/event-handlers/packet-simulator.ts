@@ -144,6 +144,7 @@ export class PacketSimulator {
             PacketSimulator.inited = true;
         }
         else {
+            //fix bug here
             (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
             //init tables again
             network._graph.nodes('.routable-decorated').forEach(node => {
@@ -331,12 +332,12 @@ export class PacketSimulator {
     static stopSession(network: ComputerNetwork) {
         (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
 
-        network._graph.nodes('switchable-decorated').forEach(node => {
+        network._graph.nodes('.switchable-decorated').forEach(node => {
             let nodeData: SwitchableDecorator = node.data();
             nodeData.macAddressTable = new Map();
         });
 
-        network._graph.nodes('routable-decorated').forEach(node => {
+        network._graph.nodes('.routable-decorated').forEach(node => {
             let nodeData: RoutableDecorator = node.data();
             nodeData.routingTable = new Map();
             nodeData.arpTableIpMac = new Map();

@@ -441,7 +441,7 @@ export class ComputerNetwork extends LitElementWw {
     <div class="sidebar">
       <sl-menu style="background-color: #F1F1F1; border: transparent; height: 100%;">
       
-        <sl-details summary="Subnetting extension" open>
+        <sl-details summary="CIDR/Subnetting controller" open>
           <sl-menu-label>Choose a mode:
             <sl-select size=${this.screen} id="current-subnet-mode" @sl-change="${(event) => { Net.setMode(event.target.value) }}" value="MANUAL">
             <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
@@ -454,7 +454,7 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item><sl-button size=${this.screen} class="blue-button" @click="${() => SubnettingController.validateAllNets(this)}">Check</sl-button></sl-menu-item>
         </sl-details>
 
-        <sl-details id="packet-sending-extension" summary="Packet sending extension">
+        <sl-details id="packet-sending-extension" summary="Packet sending controller">
           <sl-menu-item style="display: flex;">
             <sl-button size=${this.screen} style="display: inline-block;" class="blue-button" id="setSourceBtn" @click="${(event) => PacketSimulator.setSource(event, this)}">Choose sender</sl-button>
             <sl-select size=${this.screen} id="ip-source-select" hoist style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event) => { PacketSimulator.sourceIp = event.target.value }}" value="127.0.0.1">

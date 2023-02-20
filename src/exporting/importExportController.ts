@@ -7,6 +7,7 @@ import { MacAddress } from '../adressing/MacAddress';
 import { RoutableDecorator } from '../components/dataDecorators/Routable';
 import { SwitchableDecorator } from '../components/dataDecorators/Switchable';
 import { GraphEdge } from '../components/GraphEdge';
+import { Packet } from '../components/logicalNodes/DataNode';
 import { Net } from '../components/logicalNodes/Net';
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from '../components/physicalNodes/Connector';
 import { Host } from '../components/physicalNodes/Host';
@@ -365,8 +366,9 @@ export class ImportExportController {
                     classes: graphEdge.cssClass
                 });
             });
-
+            
             if (json.hasOwnProperty('inited')) {
+                PacketSimulator.inited = false;
                 PacketSimulator.initSession(network);
             }
             else {
@@ -474,10 +476,14 @@ export class ImportExportController {
         return html`
         <sl-tab-group>
             <sl-tab slot="nav" panel="cidr">Example exercises for CIDR/ Subnetting</sl-tab>
-            <sl-tab slot="nav" panel="simulation">Simulations</sl-tab>
+            <sl-tab slot="nav" panel="simulation">Example networks for simulations</sl-tab>
             
-            <sl-tab-panel name="cidr">${cidrExamples}</sl-tab-panel>
-            <sl-tab-panel name="simulation">${simulationExamples}</sl-tab-panel>
+            <sl-tab-panel name="cidr"><b>Tip</b>: Use the <b>CIDR/Subnetting controller</b> to <b>drag-and-drop</b> then <b>check</b>. <b>Right-click</b> on each network, then select <b>View Details</b> to change its configuration.
+            <br/><br/>
+            ${cidrExamples}</sl-tab-panel>
+            <sl-tab-panel name="simulation"><b>Tip</b>: Set <b>source</b> and <b>destination</b> then click on <b>play</b> button in <b>Packet sending controller</b> to start simulation
+            <br/><br/>
+            ${simulationExamples}</sl-tab-panel>
         </sl-tab-group>
         `;
     }

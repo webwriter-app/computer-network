@@ -272,7 +272,7 @@ export class DialogFactory {
 
         if (physicalNode.layer >= 2) {
           let macInput = network.renderRoot.querySelector('#' + id + "-" + index + "-" + "MAC") as SlInput;
-          let newMac = macInput.value.trim() != "" ? macInput.value.trim() : macInput.placeholder;
+          let newMac = macInput.value.trim() != "" ? macInput.value.trim() : "";
           let validatedMac = newMac != "" ? MacAddress.validateAddress(newMac, network.macDatabase) : null;
           if (validatedMac != null) {
             MacAddress.removeAddressFromDatabase(physicalNode.portData.get(index).get('MAC'), network.macDatabase);
@@ -288,8 +288,8 @@ export class DialogFactory {
         if (physicalNode.layer >= 3) {
           let ip4Input = network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv4") as SlInput;
           let ip6Input = network.renderRoot.querySelector('#' + id + "-" + index + "-" + "IPv6") as SlInput;
-          let newIpv4 = ip4Input.value.trim() != "" ? ip4Input.value.trim() : ip4Input.placeholder;
-          let newIpv6 = ip6Input.value.trim() != "" ? ip6Input.value.trim() : ip6Input.placeholder;
+          let newIpv4 = ip4Input.value.trim() != "" ? ip4Input.value.trim() : "";
+          let newIpv6 = ip6Input.value.trim() != "" ? ip6Input.value.trim() : "";
           let validatedIpv4 = newIpv4 != "" ? Ipv4Address.validateAddress(newIpv4, network.ipv4Database) : null;
           if (validatedIpv4 != null) {
             let keepOldIp: boolean = false;

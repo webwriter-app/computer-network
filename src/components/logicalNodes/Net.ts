@@ -87,7 +87,7 @@ export class Net extends LogicalNode {
 
         if (!bitmaskValid && !netmaskValid) {
             if (Net.mode == "NET_BASED") {
-                AlertHelper.toastAlert("danger", "exclamation-diamond", "Net-based Mode for Subnetting extensions activated:",
+                AlertHelper.toastAlert("danger", "exclamation-diamond", "Net-based Mode for CIDR/Subnetting activated:",
                     "Cannot create a net without both bitmask and netmask!");
                 return null;
             }
