@@ -71,7 +71,6 @@ export class Net extends LogicalNode {
     }
 
 
-
     /**
      * Filter for valid bitmask and netmask
      * @param color 
