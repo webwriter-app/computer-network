@@ -38,7 +38,7 @@ export class PacketSimulator {
         }
         else {
             //pause
-            (network.renderRoot.querySelector('#pause-ani') as SlIcon).src = "img/icons/resume.svg";
+            (network.renderRoot.querySelector('#pause-ani') as SlIcon).src = "resources/icons/resume.svg";
             PacketSimulator.currentAnimations.forEach((ani) => {
                 if (ani.playing()) ani.pause();
             });

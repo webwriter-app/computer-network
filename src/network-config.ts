@@ -185,53 +185,53 @@ export function initNetwork(network: ComputerNetwork): void {
         {
             "selector": ".data-node-layer2-layer3",
             "style": {
-                "background-image": "img/datagram/2header-3header.png",
+                "background-image": "resources/datagram/2header-3header.png",
                 "label": "L2 L3 DATA",
             }
         },
         {
             "selector": ".arp-req-node",
             "style": {
-                "background-image": "img/datagram/2header.png",
+                "background-image": "resources/datagram/2header.png",
                 "label": "L2 ARP req",
             }
         },
         {
             "selector": ".arp-res-node",
             "style": {
-                "background-image": "img/datagram/2header.png",
+                "background-image": "resources/datagram/2header.png",
                 "label": "L2 ARP res",
             }
         },
         {
             "selector": ".data-node-layer3",
             "style": {
-                "background-image": "img/datagram/3header.png",
+                "background-image": "resources/datagram/3header.png",
                 "label": "L3    DATA",
             }
         },
         {
             "selector": ".processing-data-node-2part",
             "style": {
-                "background-image": "img/datagram/2part-green.png"
+                "background-image": "resources/datagram/2part-green.png"
             }
         },
         {
             "selector": ".discard-data-node-2part",
             "style": {
-                "background-image": "img/datagram/2part-red.png"
+                "background-image": "resources/datagram/2part-red.png"
             }
         },
         {
             "selector": ".processing-data-node-3part",
             "style": {
-                "background-image": "img/datagram/3part-green.png"
+                "background-image": "resources/datagram/3part-green.png"
             }
         },
         {
             "selector": ".discard-data-node-3part",
             "style": {
-                "background-image": "img/datagram/3part-red.png"
+                "background-image": "resources/datagram/3part-red.png"
             }
         },
     ];
@@ -441,7 +441,7 @@ export function initNetwork(network: ComputerNetwork): void {
             valign: "top",
             halign: "right",
             tpl: function () {
-                return `<sl-icon src="img/icons/no-internet.svg">`;
+                return `<sl-icon src="resources/icons/no-internet.svg">`;
             }
         }
     ]);

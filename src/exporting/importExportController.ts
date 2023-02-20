@@ -1,4 +1,5 @@
 import { SlDetails, SlDialog } from '@shoelace-style/shoelace';
+import { html } from 'lit';
 import { ComputerNetwork } from '../..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { Ipv6Address } from '../adressing/Ipv6Address';
@@ -14,6 +15,20 @@ import { PacketSimulator } from '../event-handlers/packet-simulator';
 import { initNetwork } from '../network-config';
 import { RoutingData } from '../utils/routingData';
 import { TableHelper } from '../utils/TableHelper';
+
+class ExampleDescription {
+    id: number;
+    previewPath: string;
+    filePath: string;
+    helpText: string;
+
+    constructor(id: number, previewPath: string, filePath: string, helpText: string) {
+        this.id = id;
+        this.previewPath = previewPath;
+        this.filePath = filePath;
+        this.helpText = helpText;
+    }
+}
 
 export class ImportExportController {
 
@@ -192,9 +207,12 @@ export class ImportExportController {
     };
 
     static importFile(network: ComputerNetwork): void {
-
         const fileInput = (network.renderRoot.querySelector('#import-file') as HTMLInputElement);
         const selectedFile = fileInput.files[0];
+        ImportExportController.importSpecificFile(selectedFile, network);
+    }
+
+    static importSpecificFile(selectedFile: File, network: ComputerNetwork): void {
 
         ImportExportController.reader.onloadend = async () => {
             initNetwork(network);
@@ -393,25 +411,75 @@ export class ImportExportController {
         ImportExportController.reader.readAsText(selectedFile, 'UTF-8');
     }
 
-    static examples: Map<string, string> = new Map<string, string>([
-        ["key1", "value1"],
-        ["key2", "value2"]
-    ]); //picture path, file path
+    static cidrs: Map<string, ExampleDescription> = new Map<string, ExampleDescription>([
+        ["Example 1", new ExampleDescription(1, "resources/preview-examples/CIDR-and-classful-drag&drop--then-check.png", "resources/examples/CIDR-and-classful-drag&drop--then-check.json", "An exercise for CIDR from classful networks: drag and drop then check.")],
+        ["Example 2", new ExampleDescription(2, "resources/preview-examples/CIDR-fill-in-the-blank.png", "resources/examples/CIDR-fill-in-the-blank.json", "An exercise for CIDR from classful networks: configure the classful networks then check.")],
+        ["Example 3", new ExampleDescription(3, "resources/preview-examples/subnetting-fill-in-the-blank.png", "resources/examples/subnetting-fill-in-the-blank.json", "An exercise for subnetting from a classful network: configure the subnets then check.")],
+        ["Example 4", new ExampleDescription(4, "resources/preview-examples/cidr-subnetting-drag&drop.png", "resources/examples/cidr-subnetting-drag&drop.json", "A mixed exercise of CIDR and subnetting: drag and drop then check.")],
+    ]); //id, example-info
 
-    static chooseFromExampleFiles(network: ComputerNetwork): void {
-        let dialog: SlDialog = (network.renderRoot.querySelector('#example-graphs')) as SlDialog;
-        if (dialog != null) {
-            dialog.show();
-            return;
-        }
-        else {
-            dialog = new SlDialog();
-        }
-        dialog.label = 'Choose an example graph to import';
-        dialog.id = 'example-graphs';
+    static simulations: Map<string, ExampleDescription> = new Map<string, ExampleDescription>([
+        ["Example 1", new ExampleDescription(1, "resources/preview-examples/repeater-simulation.png", "resources/examples/repeater-simulation.json", "Ethernet with a repeater and 2 hosts.")],
+        ["Example 2", new ExampleDescription(2, "resources/preview-examples/hub-simulation.png", "resources/examples/hub-simulation.json", "Ethernet with a hub and 3 hosts.")],
+        ["Example 3", new ExampleDescription(3, "resources/preview-examples/bridge-simulation.png", "resources/examples/bridge-simulation.json", "Ethernet with a bridge and 2 hosts.")],
+        ["Example 4", new ExampleDescription(4, "resources/preview-examples/switch-simulation.png", "resources/examples/switch-simulation.json", "Ethernet with a switch and 3 hosts.")],
+        ["Example 5", new ExampleDescription(5, "resources/preview-examples/accesspoint-simulation.png", "resources/examples/accesspoint-simulation.json", "Wireless network with an access point and 3 hosts.")],
+        ["Example 6", new ExampleDescription(6, "resources/preview-examples/gateway-2ethernet.png", "resources/examples/gateway-2ethernet.json", "2 Ethernets with a gateway.")],
+        ["Example 7", new ExampleDescription(7, "resources/preview-examples/gateway-2net-wireless-ethernet.png", "resources/examples/gateway-2net-wireless-ethernet.json", "An ethernet, a wireless network and a gateway.")],
+        ["Example 8", new ExampleDescription(8, "resources/preview-examples/gateway-3ethernet.png", "resources/examples/gateway-3ethernet.json", "3 Ethernets and a gateway.")],
+        ["Example 9", new ExampleDescription(9, "resources/preview-examples/3gateways - next gateway routes.png", "resources/examples/3gateways - next gateway routes.json", "3 Ethernet, each with a corresponding gateway.")],
+        ["Example 10", new ExampleDescription(10, "resources/preview-examples/4 routers-2 nets.png", "resources/examples/4 routers-2 nets.json", "2 Ethernets and 4 routers.")]
+    ]); //id, example-info
 
+    static openExample(filePath: string, network: ComputerNetwork) {
+        console.log('open Example');
+        fetch(filePath).then(response => {
+            response.blob().then(blob => {
+                const file = new File([blob], 'temporal.json', { type: blob.type });
+                console.log(file);
+                ImportExportController.importSpecificFile(file, network);
+            });
+        });
+        (network.renderRoot.querySelector('#example-graphs') as SlDialog).hide();
+    }
 
-        (network.renderRoot.querySelector('#example-graphs-container')).append(dialog);
-        dialog.show();
+    static exampleTemplate(network: ComputerNetwork) {
+        let cidrExamples = [];
+        let simulationExamples = [];
+
+        ImportExportController.cidrs.forEach((value, name) => {
+            cidrExamples.push(html`
+            <sl-card class="card-overview">
+                <img slot="image" src=${value.previewPath} alt=${name}/>
+                ${value.helpText}
+                <div slot="footer">
+                    <sl-button pill @click="${() => ImportExportController.openExample(value.filePath, network)}">Open</sl-button>
+                </div>
+            </sl-card>
+            `);
+        });
+
+        ImportExportController.simulations.forEach((value, name) => {
+            simulationExamples.push(html`
+            <sl-card class="card-overview">
+                <img slot="image" src=${value.previewPath} alt=${name}/>
+                ${value.helpText}
+                <div slot="footer">
+                    <sl-button pill @click="${() => ImportExportController.openExample(value.filePath, network)}">Open</sl-button>
+                </div>
+            </sl-card>
+            `);
+        });
+
+        return html`
+        <sl-tab-group>
+            <sl-tab slot="nav" panel="cidr">Example exercises for CIDR/ Subnetting</sl-tab>
+            <sl-tab slot="nav" panel="simulation">Simulations</sl-tab>
+            
+            <sl-tab-panel name="cidr">${cidrExamples}</sl-tab-panel>
+            <sl-tab-panel name="simulation">${simulationExamples}</sl-tab-panel>
+        </sl-tab-group>
+        `;
     }
 }
+

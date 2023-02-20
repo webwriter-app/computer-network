@@ -11,7 +11,7 @@ import { SubnettingController } from "./src/event-handlers/subnetting-controller
 import { Net } from "./src/components/logicalNodes/Net";
 import { PacketSimulator } from "./src/event-handlers/packet-simulator";
 import { ImportExportController } from "./src/exporting/importExportController";
-import { SlSelect } from "@shoelace-style/shoelace";
+import { SlDialog, SlSelect } from "@shoelace-style/shoelace";
 
 
 @customElement("computer-network")
@@ -352,6 +352,22 @@ export class ComputerNetwork extends LitElementWw {
     table.fixedMac td:nth-of-type(3) {
         width: 52%;
     }
+
+    /**sl-card*/
+    .card-overview {
+      max-width: 300px;
+      display: inline-block;
+    }
+  
+    .card-overview small {
+      color: var(--sl-color-neutral-500);
+    }
+  
+    .card-overview [slot='footer'] {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
   
     /** Container queries **/
     
@@ -484,7 +500,7 @@ export class ComputerNetwork extends LitElementWw {
           <input class="importBtn" style="width: 11cqw;" type="file" id="import-file">
           <button class="importBtn" type='button' @click="${() => ImportExportController.importFile(this)}">Import</button>
           <button class="importBtn" type='button' @click="${() => ImportExportController.exportFile(this)}">Export</button>
-          <button class="importBtn" type='button' @click="${() => ImportExportController.chooseFromExampleFiles(this)}">Examples</button>
+          <button class="importBtn" type='button' @click="${() => ((this.renderRoot.querySelector('#example-graphs')) as SlDialog).show()}">Examples</button>
           <button class="importBtn" type='button' @click="${() => DialogFactory.showHelpText()}">Help</button>
         </form>
         
@@ -501,9 +517,9 @@ export class ComputerNetwork extends LitElementWw {
             <sl-menu-item id="router" @click="${this.clickOnComponentButton}">Router <sl-icon name="router"></sl-menu-item>
             <sl-menu-item id="access-point" @click="${this.clickOnComponentButton}">Access Point <sl-icon name="broadcast-pin"></sl-menu-item>
             <sl-menu-item id="repeater" @click="${this.clickOnComponentButton}">Repeater <sl-icon name="hdd"></sl-menu-item>
-            <sl-menu-item id="hub" @click="${this.clickOnComponentButton}">Hub <sl-icon src="img/icons/hub.svg"></sl-menu-item>
-            <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}">Bridge <sl-icon src="img/icons/bridge.svg"></sl-menu-item>
-            <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon src="img/icons/switch.svg"></sl-menu-item>
+            <sl-menu-item id="hub" @click="${this.clickOnComponentButton}">Hub <sl-icon src="resources/icons/hub.svg"></sl-menu-item>
+            <sl-menu-item id="bridge" @click="${this.clickOnComponentButton}">Bridge <sl-icon src="resources/icons/bridge.svg"></sl-menu-item>
+            <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon src="resources/icons/switch.svg"></sl-menu-item>
           </sl-menu>
         </sl-dropdown>
         <button class="btn" id="edge" @click="${this.clickOnComponentButton}"><sl-icon name="share"></sl-icon></button>
@@ -573,8 +589,9 @@ export class ComputerNetwork extends LitElementWw {
     </div>
 
     <div id="inputDialog"/>
-    <div id="example-graphs-container"/>
-    </div>
+    <sl-dialog id="example-graphs"/>
+    ${ImportExportController.exampleTemplate(this)}
+    </sl-dialog>
     `
   }
 
@@ -608,6 +625,7 @@ export class ComputerNetwork extends LitElementWw {
   }
 
   private clickOnColor(e: Event): void {
+    console.log('clicked colors');
     this.currentColor = (e.target as HTMLElement).getAttribute('id');
     this.renderRoot.querySelectorAll('.colorButton').forEach(e => {
       if (e.id == this.currentColor) {

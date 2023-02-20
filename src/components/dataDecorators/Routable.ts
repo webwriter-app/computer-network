@@ -43,7 +43,7 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let thisMac: string = this.portData.get(portIn).get('MAC').address;
         let thisIp: string = this.portData.get(portIn).get('IPv4').address;
 
-        if (receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) {
+        if (receiverMac!="" && receiverMac != "FF:FF:FF:FF:FF:FF" && receiverMac != thisMac) {
             if (data instanceof Frame) AnimationHelper.blinkingThenRemoveNode('discard-data-node-2part', dataNode.id(), network);
             if (data instanceof Packet) AnimationHelper.blinkingThenRemoveNode('discard-data-node-3part', dataNode.id(), network);
             return;
@@ -74,24 +74,32 @@ export class RoutableDecorator extends DataHandlingDecorator {
                     AnimationHelper.blinkingThenRemoveNode('processing-data-node-3part', dataNode.id(), network);
                     AlertHelper.toastAlert('success', 'check2-all', "", "Your receiver has received the message!");
                 }
-                else if (this.cssClass.includes('gateway-node')) {
+                else if (this.cssClass.includes('router-node')) {
                     this.removeLayer2Header(data, network);
                     let portToSend = this.findPortToSend(data.layer3header.ipReceiver);
 
                     if (portToSend != null) {
+
                         let ipReceiver = data.layer3header.ipReceiver;
                         let macSender = this.portData.get(portToSend).get('MAC').address;
-                        if (this.arpTableIpMac.has(ipReceiver) && this.routingTable.has(ipReceiver)) {
+                        if (this.arpTableIpMac.has(ipReceiver)) {
                             if (data instanceof Packet) {
                                 let macReceiver: string = this.arpTableIpMac.get(ipReceiver);
-
                                 this.addLayer2Header(data, macSender, macReceiver, network);
                                 PacketSimulator.findNextHopThenSend(portIn, network._graph.$('#' + this.id), dataNode, network);
                             }
                         }
                         else {
-                            data.layer2header.macSender = this.portData.get(portToSend).get('MAC').address;
-                            this.sendDataInSameNetwork(portIn, dataNode, macSender, data.layer3header.ipSender, "", ipReceiver, network);
+                            let nextGateway = this.getNextGateway(data.layer3header.ipReceiver);
+                            if (nextGateway != null) {
+                                console.log(nextGateway);
+                                PacketSimulator.directSend(network._graph.$('#' + this.id), network._graph.$('#' + network.ipv4Database.get(nextGateway)), dataNode, network);
+                            }
+                            else {
+                                data.layer2header.macSender = this.portData.get(portToSend).get('MAC').address;
+                                this.sendDataInSameNetwork(portIn, dataNode, macSender, data.layer3header.ipSender, "", ipReceiver, network);
+                            }
+
                         }
                     }
                 }
@@ -300,6 +308,23 @@ export class RoutableDecorator extends DataHandlingDecorator {
             }
         });
         return port;
+    }
+
+    getNextGateway(ip: string): string {
+        let nextHop: string = null;
+        let longestPrefixMatch: number = 0;
+        let port: number;
+
+        this.routingTable.forEach((attributes, address) => {
+            let numOfMatchedPrefix = AddressingHelper.getPrefix([AddressingHelper.decimalStringWithDotToBinary(address),
+            AddressingHelper.decimalStringWithDotToBinary(ip)]).length;
+            if (numOfMatchedPrefix >= attributes.bitmask && (attributes.bitmask > longestPrefixMatch || attributes.bitmask == longestPrefixMatch)) {
+                if(attributes.gateway!="on-link" && attributes.gateway!="") nextHop = attributes.gateway;
+                longestPrefixMatch = attributes.bitmask;
+                port = attributes.port;
+            }
+        });
+        return nextHop;
     }
 
 
