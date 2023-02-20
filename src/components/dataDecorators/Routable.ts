@@ -159,6 +159,19 @@ export class RoutableDecorator extends DataHandlingDecorator {
                 PacketSimulator.findNextHopThenSend(lastPortIn, thisNode, dataNode, network);
             }
         }
+        else if (this.routingTable.has(ipReceiver) && data.name.includes('ARP res')) {
+            if (data instanceof Frame) {
+                PacketSimulator.findNextHopThenSend(lastPortIn, thisNode, dataNode, network);
+            }
+            else if (data instanceof Packet) {
+                let macReceiver: string = this.arpTableIpMac.get(ipReceiver);
+                let port = this.findPortToSend(ipReceiver);
+                let macSender: string = this.portData.get(port).get('MAC').address;
+
+                this.addLayer2Header(data, macSender, macReceiver, network);
+                PacketSimulator.findNextHopThenSend(lastPortIn, thisNode, dataNode, network);
+            }
+        }
         else {
             this.sendArpRequest(lastPortIn, macSender, this.getIpProvidedMac(macSender), ipReceiver, network);
             if (!this.pendingPackets.has(ipReceiver)) this.pendingPackets.set(ipReceiver, []);
@@ -172,8 +185,6 @@ export class RoutableDecorator extends DataHandlingDecorator {
         let receiverNode = network._graph.$('#' + network.ipv4Database.get(ipReceiver));
 
         if ((senderNode.data() as RoutableDecorator).checkIfSameNetwork(ipSender, ipReceiver, network)) return;
-
-        console.log(gatewayIp);
 
         if (this.arpTableIpMac.has(gatewayIp)) {
             this.sendDataInSameNetwork(lastPortIn, dataNode, macSender, ipSender, this.arpTableMacIp.get(gatewayIp), gatewayIp, network);
@@ -336,6 +347,31 @@ export class RoutableDecorator extends DataHandlingDecorator {
         else {
             return false;
         }
+    }
+
+    flood(dataNode: any, previousId: string, port: number, network: ComputerNetwork): void {
+        dataNode = dataNode.remove();
+
+        this.portLinkMapping.forEach((linkId, portIn) => {
+            if (linkId != null && linkId != undefined && linkId != "") {
+                let edge: GraphEdge = network._graph.$('#' + linkId).data();
+                let directTargetId = edge.target == this.id ? edge.source : edge.target;
+                let nextHop = network._graph.$('#' + directTargetId);
+                let destination: string = dataNode.data() instanceof Frame ? dataNode.data('layer2header').ipReceiver : dataNode.data('layer3header').ipReceiver;
+
+
+                if (port == portIn || edge.target == previousId || edge.source == previousId) {
+                    //do not flood the incoming port
+                }
+                else if (!this.checkIfSameNetwork(this.portData.get(portIn).get('IPv4').address, destination, network)) {
+                    //do not flood other network
+                }
+                else {
+                    let newData = (dataNode.data() instanceof Packet) ? Packet.cloneData(dataNode.data()) : Frame.cloneData(dataNode.data());
+                    PacketSimulator.initThenDirectSend(network._graph.$('#' + this.id), nextHop, newData, network);
+                }
+            }
+        });
     }
 
 }

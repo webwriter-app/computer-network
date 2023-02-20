@@ -13,10 +13,6 @@ export class GraphEdge {
     source: string;
     target: string;
 
-    //config on edge details 
-    portIn: string; //can be port or interface --> TODO: different visualization for layer 2 and 3 connection
-    portOut: string;
-
     constructor(color: string, from: PhysicalNode, to: PhysicalNode, id?: string) {
         if (id != null && id != undefined && id != "") {
             this.id = id;

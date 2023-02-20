@@ -182,7 +182,6 @@ export class TableHelper {
      * @param network 
      */
     static reloadTable(tableId: string, tableType: TableType, tableData: any, network: ComputerNetwork) {
-        console.log(tableId);
         var table = (network.renderRoot.querySelector('#' + tableId)) as HTMLTableElement;
         table.innerHTML = "";
         switch (tableType) {
@@ -193,7 +192,7 @@ export class TableHelper {
                 break;
             case 'MacAddressTable':
                 (tableData as Map<string, number>).forEach((port, mac) => {
-                    TableHelper.addRow(tableId, tableType, network, [port, mac]);
+                    TableHelper.addRow(tableId, tableType, network, [mac, port]);
                 });
                 break;
             case 'RoutingTable':
