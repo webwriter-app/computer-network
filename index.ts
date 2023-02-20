@@ -174,6 +174,7 @@ export class ComputerNetwork extends LitElementWw {
     .blue-button::part(base) {
       background-color: #F1F1F1;
       border: none;
+      align-items: center;
     }
     
     /** scrollbar **/
