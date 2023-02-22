@@ -123,6 +123,12 @@ export function initNetwork(network: ComputerNetwork): void {
             }
         },
         {
+            "selector": ".logical-edge",
+            "style": {
+                "line-style": "dotted"
+            }
+        },
+        {
             "selector": ".physical-node",
             "style": {
                 "text-valign": "bottom",
@@ -390,25 +396,20 @@ export function initNetwork(network: ComputerNetwork): void {
             grabbedNode.on('cdnddrop', (event, target, sibling) => {
                 let parent = target != null ? target : sibling;
                 if (parent.data() instanceof Net) {
-                    switch (Net.mode) {
-                        case 'HOST_BASED': //subnet's info get regenerated based on hosts in host_mode
-                            SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
-                            break;
-                        case 'NET_BASED': //the subnet must be configured to drag hosts into (net_mode)
-                            let bitmask: number = parent.data().bitmask;
-                            if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
-                                //check if current num. of hosts exceed allowed && net is configured
-                                if (((Math.pow(2, 32 - bitmask) - 2) > parent.children().length) && !parent.hasClass('unconfigured-net')) {
-                                    SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
-                                }
+                    if (Net.mode == 'NET_BASED') {
+                        //the subnet must be configured to drag hosts into (net_mode)
+                        let bitmask: number = parent.data().bitmask;
+                        if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
+                            if (!parent.hasClass('unconfigured-net')) {
+                                SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
                             }
-                            else {
-                                AlertHelper.toastAlert('danger', 'exclamation-triangle', "Net-based mode activated:", "Unable to drag hosts into unconfigured net.");
-                            }
-                            break;
-                        default:
-                            SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
-                            break;
+                        }
+                        else {
+                            AlertHelper.toastAlert('danger', 'exclamation-triangle', "Net-based mode activated:", "Unable to drag hosts into unconfigured net.");
+                        }
+                    }
+                    else {
+                        SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
                     }
                 }
             });
@@ -433,7 +434,7 @@ export function initNetwork(network: ComputerNetwork): void {
     network._edgeHandles = network._graph.edgehandles(edgehandlesOptions);
 
     //register context menu
-    network._instance = network._graph.contextMenus(menuOptions);
+    network._menu = network._graph.contextMenus(menuOptions);
 
     network._cdnd = network._graph.compoundDragAndDrop(subnettingOptions);
     network._cdnd.disable();

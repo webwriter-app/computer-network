@@ -35,7 +35,7 @@ export class GraphNodeFactory {
 
     }
 
-    static addNetNode(network: ComputerNetwork): void {
+    private static addNetNode(network: ComputerNetwork): void {
         let netId: string = (network.renderRoot.querySelector('#net-num') as SlInput).value.trim();
         let netmask: string = (network.renderRoot.querySelector('#net-mask') as SlInput).value.trim();
         let bitmask: number = (network.renderRoot.querySelector('#net-bitmask') as SlInput).valueAsNumber;
@@ -51,7 +51,7 @@ export class GraphNodeFactory {
         }
     }
 
-    static addPhysicalNode(network: ComputerNetwork): void {
+    private static addPhysicalNode(network: ComputerNetwork): void {
 
         let name: string = (network.renderRoot.querySelector('#inputName') as SlInput).value.trim();
         let inputNumOfPorts: SlInput = network.renderRoot.querySelector('#ports') as SlInput;

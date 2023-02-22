@@ -79,11 +79,11 @@ export class SubnettingController {
                 if (net.currentDefaultGateway != undefined && net.currentDefaultGateway != null) {
                     node.defaultGateway = net.currentDefaultGateway;
                     grabbedNode.addClass('gateway-changeable');
-                    if(!grabbedNode.data('cssClass').includes('gateway-changeable')) grabbedNode.data('cssClass').push('gateway-changeable');
+                    if (!grabbedNode.data('cssClass').includes('gateway-changeable')) grabbedNode.data('cssClass').push('gateway-changeable');
                 }
                 else {
                     grabbedNode.addClass('default-gateway-not-found');
-                    if(!grabbedNode.data('cssClass').includes('default-gateway-not-found')) grabbedNode.data('cssClass').push('default-gateway-not-found');
+                    if (!grabbedNode.data('cssClass').includes('default-gateway-not-found')) grabbedNode.data('cssClass').push('default-gateway-not-found');
                 }
             }
             else if (node instanceof Net) {
@@ -109,11 +109,11 @@ export class SubnettingController {
                 if (net.currentDefaultGateway != undefined && net.currentDefaultGateway != null) {
                     node.defaultGateway = net.currentDefaultGateway;
                     grabbedNode.addClass('gateway-changeable');
-                    if(!grabbedNode.data('cssClass').includes('gateway-changeable')) grabbedNode.data('cssClass').push('gateway-changeable');
+                    if (!grabbedNode.data('cssClass').includes('gateway-changeable')) grabbedNode.data('cssClass').push('gateway-changeable');
                 }
                 else {
                     grabbedNode.addClass('default-gateway-not-found');
-                    if(!grabbedNode.data('cssClass').includes('default-gateway-not-found')) grabbedNode.data('cssClass').push('default-gateway-not-found');
+                    if (!grabbedNode.data('cssClass').includes('default-gateway-not-found')) grabbedNode.data('cssClass').push('default-gateway-not-found');
                 }
             }
             else if (node instanceof Net) {
@@ -124,7 +124,7 @@ export class SubnettingController {
         else {
             if (node instanceof PhysicalNode && node.layer > 2) {
                 grabbedNode.addClass('default-gateway-not-found');
-                if(!grabbedNode.data('cssClass').includes('default-gateway-not-found')) grabbedNode.data('cssClass').push('default-gateway-not-found');
+                if (!grabbedNode.data('cssClass').includes('default-gateway-not-found')) grabbedNode.data('cssClass').push('default-gateway-not-found');
             }
         }
     }
@@ -146,7 +146,7 @@ export class SubnettingController {
                 let gateways: Router[] = [];
                 //check if each net is correctly assigned locally
                 networkNode.children().forEach(node => hosts.push(node.data()));
-                nw.gateways.forEach((_port, id) => gateways.push(network._graph.$('#' + id)));
+                nw.gateways.forEach((_port, id) => gateways.push(network._graph.$('#' + id).data() as Router));
                 if (!nw.validateNetLocally(hosts, gateways)) allCorrect = false;
 
                 nets.forEach(net => {
@@ -161,8 +161,20 @@ export class SubnettingController {
                         allCorrect = false;
                     }
                 });
+
+                network._graph.$('.host-node').orphans().forEach(host => {
+                    host.data().portData.forEach(data => {
+                        let ip4 = data.get('IPv4');
+                        if (ip4.matchesNetworkCidr(nw) && ip4.address!="127.0.0.1") {
+                            alert += "<li>" + nw.name + " should contain the host that owns the address " + ip4.address + "</li>";
+                            allCorrect = false;
+                        }
+                    });
+                });
             }
         });
+
+
 
         if (allCorrect && !unconfig) {
             AlertHelper.toastAlert("success", "check2-circle", "Well done!", "All nets are correctly configured!")

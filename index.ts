@@ -28,7 +28,7 @@ export class ComputerNetwork extends LitElementWw {
   networkAvailable: Boolean = false;
   _edgeHandles; //controller for edgehandles extension
   drawModeOn: boolean = false;
-  _instance; //controller for menu extension
+  _menu; //controller for menu extension
   _cdnd; //controller for drag-and-drop compound nodes extension
   resetColorModeOn: boolean = false;
   ipv4Database: Map<string, string> = new Map<string, string>(); //(address, nodeId)

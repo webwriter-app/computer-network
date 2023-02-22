@@ -5,7 +5,7 @@ import { GraphEdge } from "../GraphEdge";
 import { Packet, Frame } from "../logicalNodes/DataNode";
 import { PhysicalNode } from "../physicalNodes/PhysicalNode";
 
-export class DataHandlingDecorator implements PhysicalNode {
+export abstract class DataHandlingDecorator implements PhysicalNode {
     protected component: PhysicalNode;
     layer: number;
     numberOfInterfacesOrPorts: number;

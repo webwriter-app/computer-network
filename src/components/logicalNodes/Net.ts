@@ -203,6 +203,8 @@ export class Net extends LogicalNode {
         });
         gateways.forEach(gateway => {
             let port = this.gateways.get(gateway.id);
+            console.log(port);
+            console.log(gateway);
             let ip4 = gateway.portData.get(port).get('IPv4');
             if (!ip4.matchesNetworkCidr(this)) {
                 unmatchedPairs.set(ip4.address, "gateway");

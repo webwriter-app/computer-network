@@ -429,7 +429,7 @@ export class ImportExportController {
         ["Example 6", new ExampleDescription(6, "resources/preview-examples/gateway-2ethernet.png", "resources/examples/gateway-2ethernet.json", "2 Ethernets with a gateway.")],
         ["Example 7", new ExampleDescription(7, "resources/preview-examples/gateway-2net-wireless-ethernet.png", "resources/examples/gateway-2net-wireless-ethernet.json", "An ethernet, a wireless network and a gateway.")],
         ["Example 8", new ExampleDescription(8, "resources/preview-examples/gateway-3ethernet.png", "resources/examples/gateway-3ethernet.json", "3 Ethernets and a gateway.")],
-        ["Example 9", new ExampleDescription(9, "resources/preview-examples/3gateways - next gateway routes.png", "resources/examples/3gateways - next gateway routes.json", "3 Ethernets, each with a corresponding gateway.")],
+        ["Example 9", new ExampleDescription(9, "resources/preview-examples/3gateways - next gateway routes.png", "resources/examples/3gateways - next gateway routes.json", "2 Ethernets and 3 routers.")],
         ["Example 10", new ExampleDescription(10, "resources/preview-examples/4 routers-2 nets.png", "resources/examples/4 routers-2 nets.json", "2 Ethernets and 4 routers.")]
     ]); //id, example-info
 
