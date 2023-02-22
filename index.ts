@@ -11,7 +11,7 @@ import { SubnettingController } from "./src/event-handlers/subnetting-controller
 import { Net } from "./src/components/logicalNodes/Net";
 import { PacketSimulator } from "./src/event-handlers/packet-simulator";
 import { ImportExportController } from "./src/exporting/importExportController";
-import { SlDialog, SlSelect } from "@shoelace-style/shoelace";
+import { SlDialog, SlSelect, SlTab, SlTabGroup, SlTabPanel } from "@shoelace-style/shoelace";
 
 
 @customElement("computer-network")
@@ -488,7 +488,7 @@ export class ComputerNetwork extends LitElementWw {
     `;
   }
 
-  toolbarTemplate(){
+  toolbarTemplate() {
     const colorOptions = [];
     for (const color of this.colors) {
       colorOptions.push(html`<button class="colorButton" id=${color} style="background-color: ${color}" @click="${this.clickOnColor}"></button>`);
@@ -530,7 +530,7 @@ export class ComputerNetwork extends LitElementWw {
       <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
 
       <div class="nameBox">
-        <sl-tab-group>
+        <sl-tab-group id="physical-logical-group">
           <sl-tab slot="nav" panel="physical">Physical Node</sl-tab>
           <sl-tab slot="nav" panel="logical">Logical Node</sl-tab>
 
@@ -599,13 +599,19 @@ export class ComputerNetwork extends LitElementWw {
   private clickOnComponentButton(e: Event): void {
     this.currentComponentToAdd = (e.target as HTMLElement).getAttribute('id');
     let nodeToHighLight: string = "";
+    let panelToActive: string = "";
     switch (this.currentComponentToAdd) {
       case 'computer': case 'mobile':
         nodeToHighLight = 'host';
+        panelToActive = "physical";
         break;
       case 'router': case 'access-point': case 'hub': case 'repeater': case 'bridge': case 'switch':
         nodeToHighLight = 'connector';
+        panelToActive = "physical";
         break;
+      case 'net':
+        nodeToHighLight = 'net';
+        panelToActive = "logical";
       default:
         nodeToHighLight = this.currentComponentToAdd;
         break;
@@ -621,8 +627,9 @@ export class ComputerNetwork extends LitElementWw {
         (e as HTMLElement).style.border = "solid 1px transparent";
       }
     });
-
-
+    if (panelToActive != "") {
+      (this.renderRoot.querySelector("#physical-logical-group") as SlTabGroup).show(panelToActive);
+    }
   }
 
   private clickOnColor(e: Event): void {
