@@ -11,7 +11,7 @@ import { SubnettingController } from "./src/event-handlers/subnetting-controller
 import { Net } from "./src/components/logicalNodes/Net";
 import { PacketSimulator } from "./src/event-handlers/packet-simulator";
 import { ImportExportController } from "./src/exporting/importExportController";
-import { SlDialog, SlSelect } from "@shoelace-style/shoelace";
+import { SlDialog, SlSelect, SlTab, SlTabPanel } from "@shoelace-style/shoelace";
 
 
 @customElement("computer-network")
@@ -488,7 +488,7 @@ export class ComputerNetwork extends LitElementWw {
     `;
   }
 
-  toolbarTemplate(){
+  toolbarTemplate() {
     const colorOptions = [];
     for (const color of this.colors) {
       colorOptions.push(html`<button class="colorButton" id=${color} style="background-color: ${color}" @click="${this.clickOnColor}"></button>`);
@@ -531,15 +531,21 @@ export class ComputerNetwork extends LitElementWw {
 
       <div class="nameBox">
         <sl-tab-group>
-          <sl-tab slot="nav" panel="physical">Physical Node</sl-tab>
-          <sl-tab slot="nav" panel="logical">Logical Node</sl-tab>
+          <sl-tab panel="physical" id="physical-tab" active @click="${(event) => {
+            (this.renderRoot.querySelector('#logical-tab') as SlTab).active = false;
+            event.target.active=!event.target.active;
+          }}">Physical Node</sl-tab>
+          <sl-tab panel="logical" id="logical-tab" @click="${(event) => {
+            (this.renderRoot.querySelector('#physical-tab') as SlTab).active = false;
+            event.target.active=!event.target.active;
+          }}">Logical Node</sl-tab>
 
-          <sl-tab-panel name="physical">
+          <sl-tab-panel name="physical" id="physical-node-panel" active>
             <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
             <sl-input class="label-on-left" label="Number of ports" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
             <sl-button size=${this.screen} style="margin-top: 1cqw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
           </sl-tab-panel>
-          <sl-tab-panel name="logical">
+          <sl-tab-panel name="logical" id="logical-node-panel">
             <sl-input class="label-on-left" label="NetID" id="net-num" placeholder="0.0.0.0"></sl-input>
             <sl-input class="label-on-left" label="Netmask" id="net-mask" placeholder="255.255.255.255"></sl-input>
             <sl-input class="label-on-left" label="Bitmask" id="net-bitmask" placeholder="" type='number' min="0" max="32"></sl-input>
@@ -599,13 +605,19 @@ export class ComputerNetwork extends LitElementWw {
   private clickOnComponentButton(e: Event): void {
     this.currentComponentToAdd = (e.target as HTMLElement).getAttribute('id');
     let nodeToHighLight: string = "";
+    let panelToActive: string = "";
     switch (this.currentComponentToAdd) {
       case 'computer': case 'mobile':
         nodeToHighLight = 'host';
+        panelToActive = "#physical-node-panel";
         break;
       case 'router': case 'access-point': case 'hub': case 'repeater': case 'bridge': case 'switch':
         nodeToHighLight = 'connector';
+        panelToActive = "#physical-node-panel";
         break;
+      case 'net':
+        nodeToHighLight = 'net';
+        panelToActive = "#logical-node-panel";
       default:
         nodeToHighLight = this.currentComponentToAdd;
         break;
@@ -621,8 +633,19 @@ export class ComputerNetwork extends LitElementWw {
         (e as HTMLElement).style.border = "solid 1px transparent";
       }
     });
-
-
+    if (panelToActive != "") {
+      if (panelToActive == "#logical-node-panel") {
+        (this.renderRoot.querySelector("#physical-node-panel") as SlTabPanel).active = false;
+        (this.renderRoot.querySelector("#physical-tab") as SlTab).active = false;
+        (this.renderRoot.querySelector("#logical-tab") as SlTab).active = true;
+      }
+      else {
+        (this.renderRoot.querySelector("#logical-node-panel") as SlTabPanel).active = false;
+        (this.renderRoot.querySelector("#logical-tab") as SlTab).active = false;
+        (this.renderRoot.querySelector("#physical-tab") as SlTab).active = true;
+      }
+      (this.renderRoot.querySelector(panelToActive) as SlTabPanel).active = true;
+    }
   }
 
   private clickOnColor(e: Event): void {
