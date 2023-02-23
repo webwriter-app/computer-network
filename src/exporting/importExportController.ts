@@ -478,7 +478,7 @@ export class ImportExportController {
             <sl-tab slot="nav" panel="cidr">Example exercises for CIDR/ Subnetting</sl-tab>
             <sl-tab slot="nav" panel="simulation">Example networks for simulations</sl-tab>
             
-            <sl-tab-panel name="cidr"><b>Tip</b>: Use the <b>CIDR/Subnetting controller</b> to <b>drag-and-drop</b> then <b>check</b>. <b>Right-click</b> on each network, then select <b>View Details</b> to change its configuration.
+            <sl-tab-panel name="cidr"><b>Tip</b>: Use the <b>CIDR/Subnetting controller</b> to <b>drag-and-drop</b> then <b>check</b>. <b>Right-click</b> on each network, then select <b>Edit details</b> to change its configuration.
             <br/><br/>
             ${cidrExamples}</sl-tab-panel>
             <sl-tab-panel name="simulation"><b>Tip</b>: Set <b>source</b> and <b>destination</b> then click on <b>play</b> button in <b>Packet sending controller</b> to start simulation

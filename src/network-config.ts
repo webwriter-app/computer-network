@@ -273,8 +273,8 @@ export function initNetwork(network: ComputerNetwork): void {
         menuItems: [
             {
                 id: "details-for-host",
-                content: "View Details...",
-                tooltipText: "View Details",
+                content: "Edit details",
+                tooltipText: "Edit details",
                 selector: ".physical-node",
                 onClickFunction: function (event) {
                     let node = event.target;
@@ -290,8 +290,8 @@ export function initNetwork(network: ComputerNetwork): void {
             },
             {
                 id: "details-for-net",
-                content: "View Details...",
-                tooltipText: "View Details",
+                content: "Edit details",
+                tooltipText: "Edit details",
                 selector: ".net-node",
                 onClickFunction: function (event) {
                     let node = event.target;
@@ -346,8 +346,8 @@ export function initNetwork(network: ComputerNetwork): void {
             },
             {
                 id: "details-data",
-                content: "View Details...",
-                tooltipText: "View Details",
+                content: "Details",
+                tooltipText: "Details",
                 selector: ".data-node",
                 onClickFunction: function (event) {
                     let node = event.target.data();
