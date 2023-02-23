@@ -129,7 +129,7 @@ export class PacketSimulator {
                         node._private.data = decorated;
                         node.classes(decorated.cssClass);
                     }
-                    else if (node.hasClass('switch-node') || node.hasClass('bridge-node')) {
+                    else if (node.hasClass('switch-node') || node.hasClass('bridge-node') || node.hasClass('access-point-node')) {
                         const decorated: SwitchableDecorator = new SwitchableDecorator(nodeData, network);
                         node._private.data = decorated;
                         node.classes(decorated.cssClass);
