@@ -229,8 +229,9 @@ export class DialogFactory {
   static handleChangesInDialogForPhysicalNode(id: string, node: any, network: ComputerNetwork, isGateway: boolean, subnet?: Net) {
     let physicalNode: PhysicalNode = node.data();
     let dialog: SlDialog = new SlDialog();
-    dialog.label = "Details about ports of component " + physicalNode.name;
-    let table: string = `<table cellspacing="10"><tr>`;
+    dialog.label = "Details about component " + physicalNode.name;
+    dialog.innerHTML += `<sl-input style="color: #43628A;"label="Name" id="` + id + `-name` + `" value="` + physicalNode.name + `" clearable type="string">`;
+    let table: string = `<div style="margin-top: 10px; color: #43628A;">Details of the ports</div><table cellspacing="10"><tr>`;
     table += `<td>Index</td>`;
     physicalNode.portData.entries().next().value[1].forEach((_, columnName) => table += `<td>` + columnName + `</td>`);
     table += `</tr>`;
@@ -261,6 +262,9 @@ export class DialogFactory {
     saveButton.innerHTML = "Save";
     saveButton.addEventListener('click', () => {
       let changed: boolean = false;
+      let newNodeName: string = (network.renderRoot.querySelector('#' + id + "-name") as SlInput).value.trim();
+      if (newNodeName != physicalNode.name) physicalNode.name = newNodeName;
+
       //for each interface-index
       for (let index = 1; index <= physicalNode.portData.size; index++) {
         let nameInput = network.renderRoot.querySelector('#' + id + "-" + index + "-" + "Name") as SlInput;
@@ -485,7 +489,7 @@ export class DialogFactory {
         cssClass.push('gateway-changeable');
         node.toggleClass('default-gateway-not-found', false);
         node.toggleClass('gateway-changeable', true);
-        if(!node.data('cssClass').includes('gateway-changeable')) node.data('cssClass').push('gateway-changeable');
+        if (!node.data('cssClass').includes('gateway-changeable')) node.data('cssClass').push('gateway-changeable');
       }
       dialog.hide();
     });

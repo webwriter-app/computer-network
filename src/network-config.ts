@@ -314,7 +314,7 @@ export function initNetwork(network: ComputerNetwork): void {
             },
             {
                 id: "configure-default-gateway",
-                content: "Configure default gateway for this connection",
+                content: "Configure default gateway for this node",
                 selector: ".default-gateway-not-found, .gateway-changeable",
                 onClickFunction: function (event) {
                     let node = event.target;
