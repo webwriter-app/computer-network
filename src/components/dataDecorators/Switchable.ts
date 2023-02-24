@@ -24,7 +24,7 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         this.macAddressTable.set(senderMac, port);
 
         //TableHelper.addRow('mac-address-table-' + this.id, "ArpTable", network, [port, senderMac]);
-        TableHelper.reloadTable('mac-address-table-' + this.id, "ArpTable", this.macAddressTable, network);
+        TableHelper.reloadTable('mac-address-table-' + this.id, "MacAddressTable", this.macAddressTable, network);
     }
 
     forward(_previousNode: any, dataNode: any, network: ComputerNetwork): boolean {

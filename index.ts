@@ -39,13 +39,13 @@ export class ComputerNetwork extends LitElementWw {
     type: Boolean,
     reflect: true
   })
-  editable: boolean = true;
+  editable: boolean = false;
 
   @property({
     type: Boolean,
     reflect: true
   })
-  automate: boolean = true;
+  automate: boolean = false;
 
   @property({
     type: String,
@@ -451,7 +451,7 @@ export class ComputerNetwork extends LitElementWw {
           </sl-menu-label>
           <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: max(0.1cqw, 12px) !important;">Activate Draw-and-drop</sl-menu-item>
           <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: max(0.1cqw, 12px) !important;">Drag to assign gateway</sl-menu-item>
-          <sl-menu-item><sl-button size=${this.screen} class="blue-button" @click="${() => SubnettingController.validateAllNets(this)}">Check</sl-button></sl-menu-item>
+          <sl-menu-item><sl-button size=${this.screen} class="blue-button" @click="${() => SubnettingController.validateAllNets(false, this)}">Check</sl-button></sl-menu-item>
         </sl-details>
 
         <sl-details id="packet-sending-extension" summary="Packet sending controller">

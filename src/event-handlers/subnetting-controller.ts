@@ -130,7 +130,7 @@ export class SubnettingController {
     }
 
     //TODO: automatically run this before the packet simulation
-    static validateAllNets(network: ComputerNetwork): void {
+    static validateAllNets(noAlert: boolean, network: ComputerNetwork): boolean {
         let nets = network._graph.$('.net-node');
         let allCorrect = true;
         let alert = "";
@@ -147,7 +147,7 @@ export class SubnettingController {
                 //check if each net is correctly assigned locally
                 networkNode.children().forEach(node => hosts.push(node.data()));
                 nw.gateways.forEach((_port, id) => gateways.push(network._graph.$('#' + id).data() as Router));
-                if (!nw.validateNetLocally(hosts, gateways)) allCorrect = false;
+                if (!nw.validateNetLocally(hosts, gateways, network, noAlert)) allCorrect = false;
 
                 nets.forEach(net => {
                     let isSupernet: boolean = (nw as Net).isSupernetOf(net.data());
@@ -161,29 +161,22 @@ export class SubnettingController {
                         allCorrect = false;
                     }
                 });
-
-                network._graph.$('.host-node').orphans().forEach(host => {
-                    host.data().portData.forEach(data => {
-                        let ip4 = data.get('IPv4');
-                        if (ip4.matchesNetworkCidr(nw) && ip4.address!="127.0.0.1") {
-                            alert += "<li>" + nw.name + " should contain the host that owns the address " + ip4.address + "</li>";
-                            allCorrect = false;
-                        }
-                    });
-                });
             }
         });
 
 
 
         if (allCorrect && !unconfig) {
-            AlertHelper.toastAlert("success", "check2-circle", "Well done!", "All nets are correctly configured!")
+            if (noAlert) return true;
+            AlertHelper.toastAlert("success", "check2-circle", "Well done!", "All nets are correctly configured!");
+            return true;
         }
         else if (unconfig) {
+            if (noAlert) return false;
             alert += "<li>Unconfigured net still exists.</li>";
         }
-
-        if (alert != "") AlertHelper.toastAlert("warning", "exclamation-triangle", "", alert);
+        if (noAlert) return false;
+        if (alert != "") AlertHelper.toastAlert("warning", "exclamation-triangle", "Cross validation between Nets: ", alert);
     }
 
 

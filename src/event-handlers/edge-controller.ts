@@ -20,7 +20,7 @@ export class EdgeController {
         }
         else {
             network._edgeHandles.disableDrawMode();
-            (network.renderRoot.querySelector('#drawMode') as SlIcon).name = "share";
+            (network.renderRoot.querySelector('#drawMode') as SlIcon).name = "plug";
             (network.renderRoot.querySelector('#drawBtn') as HTMLElement).style.backgroundColor = "#8BA8CC";
             (network.renderRoot.querySelector('#resetColorBtn') as HTMLButtonElement).disabled = false;
         }

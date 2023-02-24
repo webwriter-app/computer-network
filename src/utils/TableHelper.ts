@@ -192,7 +192,7 @@ export class TableHelper {
                 break;
             case 'MacAddressTable':
                 (tableData as Map<string, number>).forEach((port, mac) => {
-                    TableHelper.addRow(tableId, tableType, network, [mac, port]);
+                    TableHelper.addRow(tableId, tableType, network, [port, mac]);
                 });
                 break;
             case 'RoutingTable':

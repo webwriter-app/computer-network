@@ -184,50 +184,79 @@ export class Net extends LogicalNode {
         Net.testPossibleNetAddresses(count, candidateId, supernet, database);
     }
 
-    validateNetLocally(hosts: GraphNode[], gateways: Router[]): boolean {
+    validateNetLocally(hosts: GraphNode[], gateways: Router[], network: ComputerNetwork, noAlert: boolean): boolean {
         if (this.cssClass.includes('unconfigured-net')) return false;
-        let unmatchedPairs: Map<string, string> = new Map(); //("host", [net,type of host])
+        let allCorrect: boolean = true;
+        let unmatchedPairs: Map<string, [string, string]> = new Map(); //("host", [type of host, name])
+
+        let shouldContains: Map<string, string> = new Map(); //(ip, name)
         hosts.forEach(host => {
             if (host instanceof PhysicalNode && host.layer > 2) {
                 host.portData.forEach(data => {
                     if (!data.get('IPv4').matchesNetworkCidr(this)) {
-                        unmatchedPairs.set(data.get('IPv4').address, "host");
+                        unmatchedPairs.set(data.get('IPv4').address, ["host", host.name]);
+                        allCorrect = false;
                     }
                 });
             }
             else if (host instanceof Net) {
                 if (!this.isSupernetOf(host) && !host.cssClass.includes('unconfigured-net')) {
-                    unmatchedPairs.set(host.name, "net");
+                    unmatchedPairs.set(host.name, ["net", host.name]);
+                    allCorrect = false;
                 }
             }
         });
         gateways.forEach(gateway => {
             let port = this.gateways.get(gateway.id);
-            console.log(port);
-            console.log(gateway);
             let ip4 = gateway.portData.get(port).get('IPv4');
             if (!ip4.matchesNetworkCidr(this)) {
-                unmatchedPairs.set(ip4.address, "gateway");
+                unmatchedPairs.set(ip4.address, ["gateway", gateway.name]);
+                allCorrect = false;
             }
         });
 
-        if (unmatchedPairs.size == 0) return true;
-        let alert: string = "<ul>";
-        unmatchedPairs.forEach((type, node) => {
-            switch (type) {
-                case 'host':
-                    alert += "<li>Host " + node + "</li>";
-                    break;
-                case 'net':
-                    alert += "<li>Net " + node + "</li>";
-                    break;
-                case 'gateway':
-                    alert += "<li>Gateway " + node + "</li>";
-                    break;
-            }
+        network._graph.$('.host-node').orphans().forEach(host => {
+            host.data().portData.forEach(data => {
+                let ip4 = data.get('IPv4');
+                if (ip4.matchesNetworkCidr(this) && ip4.address != "127.0.0.1") {
+                    shouldContains.set(ip4.address, host.data('name'));
+                    allCorrect = false;
+                }
+            });
         });
-        alert += "</ul>"
-        AlertHelper.toastAlert("warning", "exclamation-triangle", "Unmatched addresses for network " + this.name, alert);
+
+        if (allCorrect) return true;
+
+        if(noAlert && !allCorrect) return false;
+
+        let alert: string = "";
+        if (unmatchedPairs.size != 0) {
+            alert += "should not contain: <ul>";
+            unmatchedPairs.forEach(([type, name], node) => {
+                switch (type) {
+                    case 'host':
+                        alert += "<li>Host " + name + ": " + node + "</li>";
+                        break;
+                    case 'net':
+                        alert += "<li>Net " + node + "</li>";
+                        break;
+                    case 'gateway':
+                        alert += "<li>Gateway " + name + ": " + node + "</li>";
+                        break;
+                }
+            });
+            alert += "</ul>";
+        }
+        if (shouldContains.size != 0) {
+            alert += "should contain: <ul>";
+            shouldContains.forEach((name, ip) => {
+                alert += "<li>Host " + name + " with address " + ip + "</li>";
+            });
+            alert += "</ul>";
+        }
+
+        AlertHelper.toastAlert("warning", "exclamation-triangle", "Network " + this.name, alert);
+        return false;
     }
 
 

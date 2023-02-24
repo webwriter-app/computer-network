@@ -9,13 +9,14 @@ import { Data, Packet } from "../components/logicalNodes/DataNode";
 import { PhysicalNode } from "../components/physicalNodes/PhysicalNode";
 import { AlertHelper } from "../utils/AlertHelper";
 import { TableHelper } from "../utils/TableHelper";
+import { SubnettingController } from "./subnetting-controller";
 
 export class PacketSimulator {
 
     static sourceEndPoint: string = "";
     static targetEndPoint: string = "";
-    static sourceIp: string = "";
-    static targetIp: string = "";
+    static sourceIp: string = "127.0.0.1";
+    static targetIp: string = "127.0.0.1";
 
     static duration: number = 2000;
     static aniCounter: number = 0;
@@ -94,10 +95,52 @@ export class PacketSimulator {
     }
 
     static startSession(network: ComputerNetwork) {
+        if (!PacketSimulator.inited) {
+            AlertHelper.toastAlert('danger', 'exclamation-triangle', '', 'Please <b>Init</b> a session before simulating sending a packet.');
+            return;
+        }
+        let addedNodeAfterInit = network._graph.filter(function (element) {
+            return element.hasClass("physical-node") && !element.hasClass('decorated-node');
+        });
+        if (addedNodeAfterInit.size() > 0) {
+            //check graph again
+            if (!SubnettingController.validateAllNets(true, network)) {
+                AlertHelper.toastAlert('danger', 'exclamation-triangle', 'Your graph is not qualified for this feature:',
+                    'Please use the <b>Check</b> button of the Subnetting/CIDR feature for more details');
+                return;
+            }
+            //decorate all new added nodes after init
+            addedNodeAfterInit.forEach(node => {
+                let nodeData: PhysicalNode = node.data() as PhysicalNode;
+
+                if (node.hasClass('host-node') || node.hasClass('router-node')) {
+                    const decorated: RoutableDecorator = new RoutableDecorator(nodeData, network);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+                else if (node.hasClass('switch-node') || node.hasClass('bridge-node') || node.hasClass('access-point-node')) {
+                    const decorated: SwitchableDecorator = new SwitchableDecorator(nodeData, network);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+                else {
+                    const decorated: SimpleDecorator = new SimpleDecorator(nodeData);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+
+            });
+        }
+        if (PacketSimulator.sourceEndPoint == "" || PacketSimulator.targetEndPoint == "") {
+            AlertHelper.toastAlert('danger', 'exclamation-triangle', '', 'The sender or receiver is not selected yet, use the <b>Choose sender/ receiver</b> button then <b>click</b> on the graph node.');
+            return;
+        }
+
         network._graph.$('node').lock();
 
         let source = network._graph.$('#' + PacketSimulator.sourceEndPoint);
         let target = network._graph.$('#' + PacketSimulator.targetEndPoint);
+
 
         if ((source.data() as PhysicalNode).layer < 3 || (target.data() as PhysicalNode).layer < 3) {
             AlertHelper.toastAlert('warning', 'exclamation-triangle', "", "The widget currently only support sending Parcel between layer 3 components");
@@ -115,36 +158,20 @@ export class PacketSimulator {
             position: { x: sourcePosition.x, y: sourcePosition.y - 20 },
             classes: data.cssClass,
         });
+        if (this.sourceIp == "127.0.0.1" || this.targetIp == "127.0.0.1") {
+            AlertHelper.toastAlert('success', 'check2-all', "", "Your packet finished sending with the <b>loop-back address</b>.");
+            return;
+        }
         sender.sendData(network._graph.$('#' + data.id), network, sourceNode);
     }
 
     static initSession(network: ComputerNetwork) {
-        if (!PacketSimulator.inited) {
-            //decorate all physical nodes
-            network._graph.nodes('.physical-node').forEach(node => {
-                let nodeData: PhysicalNode = node.data() as PhysicalNode;
-                if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
-                    if (node.hasClass('host-node') || node.hasClass('router-node')) {
-                        const decorated: RoutableDecorator = new RoutableDecorator(nodeData, network);
-                        node._private.data = decorated;
-                        node.classes(decorated.cssClass);
-                    }
-                    else if (node.hasClass('switch-node') || node.hasClass('bridge-node') || node.hasClass('access-point-node')) {
-                        const decorated: SwitchableDecorator = new SwitchableDecorator(nodeData, network);
-                        node._private.data = decorated;
-                        node.classes(decorated.cssClass);
-                    }
-                    else {
-                        const decorated: SimpleDecorator = new SimpleDecorator(nodeData);
-                        node._private.data = decorated;
-                        node.classes(decorated.cssClass);
-                    }
-                }
-            });
-            PacketSimulator.inited = true;
+        if (!SubnettingController.validateAllNets(true, network)) {
+            AlertHelper.toastAlert('danger', 'exclamation-triangle', 'Your graph is not qualified for this feature:',
+                'Please use the <b>Check</b> button of the Subnetting/CIDR feature for more details');
+            return;
         }
-        else {
-            //fix bug here
+        if (PacketSimulator.inited) {
             (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = "";
             //init tables again
             network._graph.nodes('.routable-decorated').forEach(node => {
@@ -158,6 +185,29 @@ export class PacketSimulator {
                 PacketSimulator.initTable(nodeData.id, 'MacAddressTable', network);
             });
         }
+
+        //decorate all physical nodes
+        network._graph.nodes('.physical-node').forEach(node => {
+            let nodeData: PhysicalNode = node.data() as PhysicalNode;
+            if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
+                if (node.hasClass('host-node') || node.hasClass('router-node')) {
+                    const decorated: RoutableDecorator = new RoutableDecorator(nodeData, network);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+                else if (node.hasClass('switch-node') || node.hasClass('bridge-node') || node.hasClass('access-point-node')) {
+                    const decorated: SwitchableDecorator = new SwitchableDecorator(nodeData, network);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+                else {
+                    const decorated: SimpleDecorator = new SimpleDecorator(nodeData);
+                    node._private.data = decorated;
+                    node.classes(decorated.cssClass);
+                }
+            }
+        });
+        PacketSimulator.inited = true;
     }
 
     static initThenDirectSend(sourceNode: any, targetNode: any, data: Data, network: ComputerNetwork): void {
