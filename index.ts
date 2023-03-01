@@ -502,9 +502,10 @@ export class ComputerNetwork extends LitElementWw {
           <button class="importBtn" type='button' @click="${() => ImportExportController.importFile(this)}">Import</button>
           <button class="importBtn" type='button' @click="${() => ImportExportController.exportFile(this)}">Export</button>
           <button class="importBtn" type='button' @click="${() => ((this.renderRoot.querySelector('#example-graphs')) as SlDialog).show()}">Examples</button>
-          <button class="importBtn" type='button' @click="${() => DialogFactory.showHelpText()}">Help</button>
+          <button class="importBtn" type='button' @click="${() => ((this.renderRoot.querySelector('#instructions')) as SlDialog).show()}">Help</button>
         </form>
         
+        <sl-tooltip content="Host" placement="top">
         <sl-dropdown placement="bottom">
           <button class="btn" id="host" slot="trigger"><sl-icon name="person"></sl-icon></button>
           <sl-menu>
@@ -512,6 +513,8 @@ export class ComputerNetwork extends LitElementWw {
             <sl-menu-item id="mobile" @click="${this.clickOnComponentButton}"><sl-icon name="phone"></sl-menu-item>
           </sl-menu>
         </sl-dropdown>
+        </sl-tooltip>
+        <sl-tooltip content="Network device" placement="top">
         <sl-dropdown placement="bottom">
           <button class="btn" id="connector" slot="trigger"><sl-icon name="hdd"></sl-icon></button>
           <sl-menu>
@@ -523,8 +526,13 @@ export class ComputerNetwork extends LitElementWw {
             <sl-menu-item id="switch" @click="${this.clickOnComponentButton}">Switch <sl-icon src="resources/icons/switch.svg"></sl-menu-item>
           </sl-menu>
         </sl-dropdown>
+        </sl-tooltip>
+        <sl-tooltip content="Edge" placement="top">
         <button class="btn" id="edge" @click="${this.clickOnComponentButton}"><sl-icon name="share"></sl-icon></button>
+        </sl-tooltip>
+        <sl-tooltip content="Network" placement="top">
         <button class="btn" id="net" @click="${this.clickOnComponentButton}"><sl-icon name="diagram-3"></sl-icon></button>
+        </sl-tooltip>
       </div>
 
       <sl-divider vertical style="--width: 0.5cqw; --color: white; --spacing: 0px;"></sl-divider>
@@ -592,6 +600,9 @@ export class ComputerNetwork extends LitElementWw {
     <div id="inputDialog"/>
     <sl-dialog id="example-graphs"/>
     ${ImportExportController.exampleTemplate(this)}
+    </sl-dialog>
+    <sl-dialog id="instructions"/>
+    ${DialogFactory.showHelpText(this)}
     </sl-dialog>
     `
   }

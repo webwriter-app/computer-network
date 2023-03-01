@@ -1,4 +1,5 @@
 import { SlInput, SlDialog, SlButton, SlTabGroup, SlTabPanel, SlSelect } from "@shoelace-style/shoelace";
+import { html, TemplateResult } from "lit";
 import { ComputerNetwork } from "../..";
 import { Address } from "../adressing/Address";
 import { Ipv4Address } from "../adressing/Ipv4Address";
@@ -524,8 +525,87 @@ export class DialogFactory {
 
 
 
-  static showHelpText(): void {
+  static showHelpText(network: ComputerNetwork): TemplateResult {
+    return html`
+    <sl-tab-group>
+        <sl-tab slot="nav" panel="node">Add/ Configure graph components</sl-tab>
+        <sl-tab slot="nav" panel="cidr">CIDR/ Subnetting</sl-tab>
+        <sl-tab slot="nav" panel="simulation">Packet travelling simulation</sl-tab>
+        
+        <sl-tab-panel name="node">
+          <sl-details summary="How to add a physical node (host, router, switch,...)?">
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 1:</b> Choose your component</div>
+              <img src="/resources/help-instructions/toolbar-select-physical.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 2:</b> More details with "Add details for ports"</div>
+              <img src="/resources/help-instructions/toolbar-physical-node.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 3:</b> Pick a color also if you want to:</div>
+              <img src="/resources/help-instructions/pick-color.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 4:</b> Click add</div>
+              <img src="/resources/help-instructions/add-button.png"/>
+            </sl-card>
+          </sl-details>
+          <sl-details summary="How to add a logical node (network node)?">
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 1:</b> Choose your component</div>
+              <img src="/resources/help-instructions/toolbar-select-logical.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 2:</b> Configure your network</div>
+              <img src="/resources/help-instructions/toolbar-logical-node.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 3:</b> Pick a color also if you want to:</div>
+              <img src="/resources/help-instructions/pick-color.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 4:</b> Click add</div>
+              <img src="/resources/help-instructions/add-button.png"/>
+            </sl-card>
+          </sl-details>
 
+          <sl-details summary="How to add a link between two physical nodes?">
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 1:</b> Choose edge component</div>
+              <img src="/resources/help-instructions/toolbar-select-edge.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 2:</b> Pick a color also if you want to:</div>
+              <img src="/resources/help-instructions/pick-color.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 3:</b> Toggle draw mode</div>
+              <img src="/resources/help-instructions/draw-edge-button.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 4:</b> Draw then configure on right click</div>
+              <img src="/resources/help-instructions/configure-edge.png"/>
+            </sl-card>
+          </sl-details>
+
+        </sl-tab-panel>
+        <sl-tab-panel name="cidr">
+          <sl-details summary="How to assign a gateway?">
+          </sl-details>
+          <sl-details summary="How does the Net-based mode work?">
+          </sl-details>
+          <sl-details summary="How does the Host-based mode work?">
+          </sl-details>
+        </sl-tab-panel>
+        <sl-tab-panel name="simulation">
+          <sl-details summary="How to manipulate a simulation session?">
+          </sl-details>
+          <sl-details summary="How to configure the routing tables for routers?">
+          </sl-details>
+        </sl-tab-panel>
+    </sl-tab-group>
+    `;
   }
 }
 
