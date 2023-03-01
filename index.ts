@@ -451,7 +451,11 @@ export class ComputerNetwork extends LitElementWw {
           </sl-menu-label>
           <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: max(0.1cqw, 12px) !important;">Activate Draw-and-drop</sl-menu-item>
           <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: max(0.1cqw, 12px) !important;">Drag to assign gateway</sl-menu-item>
-          <sl-menu-item><sl-button size=${this.screen} class="blue-button" @click="${() => SubnettingController.validateAllNets(false, this)}">Check</sl-button></sl-menu-item>
+          <sl-menu-item>
+          <sl-tooltip hoist content="Validate global address assignments" placement="top">
+            <sl-button size=${this.screen} class="blue-button" @click="${() => SubnettingController.validateAllNets(false, this)}">Check</sl-button>
+          </sl-tooltip>
+          </sl-menu-item>
         </sl-details>
 
         <sl-details id="packet-sending-extension" summary="Packet sending controller">
@@ -471,10 +475,18 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item @click="${(event) => { event.target.checked = !event.target.checked; PacketSimulator.focus = event.target.checked; }}"">Focus on animated nodes</sl-menu-item>
           <sl-menu-item>
           <b><i>Session: </i></b>
-          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.initSession(this)}">Init</sl-button>
-          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play"/></sl-button>
-          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.pauseOrResumeSession(this)}"><sl-icon id="pause-ani" src="/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg"/></sl-button>
-          <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.stopSession(this)}"><sl-icon name="stop-circle"/></sl-button>
+          <sl-tooltip hoist content="Create a new simulation session" placement="top">
+            <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.initSession(this)}">Init</sl-button>
+          </sl-tooltip>
+          <sl-tooltip hoist content="Start sending a new packet" placement="top">
+            <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.startSession(this)}"><sl-icon name="play"/></sl-button>
+          </sl-tooltip>
+          <sl-tooltip hoist content="Pause/resume all packets" placement="top">
+            <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.pauseOrResumeSession(this)}"><sl-icon id="pause-ani" src="/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg"/></sl-button>
+          </sl-tooltip>
+          <sl-tooltip hoist content="Stop the simulation session" placement="top">
+            <sl-button class="blue-button" size=${this.screen} @click="${() => PacketSimulator.stopSession(this)}"><sl-icon name="stop-circle"/></sl-button>
+          </sl-tooltip>
           </sl-menu-item>
           <sl-menu-item>
             <sl-details id="tables-for-packet-simulator" summary="Track tables" open>
