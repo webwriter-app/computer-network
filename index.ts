@@ -511,10 +511,18 @@ export class ComputerNetwork extends LitElementWw {
       <div class="componentMenu">
         <form autocomplete="off" style="position: fixed; top: 0; left: 0;">
           <input class="importBtn" style="width: 11cqw;" type="file" id="import-file">
-          <button class="importBtn" type='button' @click="${() => ImportExportController.importFile(this)}">Import</button>
-          <button class="importBtn" type='button' @click="${() => ImportExportController.exportFile(this)}">Export</button>
-          <button class="importBtn" type='button' @click="${() => ((this.renderRoot.querySelector('#example-graphs')) as SlDialog).show()}">Examples</button>
-          <button class="importBtn" type='button' @click="${() => ((this.renderRoot.querySelector('#instructions')) as SlDialog).show()}">Help</button>
+          <sl-tooltip content="Import a file created by this widget" placement="bottom">
+            <button class="importBtn" type='button' @click="${() => ImportExportController.importFile(this)}">Import</button>
+          </sl-tooltip>
+          <sl-tooltip content="Export the current graph" placement="bottom">
+            <button class="importBtn" type='button' @click="${() => ImportExportController.exportFile(this)}">Export</button>
+          </sl-tooltip>
+          <sl-tooltip content="Example graphs/exercises" placement="bottom">
+            <button class="importBtn" type='button' @click="${() => ((this.renderRoot.querySelector('#example-graphs')) as SlDialog).show()}">Examples</button>
+          </sl-tooltip>
+          <sl-tooltip content="Tutorials for features of this widget" placement="bottom">
+            <button class="importBtn" type='button' @click="${() => ((this.renderRoot.querySelector('#instructions')) as SlDialog).show()}">Help</button>
+          </sl-tooltip>
         </form>
         
         <sl-tooltip content="Host" placement="top">
@@ -577,12 +585,12 @@ export class ComputerNetwork extends LitElementWw {
 
       <div class="addOption">
         <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7cqw;">
-          <button class="addBtn" id="addCompBtn" title="Add component" @click="${() => GraphNodeFactory.addNode(this)}">
+          <button class="addBtn" id="addCompBtn" @click="${() => GraphNodeFactory.addNode(this)}">
             <sl-icon name="plus" disabled={this.editable}></sl-icon>
           </button>
         </sl-tooltip>
         <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7cqw;">
-          <button class="addBtn" title="Draw links" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1cqw;">
+          <button class="addBtn" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1cqw;">
             <sl-icon id="drawMode" name="plug"></sl-icon>
           </button>
         </sl-tooltip>
