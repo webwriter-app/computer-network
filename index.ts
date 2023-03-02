@@ -472,7 +472,7 @@ export class ComputerNetwork extends LitElementWw {
             </sl-select>
           </sl-menu-item>
           <sl-menu-item><sl-input class="label-on-left" @sl-change="${(event) => PacketSimulator.duration = event.target.value * 1000}" label="Speed" type='number' min="1"></sl-input></sl-menu-item>
-          <sl-menu-item @click="${(event) => { event.target.checked = !event.target.checked; PacketSimulator.focus = event.target.checked; }}"">Focus on animated nodes</sl-menu-item>
+          <sl-menu-item @click="${(event) => { event.target.checked = !event.target.checked; PacketSimulator.focus = event.target.checked; }}">Focus on animated nodes</sl-menu-item>
           <sl-menu-item>
           <b><i>Session: </i></b>
           <sl-tooltip hoist content="Create a new simulation session" placement="top">
@@ -613,7 +613,7 @@ export class ComputerNetwork extends LitElementWw {
     <sl-dialog id="example-graphs"/>
     ${ImportExportController.exampleTemplate(this)}
     </sl-dialog>
-    <sl-dialog id="instructions"/>
+    <sl-dialog id="instructions" label="Tutorials"/>
     ${DialogFactory.showHelpText(this)}
     </sl-dialog>
     `

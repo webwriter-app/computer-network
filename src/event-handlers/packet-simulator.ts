@@ -24,6 +24,7 @@ export class PacketSimulator {
     static elementsInAnimation: Map<number, any> = new Map();
     static isPaused: boolean = false;
     static focus: boolean = false;
+    static viewportAnimations: Map<number, any> = new Map();
 
     static inited: boolean = false;
 
@@ -176,13 +177,13 @@ export class PacketSimulator {
             //init tables again
             network._graph.nodes('.routable-decorated').forEach(node => {
                 let nodeData: RoutableDecorator = node.data() as RoutableDecorator;
-                PacketSimulator.initTable(nodeData.id, 'ArpTable', network);
-                PacketSimulator.initTable(nodeData.id, 'RoutingTable', network);
+                TableHelper.initTable(nodeData.id, 'ArpTable', network);
+                TableHelper.initTable(nodeData.id, 'RoutingTable', network);
             });
 
             network._graph.nodes('.switchable-decorated').forEach(node => {
                 let nodeData: SwitchableDecorator = node.data() as SwitchableDecorator;
-                PacketSimulator.initTable(nodeData.id, 'MacAddressTable', network);
+                TableHelper.initTable(nodeData.id, 'MacAddressTable', network);
             });
         }
 
@@ -290,12 +291,18 @@ export class PacketSimulator {
                     eles = eles.union(e);
                 }
             });
-            network._graph.animate({
+            let b = network._graph.animation({
                 fit: {
                     eles: eles,
                     padding: 80,
                 }
             });
+            let viewportAniId: number = PacketSimulator.aniCounter;
+            PacketSimulator.viewportAnimations.set(viewportAniId, b);
+            if(PacketSimulator.viewportAnimations.size>0){
+                PacketSimulator.viewportAnimations.forEach(ani => ani.stop());
+            }
+            b.play().promise().then(() => PacketSimulator.viewportAnimations.delete(viewportAniId));
         }
 
         a.play().promise().then(() => {
@@ -312,71 +319,6 @@ export class PacketSimulator {
             }
         });
 
-    }
-
-    static initTable(nodeId: string, tableType: TableType, network: ComputerNetwork): void {
-        let label = "";
-        let tableId = "";
-        let tableCols = "";
-        switch (tableType) {
-            case 'ArpTable':
-                label = "ARP Table";
-                tableId = "arp-table-" + nodeId;
-                tableCols = "<tr><td></td><td>IP</td><td>MAC</td></tr>";
-                break;
-
-            case 'RoutingTable':
-                label = "Routing Table"
-                tableId = "routing-table-" + nodeId;
-                tableCols = "<tr><td></td><td>ID</td><td>Gateway</td><td>Bitmask</td><td>Port</td></tr>";
-                break;
-
-            case 'MacAddressTable':
-                label = "Mac Address Table";
-                tableId = "mac-address-table-" + nodeId;
-                tableCols = "<tr><td></td><td>Port</td><td>MAC</td></tr>";
-                break;
-        }
-
-        let detail = (network.renderRoot.querySelector('#details-for-' + tableId) as SlDetails);
-        if (detail == null) {
-            detail = new SlDetails();
-            detail.id = '#details-for-' + tableId;
-            detail.summary = label + " of " + nodeId;
-            detail.className = "details-for-table";
-            detail.open = true;
-            (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).appendChild(detail);
-        }
-        switch (tableType) {
-            case 'ArpTable':
-                detail.innerHTML += `<table class="fixedArp" id="arp-table-` + nodeId + `">` + tableCols + `</table></div><br/>`;
-                break;
-            case 'RoutingTable':
-                detail.innerHTML += `<table class="fixedRout" id="routing-table-` + nodeId + `">` + tableCols + `</table></div><br/>`;
-                break;
-            case 'MacAddressTable':
-                detail.innerHTML += `<table class="fixedMac" id="mac-address-table-` + nodeId + `">` + tableCols + `</table></div><br/>`;
-                break;
-        }
-
-        let addButton = new SlButton();
-        addButton.size = "small";
-        addButton.innerHTML = "Add";
-        addButton.addEventListener('click', () => TableHelper.addRow(tableId, tableType, network));
-
-        let removeButton = new SlButton();
-        removeButton.size = "small";
-        removeButton.innerHTML = "Remove";
-        removeButton.addEventListener('click', () => TableHelper.deleteRow(tableId, network));
-
-        let saveButton = new SlButton();
-        saveButton.size = "small";
-        saveButton.innerHTML = "Save";
-        saveButton.addEventListener('click', () => TableHelper.updateTable(tableId, tableType, network));
-
-        detail.append(addButton);
-        detail.append(removeButton);
-        detail.append(saveButton);
     }
 
     static stopSession(network: ComputerNetwork) {
@@ -404,5 +346,4 @@ export class PacketSimulator {
         network._graph.nodes('.data-node').forEach(node => node.remove());
     }
 }
-
 export type TableType = "RoutingTable" | "ArpTable" | "MacAddressTable"

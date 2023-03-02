@@ -12,7 +12,7 @@ export class SwitchableDecorator extends DataHandlingDecorator {
     constructor(component: PhysicalNode, network: ComputerNetwork) {
         super(component);
         this.cssClass.push('switchable-decorated');
-        PacketSimulator.initTable(this.id, 'MacAddressTable', network);
+        TableHelper.initTable(this.id, 'MacAddressTable', network);
     }
 
     learn(data: Data, previousId: String, network: ComputerNetwork): void {

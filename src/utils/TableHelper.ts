@@ -1,4 +1,4 @@
-import { SlInput } from "@shoelace-style/shoelace";
+import { SlButton, SlDetails, SlInput } from "@shoelace-style/shoelace";
 import { ComputerNetwork } from "../..";
 import { DataHandlingDecorator } from "../components/dataDecorators/DataHandlingDecorator";
 import { RoutableDecorator } from "../components/dataDecorators/Routable";
@@ -183,24 +183,91 @@ export class TableHelper {
      */
     static reloadTable(tableId: string, tableType: TableType, tableData: any, network: ComputerNetwork) {
         var table = (network.renderRoot.querySelector('#' + tableId)) as HTMLTableElement;
-        table.innerHTML = "";
         switch (tableType) {
             case 'ArpTable':
+                table.innerHTML = "<tr><td></td><td>IP</td><td>MAC</td></tr>";
                 (tableData as Map<string, string>).forEach((mac, ip) => {
                     TableHelper.addRow(tableId, tableType, network, [ip, mac]);
                 });
                 break;
             case 'MacAddressTable':
+                table.innerHTML = "<tr><td></td><td>Port</td><td>MAC</td></tr>";
                 (tableData as Map<string, number>).forEach((port, mac) => {
                     TableHelper.addRow(tableId, tableType, network, [port, mac]);
                 });
                 break;
             case 'RoutingTable':
+                table.innerHTML = "<tr><td></td><td>ID</td><td>Gateway</td><td>Bitmask</td><td>Port</td></tr>";
                 (tableData as Map<string, RoutingData>).forEach(routingData => {
                     TableHelper.addRow(tableId, tableType, network, [routingData.destination, routingData.gateway,
                     routingData.bitmask, routingData.port]);
                 });
                 break;
         }
+    }
+
+    static initTable(nodeId: string, tableType: TableType, network: ComputerNetwork): void {
+        let label = "";
+        let tableId = "";
+        let tableCols = "";
+        switch (tableType) {
+            case 'ArpTable':
+                label = "ARP Table";
+                tableId = "arp-table-" + nodeId;
+                tableCols = "<tr><td></td><td>IP</td><td>MAC</td></tr>";
+                break;
+
+            case 'RoutingTable':
+                label = "Routing Table"
+                tableId = "routing-table-" + nodeId;
+                tableCols = "<tr><td></td><td>ID</td><td>Gateway</td><td>Bitmask</td><td>Port</td></tr>";
+                break;
+
+            case 'MacAddressTable':
+                label = "Mac Address Table";
+                tableId = "mac-address-table-" + nodeId;
+                tableCols = "<tr><td></td><td>Port</td><td>MAC</td></tr>";
+                break;
+        }
+
+        let detail = (network.renderRoot.querySelector('#details-for-' + tableId) as SlDetails);
+        if (detail == null) {
+            detail = new SlDetails();
+            detail.id = '#details-for-' + tableId;
+            detail.summary = label + " of " + nodeId;
+            detail.className = "details-for-table";
+            detail.open = true;
+            (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).appendChild(detail);
+        }
+        switch (tableType) {
+            case 'ArpTable':
+                detail.innerHTML += `<table class="fixedArp" id="arp-table-` + nodeId + `">` + tableCols + `</table></div><br/>`;
+                break;
+            case 'RoutingTable':
+                detail.innerHTML += `<table class="fixedRout" id="routing-table-` + nodeId + `">` + tableCols + `</table></div><br/>`;
+                break;
+            case 'MacAddressTable':
+                detail.innerHTML += `<table class="fixedMac" id="mac-address-table-` + nodeId + `">` + tableCols + `</table></div><br/>`;
+                break;
+        }
+
+        let addButton = new SlButton();
+        addButton.size = "small";
+        addButton.innerHTML = "Add";
+        addButton.addEventListener('click', () => TableHelper.addRow(tableId, tableType, network));
+
+        let removeButton = new SlButton();
+        removeButton.size = "small";
+        removeButton.innerHTML = "Remove";
+        removeButton.addEventListener('click', () => TableHelper.deleteRow(tableId, network));
+
+        let saveButton = new SlButton();
+        saveButton.size = "small";
+        saveButton.innerHTML = "Save";
+        saveButton.addEventListener('click', () => TableHelper.updateTable(tableId, tableType, network));
+
+        detail.append(addButton);
+        detail.append(removeButton);
+        detail.append(saveButton);
     }
 }

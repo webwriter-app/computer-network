@@ -569,7 +569,6 @@ export class DialogFactory {
               <img src="/resources/help-instructions/add-button.png"/>
             </sl-card>
           </sl-details>
-
           <sl-details summary="How to add a link between two physical nodes?">
             <sl-card class="card-image">
               <div slot="header"><b>Step 1:</b> Choose edge component</div>
@@ -592,16 +591,120 @@ export class DialogFactory {
         </sl-tab-panel>
         <sl-tab-panel name="cidr">
           <sl-details summary="How to assign a gateway?">
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 1:</b> Activate the "assign gateway" mode:</div>
+              <img src="/resources/help-instructions/drag-to-assign-gateway.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 2:</b> Drag the gateway on the edge of a network:</div>
+              <img src="/resources/help-instructions/drag-on-the-edge.png"/>
+            </sl-card>
+          </sl-details>
+          <sl-details summary="How to drag a component into a network?">
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 1:</b> Activate the "drag-and-drop" mode:</div>
+              <img height="175px" src="/resources/help-instructions/drag-and-drop.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 2:</b> Drag the component inside the network:</div>
+              <img src="/resources/help-instructions/drag-inside.png"/>
+            </sl-card>
           </sl-details>
           <sl-details summary="How does the Net-based mode work?">
+            <sl-card class="card-image">
+              <div slot="header"><b>Before </b>dragging a node into network <b>1.1.1.0 /24</b></div>
+              <img src="/resources/help-instructions/before-netmode.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>After </b>dragging the node into network <b>1.1.1.0 /24</b></div>
+              <img src="/resources/help-instructions/after-netmode.png"/>
+              <div slot="footer">New IPv4 will be assigned for <b>conflicting</b> addresses.<br/>
+              During this mode, when users <b>edit</b> addresses of:
+              <ul>
+                <li><b>networks</b>: conflicting addresses of all related hosts/gateways will be <b>reassigned</b>.</li>
+                <li><b>hosts/gateways/subnetworks</b>: new addresses will be <b>validated</b> against the network addresses and will only be accepted when they are valid.</li>
+              </ul>
+              </div>
+            </sl-card>
           </sl-details>
           <sl-details summary="How does the Host-based mode work?">
+            <sl-card class="card-image">
+              <div slot="header"><b>Before </b>dragging host0 into network <b>1.1.1.128 /25</b></div>
+              <img height="210px" src="/resources/help-instructions/before-hostmode.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>After </b>dragging host0 into network <b>1.1.1.128 /25</b></div>
+              <img height="210px"  src="/resources/help-instructions/after-hostmode.png"/>
+              <div slot="footer">The existing network will <b>expand</b> to contain the new host.<br/>
+              During this mode, when users <b>edit</b> addresses of:
+              <ul>
+                <li><b>networks</b>: new network address range will be <b>checked</b> if they expands the old ones.</li>
+                <li><b>hosts/gateways/subnetworks</b>: the existing network will <b>expand</b> to contain the new addresses.</li>
+              </ul>
+              </div>
+            </sl-card>
           </sl-details>
         </sl-tab-panel>
+
         <sl-tab-panel name="simulation">
           <sl-details summary="How to manipulate a simulation session?">
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 1:</b> if you don't use a graph from the examples, <b>Init</b> a new simulation session</div>
+              <img height="175px" src="/resources/help-instructions/init-session.png"/>
+              <div slot="footer">In this step, for the:
+                <ul>
+                  <li>host/router: ARP table and routing table are created</li>
+                  <li>switch/bridge/access point: MAC address table is created</li>
+                <ul>
+              </div>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 2:</b> assign a sender/receiver for the packet</div>
+              <img height="175px" src="/resources/help-instructions/choose-receiver.png"/>
+              <div slot="footer">
+                <ul>
+                  <li>Click on <b>Choose sender</b> or <b>Choose receiver</b></li>
+                  <li>Click on a <b>host</b> on the canvas</li>
+                  <li>Choose an <b>IP</b></li>
+                <ul>
+              </div>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 3:</b> start sending a packet with the assigned sender and receiver in step 2</div>
+              <img height="175px" src="/resources/help-instructions/send-packet.png"/>
+              <div slot="footer"><b>Repeat steps 2 and 3</b> as much as desired.<br/> You can also use <b>pause/resume</b> or change <b>focus/speed</b> during or before starting to send a packet.</div>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Last step</b></div>
+              <img height="175px" src="/resources/help-instructions/stop-session.png"/>
+            <div slot="footer">
+            <b>Stop session</b> resets all tables and ends the current simulation session.<br/>
+            Start from step 1 again for a new simulation session.
+            </div>
+            </sl-card>
           </sl-details>
-          <sl-details summary="How to configure the routing tables for routers?">
+          <sl-details summary="How to configure the tables?">
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 1:</b> <b>Init</b>. Ignore this step if you use an <b>example graph</b>, or there is a <b>session running</b>.</div>
+              <img src="/resources/help-instructions/init-table.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 2.a:</b> Click on <b>Add</b> to generate a new row in the table</div>
+              <img src="/resources/help-instructions/add-table.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 2.b:</b> Fill your table according to its type. Except for the tables of the routers, tables of other nodes can be filled automatically.</div>
+              <img src="/resources/help-instructions/example-table.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 3:</b> <b>Remove</b> button removes all <b>checked</b> rows</div>
+              <img src="/resources/help-instructions/remove-table.png"/>
+            </sl-card>
+            <sl-card class="card-image">
+              <div slot="header"><b>Step 4:</b> <b>Save</b> button saves the current table on the UI to the database</div>
+              <img src="/resources/help-instructions/save-table.png"/>
+            </sl-card>
+
           </sl-details>
         </sl-tab-panel>
     </sl-tab-group>

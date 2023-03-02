@@ -30,8 +30,8 @@ export class RoutableDecorator extends DataHandlingDecorator {
             this.nets = component.nets;
             this.portNetMapping = component.portNetMapping;
         }
-        PacketSimulator.initTable(this.id, 'ArpTable', network);
-        PacketSimulator.initTable(this.id, 'RoutingTable', network);
+        TableHelper.initTable(this.id, 'ArpTable', network);
+        TableHelper.initTable(this.id, 'RoutingTable', network);
     }
 
     handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
