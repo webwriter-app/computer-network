@@ -118,7 +118,7 @@ var ComputerNetwork = /** @class */ (function (_super) {
         (0, decorators_js_1.property)({ type: Number, reflect: true })
     ], ComputerNetwork.prototype, "counter");
     ComputerNetwork = __decorate([
-        (0, decorators_js_1.customElement)("computer-network")
+        (0, decorators_js_1.customElement)("ww-computer-network")
     ], ComputerNetwork);
     return ComputerNetwork;
 }(lit_1.LitElementWw));

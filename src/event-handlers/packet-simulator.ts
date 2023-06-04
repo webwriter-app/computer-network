@@ -32,7 +32,7 @@ export class PacketSimulator {
     static pauseOrResumeSession(network: ComputerNetwork) {
         if (PacketSimulator.isPaused) {
             //resume
-            (network.renderRoot.querySelector('#pause-ani') as SlIcon).src = "/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg";
+            (network.renderRoot.querySelector('#pause-ani') as SlButton).innerHTML = "Pause";
             PacketSimulator.currentAnimations.forEach((ani) => {
                 if (!ani.playing()) ani.play();
             });
@@ -40,7 +40,7 @@ export class PacketSimulator {
         }
         else {
             //pause
-            (network.renderRoot.querySelector('#pause-ani') as SlIcon).src = "resources/icons/resume.svg";
+            (network.renderRoot.querySelector('#pause-ani') as SlButton).innerHTML = "Resume";
             PacketSimulator.currentAnimations.forEach((ani) => {
                 if (ani.playing()) ani.pause();
             });
