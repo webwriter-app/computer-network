@@ -45,12 +45,6 @@ export class ComputerNetwork extends LitElementWw {
   })
   automate: boolean = false;
 
-  @property({
-    type: String,
-    reflect: true
-  })
-  screen: string = "medium"; //small/medium
-
 
 
   static styles =
@@ -94,7 +88,7 @@ export class ComputerNetwork extends LitElementWw {
     #cy {
         height: 100%;
         width: 100%;
-        position: absolute;
+        position: relative;
     }
     .componentMenu {
         position: relative;
@@ -119,10 +113,26 @@ export class ComputerNetwork extends LitElementWw {
   
     /** Buttons **/
     .btn {
-        font-size: 2rem;
+      border-radius: 0.5cqw;
+      background-color: #8BA8CC;
+      border: solid 1px transparent;
+      color: white;
+      align-items: center;
+      font-size: 1.6cqw;
+      cursor: pointer;
+      width: 4cqw;
+      height: 4cqw;
+      margin: auto;
     }
     .importBtn {
-        font-size: 2rem;
+      border-radius: 0.3cqw;
+      background-color: #8BA8CC;
+      border: solid 1px transparent;
+      color: white;
+      align-items: center;
+      font-size: 0.8cqw;
+      cursor: pointer;
+      margin: auto;
     }
     button:hover:enabled {
         background-color: #0291DB;
@@ -441,31 +451,31 @@ export class ComputerNetwork extends LitElementWw {
       <sl-menu style="background-color: #F1F1F1; border: transparent; height: 100%;">
         <sl-details summary="CIDR/Subnetting controller" open>
           <sl-menu-label>Choose a mode:
-            <sl-select id="current-subnet-mode" @sl-change="${(event) => { Net.setMode(event.target.value) }}" value="MANUAL">
+            <sl-select size="small" id="current-subnet-mode" @sl-change="${(event) => { Net.setMode(event.target.value) }}" value="MANUAL">
             <sl-menu-item value="MANUAL">Manual Mode</sl-menu-item>
             <sl-menu-item value="NET_BASED">Net-based Mode</sl-menu-item>
             <sl-menu-item value="HOST_BASED">Host-based Mode</sl-menu-item>
           </sl-select>
           </sl-menu-label>
-          <sl-menu-item ="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: max(0.1cqw, 12px) !important;">Activate Draw-and-drop</sl-menu-item>
+          <sl-menu-item @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}" style="font-size: max(0.1cqw, 12px) !important;">Activate Draw-and-drop</sl-menu-item>
           <sl-menu-item @click="${(event) => SubnettingController.toggleAssigningGateway(event)}" style="font-size: max(0.1cqw, 12px) !important;">Drag to assign gateway</sl-menu-item>
           <sl-menu-item>
           <sl-tooltip hoist content="Validate global address assignments" placement="top">
-            <sl-button class="blue-button" @click="${() => SubnettingController.validateAllNets(false, this)}">Check</sl-button>
+            <sl-button size="small" class="blue-button" @click="${() => SubnettingController.validateAllNets(false, this)}">Check</sl-button>
           </sl-tooltip>
           </sl-menu-item>
         </sl-details>
 
         <sl-details id="packet-sending-extension" summary="Packet sending controller">
           <sl-menu-item style="display: flex;">
-            <sl-button style="display: inline-block;" class="blue-button" id="setSourceBtn" @click="${(event) => PacketSimulator.setSource(event, this)}">Choose sender</sl-button>
-            <sl-select id="ip-source-select" hoist style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event) => { PacketSimulator.sourceIp = event.target.value }}" value="127.0.0.1">
+            <sl-button size="small" style="display: inline-block;" class="blue-button" id="setSourceBtn" @click="${(event) => PacketSimulator.setSource(event, this)}">Choose sender</sl-button>
+            <sl-select size="small" id="ip-source-select" hoist style="display: inline-block; margin-left: 7.5px;" @sl-change="${(event) => { PacketSimulator.sourceIp = event.target.value }}" value="127.0.0.1">
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>
           <sl-menu-item>
-            <sl-button style="display: inline-block;" class="blue-button" id="setTargetBtn" @click="${(event) => PacketSimulator.setTarget(event, this)}">Choose receiver</sl-button>
-            <sl-select id="ip-target-select" hoist style="display: inline-block;" @sl-change="${(event) => { PacketSimulator.targetIp = event.target.value }}" value="127.0.0.1">
+            <sl-button size="small" style="display: inline-block;" class="blue-button" id="setTargetBtn" @click="${(event) => PacketSimulator.setTarget(event, this)}">Choose receiver</sl-button>
+            <sl-select size="small" id="ip-target-select" hoist style="display: inline-block;" @sl-change="${(event) => { PacketSimulator.targetIp = event.target.value }}" value="127.0.0.1">
             <sl-menu-item value="127.0.0.1">127.0.0.1</sl-menu-item>
             </sl-select>
           </sl-menu-item>
@@ -474,16 +484,16 @@ export class ComputerNetwork extends LitElementWw {
           <sl-menu-item>
           <b><i>Session: </i></b>
           <sl-tooltip hoist content="Create a new simulation session" placement="top">
-            <sl-button class="blue-button" @click="${() => PacketSimulator.initSession(this)}" size="small">Init</sl-button>
+            <sl-button size="small" class="blue-button" @click="${() => PacketSimulator.initSession(this)}" >Init</sl-button>
           </sl-tooltip>
           <sl-tooltip hoist content="Start sending a new packet" placement="top">
-            <sl-button class="blue-button" @click="${() => PacketSimulator.startSession(this)}" size="small">Start</sl-button>
+            <sl-button size="small" class="blue-button" @click="${() => PacketSimulator.startSession(this)}" >Start</sl-button>
           </sl-tooltip>
           <sl-tooltip hoist content="Pause/resume all packets" placement="top">
-            <sl-button class="blue-button" @click="${() => PacketSimulator.pauseOrResumeSession(this)}" size="small">Pause</sl-button>
+            <sl-button size="small" class="blue-button" @click="${() => PacketSimulator.pauseOrResumeSession(this)}" >Pause</sl-button>
           </sl-tooltip>
           <sl-tooltip hoist content="Stop the simulation session" placement="top">
-            <sl-button class="blue-button" @click="${() => PacketSimulator.stopSession(this)}" size="small">Stop</sl-button>
+            <sl-button size="small" class="blue-button" @click="${() => PacketSimulator.stopSession(this)}" >Stop</sl-button>
           </sl-tooltip>
           </sl-menu-item>
           <sl-menu-item>
@@ -529,7 +539,7 @@ export class ComputerNetwork extends LitElementWw {
         <sl-icon-button class="btn" id="edge" @click="${this.clickOnComponentButton}" name="share"></sl-icon-button>
         </sl-tooltip>
         <sl-tooltip class="btn" content="Network" placement="top">
-        <sl-icon-button id="net" @click="${this.clickOnComponentButton}" name="diagram-3"></sl-icon-button>
+        <sl-icon-button class="btn" id="net" @click="${this.clickOnComponentButton}" name="diagram-3"></sl-icon-button>
         </sl-tooltip>
       </div>
 
@@ -541,7 +551,7 @@ export class ComputerNetwork extends LitElementWw {
           <sl-tab-panel name="physical" id="physical-node-panel" active>
             <sl-input class="label-on-left" label="Name" id="inputName" placeholder="Name"></sl-input>
             <sl-input class="label-on-left" label="Number of ports" id="ports" placeholder="Number of input ports" type='number' min="1"></sl-input>
-            <sl-button size=${this.screen} style="margin-top: 1cqw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
+            <sl-button size="small" style="margin-top: 1cqw;" @click="${() => DialogFactory.generateInputsDetailsForNode(this)}">Add details for ports</sl-button>
           </sl-tab-panel>
           <sl-tab-panel name="logical" id="logical-node-panel">
             <sl-input class="label-on-left" label="NetID" id="net-num" placeholder="0.0.0.0"></sl-input>
@@ -560,13 +570,13 @@ export class ComputerNetwork extends LitElementWw {
 
       <div class="addOption">
         <sl-tooltip content="Click to add your component" placement="left" style="--max-width: 7cqw;">
-          <sl-icon-button id="addCompBtn" @click="${() => GraphNodeFactory.addNode(this)}" name="plus"></sl-icon-button>
+          <sl-icon-button class="addBtn" id="addCompBtn" @click="${() => GraphNodeFactory.addNode(this)}" name="plus"></sl-icon-button>
         </sl-tooltip>
         <sl-tooltip content="Click to draw connecting links" placement="left" style="--max-width: 7cqw;">
-          <sl-icon-button id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1cqw;" name="plug"></sl-icon-button>
+          <sl-icon-button class="addBtn" id="drawBtn" @click="${() => EdgeController.toggleDrawMode(this)}" style="font-size: 1cqw;" name="plug"></sl-icon-button>
         </sl-tooltip>
         <sl-tooltip content="Click to change color of existing components" placement="left" style="--max-width: 9cqw;">
-          <sl-icon-button id="resetColorBtn" @click="${() => GraphNodeFactory.toggleResetColor(this)}" name="eyedropper"></sl-icon-button>
+          <sl-icon-button class="addBtn" id="resetColorBtn" @click="${() => GraphNodeFactory.toggleResetColor(this)}" name="eyedropper"></sl-icon-button>
         </sl-tooltip>
       </div>
 
@@ -577,10 +587,12 @@ export class ComputerNetwork extends LitElementWw {
   render() {
 
     return html`
-      ${this.toolbarTemplate()} 
+    <div class="main-container">
+      ${this.toolbarTemplate()}
+      ${this.sidebarTemplate()}
       <div class="canvas" id="myCanvas">
-      <div id="cy">
-     ${this.sidebarTemplate()}
+        <div id="cy">
+      </div>
     </div>
 
     <div id="inputDialog"/>
