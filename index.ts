@@ -32,8 +32,7 @@ export class ComputerNetwork extends LitElementWw {
   ipv4Database: Map<string, string> = new Map<string, string>(); //(address, nodeId)
   macDatabase: Map<string, string> = new Map<string, string>();
   ipv6Database: Map<string, string> = new Map<string, string>();
-  colors = ['Plum', '#BAADD1', '#9CB6D6', '#9DCBD1', 'LightSeaGreen', '#5FCCAB', '#ADE07A', '#E2E379',
-  'Tomato', '#FFA6B4', '#FF938B', '#FFA07A', '#8A8A8A', '#A6A6A6', '#D4B6A0', '#C29C8D'];
+  colors = "Plum; #BAADD1; #9CB6D6; #9DCBD1; LightSeaGreen; #5FCCAB; #ADE07A; #E2E379; Tomato; #FFA6B4; #FF938B; #FFA07A; #8A8A8A; #A6A6A6; #D4B6A0; #C29C8D";
 
   @property({
     type: Boolean,
@@ -515,7 +514,7 @@ export class ComputerNetwork extends LitElementWw {
     <div part="action" class="base">
       <div class="componentMenu">
         
-        <sl-tooltip content="Host" placement="top">
+        <sl-tooltip content="Host" placement="bottom">
         <sl-dropdown placement="bottom">
           <sl-icon-button class="btn" id="host" slot="trigger" name="person"></sl-icon-button>
           <sl-menu>
@@ -524,7 +523,7 @@ export class ComputerNetwork extends LitElementWw {
           </sl-menu>
         </sl-dropdown>
         </sl-tooltip>
-        <sl-tooltip content="Network device" placement="top">
+        <sl-tooltip content="Network device" placement="bottom">
         <sl-dropdown placement="bottom">
           <sl-icon-button class="btn" id="connector" slot="trigger" name="hdd"></sl-icon-button>
           <sl-menu>
@@ -537,10 +536,10 @@ export class ComputerNetwork extends LitElementWw {
           </sl-menu>
         </sl-dropdown>
         </sl-tooltip>
-        <sl-tooltip content="Edge" placement="top">
+        <sl-tooltip content="Edge" placement="bottom">
         <sl-icon-button class="btn" id="edge" @click="${this.clickOnComponentButton}" name="share"></sl-icon-button>
         </sl-tooltip>
-        <sl-tooltip class="btn" content="Network" placement="top">
+        <sl-tooltip class="btn" content="Network" placement="bottom">
         <sl-icon-button class="btn" id="net" @click="${this.clickOnComponentButton}" name="diagram-3"></sl-icon-button>
         </sl-tooltip>
       </div>
