@@ -7,8 +7,6 @@ export function simulationMenuTemplate(this: NetworkComponent) {
     const source = this._graph?.getElementById(PacketSimulator.sourceEndPoint).data();
     const target = this._graph?.getElementById(PacketSimulator.targetEndPoint).data();
 
-    console.log(source, target);
-
     return html`
         <div class="simulationmenu">
             <sl-popup placement="bottom-end" id="simulationmenuButton" shift arrow arrow-placement="end" distance="8">
@@ -29,7 +27,11 @@ export function simulationMenuTemplate(this: NetworkComponent) {
                         }}
                         >Set Source</sl-button
                     >: ${source ? source.id : 'None'}
-                    <sl-select>
+                    <sl-select
+                        @sl-change=${(event: Event) => {
+                            PacketSimulator.sourceIp = (event.target as HTMLSelectElement).value;
+                        }}
+                    >
                         ${source?.portData
                             ? Array.from(source?.portData)?.map((port: any) => {
                                   return html`<sl-option value=${port[1].get('IPv4').address}
@@ -45,7 +47,11 @@ export function simulationMenuTemplate(this: NetworkComponent) {
                         }}
                         >Set Target</sl-button
                     >: ${target ? target.id : 'None'}
-                    <sl-select>
+                    <sl-select
+                        @sl-change=${(event: Event) => {
+                            PacketSimulator.targetIp = (event.target as HTMLSelectElement).value;
+                        }}
+                    >
                         ${target?.portData
                             ? Array.from(target?.portData)?.map((port: any) => {
                                   return html`<sl-option value=${port[1].get('IPv4').address}
@@ -54,8 +60,15 @@ export function simulationMenuTemplate(this: NetworkComponent) {
                               })
                             : null}
                     </sl-select>
+                    <sl-button @click=${startSimulation.bind(this)}>Start Simulation</sl-button>
                 </div>
             </sl-popup>
         </div>
     `;
+}
+
+function startSimulation(this: NetworkComponent) {
+    console.log('start simulation');
+    PacketSimulator.initSession(this);
+    PacketSimulator.startSession(this);
 }

@@ -10,6 +10,8 @@ import { PhysicalNode } from '../components/physicalNodes/PhysicalNode';
 import { AlertHelper } from '../utils/AlertHelper';
 import { TableHelper } from '../utils/TableHelper';
 import { SubnettingController } from './subnetting-controller';
+import { RoutingData } from '../utils/routingData';
+import { Net } from '../components/logicalNodes/Net';
 
 export class PacketSimulator {
     static sourceEndPoint: string = '';
@@ -257,6 +259,19 @@ export class PacketSimulator {
                 }
             }
         });
+
+        network._graph.nodes('.gateway-node').forEach((node) => {
+            const portNetMapping: Map<number, Net> = node.data().portNetMapping;
+            portNetMapping.forEach((net, key) => {
+                const address = net.networkAddress.address;
+                const port = key;
+                const interfaceName = node.data().portData.get(port).get('Name');
+
+                const routingData = new RoutingData(address, 'on-link', net.bitmask, interfaceName, port);
+                node.data().routingTable.set(address, routingData);
+            });
+        });
+
         PacketSimulator.inited = true;
     }
 
@@ -297,6 +312,7 @@ export class PacketSimulator {
         } else if (source instanceof RoutableDecorator) {
             let port: number = source.findPortToSend((source as RoutableDecorator).arpTableMacIp.get(macReceiver));
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
+            console.log('source is routable', port, link);
             let nextHopId: string = link.source == source.id ? link.target : link.source;
             let nextHop: any = network._graph.$('#' + nextHopId);
             PacketSimulator.directSend(sourceNode, nextHop, dataNode, network);

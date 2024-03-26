@@ -1,7 +1,7 @@
 export abstract class Address {
     layer: number;
-    address: string;
-    octets: string[];
+    address!: string;
+    octets!: string[];
 
     constructor(layer: number) {
         this.layer = layer;
@@ -18,7 +18,7 @@ export abstract class Address {
      * @param database
      * @returns of type Address if passed address string is valid (valid format + not preexisted in database) | null
      */
-    static validateAddress(address: string, database: Map<string, string>): Address {
+    static validateAddress(address: string, database: Map<string, string>): Address | null {
         return null;
     }
 

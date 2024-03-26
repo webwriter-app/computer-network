@@ -11,12 +11,15 @@ import { GraphNodeFactory } from './event-handlers/component-manipulation';
 import { EdgeController } from './event-handlers/edge-controller';
 import { DialogFactory } from './event-handlers/dialog-content';
 import { SubnettingController } from './event-handlers/subnetting-controller';
-import { Net } from './components/logicalNodes/Net';
+import { Net, SubnettingMode } from './components/logicalNodes/Net';
 import { PacketSimulator } from './event-handlers/packet-simulator';
 import { ImportExportController } from './exporting/importExportController';
 
 import {
     biBroadcastPin,
+    biCloudArrowUp,
+    biCloudCheck,
+    biCloudPlus,
     biDiagram3,
     biHdd,
     biPcDisplayHorizontal,
@@ -53,6 +56,7 @@ import SlPopup from '@shoelace-style/shoelace/dist/components/popup/popup.compon
 
 import { MacAddress } from './adressing/MacAddress';
 import { simulationMenuTemplate } from './ui/SimulationMenu';
+import { Component, Connection, load, Network, setupListeners } from './utils/setup';
 
 @customElement('ww-network')
 export class NetworkComponent extends LitElementWw {
@@ -119,6 +123,21 @@ export class NetworkComponent extends LitElementWw {
         source: { connectionType: null, port: 0 },
         target: { connectionType: null, port: 0 },
     };
+
+    @state()
+    mutexDragAndDrop: string | null = null;
+
+    @property({ type: Array, reflect: true, attribute: true })
+    componets: Array<Component> = [];
+
+    @property({ type: Array, reflect: true, attribute: true })
+    connections: Array<Connection> = [];
+
+    @property({ type: Array, reflect: true, attribute: true })
+    networks: Array<Network> = [];
+
+    /* Previously Static Variables */
+    net_mode: SubnettingMode = 'MANUAL';
 
     public static get styles() {
         return [networkStyles, toolboxStyles, contextMenuStyles, simulationMenuStyles];
@@ -202,6 +221,9 @@ export class NetworkComponent extends LitElementWw {
             this.selectedObject = t;
             this.contextMenu.style.display = 'none';
         });
+
+        load.bind(this)();
+        setupListeners.bind(this)();
     }
 
     public render(): TemplateResult {
@@ -293,11 +315,50 @@ export class NetworkComponent extends LitElementWw {
                         </sl-tooltip>
                     </div>
                     <div class="toolbox__buttongroup">
-                        <sl-tooltip content="Network" placement="left">
-                            <sl-button circle class="toolbox__btn" ?disabled=${this.drawModeOn}>
+                        <sl-tooltip content="Network" placement="bottom">
+                            <sl-button
+                                circle
+                                class="toolbox__btn"
+                                ?disabled=${this.drawModeOn}
+                                @click="${() => this.addNetwork()}"
+                            >
                                 ${biDiagram3}
                             </sl-button>
                         </sl-tooltip>
+
+                        <div class="toolbox__subbuttons">
+                            <sl-tooltip content="Network assignment" placement="top">
+                                <sl-button
+                                    circle
+                                    class="toolbox__btn"
+                                    variant=${this.mutexDragAndDrop === 'subnetting' ? 'primary' : 'default'}
+                                    @click="${(event: Event) =>
+                                        SubnettingController.toggleDragAndDropSubnetting(event, this)}"
+                                >
+                                    ${biCloudPlus}
+                                </sl-button>
+                            </sl-tooltip>
+                            <sl-tooltip content="Gateway assignment" placement="top">
+                                <sl-button
+                                    circle
+                                    class="toolbox__btn"
+                                    variant=${this.mutexDragAndDrop === 'gateway' ? 'primary' : 'default'}
+                                    @click="${(event: Event) =>
+                                        SubnettingController.toggleAssigningGateway(event, this)}"
+                                >
+                                    ${biCloudArrowUp}
+                                </sl-button>
+                            </sl-tooltip>
+                            <sl-tooltip content="Validate global address assignments" placement="top">
+                                <sl-button
+                                    circle
+                                    class="toolbox__btn"
+                                    @click="${() => SubnettingController.validateAllNets(false, this)}"
+                                >
+                                    ${biCloudCheck}
+                                </sl-button>
+                            </sl-tooltip>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -330,7 +391,7 @@ export class NetworkComponent extends LitElementWw {
                     interfaces: [
                         {
                             name: 'eth0',
-                            connectionType: 'ethernet',
+                            connectionType: 'wireless',
                             mac: MacAddress.generateRandomAddress(this.macDatabase).address,
                             ipv4: '192.168.20.1',
                             ipv6: '0:0:0:0:0:0:0:1',
@@ -340,6 +401,7 @@ export class NetworkComponent extends LitElementWw {
             },
         };
     }
+
     private addNetworkDevice() {
         return {
             router: () => {
@@ -389,12 +451,23 @@ export class NetworkComponent extends LitElementWw {
             },
         };
     }
+
     private addEdge() {}
-    private addNetwork() {}
+
+    private addNetwork() {
+        GraphNodeFactory.addNode(this, {
+            componentType: 'net',
+            net: {
+                netid: '1.1.1.0',
+                netmask: '255.255.255.0',
+                bitmask: 24,
+            },
+        });
+    }
 
     private asideTemplate(): TemplateResult {
         return html`
-            <aside part="action">
+            <aside part="options">
                 <form autocomplete="off">
                     <input class="importBtn" style="width: 11cqw;" type="file" id="import-file" />
                     <sl-tooltip content="Import a file created by this widget" placement="bottom">

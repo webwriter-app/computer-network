@@ -14,7 +14,14 @@ import { biPcDisplayHorizontal, biPhone, iconToDataURI } from '../styles/icons';
 interface ComponentData {
     componentType: string;
     color?: string;
+}
+
+interface PhysicalNodeData extends ComponentData {
     interfaces: Array<InterfaceData>;
+}
+
+interface NetNodeData extends ComponentData {
+    net: NetData;
 }
 
 interface InterfaceData {
@@ -25,14 +32,14 @@ interface InterfaceData {
     ipv6?: string;
 }
 
+interface NetData {
+    netid: string;
+    netmask: string;
+    bitmask: number;
+}
+
 export class GraphNodeFactory {
-    static addNode(
-        network: NetworkComponent,
-        data: ComponentData = {
-            componentType: '',
-            interfaces: [],
-        }
-    ): void {
+    static addNode(network: NetworkComponent, data: PhysicalNodeData | NetNodeData): void {
         if (data.componentType == '' || data.componentType == null) {
             return;
         }
@@ -45,11 +52,18 @@ export class GraphNodeFactory {
             case 'edge': //edge is not added with the "plus-button"
                 break;
             case 'net':
-                this.addNetNode(network);
+                const netData = data as NetNodeData;
+                this.addNetNodeData(network, netData);
+
+                // this.addNetNode(network);
                 break;
             default:
                 //default is adding physical node
-                this.addPhysicalNodeData(network, data);
+                const nodeData = data as PhysicalNodeData;
+                if (!nodeData.interfaces || nodeData.interfaces.length == 0) {
+                    nodeData.interfaces = [];
+                }
+                this.addPhysicalNodeData(network, nodeData);
                 break;
         }
     }
@@ -70,7 +84,25 @@ export class GraphNodeFactory {
         }
     }
 
-    private static addPhysicalNodeData(network: NetworkComponent, data: ComponentData): void {
+    private static addNetNodeData(network: NetworkComponent, data: NetNodeData): void {
+        let netid: string = data.net?.netid || '';
+        let netmask: string = data.net?.netmask || '';
+        let bitmask: number = data.net?.bitmask || 0;
+
+        let color: string = data.color || '#70e6af';
+
+        let newNet = Net.createNet(color, netid, netmask, bitmask, network.ipv4Database);
+
+        if (newNet != null) {
+            network._graph.add({
+                group: 'nodes',
+                data: newNet,
+                classes: newNet.cssClass,
+            });
+        }
+    }
+
+    private static addPhysicalNodeData(network: NetworkComponent, data: PhysicalNodeData): void {
         let numberOfPorts: number = data.interfaces.length;
         let color: string = data.color || '#70e6af';
 

@@ -2685,6 +2685,11 @@
     "querystringify" "^2.1.1"
     "requires-port" "^1.0.0"
 
+"uuid@^9.0.1":
+  "integrity" "sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA=="
+  "resolved" "https://registry.npmjs.org/uuid/-/uuid-9.0.1.tgz"
+  "version" "9.0.1"
+
 "v8-to-istanbul@^9.0.1":
   "integrity" "sha512-/EH/sDgxU2eGxajKdwLCDmQ4FWq+kpi3uCmBGpw1xJtnAxEjlD8j8PEiGWpCIMIs3ciNAgH0d3TTJiUkYzyZjA=="
   "resolved" "https://registry.npmjs.org/v8-to-istanbul/-/v8-to-istanbul-9.2.0.tgz"
