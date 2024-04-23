@@ -1,21 +1,20 @@
-import { ComputerNetwork } from "../../..";
-import { Ipv4Address } from "../../adressing/Ipv4Address";
-import { PacketSimulator } from "../../event-handlers/packet-simulator";
-import { GraphEdge } from "../GraphEdge";
-import { Packet, Frame } from "../logicalNodes/DataNode";
-import { PhysicalNode } from "../physicalNodes/PhysicalNode";
+import { NetworkComponent } from '../../..';
+import { Ipv4Address } from '../../adressing/Ipv4Address';
+import { GraphEdge } from '../GraphEdge';
+import { Packet, Frame } from '../logicalNodes/DataNode';
+import { PhysicalNode } from '../physicalNodes/PhysicalNode';
 
 export abstract class DataHandlingDecorator implements PhysicalNode {
-    protected component: PhysicalNode;
-    layer: number;
-    numberOfInterfacesOrPorts: number;
+    protected component!: PhysicalNode;
+    layer!: number;
+    numberOfInterfacesOrPorts!: number;
     portData: Map<number, Map<string, any>> = new Map();
-    backgroundPath: string;
-    name: string;
+    backgroundPath!: string;
+    name!: string;
     portLinkMapping: Map<number, string> = new Map();
     defaultGateway?: [string, number];
-    id: string;
-    color: string;
+    id!: string;
+    color!: string;
     cssClass: string[] = [];
     parent?: string;
 
@@ -37,31 +36,29 @@ export abstract class DataHandlingDecorator implements PhysicalNode {
         }
     }
 
-
     getPortsOrInterfacesNames(): () => IterableIterator<number> {
         return this.component.getPortsOrInterfacesNames();
     }
-    getIpAddresses(): Ipv4Address[] {
+    getIpAddresses(): Ipv4Address[] | null {
         return this.component.getIpAddresses();
     }
 
-    handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
+    handleDataIn(dataNode: any, previousNode: any, network: NetworkComponent): void {
         return;
     }
 
-    sendData(dataNode: any, network: ComputerNetwork): void {
+    sendData(dataNode: any, network: NetworkComponent): void {
         return;
     }
 
-    getPortIn(previousId: String, network: ComputerNetwork): number {
-        let portIn: number = null;
+    getPortIn(previousId: String, network: NetworkComponent): number | null {
+        let portIn: number | null = null;
         this.portLinkMapping.forEach((linkId, port) => {
-            if (linkId != "" && linkId != null && linkId != undefined) {
+            if (linkId != '' && linkId != null && linkId != undefined) {
                 let edge: GraphEdge = network._graph.$('#' + linkId).data();
                 if (edge.source == this.id && edge.target == previousId) {
                     portIn = port;
-                }
-                else if (edge.target == this.id && edge.source == previousId) {
+                } else if (edge.target == this.id && edge.source == previousId) {
                     portIn = port;
                 }
             }
@@ -69,23 +66,29 @@ export abstract class DataHandlingDecorator implements PhysicalNode {
         return portIn;
     }
 
-
-    flood(dataNode: any, previousId: string, port: number, network: ComputerNetwork): void {
+    flood(dataNode: any, previousId: string, port: number, network: NetworkComponent): void {
         dataNode = dataNode.remove();
 
         this.portLinkMapping.forEach((linkId, portIn) => {
-            if (linkId != null && linkId != undefined && linkId != "") {
+            if (linkId != null && linkId != undefined && linkId != '') {
                 let edge: GraphEdge = network._graph.$('#' + linkId).data();
-                if (port==portIn || edge.target == previousId || edge.source == previousId) {
+                if (port == portIn || edge.target == previousId || edge.source == previousId) {
                     //do not flood the incoming port
-                }
-                else {
+                } else {
                     let directTargetId = edge.target == this.id ? edge.source : edge.target;
-                    let newData = (dataNode.data() instanceof Packet) ? Packet.cloneData(dataNode.data()) : Frame.cloneData(dataNode.data());
+                    let newData =
+                        dataNode.data() instanceof Packet
+                            ? Packet.cloneData(dataNode.data())
+                            : Frame.cloneData(dataNode.data());
                     let nextHop = network._graph.$('#' + directTargetId);
-                    PacketSimulator.initThenDirectSend(network._graph.$('#' + this.id), nextHop, newData, network);
+                    network.packetSimulator.initThenDirectSend(
+                        network._graph.$('#' + this.id),
+                        nextHop,
+                        newData,
+                        network
+                    );
                 }
             }
-        });  
+        });
     }
 }

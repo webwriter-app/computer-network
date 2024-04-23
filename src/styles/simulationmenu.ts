@@ -4,24 +4,17 @@ export const simulationMenuStyles = css`
     .simulationmenu {
         position: absolute;
         display: flex;
-        flex-direction: column-reverse;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
 
-        right: 10px;
-        top: 10px;
+        left: var(--sl-spacing-small);
+        bottom: var(--sl-spacing-small);
     }
 
     .simulationmenu sl-button::part(base) {
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    .simulationmenu__context {
-        outline: black solid 1px;
-        background-color: white;
-
-        padding: 10px;
-        min-width: 200px;
     }
 `;

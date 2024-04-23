@@ -4,71 +4,70 @@ import { SlPopup } from '@shoelace-style/shoelace';
 import { PacketSimulator } from '../event-handlers/packet-simulator';
 
 export function simulationMenuTemplate(this: NetworkComponent) {
-    const source = this._graph?.getElementById(PacketSimulator.sourceEndPoint).data();
-    const target = this._graph?.getElementById(PacketSimulator.targetEndPoint).data();
+    const source = this._graph?.getElementById(this.packetSimulator.sourceEndPoint).data();
+    const target = this._graph?.getElementById(this.packetSimulator.targetEndPoint).data();
 
     return html`
-        <div class="simulationmenu">
-            <sl-popup placement="bottom-end" id="simulationmenuButton" shift arrow arrow-placement="end" distance="8">
+        <div class="simulationmenu" style=${this.mode === 'simulate' ? 'display: block;' : 'display: none;'}>
+            <sl-button-group>
                 <sl-button
-                    slot="anchor"
-                    @click=${() => {
-                        const acitve = (this.shadowRoot?.getElementById('simulationmenuButton') as SlPopup).active;
-                        (this.shadowRoot?.getElementById('simulationmenuButton') as SlPopup).active = !acitve;
+                    id="#setSourceBtn"
+                    @click=${(event: Event) => {
+                        this.packetSimulator.setSource(event, this);
                     }}
-                    circle
-                    >S</sl-button
+                    size="small"
+                    >${source ? source.id : 'Set Source'}</sl-button
                 >
-                <div class="simulationmenu__context">
-                    <sl-button
-                        id="#setSourceBtn"
-                        @click=${(event: Event) => {
-                            PacketSimulator.setSource(event, this);
-                        }}
-                        >Set Source</sl-button
-                    >: ${source ? source.id : 'None'}
-                    <sl-select
-                        @sl-change=${(event: Event) => {
-                            PacketSimulator.sourceIp = (event.target as HTMLSelectElement).value;
-                        }}
-                    >
-                        ${source?.portData
-                            ? Array.from(source?.portData)?.map((port: any) => {
-                                  return html`<sl-option value=${port[1].get('IPv4').address}
-                                      >${port[1].get('IPv4').address}</sl-option
-                                  >`;
-                              })
-                            : null}
-                    </sl-select>
-                    <sl-button
-                        id="#setTargetBtn"
-                        @click=${(event: Event) => {
-                            PacketSimulator.setTarget(event, this);
-                        }}
-                        >Set Target</sl-button
-                    >: ${target ? target.id : 'None'}
-                    <sl-select
-                        @sl-change=${(event: Event) => {
-                            PacketSimulator.targetIp = (event.target as HTMLSelectElement).value;
-                        }}
-                    >
-                        ${target?.portData
-                            ? Array.from(target?.portData)?.map((port: any) => {
-                                  return html`<sl-option value=${port[1].get('IPv4').address}
-                                      >${port[1].get('IPv4').address}</sl-option
-                                  >`;
-                              })
-                            : null}
-                    </sl-select>
-                    <sl-button @click=${startSimulation.bind(this)}>Start Simulation</sl-button>
-                </div>
-            </sl-popup>
+                <sl-select
+                    @sl-change=${(event: Event) => {
+                        this.packetSimulator.sourceIp = (event.target as HTMLSelectElement).value;
+                    }}
+                    size="small"
+                    value=${this.packetSimulator.sourceIp}
+                >
+                    ${source?.portData
+                        ? Array.from(source?.portData)?.map((port: any) => {
+                              return html`<sl-option value=${port[1].get('IPv4').address}
+                                  >${port[1].get('IPv4').address}</sl-option
+                              >`;
+                          })
+                        : null}
+                </sl-select>
+            </sl-button-group>
+            <sl-button-group>
+                <sl-button
+                    id="#setTargetBtn"
+                    @click=${(event: Event) => {
+                        this.packetSimulator.setTarget(event, this);
+                    }}
+                    size="small"
+                    >${target ? target.id : 'Set Target'}</sl-button
+                >
+                <sl-select
+                    @sl-change=${(event: Event) => {
+                        this.packetSimulator.targetIp = (event.target as HTMLSelectElement).value;
+                    }}
+                    size="small"
+                    value=${this.packetSimulator.targetIp}
+                >
+                    ${target?.portData
+                        ? Array.from(target?.portData)?.map((port: any) => {
+                              return html`<sl-option value=${port[1].get('IPv4').address}
+                                  >${port[1].get('IPv4').address}</sl-option
+                              >`;
+                          })
+                        : null}
+                </sl-select>
+            </sl-button-group>
+            <sl-button-group>
+                <sl-button @click=${startSimulation.bind(this)} size="small">Start Simulation</sl-button>
+            </sl-button-group>
         </div>
     `;
 }
 
 function startSimulation(this: NetworkComponent) {
     console.log('start simulation');
-    PacketSimulator.initSession(this);
-    PacketSimulator.startSession(this);
+
+    this.packetSimulator.startSession(this);
 }

@@ -47,8 +47,6 @@ export class Packet extends Data {
 }
 
 export class Frame extends Data {
-    static counter = 0;
-
     layer2header = {
         macSender: '',
         macReceiver: '',
@@ -58,8 +56,7 @@ export class Frame extends Data {
 
     private constructor(color: string) {
         super(color);
-        this.id = 'frame' + Frame.counter;
-        Frame.counter++;
+        this.id = 'frame' + crypto.randomUUID();
         this.cssClass.push('frame-node');
     }
 

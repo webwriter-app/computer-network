@@ -402,4 +402,13 @@ export const networkStyles = css`
             width: 10cqw;
         }
     }
+
+    .modeSwitch {
+        position: absolute;
+        left: var(--sl-spacing-small);
+        top: var(--sl-spacing-small);
+        width: 150px;
+
+        z-index: 1000;
+    }
 `;

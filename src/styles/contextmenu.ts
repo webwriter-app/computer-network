@@ -10,6 +10,8 @@ export const contextMenuStyles = css`
         outline: red solid 1px;
 
         padding: var(--sl-spacing-small);
+
+        z-index: 1200;
     }
 
     .contextmenu__header {

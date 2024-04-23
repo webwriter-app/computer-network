@@ -1,5 +1,5 @@
 import { SlButton, SlDetails, SlInput } from '@shoelace-style/shoelace';
-import { ComputerNetwork } from '../..';
+import { NetworkComponent } from '../..';
 import { DataHandlingDecorator } from '../components/dataDecorators/DataHandlingDecorator';
 import { RoutableDecorator } from '../components/dataDecorators/Routable';
 import { SwitchableDecorator } from '../components/dataDecorators/Switchable';
@@ -8,7 +8,7 @@ import { AlertHelper } from './AlertHelper';
 import { RoutingData } from './routingData';
 
 export class TableHelper {
-    static addRow(tableID: string, tableType: TableType, network: ComputerNetwork, tableData?: any[]) {
+    static addRow(tableID: string, tableType: TableType, network: NetworkComponent, tableData?: any[]) {
         var table = network.renderRoot.querySelector('#' + tableID) as HTMLTableElement;
 
         var rowCount = table.rows.length;
@@ -87,7 +87,7 @@ export class TableHelper {
         }
     }
 
-    static deleteRow(tableID: string, network: ComputerNetwork) {
+    static deleteRow(tableID: string, network: NetworkComponent) {
         try {
             var table = network.renderRoot.querySelector('#' + tableID) as HTMLTableElement;
             var rowCount = table.rows.length;
@@ -106,7 +106,7 @@ export class TableHelper {
         }
     }
 
-    static updateTable(tableID: string, tableType: TableType, network: ComputerNetwork) {
+    static updateTable(tableID: string, tableType: TableType, network: NetworkComponent) {
         //gets table
         var oTable = network.renderRoot.querySelector('#' + tableID) as HTMLTableElement;
 
@@ -137,7 +137,7 @@ export class TableHelper {
         //loops through rows (skip header row)
         for (let i = 1; i < rowLength; i++) {
             //gets cells of current row
-            var oCells = oTable.rows.item(i).cells;
+            var oCells = oTable.rows.item(i)!.cells;
 
             //gets amount of cells of current row
             var cellLength = oCells.length;
@@ -146,7 +146,7 @@ export class TableHelper {
 
             //loops through each cell in current row
             for (var j = 1; j < cellLength; j++) {
-                var cellVal: SlInput = oCells.item(j).childNodes[0] as SlInput;
+                var cellVal: SlInput = oCells.item(j)!.childNodes[0] as SlInput;
                 cellData.push(cellVal.value);
             }
 
@@ -166,7 +166,7 @@ export class TableHelper {
                             cellData[0],
                             cellData[1],
                             +cellData[2],
-                            node.portData.get(port).get('Name'),
+                            node.portData.get(port)!.get('Name'),
                             port
                         )
                     );
@@ -184,7 +184,7 @@ export class TableHelper {
      * @param tableData (ip,mac) for ArpTable
      * @param network
      */
-    static reloadTable(tableId: string, tableType: TableType, tableData: any, network: ComputerNetwork) {
+    static reloadTable(tableId: string, tableType: TableType, tableData: any, network: NetworkComponent) {
         var table = network.renderRoot.querySelector('#' + tableId) as HTMLTableElement;
         switch (tableType) {
             case 'ArpTable':
@@ -213,7 +213,7 @@ export class TableHelper {
         }
     }
 
-    static initTable(nodeId: string, tableType: TableType, network: ComputerNetwork): void {
+    static initTable(nodeId: string, tableType: TableType, network: NetworkComponent): void {
         let label = '';
         let tableId = '';
         let tableCols = '';

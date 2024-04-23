@@ -32,6 +32,7 @@
   "exports": {
     "./widgets/ww-network": "./src/index.ts",
     "./snippets/example": "./snippets/example.html",
-    "./snippets/example-complex": "./snippets/example-complex.html"
+    "./snippets/example-complex": "./snippets/example-complex.html",
+    "./snippets/example-three-net": "./snippets/example-three-net.html"
   }
 }

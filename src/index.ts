@@ -1,4 +1,4 @@
-import { css, html, PropertyValueMap, TemplateResult } from 'lit';
+import { css, html, LitElement, PropertyValueMap, TemplateResult } from 'lit';
 import { LitElementWw } from '@webwriter/lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 
@@ -16,6 +16,7 @@ import { PacketSimulator } from './event-handlers/packet-simulator';
 import { ImportExportController } from './exporting/importExportController';
 
 import {
+    biBoxes,
     biBroadcastPin,
     biCloudArrowUp,
     biCloudCheck,
@@ -23,6 +24,7 @@ import {
     biDiagram3,
     biHdd,
     biPcDisplayHorizontal,
+    biPencil,
     biPerson,
     biPhone,
     biRouter,
@@ -53,10 +55,14 @@ import SlOption from '@shoelace-style/shoelace/dist/components/option/option.com
 import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.component.js';
 import SlColorPicker from '@shoelace-style/shoelace/dist/components/color-picker/color-picker.component.js';
 import SlPopup from '@shoelace-style/shoelace/dist/components/popup/popup.component.js';
+import SlTabGroup from '@shoelace-style/shoelace/dist/components/tab-group/tab-group.component.js';
+import SlTab from '@shoelace-style/shoelace/dist/components/tab/tab.component.js';
+import SlTabPanel from '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.component.js';
 
 import { MacAddress } from './adressing/MacAddress';
 import { simulationMenuTemplate } from './ui/SimulationMenu';
 import { Component, Connection, load, Network, setupListeners } from './utils/setup';
+import { SlChangeEvent } from '@shoelace-style/shoelace';
 
 @customElement('ww-network')
 export class NetworkComponent extends LitElementWw {
@@ -93,6 +99,12 @@ export class NetworkComponent extends LitElementWw {
     ipv4Database: Map<string, string> = new Map<string, string>(); //(address, nodeId)
     macDatabase: Map<string, string> = new Map<string, string>();
     ipv6Database: Map<string, string> = new Map<string, string>();
+
+    @state()
+    packetSimulator: PacketSimulator = new PacketSimulator(this);
+
+    @state()
+    subnettingController: SubnettingController = new SubnettingController(this);
 
     @property({ type: Boolean, reflect: true })
     automate: boolean = false;
@@ -136,12 +148,20 @@ export class NetworkComponent extends LitElementWw {
     @property({ type: Array, reflect: true, attribute: true })
     networks: Array<Network> = [];
 
+    @state()
+    mode: 'edit' | 'simulate' = 'edit';
+
+    @state()
+    subnettingMode: SubnettingMode = 'MANUAL';
+
     /* Previously Static Variables */
     net_mode: SubnettingMode = 'MANUAL';
 
     public static get styles() {
         return [networkStyles, toolboxStyles, contextMenuStyles, simulationMenuStyles];
     }
+
+    static shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
     public static get scopedElements() {
         return {
@@ -157,6 +177,9 @@ export class NetworkComponent extends LitElementWw {
             'sl-dialog': SlDialog,
             'sl-color-picker': SlColorPicker,
             'sl-popup': SlPopup,
+            'sl-tab-group': SlTabGroup,
+            'sl-tab': SlTab,
+            'sl-tab-panel': SlTabPanel,
         };
     }
 
@@ -230,19 +253,55 @@ export class NetworkComponent extends LitElementWw {
         return html`
             ${this.isEditable() ? this.asideTemplate() : null}
             <div class="canvas" id="myCanvas">
+                <div class="modeSwitch">
+                    <sl-select
+                        value=${this.mode}
+                        @sl-change=${(event: Event) => {
+                            const mode = (event.target as HTMLSelectElement).value as 'edit' | 'simulate';
+                            if (mode === 'edit') {
+                                const components = [...this.componets];
+                                const connections = [...this.connections];
+                                const networks = [...this.networks];
+
+                                this.ipv4Database = new Map<string, string>(); //(address, nodeId)
+                                this.macDatabase = new Map<string, string>();
+                                this.ipv6Database = new Map<string, string>();
+                                console.log(components, connections, networks);
+
+                                this._graph.elements().remove();
+
+                                this.componets = components;
+                                this.connections = connections;
+                                this.networks = networks;
+
+                                load.bind(this)();
+                            } else {
+                                this._graph.$('node').lock();
+                                this.packetSimulator.initSession(this);
+                            }
+                            this.mode = mode;
+                        }}
+                        size="small"
+                    >
+                        <span slot="prefix">${this.mode === 'edit' ? biPencil : biBoxes}</span>
+                        <sl-option value="edit">Edit</sl-option>
+                        <sl-option value="simulate">Simulate</sl-option>
+                    </sl-select>
+                </div>
+
                 <div id="cy"></div>
                 ${this.toolboxTemplate()} ${contextMenuTemplate.bind(this)()} ${simulationMenuTemplate.bind(this)()}
             </div>
 
             <div id="inputDialog"></div>
-            <sl-dialog id="example-graphs"> ${ImportExportController.exampleTemplate(this)} </sl-dialog>
-            <sl-dialog id="instructions" label="Tutorials"> ${DialogFactory.showHelpText(this)} </sl-dialog>
+            <!-- <sl-dialog id="example-graphs"> ${ImportExportController.exampleTemplate(this)} </sl-dialog> -->
+            <!-- <sl-dialog id="instructions" label="Tutorials"> ${DialogFactory.showHelpText(this)} </sl-dialog> -->
         `;
     }
 
     private toolboxTemplate(): TemplateResult {
         return html`
-            <div class="toolbox">
+            <div class="toolbox" style=${this.mode == 'edit' ? 'display: flex;' : 'display: none;'}>
                 <sl-button size="large" circle class="toolbox__open" @click=${() => this.openToolbox()}>
                     ${faPlus}
                 </sl-button>
@@ -333,7 +392,7 @@ export class NetworkComponent extends LitElementWw {
                                     class="toolbox__btn"
                                     variant=${this.mutexDragAndDrop === 'subnetting' ? 'primary' : 'default'}
                                     @click="${(event: Event) =>
-                                        SubnettingController.toggleDragAndDropSubnetting(event, this)}"
+                                        this.subnettingController.toggleDragAndDropSubnetting(event, this)}"
                                 >
                                     ${biCloudPlus}
                                 </sl-button>
@@ -344,7 +403,7 @@ export class NetworkComponent extends LitElementWw {
                                     class="toolbox__btn"
                                     variant=${this.mutexDragAndDrop === 'gateway' ? 'primary' : 'default'}
                                     @click="${(event: Event) =>
-                                        SubnettingController.toggleAssigningGateway(event, this)}"
+                                        this.subnettingController.toggleAssigningGateway(event, this)}"
                                 >
                                     ${biCloudArrowUp}
                                 </sl-button>
@@ -353,7 +412,7 @@ export class NetworkComponent extends LitElementWw {
                                 <sl-button
                                     circle
                                     class="toolbox__btn"
-                                    @click="${() => SubnettingController.validateAllNets(false, this)}"
+                                    @click="${() => this.subnettingController.validateAllNets(false, this)}"
                                 >
                                     ${biCloudCheck}
                                 </sl-button>
@@ -638,8 +697,8 @@ export class NetworkComponent extends LitElementWw {
                             <sl-select
                                 size=${this.screen}
                                 id="current-subnet-mode"
-                                @sl-change="${(event) => {
-                                    Net.setMode(event.target.value);
+                                @sl-change="${(event: SlChangeEvent) => {
+                                    Net.setMode((event.target as SlSelect).value, this);
                                 }}"
                                 value="MANUAL"
                             >
@@ -649,12 +708,12 @@ export class NetworkComponent extends LitElementWw {
                             </sl-select>
                         </sl-menu-label>
                         <sl-menu-item
-                            @click="${(event) => SubnettingController.toggleDragAndDropSubnetting(event, this)}"
+                            @click="${(event) => this.subnettingController.toggleDragAndDropSubnetting(event, this)}"
                             style="font-size: max(0.1cqw, 12px) !important;"
                             >Activate Draw-and-drop</sl-menu-item
                         >
                         <sl-menu-item
-                            @click="${(event) => SubnettingController.toggleAssigningGateway(event)}"
+                            @click="${(event) => this.subnettingController.toggleAssigningGateway(event, this)}"
                             style="font-size: max(0.1cqw, 12px) !important;"
                             >Drag to assign gateway</sl-menu-item
                         >
@@ -663,7 +722,7 @@ export class NetworkComponent extends LitElementWw {
                                 <sl-button
                                     size=${this.screen}
                                     class="blue-button"
-                                    @click="${() => SubnettingController.validateAllNets(false, this)}"
+                                    @click="${() => this.subnettingController.validateAllNets(false, this)}"
                                     >Check</sl-button
                                 >
                             </sl-tooltip>
@@ -677,7 +736,7 @@ export class NetworkComponent extends LitElementWw {
                                 style="display: inline-block;"
                                 class="blue-button"
                                 id="setSourceBtn"
-                                @click="${(event) => PacketSimulator.setSource(event, this)}"
+                                @click="${(event) => this.packetSimulator.setSource(event, this)}"
                                 >Choose sender</sl-button
                             >
                             <sl-select
@@ -686,7 +745,7 @@ export class NetworkComponent extends LitElementWw {
                                 hoist
                                 style="display: inline-block; margin-left: 7.5px;"
                                 @sl-change="${(event) => {
-                                    PacketSimulator.sourceIp = event.target.value;
+                                    this.packetSimulator.sourceIp = event.target.value;
                                 }}"
                                 value="127.0.0.1"
                             >
@@ -699,7 +758,7 @@ export class NetworkComponent extends LitElementWw {
                                 style="display: inline-block;"
                                 class="blue-button"
                                 id="setTargetBtn"
-                                @click="${(event) => PacketSimulator.setTarget(event, this)}"
+                                @click="${(event) => this.packetSimulator.setTarget(event, this)}"
                                 >Choose receiver</sl-button
                             >
                             <sl-select
@@ -708,7 +767,7 @@ export class NetworkComponent extends LitElementWw {
                                 hoist
                                 style="display: inline-block;"
                                 @sl-change="${(event) => {
-                                    PacketSimulator.targetIp = event.target.value;
+                                    this.packetSimulator.targetIp = event.target.value;
                                 }}"
                                 value="127.0.0.1"
                             >
@@ -718,7 +777,7 @@ export class NetworkComponent extends LitElementWw {
                         <sl-menu-item
                             ><sl-input
                                 class="label-on-left"
-                                @sl-change="${(event) => (PacketSimulator.duration = event.target.value * 1000)}"
+                                @sl-change="${(event) => (this.packetSimulator.duration = event.target.value * 1000)}"
                                 label="Speed"
                                 type="number"
                                 min="1"
@@ -727,7 +786,7 @@ export class NetworkComponent extends LitElementWw {
                         <sl-menu-item
                             @click="${(event) => {
                                 event.target.checked = !event.target.checked;
-                                PacketSimulator.focus = event.target.checked;
+                                this.packetSimulator.focus = event.target.checked;
                             }}"
                             >Focus on animated nodes</sl-menu-item
                         >
@@ -737,7 +796,7 @@ export class NetworkComponent extends LitElementWw {
                                 <sl-button
                                     class="blue-button"
                                     size=${this.screen}
-                                    @click="${() => PacketSimulator.initSession(this)}"
+                                    @click="${() => this.packetSimulator.initSession(this)}"
                                     >Init</sl-button
                                 >
                             </sl-tooltip>
@@ -745,7 +804,7 @@ export class NetworkComponent extends LitElementWw {
                                 <sl-button
                                     class="blue-button"
                                     size=${this.screen}
-                                    @click="${() => PacketSimulator.startSession(this)}"
+                                    @click="${() => this.packetSimulator.startSession(this)}"
                                     ><sl-icon name="play"
                                 /></sl-button>
                             </sl-tooltip>
@@ -753,7 +812,7 @@ export class NetworkComponent extends LitElementWw {
                                 <sl-button
                                     class="blue-button"
                                     size=${this.screen}
-                                    @click="${() => PacketSimulator.pauseOrResumeSession(this)}"
+                                    @click="${() => this.packetSimulator.pauseOrResumeSession(this)}"
                                     ><sl-icon
                                         id="pause-ani"
                                         src="/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg"
@@ -763,7 +822,7 @@ export class NetworkComponent extends LitElementWw {
                                 <sl-button
                                     class="blue-button"
                                     size=${this.screen}
-                                    @click="${() => PacketSimulator.stopSession(this)}"
+                                    @click="${() => this.packetSimulator.stopSession(this)}"
                                     ><sl-icon name="stop-circle"
                                 /></sl-button>
                             </sl-tooltip>
@@ -845,7 +904,7 @@ export class NetworkComponent extends LitElementWw {
             } else {
                 (this.renderRoot.querySelector('#current-subnet-mode') as SlSelect).value = 'MANUAL';
                 (this.renderRoot.querySelector('#current-subnet-mode') as SlSelect).disabled = true;
-                Net.setMode('MANUAL');
+                Net.setMode('MANUAL', this);
             }
         }
     }

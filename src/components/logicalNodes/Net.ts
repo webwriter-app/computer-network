@@ -15,7 +15,6 @@ export class Net extends LogicalNode {
 
     parent?: string;
 
-    static mode: SubnettingMode = 'MANUAL'; //initial is manual
     //this is updated on drag-and-drop
     gateways: Map<string, number> = new Map(); //(routerId, portIndex)
     currentDefaultGateway: [string, number];
@@ -99,7 +98,8 @@ export class Net extends LogicalNode {
         netAd: string,
         netmask: string,
         bitmask: number,
-        database: Map<string, string>
+        database: Map<string, string>,
+        network: ComputerNetwork
     ): Net {
         let bitmaskValid: boolean = !(
             bitmask == null ||
@@ -116,7 +116,7 @@ export class Net extends LogicalNode {
         );
 
         if (!bitmaskValid && !netmaskValid) {
-            if (Net.mode == 'NET_BASED') {
+            if (network.subnettingMode == 'NET_BASED') {
                 AlertHelper.toastAlert(
                     'danger',
                     'exclamation-diamond',
@@ -138,8 +138,8 @@ export class Net extends LogicalNode {
         return new Net(color, netAd, netmaskValid ? netmask : null, bitmaskValid ? bitmask : null, database);
     }
 
-    static setMode(mode: SubnettingMode) {
-        Net.mode = mode;
+    static setMode(mode: SubnettingMode, network: ComputerNetwork): void {
+        network.subnettingMode = mode;
     }
 
     /**
@@ -149,8 +149,13 @@ export class Net extends LogicalNode {
      * @param ip The Ipv4 Address of a new host
      * @param database Ipv4 database
      */
-    static calculateCIDRGivenNewHost(net: Net, ip: Ipv4Address, database: Map<string, string>): void {
-        if (Net.mode != 'HOST_BASED' || ip.matchesNetworkCidr(net)) {
+    static calculateCIDRGivenNewHost(
+        net: Net,
+        ip: Ipv4Address,
+        database: Map<string, string>,
+        network: ComputerNetwork
+    ): void {
+        if (network.subnettingMode != 'HOST_BASED' || ip.matchesNetworkCidr(net)) {
             return;
         }
         let count: number;
@@ -171,9 +176,10 @@ export class Net extends LogicalNode {
         count: number,
         candidateId: string,
         net: Net,
-        database: Map<string, string>
+        database: Map<string, string>,
+        network: ComputerNetwork
     ): void {
-        if (Net.mode != 'HOST_BASED') return;
+        if (network.subnettingMode != 'HOST_BASED') return;
         if (net.networkAddress != null && net.networkAddress != undefined) {
             Ipv4Address.removeAddressFromDatabase(net.networkAddress, database, net.bitmask);
         }
@@ -217,8 +223,17 @@ export class Net extends LogicalNode {
      * @param subnet A network that is dragged into the supernet
      * @param database Ipv4 database
      */
-    static calculateCIDRGivenNewSubnet(supernet: Net, subnet: Net, database: Map<string, string>): void {
-        if (Net.mode != 'HOST_BASED' || supernet.isSupernetOf(subnet) || subnet.cssClass.includes('unconfigured-net'))
+    static calculateCIDRGivenNewSubnet(
+        supernet: Net,
+        subnet: Net,
+        database: Map<string, string>,
+        network: ComputerNetwork
+    ): void {
+        if (
+            network.subnettingMode != 'HOST_BASED' ||
+            supernet.isSupernetOf(subnet) ||
+            subnet.cssClass.includes('unconfigured-net')
+        )
             return;
 
         let count: number;
@@ -431,7 +446,7 @@ export class Net extends LogicalNode {
 
         if (networkId == null) return false;
 
-        switch (Net.mode) {
+        switch (network.subnettingMode) {
             case 'HOST_BASED':
                 if (
                     this.bitmask >= newBitmask &&

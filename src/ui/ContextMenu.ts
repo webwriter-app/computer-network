@@ -25,6 +25,15 @@ export function contextMenuTemplate(this: NetworkComponent): TemplateResult {
             : 'node'
         : 'edge';
 
+    if (this.mode === 'simulate' && type === 'node') return nodeRoutingTableTemplate.bind(this)();
+    if (this.mode === 'simulate')
+        return html`<div
+            id="contextMenu"
+            class="contextmenu"
+            @contextmenu=${(e: Event) => e.preventDefault()}
+            style="display:none"
+        ></div>`;
+
     return html`
         ${type === 'network' ? networkContextDialogTemplate.bind(this)() : ''}
         ${type === 'node' ? nodeContextDialogTemplate.bind(this)() : ''}
@@ -826,4 +835,83 @@ function configurePorts(this: NetworkComponent, edge: GraphEdge, inPort: number,
 
 function isPortConnected(this: NetworkComponent, node: any, port: string): boolean {
     return node.data('portLinkMapping').get(port) != null;
+}
+
+function nodeRoutingTableTemplate(this: NetworkComponent): TemplateResult {
+    const node: any = this.selectedObject;
+
+    const routingTable = node.data('routingTable');
+    const arpTable = node.data('arpTableIpMac');
+    const macAddressTable = node.data('macAddressTable');
+
+    console.log(node);
+    return html`
+        <div id="contextMenu" class="contextmenu" @contextmenu=${(e: Event) => e.preventDefault()} style="display:none">
+            <sl-tab-group>
+                ${arpTable ? html`<sl-tab slot="nav" panel="arp">Arp Table</sl-tab>` : ''}
+                ${routingTable ? html`<sl-tab slot="nav" panel="routing">Routing Table</sl-tab>` : ''}
+                ${macAddressTable ? html`<sl-tab slot="nav" panel="mac">Mac Address Table</sl-tab>` : ''}
+                ${arpTable
+                    ? html`
+                          <sl-tab-panel name="arp">
+                              <table>
+                                  <tr>
+                                      <th>IP</th>
+                                      <th>MAC</th>
+                                  </tr>
+                                  ${Array.from(arpTable.entries()).map((entry) => {
+                                      return html`
+                                          <tr>
+                                              <td>${entry[0]}</td>
+                                              <td>${entry[1]}</td>
+                                          </tr>
+                                      `;
+                                  })}
+                              </table>
+                          </sl-tab-panel>
+                      `
+                    : html``}
+                ${routingTable
+                    ? html`
+                          <sl-tab-panel name="routing">
+                              <table>
+                                  <tr>
+                                      <th>Net</th>
+                                      <th>Gateway</th>
+                                  </tr>
+                                  ${Array.from(routingTable.entries()).map((entry) => {
+                                      return html`
+                                          <tr>
+                                              <td>${entry[0]}</td>
+                                              <td>${entry[1].gateway}</td>
+                                          </tr>
+                                      `;
+                                  })}
+                              </table>
+                          </sl-tab-panel>
+                      `
+                    : html``}
+                ${macAddressTable
+                    ? html`
+                          <sl-tab-panel name="mac">
+                              <table>
+                                  <tr>
+                                      <th>MAC</th>
+                                      <th>Port</th>
+                                  </tr>
+                                  ${Array.from(macAddressTable.entries()).map((entry) => {
+                                      return html`
+                                          <tr>
+                                              <td>${entry[0]}</td>
+                                              <td>${entry[1]}</td>
+                                          </tr>
+                                      `;
+                                  })}
+                              </table>
+                          </sl-tab-panel>
+                      `
+                    : html``}
+            </sl-tab-group>
+        </div>
+    `;
 }

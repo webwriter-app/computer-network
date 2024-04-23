@@ -3,12 +3,9 @@ export abstract class GraphNode {
     name: string;
     color: string;
     cssClass: string[] = [];
-    static counter = 0;
 
     constructor(color: string) {
         this.color = color;
         this.cssClass.push('deletable');
     }
-
-
 }

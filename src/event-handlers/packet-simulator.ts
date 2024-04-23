@@ -9,52 +9,62 @@ import { Data, Packet } from '../components/logicalNodes/DataNode';
 import { PhysicalNode } from '../components/physicalNodes/PhysicalNode';
 import { AlertHelper } from '../utils/AlertHelper';
 import { TableHelper } from '../utils/TableHelper';
-import { SubnettingController } from './subnetting-controller';
 import { RoutingData } from '../utils/routingData';
 import { Net } from '../components/logicalNodes/Net';
 
 export class PacketSimulator {
-    static sourceEndPoint: string = '';
-    static targetEndPoint: string = '';
-    static sourceIp: string = '127.0.0.1';
-    static targetIp: string = '127.0.0.1';
+    sourceEndPoint: string = '';
+    targetEndPoint: string = '';
+    sourceIp: string = '127.0.0.1';
+    targetIp: string = '127.0.0.1';
 
-    static duration: number = 2000;
-    static aniCounter: number = 0;
-    static currentAnimations: Map<number, any> = new Map();
-    static elementsInAnimation: Map<number, any> = new Map();
-    static isPaused: boolean = false;
-    static focus: boolean = false;
-    static viewportAnimations: Map<number, any> = new Map();
+    duration: number = 2000;
+    aniCounter: number = 0;
+    currentAnimations: Map<number, any> = new Map();
+    elementsInAnimation: Map<number, any> = new Map();
+    isPaused: boolean = false;
+    focus: boolean = false;
+    viewportAnimations: Map<number, any> = new Map();
 
-    static inited: boolean = false;
+    inited: boolean = false;
 
-    static pauseOrResumeSession(network: NetworkComponent) {
-        if (PacketSimulator.isPaused) {
+    private component: NetworkComponent;
+
+    constructor(component: NetworkComponent) {
+        this.component = component;
+    }
+
+    pauseOrResumeSession(network: NetworkComponent) {
+        if (this.isPaused) {
             //resume
             (network.renderRoot.querySelector('#pause-ani') as SlIcon).src =
                 '/node_modules/@shoelace-style/shoelace/dist/assets/icons/pause.svg';
-            PacketSimulator.currentAnimations.forEach((ani) => {
+            this.currentAnimations.forEach((ani) => {
                 if (!ani.playing()) ani.play();
             });
-            PacketSimulator.isPaused = false;
+            this.isPaused = false;
         } else {
             //pause
             (network.renderRoot.querySelector('#pause-ani') as SlIcon).src = 'resources/icons/resume.svg';
-            PacketSimulator.currentAnimations.forEach((ani) => {
+            this.currentAnimations.forEach((ani) => {
                 if (ani.playing()) ani.pause();
             });
-            PacketSimulator.isPaused = true;
+            this.isPaused = true;
         }
     }
 
-    static setSource(buttonEvent, network: NetworkComponent) {
+    setSource(buttonEvent, network: NetworkComponent) {
         let sourceButton = buttonEvent.target;
         sourceButton.loading = true;
         let targetButton = network.renderRoot.querySelector('#setTargetBtn') as SlButton;
         targetButton.disabled = true;
+
+        const self = this;
         network._graph.one('tap', 'node', function (event) {
-            PacketSimulator.sourceEndPoint = event.target.id();
+            self.sourceEndPoint = event.target.id();
+            const endpoint = network._graph.$('#' + self.sourceEndPoint);
+            self.sourceIp = endpoint.data().portData.get(1).get('IPv4').address;
+
             sourceButton.loading = false;
             targetButton.disabled = false;
             let selects = network.renderRoot.querySelector('#ip-source-select') as SlSelect;
@@ -79,16 +89,22 @@ export class PacketSimulator {
                         `</sl-menu-item>`;
                 });
             }
+            network.requestUpdate();
         });
     }
 
-    static setTarget(buttonEvent, network: NetworkComponent) {
+    setTarget(buttonEvent, network: NetworkComponent) {
         let targetButton = buttonEvent.target;
         targetButton.loading = true;
         let sourceButton = network.renderRoot.querySelector('#setSourceBtn') as SlButton;
         sourceButton.disabled = true;
+
+        const self = this;
         network._graph.one('tap', 'node', function (event) {
-            PacketSimulator.targetEndPoint = event.target.id();
+            self.targetEndPoint = event.target.id();
+            const endpoint = network._graph.$('#' + self.targetEndPoint);
+            self.targetIp = endpoint.data().portData.get(1).get('IPv4').address;
+
             targetButton.loading = false;
             sourceButton.disabled = false;
             let selects = network.renderRoot.querySelector('#ip-target-select') as SlSelect;
@@ -116,8 +132,8 @@ export class PacketSimulator {
         });
     }
 
-    static startSession(network: NetworkComponent) {
-        if (!PacketSimulator.inited) {
+    startSession(network: NetworkComponent) {
+        if (!this.inited) {
             AlertHelper.toastAlert(
                 'danger',
                 'exclamation-triangle',
@@ -131,7 +147,7 @@ export class PacketSimulator {
         });
         if (addedNodeAfterInit.size() > 0) {
             //check graph again
-            if (!SubnettingController.validateAllNets(true, network)) {
+            if (!network.subnettingController.validateAllNets(true, network)) {
                 AlertHelper.toastAlert(
                     'danger',
                     'exclamation-triangle',
@@ -163,7 +179,7 @@ export class PacketSimulator {
                 }
             });
         }
-        if (PacketSimulator.sourceEndPoint == '' || PacketSimulator.targetEndPoint == '') {
+        if (this.sourceEndPoint == '' || this.targetEndPoint == '') {
             AlertHelper.toastAlert(
                 'danger',
                 'exclamation-triangle',
@@ -175,8 +191,8 @@ export class PacketSimulator {
 
         network._graph.$('node').lock();
 
-        let source = network._graph.$('#' + PacketSimulator.sourceEndPoint);
-        let target = network._graph.$('#' + PacketSimulator.targetEndPoint);
+        let source = network._graph.$('#' + this.sourceEndPoint);
+        let target = network._graph.$('#' + this.targetEndPoint);
 
         if ((source.data() as PhysicalNode).layer < 3 || (target.data() as PhysicalNode).layer < 3) {
             AlertHelper.toastAlert(
@@ -211,8 +227,8 @@ export class PacketSimulator {
         sender.sendData(network._graph.$('#' + data.id), network, sourceNode);
     }
 
-    static initSession(network: NetworkComponent) {
-        if (!SubnettingController.validateAllNets(true, network)) {
+    initSession(network: NetworkComponent) {
+        if (!network.subnettingController.validateAllNets(true, network)) {
             AlertHelper.toastAlert(
                 'danger',
                 'exclamation-triangle',
@@ -221,7 +237,7 @@ export class PacketSimulator {
             );
             return;
         }
-        if (PacketSimulator.inited) {
+        if (this.inited) {
             (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = '';
             //init tables again
             network._graph.nodes('.routable-decorated').forEach((node) => {
@@ -260,22 +276,68 @@ export class PacketSimulator {
             }
         });
 
-        network._graph.nodes('.gateway-node').forEach((node) => {
-            const portNetMapping: Map<number, Net> = node.data().portNetMapping;
-            portNetMapping.forEach((net, key) => {
-                const address = net.networkAddress.address;
-                const port = key;
-                const interfaceName = node.data().portData.get(port).get('Name');
+        this.routeDiscovery(network);
 
-                const routingData = new RoutingData(address, 'on-link', net.bitmask, interfaceName, port);
-                node.data().routingTable.set(address, routingData);
-            });
-        });
-
-        PacketSimulator.inited = true;
+        this.inited = true;
     }
 
-    static initThenDirectSend(sourceNode: any, targetNode: any, data: Data, network: NetworkComponent): void {
+    routeDiscovery(network: NetworkComponent) {
+        network._graph.nodes('.gateway-node').forEach((node) => {
+            const routingData: {
+                address: string;
+                nextHop: string;
+                bitmask: number;
+                interfaceName: string;
+                port: number;
+            }[] = [];
+
+            const exploreNet = (net: Net, outPort: number) => {
+                console.log('exploring routes for ' + node.data('name'), net, outPort);
+
+                const gateways: Map<string, number> = net.gateways;
+                gateways.forEach((port, gateway) => {
+                    const gatewayNode = network._graph.$('#' + gateway);
+                    const gatewayData = gatewayNode.data();
+                    const nets = gatewayData.portNetMapping;
+
+                    nets.forEach((net, key) => {
+                        if (routingData.find((data) => data.address == net.networkAddress.address) == undefined) {
+                            routingData.push({
+                                address: net.networkAddress.address,
+                                nextHop: gatewayData.portData.get(port).get('IPv4').address,
+                                bitmask: net.bitmask,
+                                interfaceName: gatewayData.portData.get(port).get('Name'),
+                                port: outPort,
+                            });
+                            exploreNet(net, port);
+                        }
+                    });
+                });
+            };
+
+            const portNetMapping: Map<number, Net> = node.data().portNetMapping;
+            portNetMapping.forEach((net, key) => {
+                routingData.push({
+                    address: net.networkAddress.address,
+                    nextHop: 'on-link',
+                    bitmask: net.bitmask,
+                    interfaceName: node.data().portData.get(key).get('Name'),
+                    port: key,
+                });
+
+                exploreNet(net, key);
+            });
+
+            routingData.forEach((data) => {
+                node.data().routingTable.set(
+                    data.address,
+                    new RoutingData(data.address, data.nextHop, data.bitmask, data.interfaceName, data.port)
+                );
+            });
+        });
+    }
+
+    initThenDirectSend(sourceNode: any, targetNode: any, data: Data, network: NetworkComponent): void {
         let sourcePosition = sourceNode.position();
 
         network._graph.add({
@@ -288,7 +350,7 @@ export class PacketSimulator {
         this.directSend(sourceNode, targetNode, network._graph.$('#' + data.id), network);
     }
 
-    static initMessage(sourceNode: any, data: Data, network: NetworkComponent): void {
+    initMessage(sourceNode: any, data: Data, network: NetworkComponent): void {
         let sourcePosition = sourceNode.position();
 
         network._graph.add({
@@ -299,7 +361,7 @@ export class PacketSimulator {
         });
     }
 
-    static findNextHopThenSend(portIn: number, sourceNode: any, dataNode: any, network: NetworkComponent): void {
+    findNextHopThenSend(portIn: number, sourceNode: any, dataNode: any, network: NetworkComponent): void {
         let source: DataHandlingDecorator = sourceNode.data();
         let macReceiver: string = dataNode.data().layer2header.macReceiver;
 
@@ -308,20 +370,20 @@ export class PacketSimulator {
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
             let nextHopId: string = link.source == source.id ? link.target : link.source;
             let nextHop: any = network._graph.$('#' + nextHopId);
-            PacketSimulator.directSend(sourceNode, nextHop, dataNode, network);
+            this.directSend(sourceNode, nextHop, dataNode, network);
         } else if (source instanceof RoutableDecorator) {
             let port: number = source.findPortToSend((source as RoutableDecorator).arpTableMacIp.get(macReceiver));
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
             console.log('source is routable', port, link);
             let nextHopId: string = link.source == source.id ? link.target : link.source;
             let nextHop: any = network._graph.$('#' + nextHopId);
-            PacketSimulator.directSend(sourceNode, nextHop, dataNode, network);
+            this.directSend(sourceNode, nextHop, dataNode, network);
         } else if (source instanceof SimpleDecorator) {
             source.flood(dataNode, null, portIn, network);
         }
     }
 
-    static directSend(previousNode: any, targetNode: any, dataNode: any, network: NetworkComponent): void {
+    directSend(previousNode: any, targetNode: any, dataNode: any, network: NetworkComponent): void {
         let targetPosition = targetNode.position();
 
         let a = network._graph.$('#' + dataNode.id()).animation(
@@ -329,28 +391,28 @@ export class PacketSimulator {
                 position: { x: targetPosition.x, y: targetPosition.y - 20 },
             },
             {
-                duration: PacketSimulator.duration,
+                duration: this.duration,
             }
         );
 
         let target = targetNode.data();
-        let aniId = PacketSimulator.aniCounter;
+        let aniId = this.aniCounter;
 
-        PacketSimulator.currentAnimations.set(aniId, a);
-        if (!PacketSimulator.elementsInAnimation.has(aniId)) {
-            PacketSimulator.elementsInAnimation.set(aniId, previousNode.union(targetNode));
+        this.currentAnimations.set(aniId, a);
+        if (!this.elementsInAnimation.has(aniId)) {
+            this.elementsInAnimation.set(aniId, previousNode.union(targetNode));
         } else {
-            PacketSimulator.elementsInAnimation.set(
+            this.elementsInAnimation.set(
                 aniId,
-                PacketSimulator.elementsInAnimation.get(aniId).union(previousNode).union(targetNode)
+                this.elementsInAnimation.get(aniId).union(previousNode).union(targetNode)
             );
         }
-        PacketSimulator.aniCounter++;
+        this.aniCounter++;
 
         //change viewport to contain both source and target in view
-        if (PacketSimulator.focus) {
+        if (this.focus) {
             let eles;
-            PacketSimulator.elementsInAnimation.forEach((e) => {
+            this.elementsInAnimation.forEach((e) => {
                 if (eles == undefined) {
                     eles = e;
                 } else {
@@ -363,21 +425,21 @@ export class PacketSimulator {
                     padding: 80,
                 },
             });
-            let viewportAniId: number = PacketSimulator.aniCounter;
-            PacketSimulator.viewportAnimations.set(viewportAniId, b);
-            if (PacketSimulator.viewportAnimations.size > 0) {
-                PacketSimulator.viewportAnimations.forEach((ani) => ani.stop());
+            let viewportAniId: number = this.aniCounter;
+            this.viewportAnimations.set(viewportAniId, b);
+            if (this.viewportAnimations.size > 0) {
+                this.viewportAnimations.forEach((ani) => ani.stop());
             }
             b.play()
                 .promise()
-                .then(() => PacketSimulator.viewportAnimations.delete(viewportAniId));
+                .then(() => this.viewportAnimations.delete(viewportAniId));
         }
 
         a.play()
             .promise()
             .then(() => {
-                PacketSimulator.currentAnimations.delete(aniId);
-                PacketSimulator.elementsInAnimation.delete(aniId);
+                this.currentAnimations.delete(aniId);
+                this.elementsInAnimation.delete(aniId);
                 if (target.cssClass.includes('routable-decorated')) {
                     (target as RoutableDecorator).handleDataIn(dataNode, previousNode, network);
                 } else if (target.cssClass.includes('switchable-decorated')) {
@@ -388,7 +450,7 @@ export class PacketSimulator {
             });
     }
 
-    static stopSession(network: NetworkComponent) {
+    stopSession(network: NetworkComponent) {
         (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = '';
 
         network._graph.nodes('.switchable-decorated').forEach((node) => {
@@ -404,12 +466,12 @@ export class PacketSimulator {
         });
 
         //stop all animations and remove related packet/frame nodes
-        PacketSimulator.currentAnimations.forEach((ani) => {
+        this.currentAnimations.forEach((ani) => {
             ani.stop();
             ani._private.target.remove();
         });
 
-        PacketSimulator.currentAnimations = new Map();
+        this.currentAnimations = new Map();
         network._graph.nodes('.data-node').forEach((node) => node.remove());
     }
 }

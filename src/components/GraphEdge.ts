@@ -9,18 +9,15 @@ export class GraphEdge {
     to: PhysicalNode;
     inPort: number;
     outPort: number;
-    static counter = 0;
     source: string;
     target: string;
 
     constructor(color: string, from: PhysicalNode, to: PhysicalNode, id?: string) {
         if (id != null && id != undefined && id != '') {
             this.id = id;
-            GraphEdge.counter = +id.charAt(id.length - 1);
         } else {
-            this.id = 'graphEdge' + GraphEdge.counter;
+            this.id = 'graphEdge' + crypto.randomUUID();
         }
-        GraphEdge.counter++;
 
         this.color = color;
         this.cssClass.push('color-edge');

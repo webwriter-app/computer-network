@@ -29,8 +29,8 @@ cytoscape.use(nodeHtmlLabel);
 
 export function initNetwork(network: NetworkComponent): void {
     if (network.networkAvailable) network._graph.removeData();
-    if (PacketSimulator.inited) {
-        PacketSimulator.stopSession(network);
+    if (network.packetSimulator.inited) {
+        network.packetSimulator.stopSession(network);
     }
     network.networkAvailable = true;
     let style = [
@@ -420,7 +420,11 @@ export function initNetwork(network: NetworkComponent): void {
                         let bitmask: number = parent.data().bitmask;
                         if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
                             if (!parent.hasClass('unconfigured-net')) {
-                                SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
+                                network.subnettingController.onDragInACompound(
+                                    grabbedNode,
+                                    parent,
+                                    network.ipv4Database
+                                );
                             }
                         } else {
                             AlertHelper.toastAlert(
@@ -431,7 +435,7 @@ export function initNetwork(network: NetworkComponent): void {
                             );
                         }
                     } else {
-                        SubnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
+                        network.subnettingController.onDragInACompound(grabbedNode, parent, network.ipv4Database);
                     }
                 }
             });
@@ -477,8 +481,8 @@ export function initNetwork(network: NetworkComponent): void {
 
     network._graph.on('tapend', '.router-node', function (event: EventObject) {
         console.log(event.target);
-        if (!SubnettingController.assignGatewayOn) return;
-        SubnettingController.addGateway(event, network);
+        if (!network.subnettingController.assignGatewayOn) return;
+        network.subnettingController.addGateway(event, network);
     });
 
     //handle database and port assignment on removing node/edge

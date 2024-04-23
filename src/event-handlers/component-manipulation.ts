@@ -73,7 +73,7 @@ export class GraphNodeFactory {
         let netmask: string = (network.renderRoot.querySelector('#net-mask') as SlInput).value.trim();
         let bitmask: number = (network.renderRoot.querySelector('#net-bitmask') as SlInput).valueAsNumber;
 
-        let newNet = Net.createNet(network.currentColor, netId, netmask, bitmask, network.ipv4Database);
+        let newNet = Net.createNet(network.currentColor, netId, netmask, bitmask, network.ipv4Database, network);
 
         if (newNet != null) {
             network._graph.add({
@@ -91,7 +91,7 @@ export class GraphNodeFactory {
 
         let color: string = data.color || '#70e6af';
 
-        let newNet = Net.createNet(color, netid, netmask, bitmask, network.ipv4Database);
+        let newNet = Net.createNet(color, netid, netmask, bitmask, network.ipv4Database, network);
 
         if (newNet != null) {
             network._graph.add({

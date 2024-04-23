@@ -20,16 +20,14 @@ export class Host extends PhysicalNode {
 
         if (id != null && id != undefined && id != '') {
             this.id = id;
-            Host.counter = +id.charAt(id.length - 1);
         } else {
-            this.id = 'host' + Host.counter;
+            this.id = 'host' + crypto.randomUUID();
         }
-        Host.counter++;
 
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = this.id;
+            this.name = 'Host';
         }
 
         for (let index = 1; index <= numberOfInterfaces; index++) {

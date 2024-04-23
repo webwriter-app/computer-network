@@ -119,7 +119,7 @@ export class ImportExportController {
             edges.push(i);
         });
 
-        if (PacketSimulator.inited) {
+        if (network.packetSimulator.inited) {
             data['inited'] = true;
             let switchableTables = [];
             network._graph.nodes('.switchable-decorated').forEach((e) => {
@@ -410,8 +410,8 @@ export class ImportExportController {
             });
 
             if (json.hasOwnProperty('inited')) {
-                PacketSimulator.inited = false;
-                PacketSimulator.initSession(network);
+                network.packetSimulator.inited = false;
+                network.packetSimulator.initSession(network);
             } else {
                 (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = '';
             }

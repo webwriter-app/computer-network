@@ -1,4 +1,4 @@
-import { ComputerNetwork } from '../..';
+import { ComputerNetwork, NetworkComponent } from '../..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { GraphNode } from '../components/GraphNode';
 import { Net } from '../components/logicalNodes/Net';
@@ -9,10 +9,16 @@ import NodeSingular from 'cytoscape';
 import { AddressingHelper } from '../utils/AdressingHelper';
 
 export class SubnettingController {
-    static assignGatewayOn = false;
-    static mutexDragAndDrop: string;
+    assignGatewayOn = false;
+    mutexDragAndDrop!: string;
 
-    static toggleDragAndDropSubnetting(event: any, network: ComputerNetwork) {
+    private component: NetworkComponent;
+
+    constructor(component: NetworkComponent) {
+        this.component = component;
+    }
+
+    toggleDragAndDropSubnetting(event: any, network: ComputerNetwork) {
         if (this.mutexDragAndDrop == 'gateway') return;
         //if subnetting option is not active
         if (!event.target.checked) {
@@ -28,7 +34,7 @@ export class SubnettingController {
         }
     }
 
-    static toggleAssigningGateway(event: any, network: ComputerNetwork) {
+    toggleAssigningGateway(event: any, network: ComputerNetwork) {
         if (this.mutexDragAndDrop == 'subnetting') return;
         if (!event.target.checked) {
             event.target.checked = true;
@@ -39,10 +45,10 @@ export class SubnettingController {
             this.mutexDragAndDrop = null;
             network.mutexDragAndDrop = null;
         }
-        SubnettingController.assignGatewayOn = event.target.checked;
+        this.assignGatewayOn = event.target.checked;
     }
 
-    static addGateway(event: any, network: ComputerNetwork): void {
+    addGateway(event: any, network: ComputerNetwork): void {
         var router = event.target;
         if (!(router.data() instanceof Router)) return;
         var mouse = event.position;
@@ -73,12 +79,12 @@ export class SubnettingController {
         });
     }
 
-    static onDragInACompound(grabbedNode, compound, database: Map<string, string>): void {
+    onDragInACompound(grabbedNode, compound, database: Map<string, string>): void {
         let net: Net = compound.data();
         let node: PhysicalNode = grabbedNode.data();
 
         //reset the IP address of a host based on the network ID
-        if (Net.mode == 'NET_BASED') {
+        if (this.component.subnettingMode == 'NET_BASED') {
             if (node instanceof PhysicalNode && node.layer > 2) {
                 node.portData.forEach((data) => {
                     let ip4 = data.get('IPv4');
@@ -111,11 +117,12 @@ export class SubnettingController {
                 }
             }
         } //reset the Network ID based on new element
-        else if (Net.mode == 'HOST_BASED') {
+        else if (this.component.subnettingMode == 'HOST_BASED') {
             if (node instanceof PhysicalNode && node.layer > 2) {
                 node.portData.forEach((data) => {
                     let ip4 = data.get('IPv4');
-                    if (ip4 != null && ip4 != undefined) Net.calculateCIDRGivenNewHost(net, ip4, database);
+                    if (ip4 != null && ip4 != undefined)
+                        Net.calculateCIDRGivenNewHost(net, ip4, database, this.component);
                     compound.classes(net.cssClass);
                 });
                 if (net.currentDefaultGateway != undefined && net.currentDefaultGateway != null) {
@@ -129,7 +136,7 @@ export class SubnettingController {
                         grabbedNode.data('cssClass').push('default-gateway-not-found');
                 }
             } else if (node instanceof Net) {
-                Net.calculateCIDRGivenNewSubnet(net, node, database);
+                Net.calculateCIDRGivenNewSubnet(net, node, database, this.component);
                 compound.classes(net.cssClass);
             }
         } else {
@@ -142,7 +149,7 @@ export class SubnettingController {
     }
 
     //TODO: automatically run this before the packet simulation
-    static validateAllNets(noAlert: boolean, network: ComputerNetwork): boolean {
+    validateAllNets(noAlert: boolean, network: ComputerNetwork): boolean {
         let nets = network._graph.$('.net-node');
         let allCorrect = true;
         let alert = '';
@@ -187,12 +194,7 @@ export class SubnettingController {
             AlertHelper.toastAlert('warning', 'exclamation-triangle', 'Cross validation between Nets: ', alert);
     }
 
-    static setUpGateway(
-        gateway: NodeSingular,
-        host: NodeSingular,
-        gatewayPort: number,
-        database: Map<string, string>
-    ): void {
+    setUpGateway(gateway: NodeSingular, host: NodeSingular, gatewayPort: number, database: Map<string, string>): void {
         if (host.isChild() && gateway.hasClass('gateway-node')) {
             console.log(
                 'Setting up gateway: ',
@@ -213,10 +215,10 @@ export class SubnettingController {
 
             if (!net.data('currentDefaultGateway')) net.data('currentDefaultGateway', [gatewayNodeId, gatewayPort]);
 
-            switch (Net.mode) {
+            switch (this.component.subnettingMode) {
                 case 'HOST_BASED':
                     if (ip4 != null && ip4 != undefined)
-                        Net.calculateCIDRGivenNewHost(net.data() as Net, ip4, database);
+                        Net.calculateCIDRGivenNewHost(net.data() as Net, ip4, database, this.component);
                     net.classes(net.data('cssClass'));
                     break;
                 case 'NET_BASED':

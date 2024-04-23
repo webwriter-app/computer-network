@@ -71,16 +71,14 @@ export class Router extends Connector {
 
         if (id != null && id != undefined && id != '') {
             this.id = id;
-            Router.counter = +id.charAt(id.length - 1);
         } else {
-            this.id = 'router' + Router.counter;
+            this.id = 'router' + crypto.randomUUID();
         }
-        Router.counter++;
 
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = this.id;
+            this.name = 'Router';
         }
 
         portMacMapping.forEach((macAddress, port) => {
@@ -104,16 +102,14 @@ export class Repeater extends Connector {
 
         if (id != null && id != undefined && id != '') {
             this.id = id;
-            Repeater.counter = +id.charAt(id.length - 1);
         } else {
-            this.id = 'repeater' + Repeater.counter;
+            this.id = 'repeater' + crypto.randomUUID();
         }
-        Repeater.counter++;
 
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = this.id;
+            this.name = 'Repeater';
         }
 
         this.cssClass.push('repeater-node');
@@ -127,16 +123,14 @@ export class Hub extends Connector {
 
         if (id != null && id != undefined && id != '') {
             this.id = id;
-            Hub.counter = +id.charAt(id.length - 1);
         } else {
-            this.id = 'hub' + Hub.counter;
+            this.id = 'hub' + crypto.randomUUID();
         }
-        Hub.counter++;
 
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = this.id;
+            this.name = 'Hub';
         }
 
         this.cssClass.push('hub-node');
@@ -156,16 +150,14 @@ export class Switch extends Connector {
 
         if (id != null && id != undefined && id != '') {
             this.id = id;
-            Switch.counter = +id.charAt(id.length - 1);
         } else {
-            this.id = 'switch' + Switch.counter;
+            this.id = 'switch' + crypto.randomUUID();
         }
-        Switch.counter++;
 
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = this.id;
+            this.name = 'Switch';
         }
         portMacMapping.forEach((macAddress, port) => {
             this.portData.get(port).set('MAC', macAddress);
@@ -187,16 +179,14 @@ export class Bridge extends Connector {
 
         if (id != null && id != undefined && id != '') {
             this.id = id;
-            Bridge.counter = +id.charAt(id.length - 1);
         } else {
-            this.id = 'bridge' + Bridge.counter;
+            this.id = 'bridge' + crypto.randomUUID();
         }
-        Bridge.counter++;
 
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = this.id;
+            this.name = 'Bridge';
         }
 
         portMacMapping.forEach((macAddress, port) => {
@@ -232,16 +222,14 @@ export class AccessPoint extends Connector {
 
         if (id != null && id != undefined && id != '') {
             this.id = id;
-            AccessPoint.counter = +id.charAt(id.length - 1);
         } else {
-            this.id = 'accessPoint' + AccessPoint.counter;
+            this.id = 'accessPoint' + crypto.randomUUID();
         }
-        AccessPoint.counter++;
 
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = this.id;
+            this.name = 'Access Point';
         }
         portMacMapping.forEach((macAddress, port) => {
             this.portData.get(port).set('MAC', macAddress);

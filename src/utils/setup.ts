@@ -203,13 +203,13 @@ export function load(this: NetworkComponent) {
                 addedEdge.addClass(newData.cssClass);
             } //set new format-display for this connection if no error appears
 
-            SubnettingController.setUpGateway(
+            this.subnettingController.setUpGateway(
                 this._graph.$('#' + from.id),
                 this._graph.$('#' + to.id),
                 c.inPort,
                 this.ipv4Database
             );
-            SubnettingController.setUpGateway(
+            this.subnettingController.setUpGateway(
                 this._graph.$('#' + to.id),
                 this._graph.$('#' + from.id),
                 c.outPort,
@@ -227,7 +227,7 @@ export function load(this: NetworkComponent) {
 
         let color: string = n.color;
 
-        let newNet = Net.createNet(color, netid, netmask, bitmask, this.ipv4Database);
+        let newNet = Net.createNet(color, netid, netmask, bitmask, this.ipv4Database, this);
         newNet.id = n.id;
         let net: any;
         if (newNet != null) {
@@ -246,7 +246,7 @@ export function load(this: NetworkComponent) {
             component.move({
                 parent: net.id(),
             });
-            SubnettingController.onDragInACompound(component, net, this.ipv4Database);
+            this.subnettingController.onDragInACompound(component, net, this.ipv4Database);
         });
 
         if (n.currentDefaultGateway) {
@@ -287,7 +287,7 @@ export function load(this: NetworkComponent) {
                     const connectedComponent = this._graph.$id(connection.to === g ? connection.from : connection.to);
                     console.log('gateway', n, connection, port);
                     net.data('gateways').set(gateway.id(), port); // add gateway to the net, with port
-                    SubnettingController.setUpGateway(gateway, connectedComponent, port, this.ipv4Database);
+                    this.subnettingController.setUpGateway(gateway, connectedComponent, port, this.ipv4Database);
                 }
             });
         }
@@ -299,6 +299,8 @@ export function setupListeners(this: NetworkComponent) {
 
     this._graph.on('add', (event: EventObject) => {
         // console.log('add', event.target.data());
+
+        if (this.mode === 'simulate') return;
 
         if (event.target.data() instanceof Packet || event.target.data() instanceof Frame) return;
 
@@ -319,6 +321,7 @@ export function setupListeners(this: NetworkComponent) {
     });
 
     this._graph.on('remove', (event: EventObject) => {
+        if (this.mode === 'simulate') return;
         // console.log('remove', event);
         if (event.target.data() instanceof Packet || event.target.data() instanceof Frame) return;
         if (event.target.isNode() && event.target.data().constructor.name === '_Net') {
@@ -336,6 +339,7 @@ export function setupListeners(this: NetworkComponent) {
     });
 
     this._graph.on('data', (event: EventObject) => {
+        if (this.mode === 'simulate') return;
         // console.log('data', event.target.data());
 
         if (event.target.data() instanceof Packet || event.target.data() instanceof Frame) return;
@@ -357,6 +361,7 @@ export function setupListeners(this: NetworkComponent) {
     });
 
     this._graph.on('move', (event: EventObject) => {
+        if (this.mode === 'simulate') return;
         if (event.target.data() instanceof Packet || event.target.data() instanceof Frame) return;
         const data = event.target.data();
 
@@ -380,6 +385,7 @@ export function setupListeners(this: NetworkComponent) {
     });
 
     this._graph.on('dragfree', (event: EventObject) => {
+        if (this.mode === 'simulate') return;
         const target = event.target;
         const data = target.data();
         const position = target.position();
@@ -417,7 +423,9 @@ function handleNodeAdd(this: NetworkComponent, event: EventObject) {
 
     console.log('Add Node', target, data, position);
 
-    let type = data.constructor.name.toLowerCase().substring(1);
+    let type = data.constructor.name.toLowerCase();
+    if (type[0] === '_') type = type.slice(1);
+    console.log('type', type);
 
     if (type === 'host') {
         type = data.icon === iconToDataURI(biPcDisplayHorizontal) ? 'computer' : 'mobile';
