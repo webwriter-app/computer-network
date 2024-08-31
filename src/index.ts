@@ -67,7 +67,7 @@ import { SlChangeEvent } from '@shoelace-style/shoelace';
 @customElement('ww-network')
 export class NetworkComponent extends LitElementWw {
     @query('#cy')
-    _cy: any;
+    accessor _cy: any;
 
     _graph: any;
     currentComponentToAdd: string = '';
@@ -101,28 +101,28 @@ export class NetworkComponent extends LitElementWw {
     ipv6Database: Map<string, string> = new Map<string, string>();
 
     @state()
-    packetSimulator: PacketSimulator = new PacketSimulator(this);
+    accessor packetSimulator: PacketSimulator = new PacketSimulator(this);
 
     @state()
-    subnettingController: SubnettingController = new SubnettingController(this);
+    accessor subnettingController: SubnettingController = new SubnettingController(this);
 
     @property({ type: Boolean, reflect: true })
-    automate: boolean = false;
+    accessor automate: boolean = false;
 
     @property({ type: String, reflect: true })
-    screen: 'small' | 'medium' = 'medium'; //small/medium
+    accessor screen: 'small' | 'medium' = 'medium'; //small/medium
 
     @property({ type: Object })
-    selectedObject: any;
+    accessor selectedObject: any;
 
     @query('#toolboxButtons')
-    toolboxButtons!: HTMLElement;
+    accessor toolboxButtons!: HTMLElement;
 
     @query('#contextMenu')
-    contextMenu!: HTMLElement;
+    accessor contextMenu!: HTMLElement;
 
     @state()
-    selectedPorts: {
+    accessor selectedPorts: {
         source: {
             connectionType: 'ethernet' | 'wireless' | null;
             port: number | null;
@@ -137,22 +137,22 @@ export class NetworkComponent extends LitElementWw {
     };
 
     @state()
-    mutexDragAndDrop: string | null = null;
+    accessor mutexDragAndDrop: string | null = null;
 
     @property({ type: Array, reflect: true, attribute: true })
-    componets: Array<Component> = [];
+    accessor componets: Array<Component> = [];
 
     @property({ type: Array, reflect: true, attribute: true })
-    connections: Array<Connection> = [];
+    accessor connections: Array<Connection> = [];
 
     @property({ type: Array, reflect: true, attribute: true })
-    networks: Array<Network> = [];
+    accessor networks: Array<Network> = [];
 
     @state()
-    mode: 'edit' | 'simulate' = 'edit';
+    accessor mode: 'edit' | 'simulate' = 'edit';
 
     @state()
-    subnettingMode: SubnettingMode = 'MANUAL';
+    accessor subnettingMode: SubnettingMode = 'MANUAL';
 
     /* Previously Static Variables */
     net_mode: SubnettingMode = 'MANUAL';

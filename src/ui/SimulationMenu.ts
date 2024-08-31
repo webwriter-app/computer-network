@@ -1,6 +1,9 @@
 import { html } from 'lit';
 import { NetworkComponent } from '../';
-import { SlPopup } from '@shoelace-style/shoelace';
+// import { SlPopup } from '@shoelace-style/shoelace';
+// import SlButtonGroup from '@shoelace-style/shoelace/dist/components/button-group/button-group.component.js';
+// import SlButton from '@shoelace-style/shoelace/dist/components/button/button.component.js';
+// import SlSelect from '@shoelace-style/shoelace/dist/components/select/select.component.js';
 import { PacketSimulator } from '../event-handlers/packet-simulator';
 
 export function simulationMenuTemplate(this: NetworkComponent) {

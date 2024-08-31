@@ -1,9 +1,10 @@
 {
-  "name": "@webwriter/ww-network",
-  "version": "0.0.1",
+  "name": "@webwriter/network",
+  "version": "0.0.2",
   "keywords": [
     "webwriter-widget"
   ],
+  "description": "visualization of network topologies. Can represent different kinds of networks.",
   "license": "MIT",
   "author": "Jorik van Genuchten",
   "main": "src/index.ts",

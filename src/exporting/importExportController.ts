@@ -1,4 +1,5 @@
-import { SlDetails, SlDialog } from '@shoelace-style/shoelace';
+import SlDetails from '@shoelace-style/shoelace/dist/components/details/details.component.js';
+import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.component.js';
 import { html } from 'lit';
 import { ComputerNetwork } from '../..';
 import { Ipv4Address } from '../adressing/Ipv4Address';

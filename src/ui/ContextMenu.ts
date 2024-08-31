@@ -1,4 +1,8 @@
-import { SlChangeEvent, SlColorPicker, SlDialog, SlInput, SlSelect } from '@shoelace-style/shoelace';
+import SlColorPicker from '@shoelace-style/shoelace/dist/components/color-picker/color-picker.component.js';
+import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.component.js';
+import SlInput from '@shoelace-style/shoelace/dist/components/input/input.component.js';
+import SlSelect from '@shoelace-style/shoelace/dist/components/select/select.component.js';
+import { SlChangeEvent } from '@shoelace-style/shoelace';
 import { names } from 'konva/types/Node';
 import { html, TemplateResult } from 'lit';
 import { NetworkComponent } from 'src';
