@@ -4,7 +4,7 @@
   "keywords": [
     "webwriter-widget"
   ],
-  "description": "visualization of network topologies. Can represent different kinds of networks.",
+  "description": "Visualization of network topologies. Can represent different kinds of networks.",
   "license": "MIT",
   "author": "Jorik van Genuchten",
   "main": "src/index.ts",
