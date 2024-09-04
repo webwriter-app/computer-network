@@ -526,7 +526,7 @@ export class NetworkComponent extends LitElementWw {
 
     private asideTemplate(): TemplateResult {
         return html`
-            <aside part="options">
+            <aside part="options" style="visibility: hidden">
                 <form autocomplete="off">
                     <input class="importBtn" style="width: 11cqw;" type="file" id="import-file" />
                     <sl-tooltip content="Import a file created by this widget" placement="bottom">

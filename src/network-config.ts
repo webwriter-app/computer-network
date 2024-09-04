@@ -1,9 +1,9 @@
 import { NetworkComponent } from './index';
-import cytoscape from 'cytoscape/dist/cytoscape.esm.min.js';
-import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles.js';
-import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus.js';
-import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop/cytoscape-compound-drag-and-drop.js';
-import nodeHtmlLabel from 'cytoscape-node-html-label/dist/cytoscape-node-html-label.min.js';
+import cytoscape from 'cytoscape/dist/cytoscape.esm.min';
+import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles';
+import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus';
+import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop/cytoscape-compound-drag-and-drop';
+import nodeHtmlLabel from 'cytoscape-node-html-label/dist/cytoscape-node-html-label.min';
 import NodeSingular, { EventObject } from 'cytoscape';
 
 // import CSS as well
