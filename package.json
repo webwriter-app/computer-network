@@ -1,13 +1,15 @@
 {
   "name": "@webwriter/network",
-  "version": "0.0.3",
+  "version": "2.0.0",
   "keywords": [
     "webwriter-widget"
   ],
   "description": "Visualization of network topologies. Can represent different kinds of networks.",
   "license": "MIT",
   "author": "Jorik van Genuchten",
-  "main": "src/index.ts",
+  "scripts": {
+    "prepublishOnly": "npx @webwriter/build"
+  },
   "dependencies": {
     "@shoelace-style/shoelace": "^2.16.0",
     "@types/cytoscape": "^3.21.7",
@@ -31,13 +33,13 @@
     "vite": "^3.2.10"
   },
   "exports": {
-    "./widgets/ww-network": "./src/index.ts",
-    "./snippets/example": "./snippets/example.html",
-    "./snippets/example-complex": "./snippets/example-complex.html",
-    "./snippets/example-three-net": "./snippets/example-three-net.html",
-    "./*": {
-      "source": "./*",
-      "default": null
-    }
+    "./widgets/ww-network.*": {
+      "source": "./src/index.ts",
+      "default": "./dist/widgets/ww-network.*"
+    },
+    "./snippets/example.html": "./snippets/example.html",
+    "./snippets/example-complex.html": "./snippets/example-complex.html",
+    "./snippets/example-three-net.html": "./snippets/example-three-net.html",
+    "./package.json": "./package.json"
   }
 }
