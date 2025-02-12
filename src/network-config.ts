@@ -271,11 +271,11 @@ export function initNetwork(network: NetworkComponent): void {
             padding: 2,
         },
         // initial viewport state:
-        zoom: 5,
-        pan: { x: 0, y: 0 },
+        // zoom: 1,
+        // pan: { x: 0, y: 0 },
         // minZoom: 1,
         maxZoom: 1e50,
-        wheelSensitivity: 0.5,
+        wheelSensitivity: 0.1,
     });
 
     //options for context menu
@@ -492,4 +492,10 @@ export function initNetwork(network: NetworkComponent): void {
     network._graph.on('remove', 'edge', (event: EventObject) => {
         EdgeController.removeConnection(event.target.data(), network._graph);
     });
+
+    //fit graph view to container => should be done using cy.ready() 
+    setTimeout(() => { 
+        network._graph.fit();
+    },100); 
+
 }
