@@ -1,6 +1,6 @@
 {
 	"name": "@webwriter/network",
-	"version": "2.0.2",
+	"version": "2.0.3",
 	"description": "Visualization of network topologies. Can represent different kinds of networks.",
 	"keywords": [
 		"webwriter-widget"
@@ -40,6 +40,7 @@
 		"./snippets/simple-network.html": "./snippets/simple-network.html",
 		"./snippets/complex-network.html": "./snippets/complex-network.html",
 		"./snippets/triple-network.html": "./snippets/triple-network.html",
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./icon": "./icon.svg"
 	}
 }
