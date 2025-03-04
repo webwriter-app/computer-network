@@ -66,6 +66,7 @@ export class GraphNodeFactory {
                 this.addPhysicalNodeData(network, nodeData);
                 break;
         }
+        network._graph.center(); 
     }
 
     private static addNetNode(network: NetworkComponent): void {
