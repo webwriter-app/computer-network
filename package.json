@@ -1,9 +1,11 @@
 {
     "name": "@webwriter/network",
-    "version": "2.0.5",
+    "version": "2.0.6",
     "description": "Visualization of network topologies. Can represent different kinds of networks.",
     "keywords": [
         "webwriter-widget",
+        "widget-conceptual",
+        "widget-simulational",
         "widget-lang-en",
         "isced2011-3",
         "isced2011-4",
