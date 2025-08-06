@@ -69,8 +69,8 @@ export function initNetwork(network: NetworkComponent): void {
             style: {
                 'line-style': 'dotted',
                 'line-opacity': 0.8,
-                'font-size': 5,
-                label: 'please assign the ports/ interfaces',
+                'font-size': 8,
+                label: 'Please assign ports/interfaces',
                 'edge-text-rotation': 'autorotate',
             },
         },
