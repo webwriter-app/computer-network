@@ -428,7 +428,7 @@ function handleNodeAdd(this: NetworkComponent, event: EventObject) {
     console.log('type', type);
 
     if (type === 'host') {
-        type = data.icon === iconToDataURI(biPcDisplayHorizontal) ? 'computer' : 'mobile';
+        type = data.backgroundPath === iconToDataURI(biPcDisplayHorizontal) ? 'computer' : 'mobile';
     }
 
     const portData: Map<string, Map<string, any>> = data.portData;
