@@ -273,8 +273,8 @@ export function initNetwork(network: NetworkComponent): void {
         // initial viewport state:
         // zoom: 1,
         // pan: { x: 0, y: 0 },
-        // minZoom: 1,
-        maxZoom: 1e50,
+        minZoom: 0.5,
+        maxZoom: 5,
         wheelSensitivity: 0.1,
     });
 
