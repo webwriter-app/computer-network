@@ -247,6 +247,18 @@ export class NetworkComponent extends LitElementWw {
 
         load.bind(this)();
         setupListeners.bind(this)();
+        window.addEventListener('scroll', this.onScroll);
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        window.removeEventListener('scroll', this.onScroll);
+    }
+
+    private onScroll = () => {
+        // Cytoscape caches container bounds which become outdated after scrolling.
+        // Calling resize() forces Cytoscape to update its internal bounds and correctly map mouse input.
+        this._graph.resize()
     }
 
     public render(): TemplateResult {
