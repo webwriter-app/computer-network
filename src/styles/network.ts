@@ -33,8 +33,8 @@ export const networkStyles = css`
     #myCanvas {
         position: relative;
         width: 100%;
-        height: 400px;
         border: 1px solid #adadad;
+        background-color: white;
     }
     #cy {
         height: 100%;
@@ -408,6 +408,16 @@ export const networkStyles = css`
         left: var(--sl-spacing-small);
         top: var(--sl-spacing-small);
         width: 150px;
+
+        z-index: 1000;
+    }
+
+    .fullscreenButton {
+        position: absolute;
+        right: var(--sl-spacing-small);
+        top: var(--sl-spacing-small);
+        width: 50px;
+        height: 50px;
 
         z-index: 1000;
     }

@@ -34,6 +34,8 @@ import {
     iBridge,
     iHub,
     iSwitch,
+    biFullscreenMaximize,
+    biFullscreenMinimize,
 } from './styles/icons';
 
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
@@ -63,6 +65,7 @@ import { MacAddress } from './adressing/MacAddress';
 import { simulationMenuTemplate } from './ui/SimulationMenu';
 import { Component, Connection, load, Network, setupListeners } from './utils/setup';
 import { SlChangeEvent } from '@shoelace-style/shoelace';
+import { styleMap } from 'lit/directives/style-map.js';
 
 @customElement('ww-network')
 export class NetworkComponent extends LitElementWw {
@@ -261,10 +264,36 @@ export class NetworkComponent extends LitElementWw {
         this._graph.resize()
     }
 
+    /**
+   * Whether the editor is in fullscreen mode.
+   * @private
+   */
+    private get isFullscreen(): boolean {
+        return this.ownerDocument.fullscreenElement === this;
+    }
+
+    /**
+   * Handles the fullscreen toggle event.
+   * @private
+   */
+    private async handleFullscreenToggle() {
+        if (this.isFullscreen) {
+            await this.ownerDocument.exitFullscreen();
+            this.requestUpdate()
+        } else {
+            try {
+                await this.requestFullscreen();
+                this.requestUpdate()
+            } catch (error) {
+                console.error("Failed to enter fullscreen mode.");
+            }
+        }
+    }
+
     public render(): TemplateResult {
         return html`
             ${this.isEditable() ? this.asideTemplate() : null}
-            <div class="canvas" id="myCanvas">
+            <div class="canvas" id="myCanvas" style="${styleMap({height: this.isFullscreen ? "100%" : "400px"})}">
                 <div class="modeSwitch">
                     <sl-select
                         value=${this.mode}
@@ -303,6 +332,12 @@ export class NetworkComponent extends LitElementWw {
 
                 <div id="cy"></div>
                 ${this.toolboxTemplate()} ${contextMenuTemplate.bind(this)()} ${simulationMenuTemplate.bind(this)()}
+                
+                <sl-tooltip content=${this.isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+                    <sl-button size="large" circle class="fullscreenButton" @click=${() => this.handleFullscreenToggle()}>
+                        ${this.isFullscreen ? biFullscreenMinimize : biFullscreenMaximize}
+                    </sl-button>
+                </sl-tooltip>
             </div>
 
             <div id="inputDialog"></div>
