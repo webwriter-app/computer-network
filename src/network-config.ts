@@ -80,9 +80,9 @@ export function initNetwork(network: NetworkComponent): void {
                 'text-wrap': 'wrap',
                 'font-size': 8,
                 'edge-text-rotation': 'autorotate',
-                'source-text-offset': 50,
+                'source-text-offset': 70,
                 'source-text-rotation': 'autorotate',
-                'target-text-offset': 50,
+                'target-text-offset': 70,
                 'target-text-rotation': 'autorotate',
                 'source-label': function (edge) {
                     let source: PhysicalNode = edge.data('from');
@@ -99,7 +99,7 @@ export function initNetwork(network: NetworkComponent): void {
                                     ? key + ': ' + value.address + '\n'
                                     : value + '\n')
                     );
-                    return label;
+                    return label + "\n\n\u2060"; // Add invisible lines to make label lower
                 },
                 'target-label': function (edge) {
                     let target: PhysicalNode = edge.data('to');
@@ -115,7 +115,7 @@ export function initNetwork(network: NetworkComponent): void {
                                     ? key + ': ' + value.address + '\n'
                                     : value + '\n')
                     );
-                    return label;
+                    return "\u2060\n\n\n" + label; // Add invisible lines to make label higher
                 },
                 label: '',
             },
