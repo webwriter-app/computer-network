@@ -17,6 +17,7 @@ import { PacketSimulator } from '../event-handlers/packet-simulator';
 import { initNetwork } from '../network-config';
 import { RoutingData } from '../utils/routingData';
 import { TableHelper } from '../utils/TableHelper';
+import { msg } from '@lit/localize';
 
 class ExampleDescription {
     id: number;
@@ -483,7 +484,7 @@ export class ImportExportController {
                 1,
                 'resources/preview-examples/CIDR-and-classful-drag&drop--then-check.png',
                 'resources/examples/CIDR-and-classful-drag&drop--then-check.json',
-                'An exercise for CIDR from classful networks: drag and drop then check.'
+                msg('An exercise for CIDR from classful networks: drag and drop then check.')
             ),
         ],
         [
@@ -492,7 +493,7 @@ export class ImportExportController {
                 2,
                 'resources/preview-examples/CIDR-fill-in-the-blank.png',
                 'resources/examples/CIDR-fill-in-the-blank.json',
-                'An exercise for CIDR from classful networks: configure the classful networks then check.'
+                msg('An exercise for CIDR from classful networks: configure the classful networks then check.')
             ),
         ],
         [
@@ -501,7 +502,7 @@ export class ImportExportController {
                 3,
                 'resources/preview-examples/subnetting-fill-in-the-blank.png',
                 'resources/examples/subnetting-fill-in-the-blank.json',
-                'An exercise for subnetting from a classful network: configure the subnets then check.'
+                msg('An exercise for subnetting from a classful network: configure the subnets then check.')
             ),
         ],
         [
@@ -510,7 +511,7 @@ export class ImportExportController {
                 4,
                 'resources/preview-examples/cidr-subnetting-drag&drop.png',
                 'resources/examples/cidr-subnetting-drag&drop.json',
-                'A mixed exercise of CIDR and subnetting: drag and drop then check.'
+                msg('A mixed exercise of CIDR and subnetting: drag and drop then check.')
             ),
         ],
     ]); //id, example-info
@@ -522,7 +523,7 @@ export class ImportExportController {
                 1,
                 'resources/preview-examples/repeater-simulation.png',
                 'resources/examples/repeater-simulation.json',
-                'Ethernet with a repeater and 2 hosts.'
+                msg('Ethernet with a repeater and 2 hosts.')
             ),
         ],
         [
@@ -531,7 +532,7 @@ export class ImportExportController {
                 2,
                 'resources/preview-examples/hub-simulation.png',
                 'resources/examples/hub-simulation.json',
-                'Ethernet with a hub and 3 hosts.'
+                msg('Ethernet with a hub and 3 hosts.')
             ),
         ],
         [
@@ -540,7 +541,7 @@ export class ImportExportController {
                 3,
                 'resources/preview-examples/bridge-simulation.png',
                 'resources/examples/bridge-simulation.json',
-                'Ethernet with a bridge and 2 hosts.'
+                msg('Ethernet with a bridge and 2 hosts.')
             ),
         ],
         [
@@ -549,7 +550,7 @@ export class ImportExportController {
                 4,
                 'resources/preview-examples/switch-simulation.png',
                 'resources/examples/switch-simulation.json',
-                'Ethernet with a switch and 3 hosts.'
+                msg('Ethernet with a switch and 3 hosts.')
             ),
         ],
         [
@@ -558,7 +559,7 @@ export class ImportExportController {
                 5,
                 'resources/preview-examples/accesspoint-simulation.png',
                 'resources/examples/accesspoint-simulation.json',
-                'Wifi network with 1 access point, 3 hosts.'
+                msg('Wifi network with 1 access point, 3 hosts.')
             ),
         ],
         [
@@ -567,7 +568,7 @@ export class ImportExportController {
                 6,
                 'resources/preview-examples/gateway-2ethernet.png',
                 'resources/examples/gateway-2ethernet.json',
-                '2 Ethernets with a gateway.'
+                msg('2 Ethernets with a gateway.')
             ),
         ],
         [
@@ -576,7 +577,7 @@ export class ImportExportController {
                 7,
                 'resources/preview-examples/gateway-2net-wireless-ethernet.png',
                 'resources/examples/gateway-2net-wireless-ethernet.json',
-                'An ethernet, a wireless network and a gateway.'
+                msg('An ethernet, a wireless network and a gateway.')
             ),
         ],
         [
@@ -585,7 +586,7 @@ export class ImportExportController {
                 8,
                 'resources/preview-examples/gateway-3ethernet.png',
                 'resources/examples/gateway-3ethernet.json',
-                '3 Ethernets and a gateway.'
+                msg('3 Ethernets and a gateway.')
             ),
         ],
         [
@@ -594,7 +595,7 @@ export class ImportExportController {
                 9,
                 'resources/preview-examples/3gateways - next gateway routes.png',
                 'resources/examples/3gateways - next gateway routes.json',
-                '2 Ethernets and 3 routers.'
+                msg('2 Ethernets and 3 routers.')
             ),
         ],
         [
@@ -603,7 +604,7 @@ export class ImportExportController {
                 10,
                 'resources/preview-examples/4 routers-2 nets.png',
                 'resources/examples/4 routers-2 nets.json',
-                '2 Ethernets and 4 routers.'
+                msg('2 Ethernets and 4 routers.')
             ),
         ],
     ]); //id, example-info
@@ -631,7 +632,7 @@ export class ImportExportController {
                     ${value.helpText}
                     <div slot="footer">
                         <sl-button pill @click="${() => ImportExportController.openExample(value.filePath, network)}"
-                            >Open</sl-button
+                            >${msg('Open')}</sl-button
                         >
                     </div>
                 </sl-card>
@@ -645,7 +646,7 @@ export class ImportExportController {
                     ${value.helpText}
                     <div slot="footer">
                         <sl-button pill @click="${() => ImportExportController.openExample(value.filePath, network)}"
-                            >Open</sl-button
+                            >${msg('Open')}</sl-button
                         >
                     </div>
                 </sl-card>
@@ -654,18 +655,19 @@ export class ImportExportController {
 
         return html`
             <sl-tab-group>
-                <sl-tab slot="nav" panel="cidr">Example exercises for CIDR/ Subnetting</sl-tab>
-                <sl-tab slot="nav" panel="simulation">Example networks for simulations</sl-tab>
+                <sl-tab slot="nav" panel="cidr">${msg('Example exercises for CIDR/ Subnetting')}</sl-tab>
+                <sl-tab slot="nav" panel="simulation">${msg('Example networks for simulations')}</sl-tab>
 
                 <sl-tab-panel name="cidr"
-                    ><b>Tip</b>: Use the <b>CIDR/Subnetting controller</b> to <b>drag-and-drop</b> then <b>check</b>.
-                    <b>Right-click</b> on each network, then select <b>Edit details</b> to change its configuration.
+                    >${msg('Tip: Use the CIDR/Subnetting controller to drag-and-drop then check.')}
+                    ${msg('Right-click on each network, then select Edit details to change its configuration.')}
                     <br /><br />
                     ${cidrExamples}</sl-tab-panel
                 >
                 <sl-tab-panel name="simulation"
-                    ><b>Tip</b>: Set <b>source</b> and <b>destination</b> then click on <b>play</b> button in
-                    <b>Packet sending controller</b> to start simulation <br /><br />
+                    >${msg('Tip: Set source and destination then click on play button in')}
+                    ${msg('Packet sending controller to start simulation')}
+                    <br /><br />
                     ${simulationExamples}</sl-tab-panel
                 >
             </sl-tab-group>

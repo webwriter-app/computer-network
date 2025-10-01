@@ -11,6 +11,7 @@ import { AlertHelper } from '../utils/AlertHelper';
 import { TableHelper } from '../utils/TableHelper';
 import { RoutingData } from '../utils/routingData';
 import { Net } from '../components/logicalNodes/Net';
+import { msg } from '@lit/localize';
 
 export class PacketSimulator {
     sourceEndPoint: string = '';
@@ -75,7 +76,7 @@ export class PacketSimulator {
                     'warning',
                     'exclamation-triangle',
                     '',
-                    'Currently the widget only supports host as sender and receiver.'
+                    msg('Currently the widget only supports host as sender and receiver.')
                 );
             } else {
                 node.portData.forEach((value, port) => {
@@ -115,7 +116,7 @@ export class PacketSimulator {
                     'warning',
                     'exclamation-triangle',
                     '',
-                    'Currently the widget only supports host as sender and receiver.'
+                    msg('Currently the widget only supports host as sender and receiver.')
                 );
             } else {
                 node.portData.forEach((value, port) => {
@@ -138,7 +139,7 @@ export class PacketSimulator {
                 'danger',
                 'exclamation-triangle',
                 '',
-                'Please <b>Init</b> a session before simulating sending a packet.'
+                msg('Please Init a session before simulating sending a packet.')
             );
             return;
         }
@@ -151,8 +152,8 @@ export class PacketSimulator {
                 AlertHelper.toastAlert(
                     'danger',
                     'exclamation-triangle',
-                    'Your graph is not qualified for this feature:',
-                    'Please use the <b>Check</b> button of the Subnetting/CIDR feature for more details'
+                    msg('Your graph is not qualified for this feature:'),
+                    msg('Please use the Check button of the Subnetting/CIDR feature for more details')
                 );
                 return;
             }
@@ -184,7 +185,7 @@ export class PacketSimulator {
                 'danger',
                 'exclamation-triangle',
                 '',
-                'The sender or receiver is not selected yet, use the <b>Choose sender/ receiver</b> button then <b>click</b> on the graph node.'
+                msg('The sender or receiver is not selected yet, use the Choose sender/receiver button then click on the graph node.')
             );
             return;
         }
@@ -199,7 +200,7 @@ export class PacketSimulator {
                 'warning',
                 'exclamation-triangle',
                 '',
-                'The widget currently only support sending Parcel between layer 3 components'
+                msg('The widget currently only support sending Parcel between layer 3 components')
             );
         }
 
@@ -220,7 +221,7 @@ export class PacketSimulator {
                 'success',
                 'check2-all',
                 '',
-                'Your packet finished sending with the <b>loop-back address</b>.'
+                msg('Your packet finished sending with the loop-back address.')
             );
             return;
         }
@@ -232,8 +233,8 @@ export class PacketSimulator {
             AlertHelper.toastAlert(
                 'danger',
                 'exclamation-triangle',
-                'Your graph is not qualified for this feature:',
-                'Please use the <b>Check</b> button of the Subnetting/CIDR feature for more details'
+                msg('Your graph is not qualified for this feature:'),
+                msg('Please use the Check button of the Subnetting/CIDR feature for more details')
             );
             return;
         }

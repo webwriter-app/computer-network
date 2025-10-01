@@ -5,6 +5,7 @@ import { NetworkComponent } from '../';
 // import SlButton from '@shoelace-style/shoelace/dist/components/button/button.component.js';
 // import SlSelect from '@shoelace-style/shoelace/dist/components/select/select.component.js';
 import { PacketSimulator } from '../event-handlers/packet-simulator';
+import { msg } from '@lit/localize';
 
 export function simulationMenuTemplate(this: NetworkComponent) {
     const source = this._graph?.getElementById(this.packetSimulator.sourceEndPoint).data();
@@ -19,7 +20,7 @@ export function simulationMenuTemplate(this: NetworkComponent) {
                         this.packetSimulator.setSource(event, this);
                     }}
                     size="small"
-                    >${source ? source.id : 'Set Source'}</sl-button
+                    >${source ? source.id : msg('Set Source')}</sl-button
                 >
                 <sl-select
                     @sl-change=${(event: Event) => {
@@ -44,7 +45,7 @@ export function simulationMenuTemplate(this: NetworkComponent) {
                         this.packetSimulator.setTarget(event, this);
                     }}
                     size="small"
-                    >${target ? target.id : 'Set Target'}</sl-button
+                    >${target ? target.id : msg('Set Target')}</sl-button
                 >
                 <sl-select
                     @sl-change=${(event: Event) => {
@@ -63,7 +64,7 @@ export function simulationMenuTemplate(this: NetworkComponent) {
                 </sl-select>
             </sl-button-group>
             <sl-button-group>
-                <sl-button @click=${startSimulation.bind(this)} size="small">Start Simulation</sl-button>
+                <sl-button @click=${startSimulation.bind(this)} size="small">${msg('Start Simulation')}</sl-button>
             </sl-button-group>
         </div>
     `;

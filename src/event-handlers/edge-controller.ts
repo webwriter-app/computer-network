@@ -4,6 +4,7 @@ import { GraphEdge } from '../components/GraphEdge';
 import { PhysicalNode } from '../components/physicalNodes/PhysicalNode';
 import { AlertHelper } from '../utils/AlertHelper';
 import NodeSingular from 'cytoscape';
+import { msg } from '@lit/localize';
 
 export class EdgeController {
     static toggleDrawMode(network: ComputerNetwork): void {
@@ -43,7 +44,7 @@ export class EdgeController {
             AlertHelper.toastAlert(
                 'warning',
                 'exclamation-triangle',
-                sourceNode.name + ' is out of available ports.',
+                sourceNode.name + ' ' + msg('is out of available ports.'),
                 ''
             );
             return false;
@@ -52,7 +53,7 @@ export class EdgeController {
             AlertHelper.toastAlert(
                 'warning',
                 'exclamation-triangle',
-                targetNode.name + ' is out of available ports.',
+                targetNode.name + ' ' + msg('is out of available ports.'),
                 ''
             );
             return false;

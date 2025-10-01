@@ -1,0 +1,898 @@
+<xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="lit-localize-inputs" datatype="plaintext" source-language="en" target-language="tr">
+    <body>
+      <trans-unit id="s64ef2a6c2dd1d3d1">
+        <source>Edit</source>
+        <target>Düzenle</target>
+      </trans-unit>
+      <trans-unit id="scfcffcf35292bc6f">
+        <source>Simulate</source>
+        <target>Simüle Et</target>
+      </trans-unit>
+      <trans-unit id="sd03c537f123f42a6">
+        <source>Exit Fullscreen</source>
+        <target>Tam Ekrandan Çık</target>
+      </trans-unit>
+      <trans-unit id="s4b10acae683d2978">
+        <source>Fullscreen</source>
+        <target>Tam Ekran</target>
+      </trans-unit>
+      <trans-unit id="s5eedf01beec54734">
+        <source>Tutorials</source>
+        <target>Öğreticiler</target>
+      </trans-unit>
+      <trans-unit id="sba1e8892999bb878">
+        <source>Computer</source>
+        <target>Bilgisayar</target>
+      </trans-unit>
+      <trans-unit id="s4f0026a488fbdca3">
+        <source>Mobile device</source>
+        <target>Mobil cihaz</target>
+      </trans-unit>
+      <trans-unit id="sd8dddc9cd2d5b135">
+        <source>Network device</source>
+        <target>Ağ cihazı</target>
+      </trans-unit>
+      <trans-unit id="se51d6fb9158b9f24">
+        <source>Router</source>
+        <target>Yönlendirici</target>
+      </trans-unit>
+      <trans-unit id="s265dbd543be2f5ed">
+        <source>Access point</source>
+        <target>Erişim noktası</target>
+      </trans-unit>
+      <trans-unit id="s186f0d4339ae84fd">
+        <source>Repeater</source>
+        <target>Tekrarlayıcı</target>
+      </trans-unit>
+      <trans-unit id="s491d2a19cd6ec58c">
+        <source>Hub</source>
+        <target>Hub</target>
+      </trans-unit>
+      <trans-unit id="s8545094bc2096970">
+        <source>Bridge</source>
+        <target>Köprü</target>
+      </trans-unit>
+      <trans-unit id="s8e114dd98aeedf91">
+        <source>Switch</source>
+        <target>Anahtar</target>
+      </trans-unit>
+      <trans-unit id="s6503256c2de2745c">
+        <source>Edge</source>
+        <target>Kenar</target>
+      </trans-unit>
+      <trans-unit id="s9feb1a1345ccc3e5">
+        <source>Network</source>
+        <target>Şebeke</target>
+      </trans-unit>
+      <trans-unit id="sf4c791f0705344d6">
+        <source>Network assignment</source>
+        <target>Ağ ataması</target>
+      </trans-unit>
+      <trans-unit id="sf0751c039d26da12">
+        <source>Gateway assignment</source>
+        <target>Ağ geçidi ataması</target>
+      </trans-unit>
+      <trans-unit id="s0201d8d614a1b5a4">
+        <source>Validate global address assignments</source>
+        <target>Genel adres atamalarını doğrulama</target>
+      </trans-unit>
+      <trans-unit id="s9c0c880f87b91eb4">
+        <source>Import a file created by this widget</source>
+        <target>Bu widget tarafından oluşturulan bir dosyayı içe aktarma</target>
+      </trans-unit>
+      <trans-unit id="s04507e583f35a215">
+        <source>Export the current graph</source>
+        <target>Geçerli grafiği dışa aktarma</target>
+      </trans-unit>
+      <trans-unit id="s8ccfa5f804f6777a">
+        <source>Example graphs/exercises</source>
+        <target>Örnek grafikler/alıştırmalar</target>
+      </trans-unit>
+      <trans-unit id="s7c31cf556c31642f">
+        <source>Tutorials for features of this widget</source>
+        <target>Bu widget'ın özellikleri için öğreticiler</target>
+      </trans-unit>
+      <trans-unit id="s6b05f9d8801fc14f">
+        <source>Host</source>
+        <target>Ev sahibi</target>
+      </trans-unit>
+      <trans-unit id="s1018d5f2b1cc4e8d">
+        <source>Access Point</source>
+        <target>Erişim Noktası</target>
+      </trans-unit>
+      <trans-unit id="sabab0da440471b2c">
+        <source>Physical Node</source>
+        <target>Fiziksel Düğüm</target>
+      </trans-unit>
+      <trans-unit id="sf70e0979427bcaf8">
+        <source>Logical Node</source>
+        <target>Mantıksal Düğüm</target>
+      </trans-unit>
+      <trans-unit id="sbe1c7d207f771f2d">
+        <source>Number of ports</source>
+        <target>Bağlantı noktası sayısı</target>
+      </trans-unit>
+      <trans-unit id="s94c954118f54fa1d">
+        <source>Number of input ports</source>
+        <target>Giriş portu sayısı</target>
+      </trans-unit>
+      <trans-unit id="sd9d1a55c5a664641">
+        <source>Add details for ports</source>
+        <target>Bağlantı noktaları için ayrıntı ekleyin</target>
+      </trans-unit>
+      <trans-unit id="s79ca6e84a4df82e5">
+        <source>NetID</source>
+        <target>NetID</target>
+      </trans-unit>
+      <trans-unit id="s0b985047f07efbd0">
+        <source>Netmask</source>
+        <target>Netmask</target>
+      </trans-unit>
+      <trans-unit id="s9c84598a99c03b88">
+        <source>Bitmask</source>
+        <target>Bit maskesi</target>
+      </trans-unit>
+      <trans-unit id="see822b9851671c85">
+        <source>Click to add your component</source>
+        <target>Bileşeninizi eklemek için tıklayın</target>
+      </trans-unit>
+      <trans-unit id="scf4ac84fce176d91">
+        <source>Click to draw connecting links</source>
+        <target>Bağlantı linklerini çizmek için tıklayın</target>
+      </trans-unit>
+      <trans-unit id="s08cf63ff39d4bfaf">
+        <source>Click to change color of existing components</source>
+        <target>Mevcut bileşenlerin rengini değiştirmek için tıklayın</target>
+      </trans-unit>
+      <trans-unit id="s2ffac3a7ddd1580b">
+        <source>CIDR/Subnetting controller</source>
+        <target>CIDR/Subnetting denetleyicisi</target>
+      </trans-unit>
+      <trans-unit id="s82dba63ce339e3a6">
+        <source>Choose a mode</source>
+        <target>Bir mod seçin</target>
+      </trans-unit>
+      <trans-unit id="s22b5492cdee5c0d6">
+        <source>Manual Mode</source>
+        <target>Manuel Mod</target>
+      </trans-unit>
+      <trans-unit id="sf0453217220f9a2d">
+        <source>Net-based Mode</source>
+        <target>Ağ Tabanlı Mod</target>
+      </trans-unit>
+      <trans-unit id="s7bc931f3ffdb6e60">
+        <source>Host-based Mode</source>
+        <target>Ana Bilgisayar Tabanlı Mod</target>
+      </trans-unit>
+      <trans-unit id="s73c3e21df2f12350">
+        <source>Activate Draw-and-drop</source>
+        <target>Çiz ve bırak özelliğini etkinleştirin</target>
+      </trans-unit>
+      <trans-unit id="s7a3fb8031d3600cb">
+        <source>Drag to assign gateway</source>
+        <target>Ağ geçidi atamak için sürükleyin</target>
+      </trans-unit>
+      <trans-unit id="s42cbd8dca939a9c7">
+        <source>Check</source>
+        <target>Kontrol et</target>
+      </trans-unit>
+      <trans-unit id="sfd468f7c41396df5">
+        <source>Packet sending controller</source>
+        <target>Paket gönderme kontrolörü</target>
+      </trans-unit>
+      <trans-unit id="s0dcc53abaa5c5df9">
+        <source>Choose sender</source>
+        <target>Göndereni seçin</target>
+      </trans-unit>
+      <trans-unit id="s0356c70f23c234fd">
+        <source>Choose receiver</source>
+        <target>Alıcı seçin</target>
+      </trans-unit>
+      <trans-unit id="se24130f1123560a0">
+        <source>Speed</source>
+        <target>Hız</target>
+      </trans-unit>
+      <trans-unit id="sd8fe5e97ed28d99c">
+        <source>Focus on animated nodes</source>
+        <target>Animasyonlu düğümlere odaklanın</target>
+      </trans-unit>
+      <trans-unit id="s62278f512692e037">
+        <source>Session</source>
+        <target>Oturum</target>
+      </trans-unit>
+      <trans-unit id="s1951d0ebc9976aaf">
+        <source>Create a new simulation session</source>
+        <target>Yeni bir simülasyon oturumu oluşturma</target>
+      </trans-unit>
+      <trans-unit id="s649522600e4a80ac">
+        <source>Start sending a new packet</source>
+        <target>Yeni bir paket göndermeye başlayın</target>
+      </trans-unit>
+      <trans-unit id="se4752f0e82f9a5ab">
+        <source>Pause/resume all packets</source>
+        <target>Tüm paketleri duraklat/devam ettir</target>
+      </trans-unit>
+      <trans-unit id="s840bfacd9e8e393d">
+        <source>Stop the simulation session</source>
+        <target>Simülasyon oturumunu durdurun</target>
+      </trans-unit>
+      <trans-unit id="sce83fe4fe279ab21">
+        <source>Track tables</source>
+        <target>Parça tabloları</target>
+      </trans-unit>
+      <trans-unit id="s480e8cca00501fbf">
+        <source>Octets shouldn't be of negative value</source>
+        <target>Oktetler negatif değerde olmamalıdır</target>
+      </trans-unit>
+      <trans-unit id="sf56b78a9e5b4640f">
+        <source>The  netmask you entered</source>
+        <target>Girdiğiniz ağ maskesi</target>
+      </trans-unit>
+      <trans-unit id="sb3c6effefba5ccb8">
+        <source>doesn't match the bitmask</source>
+        <target>bit maskesi ile eşleşmiyor</target>
+      </trans-unit>
+      <trans-unit id="s0a7748b8de0b3a6f">
+        <source>Derived netmask is</source>
+        <target>Türetilen ağ maskesi</target>
+      </trans-unit>
+      <trans-unit id="s2f034d5e354fd8fe">
+        <source>Provided network ID is not valid.</source>
+        <target>Sağlanan ağ kimliği geçerli değil.</target>
+      </trans-unit>
+      <trans-unit id="s4860102f9ca44d7b">
+        <source>Net-based Mode for CIDR/Subnetting activated:</source>
+        <target>CIDR/Subnetting için Ağ Tabanlı Mod etkinleştirildi:</target>
+      </trans-unit>
+      <trans-unit id="scfc539cb2204d99f">
+        <source>Cannot create a net without both bitmask and netmask!</source>
+        <target>Hem bitmask hem de netmask olmadan ağ oluşturulamıyor!</target>
+      </trans-unit>
+      <trans-unit id="saf114a45c687be19">
+        <source>Hosts-based mode:</source>
+        <target>Ana bilgisayar tabanlı mod:</target>
+      </trans-unit>
+      <trans-unit id="se60f6f327c8094af">
+        <source>No valid network address can be assigned to this net.</source>
+        <target>Bu ağa geçerli bir ağ adresi atanamaz.</target>
+      </trans-unit>
+      <trans-unit id="s3741f219c32abe78">
+        <source>Net</source>
+        <target>Net</target>
+      </trans-unit>
+      <trans-unit id="sc2abe27bb5be2879">
+        <source>Gateway</source>
+        <target>Ağ Geçidi</target>
+      </trans-unit>
+      <trans-unit id="sc096fbcee1f2951a">
+        <source>should contain</source>
+        <target>şunları içermelidir</target>
+      </trans-unit>
+      <trans-unit id="s8d70ca4af5a9c009">
+        <source>with address</source>
+        <target>adres ile</target>
+      </trans-unit>
+      <trans-unit id="s33aec365752c45d7">
+        <source>The netmask you entered</source>
+        <target>Girdiğiniz ağ maskesi</target>
+      </trans-unit>
+      <trans-unit id="s95b91fa7ce0e4422">
+        <source>Your changes have been saved.</source>
+        <target>Değişiklikleriniz kaydedildi.</target>
+      </trans-unit>
+      <trans-unit id="sbee40693bf2c18e9">
+        <source>Host-based mode on:</source>
+        <target>Ana bilgisayar tabanlı mod açık:</target>
+      </trans-unit>
+      <trans-unit id="sb6ee4842d085bac3">
+        <source>New network doesn't extend old network!</source>
+        <target>Yeni ağ eski ağı genişletmez!</target>
+      </trans-unit>
+      <trans-unit id="s47abed60b53d9f15">
+        <source>The connection type of assigned ports are not compatible!</source>
+        <target>Atanan portların bağlantı tipi uyumlu değil!</target>
+      </trans-unit>
+      <trans-unit id="s6e488f7a11e566e4">
+        <source>Please re-assign your ports or dismiss this connection.</source>
+        <target>Lütfen bağlantı noktalarınızı yeniden atayın veya bu bağlantıyı kapatın.</target>
+      </trans-unit>
+      <trans-unit id="s0f527a17b9b690e2">
+        <source>Well done!</source>
+        <target>Aferin sana!</target>
+      </trans-unit>
+      <trans-unit id="s431446cf4939d374">
+        <source>All nets are correctly configured!</source>
+        <target>Tüm ağlar doğru şekilde yapılandırıldı!</target>
+      </trans-unit>
+      <trans-unit id="s8ec5e5061ca83fb9">
+        <source>Unconfigured net still exists.</source>
+        <target>Yapılandırılmamış ağ hala mevcut.</target>
+      </trans-unit>
+      <trans-unit id="s330a19f706948b7c">
+        <source>Cross validation between Nets: </source>
+        <target>Ağlar arasında çapraz doğrulama: </target>
+      </trans-unit>
+      <trans-unit id="s3b07747d0bd1c988">
+        <source>Setting up gateway: </source>
+        <target>Ağ geçidi kurulumu: </target>
+      </trans-unit>
+      <trans-unit id="s6881b5a560c88bf8">
+        <source>Net-based mode on:</source>
+        <target>Ağ tabanlı mod açık:</target>
+      </trans-unit>
+      <trans-unit id="sa9b946da3254eeb2">
+        <source>Unconfigured net, automatically set Ipv4 address to loop-back.</source>
+        <target>Yapılandırılmamış ağ, Ipv4 adresini otomatik olarak geri döngüye ayarlar.</target>
+      </trans-unit>
+      <trans-unit id="sfa2e7dafd99371ff">
+        <source>Port number</source>
+        <target>Liman numarası</target>
+      </trans-unit>
+      <trans-unit id="sc1b1fc103ff1b1b3">
+        <source>Interface name</source>
+        <target>Arayüz adı</target>
+      </trans-unit>
+      <trans-unit id="sb7233970916468e3">
+        <source>Connection type</source>
+        <target>Bağlantı türü</target>
+      </trans-unit>
+      <trans-unit id="s44646f1a480a4a28">
+        <source>MAC Address</source>
+        <target>MAC Adresi</target>
+      </trans-unit>
+      <trans-unit id="scbbde46d3e773c0e">
+        <source>Ethernet</source>
+        <target>Ethernet</target>
+      </trans-unit>
+      <trans-unit id="s05f14bdb78dbcdb1">
+        <source>Wireless</source>
+        <target>Kablosuz</target>
+      </trans-unit>
+      <trans-unit id="s7a1405870058921f">
+        <source>Assigning ports for this connection</source>
+        <target>Bu bağlantı için bağlantı noktaları atama</target>
+      </trans-unit>
+      <trans-unit id="se2cc791794723812">
+        <source>Select one from available ports:</source>
+        <target>Mevcut bağlantı noktalarından birini seçin:</target>
+      </trans-unit>
+      <trans-unit id="se29a5823185d420c">
+        <source>Please choose port/interface for</source>
+        <target>Lütfen aşağıdakiler için bağlantı noktası/arayüz seçin</target>
+      </trans-unit>
+      <trans-unit id="s0771257848b4d7a3">
+        <source>Details about component</source>
+        <target>Bileşen hakkında ayrıntılar</target>
+      </trans-unit>
+      <trans-unit id="sb4f8acbdda6ff3b9">
+        <source>Details of the ports</source>
+        <target>Limanlara ilişkin ayrıntılar</target>
+      </trans-unit>
+      <trans-unit id="s5804ccf243041e60">
+        <source>is not a valid MAC Address.</source>
+        <target>geçerli bir MAC Adresi değildir.</target>
+      </trans-unit>
+      <trans-unit id="sb781a2ba64e70be8">
+        <source>Subnet-based mode on:</source>
+        <target>Alt ağ tabanlı mod açık:</target>
+      </trans-unit>
+      <trans-unit id="sdb11e8f269ea1b13">
+        <source>Inserted IPv4 doesn't match the subnet mask.</source>
+        <target>Eklenen IPv4 alt ağ maskesiyle eşleşmiyor.</target>
+      </trans-unit>
+      <trans-unit id="s138df1ceb51a3661">
+        <source>Inserted IPv4 for gateway doesn't match the subnet mask or the network is not configured.</source>
+        <target>Ağ geçidi için eklenen IPv4 alt ağ maskesiyle eşleşmiyor veya ağ yapılandırılmamış.</target>
+      </trans-unit>
+      <trans-unit id="s213a3bbc3f7af684">
+        <source>is not valid.</source>
+        <target>geçerli değildir.</target>
+      </trans-unit>
+      <trans-unit id="sed931f57adaad8c0">
+        <source>is not a valid IPv6 Address.</source>
+        <target>geçerli bir IPv6 Adresi değildir.</target>
+      </trans-unit>
+      <trans-unit id="s3f015779aaa1979d">
+        <source>Network Address</source>
+        <target>Ağ Adresi</target>
+      </trans-unit>
+      <trans-unit id="sf866305516492af0">
+        <source>Interface</source>
+        <target>Arayüz</target>
+      </trans-unit>
+      <trans-unit id="se1b13a7c92d4dcc3">
+        <source>Connection Type</source>
+        <target>Bağlantı Türü</target>
+      </trans-unit>
+      <trans-unit id="s89d11288ef7198fa">
+        <source>This network has no gateway.</source>
+        <target>Bu ağda ağ geçidi yoktur.</target>
+      </trans-unit>
+      <trans-unit id="sff9aad8a96d11e8c">
+        <source>Mac Address of Sender:</source>
+        <target>Gönderenin Mac Adresi:</target>
+      </trans-unit>
+      <trans-unit id="sd9f73b49c90cb730">
+        <source>IP Address of Sender:</source>
+        <target>Gönderenin IP Adresi:</target>
+      </trans-unit>
+      <trans-unit id="s228664e90e9a6cec">
+        <source>Mac Address of Receiver:</source>
+        <target>Alıcının Mac Adresi:</target>
+      </trans-unit>
+      <trans-unit id="s8b0705a2df382b10">
+        <source>IP Address of Receiver:</source>
+        <target>Alıcının IP Adresi:</target>
+      </trans-unit>
+      <trans-unit id="s9739ed2dd4a000eb">
+        <source>Add/ Configure graph components</source>
+        <target>Grafik bileşenleri ekleme/ yapılandırma</target>
+      </trans-unit>
+      <trans-unit id="s953fefbfaf0e2e3d">
+        <source>CIDR/ Subnetting</source>
+        <target>CIDR/ Alt Ağ Oluşturma</target>
+      </trans-unit>
+      <trans-unit id="sbd62973250ca30ae">
+        <source>Packet travelling simulation</source>
+        <target>Paket dolaşımı simülasyonu</target>
+      </trans-unit>
+      <trans-unit id="s492ae98a6cd1ae70">
+        <source>How to add a physical node (host, router, switch,...)?</source>
+        <target>Fiziksel bir düğüm (ana bilgisayar, yönlendirici, anahtar, ...) nasıl eklenir?</target>
+      </trans-unit>
+      <trans-unit id="sd9994f251f1280cf">
+        <source>Step</source>
+        <target>Adım</target>
+      </trans-unit>
+      <trans-unit id="s6debdd8a9764e3fc">
+        <source>Choose your component</source>
+        <target>Bileşeninizi seçin</target>
+      </trans-unit>
+      <trans-unit id="s0e98fa123505c680">
+        <source>More details with "Add details for ports"</source>
+        <target>"Bağlantı noktaları için ayrıntı ekle" ile daha fazla ayrıntı</target>
+      </trans-unit>
+      <trans-unit id="s3356cd0d48121928">
+        <source>Pick a color also if you want to:</source>
+        <target>İsterseniz bir renk de seçin:</target>
+      </trans-unit>
+      <trans-unit id="s78ab938d4d37d39c">
+        <source>Click add</source>
+        <target>Ekle'ye tıklayın</target>
+      </trans-unit>
+      <trans-unit id="s4c51e3cba34af73d">
+        <source>How to add a logical node (network node)?</source>
+        <target>Mantıksal düğüm (ağ düğümü) nasıl eklenir?</target>
+      </trans-unit>
+      <trans-unit id="s47707a379c47dc00">
+        <source>Configure your network</source>
+        <target>Ağınızı yapılandırın</target>
+      </trans-unit>
+      <trans-unit id="s55759c57f408a4bd">
+        <source>How to add a link between two physical nodes?</source>
+        <target>İki fiziksel düğüm arasına nasıl bağlantı eklenir?</target>
+      </trans-unit>
+      <trans-unit id="s87dd4e7f900ee9ea">
+        <source>Choose edge component</source>
+        <target>Kenar bileşeni seçin</target>
+      </trans-unit>
+      <trans-unit id="s2c35f5501ffe52a0">
+        <source>Toggle draw mode</source>
+        <target>Çizim modunu değiştir</target>
+      </trans-unit>
+      <trans-unit id="s95bd2e0d6d483b0d">
+        <source>Draw then configure on right click</source>
+        <target>Çizin ve ardından sağ tıklamayla yapılandırın</target>
+      </trans-unit>
+      <trans-unit id="s01743e321d86591f">
+        <source>Activate the "assign gateway" mode:</source>
+        <target>"Ağ geçidi ata" modunu etkinleştirin:</target>
+      </trans-unit>
+      <trans-unit id="s57df860deb5b4777">
+        <source>Drag the gateway on the edge of a network:</source>
+        <target>Ağ geçidini bir ağın kenarına sürükleyin:</target>
+      </trans-unit>
+      <trans-unit id="s181fd03f13912ebc">
+        <source>How to drag a component into a network?</source>
+        <target>Bir bileşen bir ağa nasıl sürüklenir?</target>
+      </trans-unit>
+      <trans-unit id="sf226fb633985e8b4">
+        <source>Activate the "drag-and-drop" mode:</source>
+        <target>"Sürükle ve bırak" modunu etkinleştirin:</target>
+      </trans-unit>
+      <trans-unit id="sb2d67306c97f577a">
+        <source>Drag the component inside the network:</source>
+        <target>Bileşeni ağın içine sürükleyin:</target>
+      </trans-unit>
+      <trans-unit id="se965fe13b9222a65">
+        <source>How does the Net-based mode work?</source>
+        <target>Ağ tabanlı mod nasıl çalışır?</target>
+      </trans-unit>
+      <trans-unit id="sdf132350672d0884">
+        <source>How does the Host-based mode work?</source>
+        <target>Ana bilgisayar tabanlı mod nasıl çalışır?</target>
+      </trans-unit>
+      <trans-unit id="s8709fa6bb7aa0002">
+        <source>networks</source>
+        <target>ağlar</target>
+      </trans-unit>
+      <trans-unit id="s3ec4a053318b0ae8">
+        <source>hosts/gateways/subnetworks</source>
+        <target>hosts/gateways/subnetworks</target>
+      </trans-unit>
+      <trans-unit id="se911c0eb6fe86b71">
+        <source>How to manipulate a simulation session?</source>
+        <target>Bir simülasyon oturumu nasıl manipüle edilir?</target>
+      </trans-unit>
+      <trans-unit id="sb25dcf3e6fa2992a">
+        <source>In this step, for the:</source>
+        <target>Bu adımda, için:</target>
+      </trans-unit>
+      <trans-unit id="sa2885d6d322c7379">
+        <source>host/router: ARP table and routing table are created</source>
+        <target>ana bilgisayar/yönlendirici: ARP tablosu ve yönlendirme tablosu oluşturulur</target>
+      </trans-unit>
+      <trans-unit id="s30c43f21d5cc55e7">
+        <source>switch/bridge/access point: MAC address table is created</source>
+        <target>anahtar/köprü/erişim noktası: MAC adres tablosu oluşturulur</target>
+      </trans-unit>
+      <trans-unit id="s10a895b419c64000">
+        <source>assign a sender/receiver for the packet</source>
+        <target>paket için bir gönderici/alıcı atayın</target>
+      </trans-unit>
+      <trans-unit id="sb3e91073b21ceb33">
+        <source>start sending a packet with the assigned sender and receiver in step 2</source>
+        <target>adım 2'de atanan gönderici ve alıcı ile bir paket göndermeye başlayın</target>
+      </trans-unit>
+      <trans-unit id="s19db88ac376ff979">
+        <source>Last step</source>
+        <target>Son adım</target>
+      </trans-unit>
+      <trans-unit id="s0106a71d5407aaa9">
+        <source>Stop session</source>
+        <target>Oturumu durdur</target>
+      </trans-unit>
+      <trans-unit id="s9d1892a929c95c41">
+        <source>resets all tables and ends the current simulation session.</source>
+        <target>tüm tabloları sıfırlar ve geçerli simülasyon oturumunu sonlandırır.</target>
+      </trans-unit>
+      <trans-unit id="sbf424bf9f5374d3f">
+        <source>Start from step 1 again for a new simulation session.</source>
+        <target>Yeni bir simülasyon oturumu için 1. adımdan tekrar başlayın.</target>
+      </trans-unit>
+      <trans-unit id="safb8ca5860037ac7">
+        <source>How to configure the tables?</source>
+        <target>Tablolar nasıl yapılandırılır?</target>
+      </trans-unit>
+      <trans-unit id="s347e78eb6a59dd4f">
+        <source>Fill your table according to its type. Except for the tables of the routers, tables of other nodes can be filled automatically.</source>
+        <target>Tablonuzu türüne göre doldurun. Yönlendiricilerin tabloları hariç, diğer düğümlerin tabloları otomatik olarak doldurulabilir.</target>
+      </trans-unit>
+      <trans-unit id="s870a89403be74609">
+        <source>is out of available ports.</source>
+        <target>kullanılabilir bağlantı noktası kalmadı.</target>
+      </trans-unit>
+      <trans-unit id="s0b0811fac0075534">
+        <source>Your table is saved!</source>
+        <target>Masanız kurtarıldı!</target>
+      </trans-unit>
+      <trans-unit id="sbcc845948d536d4e">
+        <source>ARP Table</source>
+        <target>ARP Tablosu</target>
+      </trans-unit>
+      <trans-unit id="sc86686973428936d">
+        <source>Routing Table</source>
+        <target>Yönlendirme Tablosu</target>
+      </trans-unit>
+      <trans-unit id="s47f47667e50169dc">
+        <source>Mac Address Table</source>
+        <target>Mac Adres Tablosu</target>
+      </trans-unit>
+      <trans-unit id="sf9aee319a006c9b4">
+        <source>Add</source>
+        <target>Ekle</target>
+      </trans-unit>
+      <trans-unit id="sea4f08110bb8f15d">
+        <source>Remove</source>
+        <target>Kaldırmak</target>
+      </trans-unit>
+      <trans-unit id="s33f85f24c0f5f008">
+        <source>Save</source>
+        <target>Kaydet</target>
+      </trans-unit>
+      <trans-unit id="s652d3637d25431f5">
+        <source>Your receiver has received the message!</source>
+        <target>Alıcınız mesajı aldı!</target>
+      </trans-unit>
+      <trans-unit id="s7f03c3305cc572c7">
+        <source>Currently the widget only supports host as sender and receiver.</source>
+        <target>Şu anda widget yalnızca gönderici ve alıcı olarak ana bilgisayarı desteklemektedir.</target>
+      </trans-unit>
+      <trans-unit id="s8c139c7e7f2a7866">
+        <source>Your graph is not qualified for this feature:</source>
+        <target>Grafiğiniz bu özellik için uygun değildir:</target>
+      </trans-unit>
+      <trans-unit id="sedb7e84739dabb52">
+        <source>The widget currently only support sending Parcel between layer 3 components</source>
+        <target>Widget şu anda yalnızca katman 3 bileşenleri arasında Parsel göndermeyi desteklemektedir</target>
+      </trans-unit>
+      <trans-unit id="sba272ff6dce6bf6c">
+        <source>An exercise for CIDR from classful networks: drag and drop then check.</source>
+        <target>Sınıflı ağlardan CIDR için bir alıştırma: sürükle ve bırak sonra kontrol et.</target>
+      </trans-unit>
+      <trans-unit id="sf5a28de7d04f6bf1">
+        <source>An exercise for CIDR from classful networks: configure the classful networks then check.</source>
+        <target>Sınıflı ağlardan CIDR için bir alıştırma: sınıflı ağları yapılandırın ve ardından kontrol edin.</target>
+      </trans-unit>
+      <trans-unit id="se6394d8e29dba878">
+        <source>An exercise for subnetting from a classful network: configure the subnets then check.</source>
+        <target>Sınıflı bir ağdan alt ağ oluşturma alıştırması: alt ağları yapılandırın ve ardından kontrol edin.</target>
+      </trans-unit>
+      <trans-unit id="s0be43d4fa79554a1">
+        <source>A mixed exercise of CIDR and subnetting: drag and drop then check.</source>
+        <target>CIDR ve alt ağ oluşturmanın karışık bir alıştırması: sürükle ve bırak, sonra kontrol et.</target>
+      </trans-unit>
+      <trans-unit id="sc12a027fbcfb0c9b">
+        <source>Ethernet with a repeater and 2 hosts.</source>
+        <target>Bir tekrarlayıcı ve 2 ana bilgisayar ile Ethernet.</target>
+      </trans-unit>
+      <trans-unit id="scc2c5dc40950c43d">
+        <source>Ethernet with a hub and 3 hosts.</source>
+        <target>Bir hub ve 3 ana bilgisayar ile Ethernet.</target>
+      </trans-unit>
+      <trans-unit id="s73b5a4a416157778">
+        <source>Ethernet with a bridge and 2 hosts.</source>
+        <target>Bir köprü ve 2 ana bilgisayar ile Ethernet.</target>
+      </trans-unit>
+      <trans-unit id="sdbdba9594afe53ce">
+        <source>Ethernet with a switch and 3 hosts.</source>
+        <target>Bir anahtar ve 3 ana bilgisayar ile Ethernet.</target>
+      </trans-unit>
+      <trans-unit id="s370a2d0578bd2c7b">
+        <source>Wifi network with 1 access point, 3 hosts.</source>
+        <target>1 erişim noktası, 3 ana bilgisayar içeren kablosuz ağ.</target>
+      </trans-unit>
+      <trans-unit id="s2f615aee386409b0">
+        <source>2 Ethernets with a gateway.</source>
+        <target>2 Ağ geçidine sahip ethernet.</target>
+      </trans-unit>
+      <trans-unit id="sb1463e72905de3f8">
+        <source>An ethernet, a wireless network and a gateway.</source>
+        <target>Bir ethernet, bir kablosuz ağ ve bir ağ geçidi.</target>
+      </trans-unit>
+      <trans-unit id="s22feccbbd1ae2aa8">
+        <source>3 Ethernets and a gateway.</source>
+        <target>3 Ethernet ve bir ağ geçidi.</target>
+      </trans-unit>
+      <trans-unit id="s18662a2a14477a6f">
+        <source>2 Ethernets and 3 routers.</source>
+        <target>2 Ethernet ve 3 yönlendirici.</target>
+      </trans-unit>
+      <trans-unit id="s8c8aeec90bdad274">
+        <source>2 Ethernets and 4 routers.</source>
+        <target>2 Ethernet ve 4 yönlendirici.</target>
+      </trans-unit>
+      <trans-unit id="s1f7698c061c208c9">
+        <source>Open</source>
+        <target>Açık</target>
+      </trans-unit>
+      <trans-unit id="s7eb13b92e2f5090f">
+        <source>Example exercises for CIDR/ Subnetting</source>
+        <target>CIDR/Subnetting için örnek alıştırmalar</target>
+      </trans-unit>
+      <trans-unit id="sb8766aae5913b0ef">
+        <source>Example networks for simulations</source>
+        <target>Simülasyonlar için örnek ağlar</target>
+      </trans-unit>
+      <trans-unit id="sf2811f9a2c3aecfb">
+        <source>Details of the ports </source>
+        <target>Limanlara ilişkin ayrıntılar </target>
+      </trans-unit>
+      <trans-unit id="sef49aec68fd1dc66">
+        <source>Name</source>
+        <target>İsim</target>
+      </trans-unit>
+      <trans-unit id="s4114a8a9e84611a4">
+        <source>No port available.</source>
+        <target>Bağlantı noktası yok.</target>
+      </trans-unit>
+      <trans-unit id="sf35d6a5dc03d5557">
+        <source>Add Port</source>
+        <target>Liman Ekle</target>
+      </trans-unit>
+      <trans-unit id="s5d754d60e804c665">
+        <source>Details of the connection between </source>
+        <target>Arasındaki bağlantının ayrıntıları </target>
+      </trans-unit>
+      <trans-unit id="s3c0a015edb522c38">
+        <source> and </source>
+        <target> ve </target>
+      </trans-unit>
+      <trans-unit id="sa4b72835cba0d053">
+        <source>Source Port</source>
+        <target>Kaynak Liman</target>
+      </trans-unit>
+      <trans-unit id="sc9e9b70c7d6caa43">
+        <source>Target Port</source>
+        <target>Hedef Liman</target>
+      </trans-unit>
+      <trans-unit id="s9a66f95d51e77c3d">
+        <source>Details of the network </source>
+        <target>Ağın ayrıntıları </target>
+      </trans-unit>
+      <trans-unit id="s71183ed55882f1c9">
+        <source>IPv4 address is invalid.</source>
+        <target>IPv4 adresi geçersiz.</target>
+      </trans-unit>
+      <trans-unit id="s5882939b7613896e">
+        <source>Invalid net id.</source>
+        <target>Geçersiz ağ kimliği.</target>
+      </trans-unit>
+      <trans-unit id="sf2fe311e301fa69b">
+        <source>Network Mask</source>
+        <target>Ağ Maskesi</target>
+      </trans-unit>
+      <trans-unit id="s02ba6f5ad4b7f7d3">
+        <source>Invalid netmask.</source>
+        <target>Geçersiz ağ maskesi.</target>
+      </trans-unit>
+      <trans-unit id="s146232d3025412f3">
+        <source>Invalid bitmask.</source>
+        <target>Geçersiz bit maskesi.</target>
+      </trans-unit>
+      <trans-unit id="s0ccb657bb5ab7aef">
+        <source>MAC address is invalid.</source>
+        <target>MAC adresi geçersiz.</target>
+      </trans-unit>
+      <trans-unit id="sb3db490afc111f9f">
+        <source>IPv6 address is invalid.</source>
+        <target>IPv6 adresi geçersiz.</target>
+      </trans-unit>
+      <trans-unit id="s331ff328f4efcdce">
+        <source>Arp Table</source>
+        <target>Arp Masası</target>
+      </trans-unit>
+      <trans-unit id="s13a56952f9635fe4">
+        <source>Set Source</source>
+        <target>Kaynak Ayarla</target>
+      </trans-unit>
+      <trans-unit id="se340f70c28bb766c">
+        <source>Set Target</source>
+        <target>Hedef Belirleyin</target>
+      </trans-unit>
+      <trans-unit id="s479cdff9480652de">
+        <source>Start Simulation</source>
+        <target>Simülasyonu Başlat</target>
+      </trans-unit>
+      <trans-unit id="s46e517b2962de3ce">
+        <source>Change Port Config</source>
+        <target>Bağlantı Noktası Yapılandırmasını Değiştir</target>
+      </trans-unit>
+      <trans-unit id="sbc909ebb8c28f954">
+        <source>Default Gateway</source>
+        <target>Varsayılan Ağ Geçidi</target>
+      </trans-unit>
+      <trans-unit id="sdff41263f305c0ea">
+        <source>Define Interfaces</source>
+        <target>Arayüzleri Tanımlama</target>
+      </trans-unit>
+      <trans-unit id="s82f9a9addfd569b4">
+        <source>Define Network</source>
+        <target>Ağ Tanımlama</target>
+      </trans-unit>
+      <trans-unit id="s768df033dc306fbc">
+        <source>Before dragging a node into network</source>
+        <target>Bir düğümü ağa sürüklemeden önce</target>
+      </trans-unit>
+      <trans-unit id="s05c0bb42cb996b2d">
+        <source>After dragging the node into network</source>
+        <target>Düğümü ağa sürükledikten sonra</target>
+      </trans-unit>
+      <trans-unit id="s6e5cadbf42d9dfe4">
+        <source>New IPv4 will be assigned for conflicting addresses.</source>
+        <target>Çakışan adresler için yeni IPv4 atanacaktır.</target>
+      </trans-unit>
+      <trans-unit id="sa165462237196374">
+        <source>During this mode, when users edit addresses of:</source>
+        <target>Bu mod sırasında, kullanıcılar adresleri düzenlediğinde:</target>
+      </trans-unit>
+      <trans-unit id="s5eab6ee6f2de2dc9">
+        <source>conflicting addresses of all related hosts/gateways will be reassigned.</source>
+        <target>ilgili tüm ana bilgisayarların/ağ geçitlerinin çakışan adresleri yeniden atanacaktır.</target>
+      </trans-unit>
+      <trans-unit id="sf3b70df62ae36483">
+        <source>new addresses will be validated against the network addresses and will only be accepted when they are valid.</source>
+        <target>yeni adresler ağ adreslerine göre doğrulanacak ve yalnızca geçerli olduklarında kabul edilecektir.</target>
+      </trans-unit>
+      <trans-unit id="sc2227119cd519b57">
+        <source>Before dragging host0 into network</source>
+        <target>Host0'ı ağa sürüklemeden önce</target>
+      </trans-unit>
+      <trans-unit id="s50edcfd6439c5398">
+        <source>After dragging host0 into network</source>
+        <target>Host0'ı ağa sürükledikten sonra</target>
+      </trans-unit>
+      <trans-unit id="s3d312902efb57145">
+        <source>The existing network will expand to contain the new host.</source>
+        <target>Mevcut ağ yeni ana bilgisayarı içerecek şekilde genişleyecektir.</target>
+      </trans-unit>
+      <trans-unit id="s2906cb2c9daacae3">
+        <source>new network address range will be checked if they expands the old ones.</source>
+        <target>yeni ağ adresi aralığı eskilerini genişletiyorsa kontrol edilecektir.</target>
+      </trans-unit>
+      <trans-unit id="sb6017dbf0932fc3d">
+        <source>the existing network will expand to contain the new addresses.</source>
+        <target>mevcut ağ yeni adresleri içerecek şekilde genişleyecektir.</target>
+      </trans-unit>
+      <trans-unit id="sd17ec63289209641">
+        <source>if you don't use a graph from the examples, Init a new simulation session</source>
+        <target>örneklerden bir grafik kullanmıyorsanız, yeni bir simülasyon oturumu başlatın</target>
+      </trans-unit>
+      <trans-unit id="se2d49a99d6a83255">
+        <source>Click on Choose sender or Choose receiver</source>
+        <target>Gönderici seç veya Alıcı seç üzerine tıklayın</target>
+      </trans-unit>
+      <trans-unit id="sff73ed19941a31e1">
+        <source>Click on a host on the canvas</source>
+        <target>Tuval üzerinde bir ana bilgisayara tıklayın</target>
+      </trans-unit>
+      <trans-unit id="sef49669556fd05dc">
+        <source>Choose an IP</source>
+        <target>Bir IP seçin</target>
+      </trans-unit>
+      <trans-unit id="s33541b5c2b2dff1a">
+        <source>Repeat steps 2 and 3 as much as desired.&lt;br/&gt; You can also use pause/resume or change focus/speed during or before starting to send a packet.</source>
+        <target>2. ve 3. adımları istediğiniz kadar tekrarlayın.&lt;br/&gt; Paket göndermeye başlamadan önce veya sırasında duraklat/devam ettir veya odak/hız değiştir seçeneklerini de kullanabilirsiniz.</target>
+      </trans-unit>
+      <trans-unit id="sfa22b4f47f6a0daa">
+        <source>Init. Ignore this step if you use an example graph, or there is a session running</source>
+        <target>Başlangıç. Örnek bir grafik kullanıyorsanız veya çalışan bir oturum varsa bu adımı göz ardı edin</target>
+      </trans-unit>
+      <trans-unit id="s5beb40a454294a7e">
+        <source>Click on Add to generate a new row in the table</source>
+        <target>Tabloda yeni bir satır oluşturmak için Ekle üzerine tıklayın</target>
+      </trans-unit>
+      <trans-unit id="s1bce63088d7fcd55">
+        <source>Remove button removes all checked rows</source>
+        <target>Kaldır düğmesi tüm işaretli satırları kaldırır</target>
+      </trans-unit>
+      <trans-unit id="s7f9f4694cf4a1ee3">
+        <source>Save button saves the current table on the UI to the database</source>
+        <target>Kaydet düğmesi, kullanıcı arayüzündeki geçerli tabloyu veritabanına kaydeder</target>
+      </trans-unit>
+      <trans-unit id="sa1e005e5c8a7cf53">
+        <source>Please Init a session before simulating sending a packet.</source>
+        <target>Lütfen bir paket gönderme simülasyonu yapmadan önce bir oturum başlatın.</target>
+      </trans-unit>
+      <trans-unit id="sfc2940e33d865b93">
+        <source>Please use the Check button of the Subnetting/CIDR feature for more details</source>
+        <target>Daha fazla ayrıntı için lütfen Alt Ağ Oluşturma/CIDR özelliğinin Kontrol düğmesini kullanın</target>
+      </trans-unit>
+      <trans-unit id="s0a1356ab500a1312">
+        <source>The sender or receiver is not selected yet, use the Choose sender/receiver button then click on the graph node.</source>
+        <target>Gönderici veya alıcı henüz seçilmemişse, Gönderici/alıcı seç düğmesini kullanın ve ardından grafik düğümüne tıklayın.</target>
+      </trans-unit>
+      <trans-unit id="s2e55a928208bdb7f">
+        <source>Your packet finished sending with the loop-back address.</source>
+        <target>Paketiniz geri döngü adresi ile gönderimi tamamladı.</target>
+      </trans-unit>
+      <trans-unit id="s6f1b8c80ab2b4fd4">
+        <source>Tip: Use the CIDR/Subnetting controller to drag-and-drop then check.</source>
+        <target>İpucu: Sürükleyip bırakmak ve ardından kontrol etmek için CIDR/Subnetting denetleyicisini kullanın.</target>
+      </trans-unit>
+      <trans-unit id="s6ea934c6536e4930">
+        <source>Right-click on each network, then select Edit details to change its configuration.</source>
+        <target>Her bir ağa sağ tıklayın, ardından yapılandırmasını değiştirmek için Ayrıntıları düzenle'yi seçin.</target>
+      </trans-unit>
+      <trans-unit id="scfdc7642367b9665">
+        <source>Tip: Set source and destination then click on play button in</source>
+        <target>İpucu: Kaynağı ve hedefi ayarlayın ve ardından</target>
+      </trans-unit>
+      <trans-unit id="sbfe6d7af32c6737d">
+        <source>Packet sending controller to start simulation</source>
+        <target>Simülasyonu başlatmak için paket gönderme kontrolörü</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

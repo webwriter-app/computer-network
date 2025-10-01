@@ -6,6 +6,7 @@ import { SwitchableDecorator } from '../components/dataDecorators/Switchable';
 import { TableType } from '../event-handlers/packet-simulator';
 import { AlertHelper } from './AlertHelper';
 import { RoutingData } from './routingData';
+import { msg } from '@lit/localize';
 
 export class TableHelper {
     static addRow(tableID: string, tableType: TableType, network: NetworkComponent, tableData?: any[]) {
@@ -174,7 +175,7 @@ export class TableHelper {
             }
         }
 
-        AlertHelper.toastAlert('success', 'check2-circle', '', 'Your table is saved!');
+        AlertHelper.toastAlert('success', 'check2-circle', '', msg('Your table is saved!'));
     }
 
     /**
@@ -200,7 +201,7 @@ export class TableHelper {
                 });
                 break;
             case 'RoutingTable':
-                table.innerHTML = '<tr><td></td><td>ID</td><td>Gateway</td><td>Bitmask</td><td>Port</td></tr>';
+                table.innerHTML = `<tr><td></td><td>ID</td><td>${msg('Gateway')}</td><td>${msg('Bitmask')}</td><td>Port</td></tr>`;
                 (tableData as Map<string, RoutingData>).forEach((routingData) => {
                     TableHelper.addRow(tableId, tableType, network, [
                         routingData.destination,
@@ -219,19 +220,19 @@ export class TableHelper {
         let tableCols = '';
         switch (tableType) {
             case 'ArpTable':
-                label = 'ARP Table';
+                label = msg('ARP Table');
                 tableId = 'arp-table-' + nodeId;
                 tableCols = '<tr><td></td><td>IP</td><td>MAC</td></tr>';
                 break;
 
             case 'RoutingTable':
-                label = 'Routing Table';
+                label = msg('Routing Table');
                 tableId = 'routing-table-' + nodeId;
-                tableCols = '<tr><td></td><td>ID</td><td>Gateway</td><td>Bitmask</td><td>Port</td></tr>';
+                tableCols = `<tr><td></td><td>ID</td><td>${msg('Gateway')}</td><td>${msg('Bitmask')}</td><td>Port</td></tr>`;
                 break;
 
             case 'MacAddressTable':
-                label = 'Mac Address Table';
+                label = msg('Mac Address Table');
                 tableId = 'mac-address-table-' + nodeId;
                 tableCols = '<tr><td></td><td>Port</td><td>MAC</td></tr>';
                 break;
@@ -267,17 +268,17 @@ export class TableHelper {
 
         let addButton = document.createElement('sl-button') as SlButton;
         addButton.size = 'small';
-        addButton.innerHTML = 'Add';
+        addButton.innerHTML = msg('Add');
         addButton.addEventListener('click', () => TableHelper.addRow(tableId, tableType, network));
 
         let removeButton = document.createElement('sl-button') as SlButton;
         removeButton.size = 'small';
-        removeButton.innerHTML = 'Remove';
+        removeButton.innerHTML = msg('Remove');
         removeButton.addEventListener('click', () => TableHelper.deleteRow(tableId, network));
 
         let saveButton = document.createElement('sl-button') as SlButton;
         saveButton.size = 'small';
-        saveButton.innerHTML = 'Save';
+        saveButton.innerHTML = msg('Save');
         saveButton.addEventListener('click', () => TableHelper.updateTable(tableId, tableType, network));
 
         detail.append(addButton);

@@ -7,6 +7,7 @@ import { PhysicalNode } from '../components/physicalNodes/PhysicalNode';
 import { AlertHelper } from '../utils/AlertHelper';
 import NodeSingular from 'cytoscape';
 import { AddressingHelper } from '../utils/AdressingHelper';
+import { msg } from '@lit/localize';
 
 export class SubnettingController {
     assignGatewayOn = false;
@@ -183,21 +184,21 @@ export class SubnettingController {
 
         if (allCorrect && !unconfig) {
             if (noAlert) return true;
-            AlertHelper.toastAlert('success', 'check2-circle', 'Well done!', 'All nets are correctly configured!');
+            AlertHelper.toastAlert('success', 'check2-circle', msg('Well done!'), msg('All nets are correctly configured!'));
             return true;
         } else if (unconfig) {
             if (noAlert) return false;
-            alert += '<li>Unconfigured net still exists.</li>';
+            alert += `<li>${msg('Unconfigured net still exists.')}</li>`;
         }
         if (noAlert) return false;
         if (alert != '')
-            AlertHelper.toastAlert('warning', 'exclamation-triangle', 'Cross validation between Nets: ', alert);
+            AlertHelper.toastAlert('warning', 'exclamation-triangle', msg('Cross validation between Nets: '), alert);
     }
 
     setUpGateway(gateway: NodeSingular, host: NodeSingular, gatewayPort: number, database: Map<string, string>): void {
         if (host.isChild() && gateway.hasClass('gateway-node')) {
             console.log(
-                'Setting up gateway: ',
+                msg('Setting up gateway: '),
                 gateway.data(),
                 host.data(),
                 gatewayPort,
@@ -227,8 +228,8 @@ export class SubnettingController {
                         AlertHelper.toastAlert(
                             'warning',
                             'exclamation-triangle',
-                            'Net-based mode on:',
-                            'Unconfigured net, automatically set Ipv4 address to loop-back.'
+                            msg('Net-based mode on:'),
+                            msg('Unconfigured net, automatically set Ipv4 address to loop-back.')
                         );
                     } else if (ip4 != null && !ip4.matchesNetworkCidr(net.data() as Net)) {
                         Ipv4Address.removeAddressFromDatabase(ip4, database);

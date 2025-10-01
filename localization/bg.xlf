@@ -1,0 +1,898 @@
+<xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="lit-localize-inputs" datatype="plaintext" source-language="en" target-language="bg">
+    <body>
+      <trans-unit id="s64ef2a6c2dd1d3d1">
+        <source>Edit</source>
+        <target>Редактиране на</target>
+      </trans-unit>
+      <trans-unit id="scfcffcf35292bc6f">
+        <source>Simulate</source>
+        <target>Симулирайте</target>
+      </trans-unit>
+      <trans-unit id="sd03c537f123f42a6">
+        <source>Exit Fullscreen</source>
+        <target>Излизане на цял екран</target>
+      </trans-unit>
+      <trans-unit id="s4b10acae683d2978">
+        <source>Fullscreen</source>
+        <target>Пълен екран</target>
+      </trans-unit>
+      <trans-unit id="s5eedf01beec54734">
+        <source>Tutorials</source>
+        <target>Уроци</target>
+      </trans-unit>
+      <trans-unit id="sba1e8892999bb878">
+        <source>Computer</source>
+        <target>Компютър</target>
+      </trans-unit>
+      <trans-unit id="s4f0026a488fbdca3">
+        <source>Mobile device</source>
+        <target>Мобилно устройство</target>
+      </trans-unit>
+      <trans-unit id="sd8dddc9cd2d5b135">
+        <source>Network device</source>
+        <target>Мрежово устройство</target>
+      </trans-unit>
+      <trans-unit id="se51d6fb9158b9f24">
+        <source>Router</source>
+        <target>Маршрутизатор</target>
+      </trans-unit>
+      <trans-unit id="s265dbd543be2f5ed">
+        <source>Access point</source>
+        <target>Точка за достъп</target>
+      </trans-unit>
+      <trans-unit id="s186f0d4339ae84fd">
+        <source>Repeater</source>
+        <target>Повторител</target>
+      </trans-unit>
+      <trans-unit id="s491d2a19cd6ec58c">
+        <source>Hub</source>
+        <target>Хъб</target>
+      </trans-unit>
+      <trans-unit id="s8545094bc2096970">
+        <source>Bridge</source>
+        <target>Мост</target>
+      </trans-unit>
+      <trans-unit id="s8e114dd98aeedf91">
+        <source>Switch</source>
+        <target>Превключвател</target>
+      </trans-unit>
+      <trans-unit id="s6503256c2de2745c">
+        <source>Edge</source>
+        <target>Edge</target>
+      </trans-unit>
+      <trans-unit id="s9feb1a1345ccc3e5">
+        <source>Network</source>
+        <target>Мрежа</target>
+      </trans-unit>
+      <trans-unit id="sf4c791f0705344d6">
+        <source>Network assignment</source>
+        <target>Присвояване на мрежата</target>
+      </trans-unit>
+      <trans-unit id="sf0751c039d26da12">
+        <source>Gateway assignment</source>
+        <target>Задаване на шлюз</target>
+      </trans-unit>
+      <trans-unit id="s0201d8d614a1b5a4">
+        <source>Validate global address assignments</source>
+        <target>Потвърждаване на глобалните назначения на адреси</target>
+      </trans-unit>
+      <trans-unit id="s9c0c880f87b91eb4">
+        <source>Import a file created by this widget</source>
+        <target>Импортиране на файл, създаден от тази джаджа</target>
+      </trans-unit>
+      <trans-unit id="s04507e583f35a215">
+        <source>Export the current graph</source>
+        <target>Експортиране на текущата графика</target>
+      </trans-unit>
+      <trans-unit id="s8ccfa5f804f6777a">
+        <source>Example graphs/exercises</source>
+        <target>Примерни графики/упражнения</target>
+      </trans-unit>
+      <trans-unit id="s7c31cf556c31642f">
+        <source>Tutorials for features of this widget</source>
+        <target>Уроци за функциите на тази джаджа</target>
+      </trans-unit>
+      <trans-unit id="s6b05f9d8801fc14f">
+        <source>Host</source>
+        <target>Домакин</target>
+      </trans-unit>
+      <trans-unit id="s1018d5f2b1cc4e8d">
+        <source>Access Point</source>
+        <target>Точка за достъп</target>
+      </trans-unit>
+      <trans-unit id="sabab0da440471b2c">
+        <source>Physical Node</source>
+        <target>Физически възел</target>
+      </trans-unit>
+      <trans-unit id="sf70e0979427bcaf8">
+        <source>Logical Node</source>
+        <target>Логически възел</target>
+      </trans-unit>
+      <trans-unit id="sbe1c7d207f771f2d">
+        <source>Number of ports</source>
+        <target>Брой портове</target>
+      </trans-unit>
+      <trans-unit id="s94c954118f54fa1d">
+        <source>Number of input ports</source>
+        <target>Брой входни портове</target>
+      </trans-unit>
+      <trans-unit id="sd9d1a55c5a664641">
+        <source>Add details for ports</source>
+        <target>Добавяне на подробности за портовете</target>
+      </trans-unit>
+      <trans-unit id="s79ca6e84a4df82e5">
+        <source>NetID</source>
+        <target>NetID</target>
+      </trans-unit>
+      <trans-unit id="s0b985047f07efbd0">
+        <source>Netmask</source>
+        <target>Нетна маска</target>
+      </trans-unit>
+      <trans-unit id="s9c84598a99c03b88">
+        <source>Bitmask</source>
+        <target>Битмаска</target>
+      </trans-unit>
+      <trans-unit id="see822b9851671c85">
+        <source>Click to add your component</source>
+        <target>Кликнете, за да добавите своя компонент</target>
+      </trans-unit>
+      <trans-unit id="scf4ac84fce176d91">
+        <source>Click to draw connecting links</source>
+        <target>Кликнете, за да нарисувате свързващи връзки</target>
+      </trans-unit>
+      <trans-unit id="s08cf63ff39d4bfaf">
+        <source>Click to change color of existing components</source>
+        <target>Щракнете, за да промените цвета на съществуващите компоненти</target>
+      </trans-unit>
+      <trans-unit id="s2ffac3a7ddd1580b">
+        <source>CIDR/Subnetting controller</source>
+        <target>Контролер за CIDR/подмрежи</target>
+      </trans-unit>
+      <trans-unit id="s82dba63ce339e3a6">
+        <source>Choose a mode</source>
+        <target>Изберете режим</target>
+      </trans-unit>
+      <trans-unit id="s22b5492cdee5c0d6">
+        <source>Manual Mode</source>
+        <target>Ръчен режим</target>
+      </trans-unit>
+      <trans-unit id="sf0453217220f9a2d">
+        <source>Net-based Mode</source>
+        <target>Мрежов режим</target>
+      </trans-unit>
+      <trans-unit id="s7bc931f3ffdb6e60">
+        <source>Host-based Mode</source>
+        <target>Режим, базиран на хост</target>
+      </trans-unit>
+      <trans-unit id="s73c3e21df2f12350">
+        <source>Activate Draw-and-drop</source>
+        <target>Активиране на функцията Draw-and-drop</target>
+      </trans-unit>
+      <trans-unit id="s7a3fb8031d3600cb">
+        <source>Drag to assign gateway</source>
+        <target>Плъзнете, за да зададете шлюз</target>
+      </trans-unit>
+      <trans-unit id="s42cbd8dca939a9c7">
+        <source>Check</source>
+        <target>Проверете</target>
+      </trans-unit>
+      <trans-unit id="sfd468f7c41396df5">
+        <source>Packet sending controller</source>
+        <target>Контролер за изпращане на пакети</target>
+      </trans-unit>
+      <trans-unit id="s0dcc53abaa5c5df9">
+        <source>Choose sender</source>
+        <target>Изберете подател</target>
+      </trans-unit>
+      <trans-unit id="s0356c70f23c234fd">
+        <source>Choose receiver</source>
+        <target>Изберете приемник</target>
+      </trans-unit>
+      <trans-unit id="se24130f1123560a0">
+        <source>Speed</source>
+        <target>Скорост</target>
+      </trans-unit>
+      <trans-unit id="sd8fe5e97ed28d99c">
+        <source>Focus on animated nodes</source>
+        <target>Фокус върху анимирани възли</target>
+      </trans-unit>
+      <trans-unit id="s62278f512692e037">
+        <source>Session</source>
+        <target>Сесия</target>
+      </trans-unit>
+      <trans-unit id="s1951d0ebc9976aaf">
+        <source>Create a new simulation session</source>
+        <target>Създаване на нова сесия за симулация</target>
+      </trans-unit>
+      <trans-unit id="s649522600e4a80ac">
+        <source>Start sending a new packet</source>
+        <target>Започнете да изпращате нов пакет</target>
+      </trans-unit>
+      <trans-unit id="se4752f0e82f9a5ab">
+        <source>Pause/resume all packets</source>
+        <target>Спиране/възобновяване на всички пакети</target>
+      </trans-unit>
+      <trans-unit id="s840bfacd9e8e393d">
+        <source>Stop the simulation session</source>
+        <target>Спиране на сесията за симулация</target>
+      </trans-unit>
+      <trans-unit id="sce83fe4fe279ab21">
+        <source>Track tables</source>
+        <target>Маси за писти</target>
+      </trans-unit>
+      <trans-unit id="s480e8cca00501fbf">
+        <source>Octets shouldn't be of negative value</source>
+        <target>Октетите не трябва да имат отрицателна стойност</target>
+      </trans-unit>
+      <trans-unit id="sf56b78a9e5b4640f">
+        <source>The  netmask you entered</source>
+        <target>Въведената мрежова маска</target>
+      </trans-unit>
+      <trans-unit id="sb3c6effefba5ccb8">
+        <source>doesn't match the bitmask</source>
+        <target>не съвпада с битмаската</target>
+      </trans-unit>
+      <trans-unit id="s0a7748b8de0b3a6f">
+        <source>Derived netmask is</source>
+        <target>Изведената мрежова маска е</target>
+      </trans-unit>
+      <trans-unit id="s2f034d5e354fd8fe">
+        <source>Provided network ID is not valid.</source>
+        <target>Предоставеният мрежов идентификатор не е валиден.</target>
+      </trans-unit>
+      <trans-unit id="s4860102f9ca44d7b">
+        <source>Net-based Mode for CIDR/Subnetting activated:</source>
+        <target>Активиран е мрежов режим за CIDR/подмрежи:</target>
+      </trans-unit>
+      <trans-unit id="scfc539cb2204d99f">
+        <source>Cannot create a net without both bitmask and netmask!</source>
+        <target>Не мога да създам мрежа без битова и мрежова маска!</target>
+      </trans-unit>
+      <trans-unit id="saf114a45c687be19">
+        <source>Hosts-based mode:</source>
+        <target>Режим, базиран на хостове:</target>
+      </trans-unit>
+      <trans-unit id="se60f6f327c8094af">
+        <source>No valid network address can be assigned to this net.</source>
+        <target>На тази мрежа не може да бъде присвоен валиден мрежов адрес.</target>
+      </trans-unit>
+      <trans-unit id="s3741f219c32abe78">
+        <source>Net</source>
+        <target>Нето</target>
+      </trans-unit>
+      <trans-unit id="sc2abe27bb5be2879">
+        <source>Gateway</source>
+        <target>Gateway</target>
+      </trans-unit>
+      <trans-unit id="sc096fbcee1f2951a">
+        <source>should contain</source>
+        <target>трябва да съдържа</target>
+      </trans-unit>
+      <trans-unit id="s8d70ca4af5a9c009">
+        <source>with address</source>
+        <target>с адрес</target>
+      </trans-unit>
+      <trans-unit id="s33aec365752c45d7">
+        <source>The netmask you entered</source>
+        <target>Въведената мрежова маска</target>
+      </trans-unit>
+      <trans-unit id="s95b91fa7ce0e4422">
+        <source>Your changes have been saved.</source>
+        <target>Промените са записани.</target>
+      </trans-unit>
+      <trans-unit id="sbee40693bf2c18e9">
+        <source>Host-based mode on:</source>
+        <target>Включен е режимът, базиран на хоста:</target>
+      </trans-unit>
+      <trans-unit id="sb6ee4842d085bac3">
+        <source>New network doesn't extend old network!</source>
+        <target>Новата мрежа не разширява старата мрежа!</target>
+      </trans-unit>
+      <trans-unit id="s47abed60b53d9f15">
+        <source>The connection type of assigned ports are not compatible!</source>
+        <target>Типът на връзката на определените портове не е съвместим!</target>
+      </trans-unit>
+      <trans-unit id="s6e488f7a11e566e4">
+        <source>Please re-assign your ports or dismiss this connection.</source>
+        <target>Моля, задайте отново портовете си или прекратете тази връзка.</target>
+      </trans-unit>
+      <trans-unit id="s0f527a17b9b690e2">
+        <source>Well done!</source>
+        <target>Браво!</target>
+      </trans-unit>
+      <trans-unit id="s431446cf4939d374">
+        <source>All nets are correctly configured!</source>
+        <target>Всички мрежи са правилно конфигурирани!</target>
+      </trans-unit>
+      <trans-unit id="s8ec5e5061ca83fb9">
+        <source>Unconfigured net still exists.</source>
+        <target>Все още съществува неконфигурирана мрежа.</target>
+      </trans-unit>
+      <trans-unit id="s330a19f706948b7c">
+        <source>Cross validation between Nets: </source>
+        <target>Кръстосано валидиране между мрежите: </target>
+      </trans-unit>
+      <trans-unit id="s3b07747d0bd1c988">
+        <source>Setting up gateway: </source>
+        <target>Настройване на шлюз: </target>
+      </trans-unit>
+      <trans-unit id="s6881b5a560c88bf8">
+        <source>Net-based mode on:</source>
+        <target>Включване на мрежовия режим:</target>
+      </trans-unit>
+      <trans-unit id="sa9b946da3254eeb2">
+        <source>Unconfigured net, automatically set Ipv4 address to loop-back.</source>
+        <target>Неконфигурирана мрежа, автоматично зададен Ipv4 адрес за обратна връзка.</target>
+      </trans-unit>
+      <trans-unit id="sfa2e7dafd99371ff">
+        <source>Port number</source>
+        <target>Номер на порт</target>
+      </trans-unit>
+      <trans-unit id="sc1b1fc103ff1b1b3">
+        <source>Interface name</source>
+        <target>Име на интерфейса</target>
+      </trans-unit>
+      <trans-unit id="sb7233970916468e3">
+        <source>Connection type</source>
+        <target>Вид на връзката</target>
+      </trans-unit>
+      <trans-unit id="s44646f1a480a4a28">
+        <source>MAC Address</source>
+        <target>MAC адрес</target>
+      </trans-unit>
+      <trans-unit id="scbbde46d3e773c0e">
+        <source>Ethernet</source>
+        <target>Ethernet</target>
+      </trans-unit>
+      <trans-unit id="s05f14bdb78dbcdb1">
+        <source>Wireless</source>
+        <target>Безжичен</target>
+      </trans-unit>
+      <trans-unit id="s7a1405870058921f">
+        <source>Assigning ports for this connection</source>
+        <target>Присвояване на портове за тази връзка</target>
+      </trans-unit>
+      <trans-unit id="se2cc791794723812">
+        <source>Select one from available ports:</source>
+        <target>Изберете един от наличните портове:</target>
+      </trans-unit>
+      <trans-unit id="se29a5823185d420c">
+        <source>Please choose port/interface for</source>
+        <target>Моля, изберете порт/интерфейс за</target>
+      </trans-unit>
+      <trans-unit id="s0771257848b4d7a3">
+        <source>Details about component</source>
+        <target>Подробности за компонента</target>
+      </trans-unit>
+      <trans-unit id="sb4f8acbdda6ff3b9">
+        <source>Details of the ports</source>
+        <target>Подробности за пристанищата</target>
+      </trans-unit>
+      <trans-unit id="s5804ccf243041e60">
+        <source>is not a valid MAC Address.</source>
+        <target>не е валиден MAC адрес.</target>
+      </trans-unit>
+      <trans-unit id="sb781a2ba64e70be8">
+        <source>Subnet-based mode on:</source>
+        <target>Включване на режим, базиран на подмрежа:</target>
+      </trans-unit>
+      <trans-unit id="sdb11e8f269ea1b13">
+        <source>Inserted IPv4 doesn't match the subnet mask.</source>
+        <target>Вмъкнатият IPv4 не съответства на маската на подмрежата.</target>
+      </trans-unit>
+      <trans-unit id="s138df1ceb51a3661">
+        <source>Inserted IPv4 for gateway doesn't match the subnet mask or the network is not configured.</source>
+        <target>Вмъкнатият IPv4 за шлюз не съответства на маската на подмрежата или мрежата не е конфигурирана.</target>
+      </trans-unit>
+      <trans-unit id="s213a3bbc3f7af684">
+        <source>is not valid.</source>
+        <target>не е валиден.</target>
+      </trans-unit>
+      <trans-unit id="sed931f57adaad8c0">
+        <source>is not a valid IPv6 Address.</source>
+        <target>не е валиден IPv6 адрес.</target>
+      </trans-unit>
+      <trans-unit id="s3f015779aaa1979d">
+        <source>Network Address</source>
+        <target>Мрежов адрес</target>
+      </trans-unit>
+      <trans-unit id="sf866305516492af0">
+        <source>Interface</source>
+        <target>Интерфейс</target>
+      </trans-unit>
+      <trans-unit id="se1b13a7c92d4dcc3">
+        <source>Connection Type</source>
+        <target>Тип на връзката</target>
+      </trans-unit>
+      <trans-unit id="s89d11288ef7198fa">
+        <source>This network has no gateway.</source>
+        <target>Тази мрежа няма шлюз.</target>
+      </trans-unit>
+      <trans-unit id="sff9aad8a96d11e8c">
+        <source>Mac Address of Sender:</source>
+        <target>Mac адрес на изпращача:</target>
+      </trans-unit>
+      <trans-unit id="sd9f73b49c90cb730">
+        <source>IP Address of Sender:</source>
+        <target>IP адрес на изпращача:</target>
+      </trans-unit>
+      <trans-unit id="s228664e90e9a6cec">
+        <source>Mac Address of Receiver:</source>
+        <target>Mac адрес на приемника:</target>
+      </trans-unit>
+      <trans-unit id="s8b0705a2df382b10">
+        <source>IP Address of Receiver:</source>
+        <target>IP адрес на приемника:</target>
+      </trans-unit>
+      <trans-unit id="s9739ed2dd4a000eb">
+        <source>Add/ Configure graph components</source>
+        <target>Добавяне/конфигуриране на графични компоненти</target>
+      </trans-unit>
+      <trans-unit id="s953fefbfaf0e2e3d">
+        <source>CIDR/ Subnetting</source>
+        <target>CIDR/подмрежа</target>
+      </trans-unit>
+      <trans-unit id="sbd62973250ca30ae">
+        <source>Packet travelling simulation</source>
+        <target>Симулация на пътуване на пакети</target>
+      </trans-unit>
+      <trans-unit id="s492ae98a6cd1ae70">
+        <source>How to add a physical node (host, router, switch,...)?</source>
+        <target>Как да добавя физически възел (хост, маршрутизатор, комутатор...)?</target>
+      </trans-unit>
+      <trans-unit id="sd9994f251f1280cf">
+        <source>Step</source>
+        <target>Стъпка</target>
+      </trans-unit>
+      <trans-unit id="s6debdd8a9764e3fc">
+        <source>Choose your component</source>
+        <target>Изберете своя компонент</target>
+      </trans-unit>
+      <trans-unit id="s0e98fa123505c680">
+        <source>More details with "Add details for ports"</source>
+        <target>Повече подробности с "Добавяне на подробности за портове"</target>
+      </trans-unit>
+      <trans-unit id="s3356cd0d48121928">
+        <source>Pick a color also if you want to:</source>
+        <target>Ако искате, изберете и цвят:</target>
+      </trans-unit>
+      <trans-unit id="s78ab938d4d37d39c">
+        <source>Click add</source>
+        <target>Кликнете върху добавяне</target>
+      </trans-unit>
+      <trans-unit id="s4c51e3cba34af73d">
+        <source>How to add a logical node (network node)?</source>
+        <target>Как да добавя логически възел (мрежов възел)?</target>
+      </trans-unit>
+      <trans-unit id="s47707a379c47dc00">
+        <source>Configure your network</source>
+        <target>Конфигуриране на вашата мрежа</target>
+      </trans-unit>
+      <trans-unit id="s55759c57f408a4bd">
+        <source>How to add a link between two physical nodes?</source>
+        <target>Как да добавя връзка между два физически възела?</target>
+      </trans-unit>
+      <trans-unit id="s87dd4e7f900ee9ea">
+        <source>Choose edge component</source>
+        <target>Изберете компонент на ръба</target>
+      </trans-unit>
+      <trans-unit id="s2c35f5501ffe52a0">
+        <source>Toggle draw mode</source>
+        <target>Превключване на режима на рисуване</target>
+      </trans-unit>
+      <trans-unit id="s95bd2e0d6d483b0d">
+        <source>Draw then configure on right click</source>
+        <target>След това конфигурирайте с десен бутон на мишката</target>
+      </trans-unit>
+      <trans-unit id="s01743e321d86591f">
+        <source>Activate the "assign gateway" mode:</source>
+        <target>Активирайте режима "присвояване на шлюз":</target>
+      </trans-unit>
+      <trans-unit id="s57df860deb5b4777">
+        <source>Drag the gateway on the edge of a network:</source>
+        <target>Плъзнете шлюза в края на мрежата:</target>
+      </trans-unit>
+      <trans-unit id="s181fd03f13912ebc">
+        <source>How to drag a component into a network?</source>
+        <target>Как да плъзнете компонент в мрежа?</target>
+      </trans-unit>
+      <trans-unit id="sf226fb633985e8b4">
+        <source>Activate the "drag-and-drop" mode:</source>
+        <target>Активирайте режима "плъзгане и пускане":</target>
+      </trans-unit>
+      <trans-unit id="sb2d67306c97f577a">
+        <source>Drag the component inside the network:</source>
+        <target>Плъзнете компонента в мрежата:</target>
+      </trans-unit>
+      <trans-unit id="se965fe13b9222a65">
+        <source>How does the Net-based mode work?</source>
+        <target>Как работи режимът, базиран на мрежата?</target>
+      </trans-unit>
+      <trans-unit id="sdf132350672d0884">
+        <source>How does the Host-based mode work?</source>
+        <target>Как работи режимът, базиран на хост?</target>
+      </trans-unit>
+      <trans-unit id="s8709fa6bb7aa0002">
+        <source>networks</source>
+        <target>мрежи</target>
+      </trans-unit>
+      <trans-unit id="s3ec4a053318b0ae8">
+        <source>hosts/gateways/subnetworks</source>
+        <target>хостове/шлюзове/подмрежи</target>
+      </trans-unit>
+      <trans-unit id="se911c0eb6fe86b71">
+        <source>How to manipulate a simulation session?</source>
+        <target>Как да манипулирате сесия за симулация?</target>
+      </trans-unit>
+      <trans-unit id="sb25dcf3e6fa2992a">
+        <source>In this step, for the:</source>
+        <target>В тази стъпка за:</target>
+      </trans-unit>
+      <trans-unit id="sa2885d6d322c7379">
+        <source>host/router: ARP table and routing table are created</source>
+        <target>хост/маршрутизатор: Създават се ARP таблица и таблица за маршрутизация</target>
+      </trans-unit>
+      <trans-unit id="s30c43f21d5cc55e7">
+        <source>switch/bridge/access point: MAC address table is created</source>
+        <target>превключвател/мост/точка на достъп: Създава се таблица с MAC адреси</target>
+      </trans-unit>
+      <trans-unit id="s10a895b419c64000">
+        <source>assign a sender/receiver for the packet</source>
+        <target>определяне на подател/получател за пакета.</target>
+      </trans-unit>
+      <trans-unit id="sb3e91073b21ceb33">
+        <source>start sending a packet with the assigned sender and receiver in step 2</source>
+        <target>започнете да изпращате пакет с определените в стъпка 2 подател и получател.</target>
+      </trans-unit>
+      <trans-unit id="s19db88ac376ff979">
+        <source>Last step</source>
+        <target>Последна стъпка</target>
+      </trans-unit>
+      <trans-unit id="s0106a71d5407aaa9">
+        <source>Stop session</source>
+        <target>Спиране на сесията</target>
+      </trans-unit>
+      <trans-unit id="s9d1892a929c95c41">
+        <source>resets all tables and ends the current simulation session.</source>
+        <target>нулира всички таблици и прекратява текущата сесия на симулация.</target>
+      </trans-unit>
+      <trans-unit id="sbf424bf9f5374d3f">
+        <source>Start from step 1 again for a new simulation session.</source>
+        <target>Започнете отново от стъпка 1 за нова сесия на симулация.</target>
+      </trans-unit>
+      <trans-unit id="safb8ca5860037ac7">
+        <source>How to configure the tables?</source>
+        <target>Как да конфигурирате таблиците?</target>
+      </trans-unit>
+      <trans-unit id="s347e78eb6a59dd4f">
+        <source>Fill your table according to its type. Except for the tables of the routers, tables of other nodes can be filled automatically.</source>
+        <target>Напълнете масата си според нейния тип. С изключение на таблиците на маршрутизаторите, таблиците на другите възли могат да бъдат попълнени автоматично.</target>
+      </trans-unit>
+      <trans-unit id="s870a89403be74609">
+        <source>is out of available ports.</source>
+        <target>няма налични портове.</target>
+      </trans-unit>
+      <trans-unit id="s0b0811fac0075534">
+        <source>Your table is saved!</source>
+        <target>Вашата маса е запазена!</target>
+      </trans-unit>
+      <trans-unit id="sbcc845948d536d4e">
+        <source>ARP Table</source>
+        <target>Таблица ARP</target>
+      </trans-unit>
+      <trans-unit id="sc86686973428936d">
+        <source>Routing Table</source>
+        <target>Таблица за маршрутизиране</target>
+      </trans-unit>
+      <trans-unit id="s47f47667e50169dc">
+        <source>Mac Address Table</source>
+        <target>Таблица с Mac адреси</target>
+      </trans-unit>
+      <trans-unit id="sf9aee319a006c9b4">
+        <source>Add</source>
+        <target>Добавяне на</target>
+      </trans-unit>
+      <trans-unit id="sea4f08110bb8f15d">
+        <source>Remove</source>
+        <target>Премахване на</target>
+      </trans-unit>
+      <trans-unit id="s33f85f24c0f5f008">
+        <source>Save</source>
+        <target>Запазете</target>
+      </trans-unit>
+      <trans-unit id="s652d3637d25431f5">
+        <source>Your receiver has received the message!</source>
+        <target>Вашият получател е получил съобщението!</target>
+      </trans-unit>
+      <trans-unit id="s7f03c3305cc572c7">
+        <source>Currently the widget only supports host as sender and receiver.</source>
+        <target>Понастоящем джаджата поддържа само хост като изпращач и получател.</target>
+      </trans-unit>
+      <trans-unit id="s8c139c7e7f2a7866">
+        <source>Your graph is not qualified for this feature:</source>
+        <target>Вашата графика не отговаря на изискванията за тази функция:</target>
+      </trans-unit>
+      <trans-unit id="sedb7e84739dabb52">
+        <source>The widget currently only support sending Parcel between layer 3 components</source>
+        <target>В момента джаджата поддържа само изпращане на пратки между компоненти от слой 3.</target>
+      </trans-unit>
+      <trans-unit id="sba272ff6dce6bf6c">
+        <source>An exercise for CIDR from classful networks: drag and drop then check.</source>
+        <target>Упражнение за CIDR от класни мрежи: плъзгане и пускане, след това проверка.</target>
+      </trans-unit>
+      <trans-unit id="sf5a28de7d04f6bf1">
+        <source>An exercise for CIDR from classful networks: configure the classful networks then check.</source>
+        <target>Упражнение за CIDR от класни мрежи: конфигурирайте класните мрежи, след което проверете.</target>
+      </trans-unit>
+      <trans-unit id="se6394d8e29dba878">
+        <source>An exercise for subnetting from a classful network: configure the subnets then check.</source>
+        <target>Упражнение за създаване на подмрежи от мрежа с пълен клас: конфигурирайте подмрежите, след което проверете.</target>
+      </trans-unit>
+      <trans-unit id="s0be43d4fa79554a1">
+        <source>A mixed exercise of CIDR and subnetting: drag and drop then check.</source>
+        <target>Смесено упражнение за CIDR и подмрежа: плъзгане и пускане, след това проверка.</target>
+      </trans-unit>
+      <trans-unit id="sc12a027fbcfb0c9b">
+        <source>Ethernet with a repeater and 2 hosts.</source>
+        <target>Ethernet с повторител и 2 хоста.</target>
+      </trans-unit>
+      <trans-unit id="scc2c5dc40950c43d">
+        <source>Ethernet with a hub and 3 hosts.</source>
+        <target>Ethernet с концентратор и 3 хоста.</target>
+      </trans-unit>
+      <trans-unit id="s73b5a4a416157778">
+        <source>Ethernet with a bridge and 2 hosts.</source>
+        <target>Ethernet с мост и 2 хоста.</target>
+      </trans-unit>
+      <trans-unit id="sdbdba9594afe53ce">
+        <source>Ethernet with a switch and 3 hosts.</source>
+        <target>Ethernet с комутатор и 3 хоста.</target>
+      </trans-unit>
+      <trans-unit id="s370a2d0578bd2c7b">
+        <source>Wifi network with 1 access point, 3 hosts.</source>
+        <target>Wifi мрежа с 1 точка за достъп, 3 хоста.</target>
+      </trans-unit>
+      <trans-unit id="s2f615aee386409b0">
+        <source>2 Ethernets with a gateway.</source>
+        <target>2 Ethernet мрежи с шлюз.</target>
+      </trans-unit>
+      <trans-unit id="sb1463e72905de3f8">
+        <source>An ethernet, a wireless network and a gateway.</source>
+        <target>Етернет, безжична мрежа и шлюз.</target>
+      </trans-unit>
+      <trans-unit id="s22feccbbd1ae2aa8">
+        <source>3 Ethernets and a gateway.</source>
+        <target>3 Ethernet мрежи и шлюз.</target>
+      </trans-unit>
+      <trans-unit id="s18662a2a14477a6f">
+        <source>2 Ethernets and 3 routers.</source>
+        <target>2 Ethernet мрежи и 3 маршрутизатора.</target>
+      </trans-unit>
+      <trans-unit id="s8c8aeec90bdad274">
+        <source>2 Ethernets and 4 routers.</source>
+        <target>2 Ethernet мрежи и 4 маршрутизатора.</target>
+      </trans-unit>
+      <trans-unit id="s1f7698c061c208c9">
+        <source>Open</source>
+        <target>Отворете</target>
+      </trans-unit>
+      <trans-unit id="s7eb13b92e2f5090f">
+        <source>Example exercises for CIDR/ Subnetting</source>
+        <target>Примерни упражнения за CIDR/подмрежа</target>
+      </trans-unit>
+      <trans-unit id="sb8766aae5913b0ef">
+        <source>Example networks for simulations</source>
+        <target>Примерни мрежи за симулации</target>
+      </trans-unit>
+      <trans-unit id="sf2811f9a2c3aecfb">
+        <source>Details of the ports </source>
+        <target>Подробности за пристанищата </target>
+      </trans-unit>
+      <trans-unit id="sef49aec68fd1dc66">
+        <source>Name</source>
+        <target>Име</target>
+      </trans-unit>
+      <trans-unit id="s4114a8a9e84611a4">
+        <source>No port available.</source>
+        <target>Няма наличен порт.</target>
+      </trans-unit>
+      <trans-unit id="sf35d6a5dc03d5557">
+        <source>Add Port</source>
+        <target>Добавяне на порт</target>
+      </trans-unit>
+      <trans-unit id="s5d754d60e804c665">
+        <source>Details of the connection between </source>
+        <target>Подробности за връзката между </target>
+      </trans-unit>
+      <trans-unit id="s3c0a015edb522c38">
+        <source> and </source>
+        <target> и </target>
+      </trans-unit>
+      <trans-unit id="sa4b72835cba0d053">
+        <source>Source Port</source>
+        <target>Пристанище на източника</target>
+      </trans-unit>
+      <trans-unit id="sc9e9b70c7d6caa43">
+        <source>Target Port</source>
+        <target>Target Port</target>
+      </trans-unit>
+      <trans-unit id="s9a66f95d51e77c3d">
+        <source>Details of the network </source>
+        <target>Подробности за мрежата </target>
+      </trans-unit>
+      <trans-unit id="s71183ed55882f1c9">
+        <source>IPv4 address is invalid.</source>
+        <target>IPv4 адресът е невалиден.</target>
+      </trans-unit>
+      <trans-unit id="s5882939b7613896e">
+        <source>Invalid net id.</source>
+        <target>Невалиден идентификатор на мрежата.</target>
+      </trans-unit>
+      <trans-unit id="sf2fe311e301fa69b">
+        <source>Network Mask</source>
+        <target>Маска на мрежата</target>
+      </trans-unit>
+      <trans-unit id="s02ba6f5ad4b7f7d3">
+        <source>Invalid netmask.</source>
+        <target>Невалидна мрежова маска.</target>
+      </trans-unit>
+      <trans-unit id="s146232d3025412f3">
+        <source>Invalid bitmask.</source>
+        <target>Невалидна битова маска.</target>
+      </trans-unit>
+      <trans-unit id="s0ccb657bb5ab7aef">
+        <source>MAC address is invalid.</source>
+        <target>MAC адресът е невалиден.</target>
+      </trans-unit>
+      <trans-unit id="sb3db490afc111f9f">
+        <source>IPv6 address is invalid.</source>
+        <target>IPv6 адресът е невалиден.</target>
+      </trans-unit>
+      <trans-unit id="s331ff328f4efcdce">
+        <source>Arp Table</source>
+        <target>Таблица Arp</target>
+      </trans-unit>
+      <trans-unit id="s13a56952f9635fe4">
+        <source>Set Source</source>
+        <target>Задайте източник</target>
+      </trans-unit>
+      <trans-unit id="se340f70c28bb766c">
+        <source>Set Target</source>
+        <target>Задаване на цел</target>
+      </trans-unit>
+      <trans-unit id="s479cdff9480652de">
+        <source>Start Simulation</source>
+        <target>Стартиране на симулацията</target>
+      </trans-unit>
+      <trans-unit id="s46e517b2962de3ce">
+        <source>Change Port Config</source>
+        <target>Промяна на конфигурацията на порта</target>
+      </trans-unit>
+      <trans-unit id="sbc909ebb8c28f954">
+        <source>Default Gateway</source>
+        <target>Шлюз по подразбиране</target>
+      </trans-unit>
+      <trans-unit id="sdff41263f305c0ea">
+        <source>Define Interfaces</source>
+        <target>Дефиниране на интерфейси</target>
+      </trans-unit>
+      <trans-unit id="s82f9a9addfd569b4">
+        <source>Define Network</source>
+        <target>Определяне на мрежа</target>
+      </trans-unit>
+      <trans-unit id="s768df033dc306fbc">
+        <source>Before dragging a node into network</source>
+        <target>Преди да плъзнете възел в мрежата</target>
+      </trans-unit>
+      <trans-unit id="s05c0bb42cb996b2d">
+        <source>After dragging the node into network</source>
+        <target>След като плъзнете възела в мрежата</target>
+      </trans-unit>
+      <trans-unit id="s6e5cadbf42d9dfe4">
+        <source>New IPv4 will be assigned for conflicting addresses.</source>
+        <target>За противоречащите си адреси ще бъдат назначени нови IPv4.</target>
+      </trans-unit>
+      <trans-unit id="sa165462237196374">
+        <source>During this mode, when users edit addresses of:</source>
+        <target>В този режим, когато потребителите редактират адресите на:</target>
+      </trans-unit>
+      <trans-unit id="s5eab6ee6f2de2dc9">
+        <source>conflicting addresses of all related hosts/gateways will be reassigned.</source>
+        <target>конфликтните адреси на всички свързани хостове/врати ще бъдат пренасочени.</target>
+      </trans-unit>
+      <trans-unit id="sf3b70df62ae36483">
+        <source>new addresses will be validated against the network addresses and will only be accepted when they are valid.</source>
+        <target>новите адреси ще бъдат валидирани спрямо мрежовите адреси и ще бъдат приемани само когато са валидни.</target>
+      </trans-unit>
+      <trans-unit id="sc2227119cd519b57">
+        <source>Before dragging host0 into network</source>
+        <target>Преди да плъзнете хост0 в мрежата</target>
+      </trans-unit>
+      <trans-unit id="s50edcfd6439c5398">
+        <source>After dragging host0 into network</source>
+        <target>След плъзгане на хост0 в мрежата</target>
+      </trans-unit>
+      <trans-unit id="s3d312902efb57145">
+        <source>The existing network will expand to contain the new host.</source>
+        <target>Съществуващата мрежа ще се разшири, за да побере новия хост.</target>
+      </trans-unit>
+      <trans-unit id="s2906cb2c9daacae3">
+        <source>new network address range will be checked if they expands the old ones.</source>
+        <target>новият диапазон от мрежови адреси ще бъде проверен, ако те разширяват старите.</target>
+      </trans-unit>
+      <trans-unit id="sb6017dbf0932fc3d">
+        <source>the existing network will expand to contain the new addresses.</source>
+        <target>съществуващата мрежа ще се разшири, за да включи новите адреси.</target>
+      </trans-unit>
+      <trans-unit id="sd17ec63289209641">
+        <source>if you don't use a graph from the examples, Init a new simulation session</source>
+        <target>ако не използвате графика от примерите, въведете нова сесия за симулация</target>
+      </trans-unit>
+      <trans-unit id="se2d49a99d6a83255">
+        <source>Click on Choose sender or Choose receiver</source>
+        <target>Кликнете върху Изберете подател или Изберете получател</target>
+      </trans-unit>
+      <trans-unit id="sff73ed19941a31e1">
+        <source>Click on a host on the canvas</source>
+        <target>Щракнете върху хост в платното</target>
+      </trans-unit>
+      <trans-unit id="sef49669556fd05dc">
+        <source>Choose an IP</source>
+        <target>Изберете IP адрес</target>
+      </trans-unit>
+      <trans-unit id="s33541b5c2b2dff1a">
+        <source>Repeat steps 2 and 3 as much as desired.&lt;br/&gt; You can also use pause/resume or change focus/speed during or before starting to send a packet.</source>
+        <target>Повторете стъпки 2 и 3, колкото е необходимо.&lt;br/&gt; Можете също така да използвате пауза/възобновяване или да промените фокуса/скоростта по време на или преди да започнете да изпращате пакет.</target>
+      </trans-unit>
+      <trans-unit id="sfa22b4f47f6a0daa">
+        <source>Init. Ignore this step if you use an example graph, or there is a session running</source>
+        <target>Включете се. Игнорирайте тази стъпка, ако използвате примерна графика или има текуща сесия.</target>
+      </trans-unit>
+      <trans-unit id="s5beb40a454294a7e">
+        <source>Click on Add to generate a new row in the table</source>
+        <target>Щракнете върху Добавяне, за да създадете нов ред в таблицата</target>
+      </trans-unit>
+      <trans-unit id="s1bce63088d7fcd55">
+        <source>Remove button removes all checked rows</source>
+        <target>Бутонът "Премахване" премахва всички маркирани редове</target>
+      </trans-unit>
+      <trans-unit id="s7f9f4694cf4a1ee3">
+        <source>Save button saves the current table on the UI to the database</source>
+        <target>Бутонът Save записва текущата таблица в потребителския интерфейс в базата данни</target>
+      </trans-unit>
+      <trans-unit id="sa1e005e5c8a7cf53">
+        <source>Please Init a session before simulating sending a packet.</source>
+        <target>Моля, въведете сесия, преди да симулирате изпращане на пакет.</target>
+      </trans-unit>
+      <trans-unit id="sfc2940e33d865b93">
+        <source>Please use the Check button of the Subnetting/CIDR feature for more details</source>
+        <target>Моля, използвайте бутона Проверка на функцията Subnetting/CIDR за повече подробности.</target>
+      </trans-unit>
+      <trans-unit id="s0a1356ab500a1312">
+        <source>The sender or receiver is not selected yet, use the Choose sender/receiver button then click on the graph node.</source>
+        <target>Изпращачът или получателят все още не са избрани, използвайте бутона Choose sender/receiver (Избери изпращач/получател), след което щракнете върху възела на графиката.</target>
+      </trans-unit>
+      <trans-unit id="s2e55a928208bdb7f">
+        <source>Your packet finished sending with the loop-back address.</source>
+        <target>Пакетът ви е завършил изпращането си с адреса на обратния цикъл.</target>
+      </trans-unit>
+      <trans-unit id="s6f1b8c80ab2b4fd4">
+        <source>Tip: Use the CIDR/Subnetting controller to drag-and-drop then check.</source>
+        <target>Съвет: Използвайте контролера за CIDR/подмрежи, за да плъзнете и пуснете, след което проверете.</target>
+      </trans-unit>
+      <trans-unit id="s6ea934c6536e4930">
+        <source>Right-click on each network, then select Edit details to change its configuration.</source>
+        <target>Кликнете с десния бутон върху всяка мрежа, след което изберете Редактиране на детайлите, за да промените конфигурацията ѝ.</target>
+      </trans-unit>
+      <trans-unit id="scfdc7642367b9665">
+        <source>Tip: Set source and destination then click on play button in</source>
+        <target>Съвет: Задайте източника и дестинацията, след което кликнете върху бутона за възпроизвеждане в</target>
+      </trans-unit>
+      <trans-unit id="sbfe6d7af32c6737d">
+        <source>Packet sending controller to start simulation</source>
+        <target>Контролер за изпращане на пакети за стартиране на симулация</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

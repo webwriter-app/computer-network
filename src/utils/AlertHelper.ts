@@ -6,15 +6,18 @@ export class AlertHelper {
     static toasted = false;
 
     static toastAlert(variant: AlertType, icon: string, headerMessage: string, subMessage: string): void {
-        // return;
+
+        // Merge the header and sub message
+        const fullMessage = (headerMessage + (headerMessage != "" && subMessage != "" ?  " - " : "") + subMessage);
 
         if (variant == 'danger') {
-            console.error(headerMessage, subMessage);
+            console.error(fullMessage);
             return;
         }
 
         if (variant == 'success') {
-            console.log(headerMessage, subMessage);
+            // Currently there is no way to show a success notification in WebWriter
+            console.error(fullMessage);
             return;
         }
 

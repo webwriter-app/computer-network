@@ -1,3 +1,4 @@
+import { msg } from '@lit/localize';
 import { AlertHelper } from '../utils/AlertHelper';
 import { PhysicalNode } from './physicalNodes/PhysicalNode';
 
@@ -46,8 +47,8 @@ export class GraphEdge {
             AlertHelper.toastAlert(
                 'danger',
                 'exclamation-triangle',
-                'The connection type of assigned ports are not compatible!',
-                'Please re-assign your ports or dismiss this connection.'
+                msg('The connection type of assigned ports are not compatible!'),
+                msg('Please re-assign your ports or dismiss this connection.')
             );
             return null;
         } else {

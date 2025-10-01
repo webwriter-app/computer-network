@@ -4,6 +4,7 @@ import { Ipv6Address } from '../../adressing/Ipv6Address';
 import { MacAddress } from '../../adressing/MacAddress';
 import { Net } from '../logicalNodes/Net';
 import { ConnectionType, PhysicalNode } from './PhysicalNode';
+import { msg } from '@lit/localize';
 
 export abstract class Connector extends PhysicalNode {
     constructor(
@@ -109,7 +110,7 @@ export class Repeater extends Connector {
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = 'Repeater';
+            this.name = msg('Repeater');
         }
 
         this.cssClass.push('repeater-node');
@@ -186,7 +187,7 @@ export class Bridge extends Connector {
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = 'Bridge';
+            this.name = msg('Bridge');
         }
 
         portMacMapping.forEach((macAddress, port) => {
@@ -229,7 +230,7 @@ export class AccessPoint extends Connector {
         if (name != null && name != undefined && name != '') {
             this.name = name;
         } else {
-            this.name = 'Access Point';
+            this.name = msg('Access Point');
         }
         portMacMapping.forEach((macAddress, port) => {
             this.portData.get(port).set('MAC', macAddress);

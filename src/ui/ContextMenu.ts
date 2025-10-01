@@ -21,6 +21,7 @@ import { SubnettingController } from '../event-handlers/subnetting-controller';
 import { AlertHelper } from '../utils/AlertHelper';
 import { AddressingHelper } from '../utils/AdressingHelper';
 import { Host } from 'src/components/physicalNodes/Host';
+import { msg } from '@lit/localize';
 
 export function contextMenuTemplate(this: NetworkComponent): TemplateResult {
     const type = this.selectedObject?.isNode()
@@ -56,7 +57,7 @@ function nodeContextMenuTemplate(this: NetworkComponent): TemplateResult {
         <div class="contextmenu__header">
             <sl-input
                 type="text"
-                placeholder="Name"
+                placeholder="${msg('Name')}"
                 @sl-input=${(e: SlChangeEvent) => {
                     this.selectedObject?.data('name', (e.target as HTMLInputElement).value);
                 }}
@@ -80,7 +81,7 @@ function nodeContextMenuTemplate(this: NetworkComponent): TemplateResult {
             @click="${() => {
                 (this.shadowRoot?.querySelector('#nodeContextDialog') as SlDialog).show();
             }}"
-            >Change Port Config</sl-button
+            >${msg('Change Port Config')}</sl-button
         >
         <sl-color-picker
             id="color-picker"
@@ -96,7 +97,7 @@ function nodeContextMenuTemplate(this: NetworkComponent): TemplateResult {
         this.selectedObject.parent().data('gateways')?.size > 0
             ? html`
                   <sl-select
-                      label="Default Gateway"
+                      label="${msg('Default Gateway')}"
                       @sl-change=${(e: Event) => {
                           const key = (e.target as HTMLSelectElement).value;
                           const port = this.selectedObject.parent().data('gateways')?.get(key);
@@ -134,7 +135,7 @@ function edgeContextMenuTemplate(this: NetworkComponent): TemplateResult {
             @click="${() => {
                 (this.shadowRoot?.querySelector('#edgeContextDialog') as SlDialog).show();
             }}"
-            >Define Interfaces</sl-button
+            >${msg('Define Interfaces')}</sl-button
         >
         <sl-color-picker
             id="color-picker"
@@ -167,7 +168,7 @@ function networkContextMenuTemplate(this: NetworkComponent): TemplateResult {
             @click="${() => {
                 (this.shadowRoot?.querySelector('#networkContextDialog') as SlDialog).show();
             }}"
-            >Define Network</sl-button
+            >${msg('Define Network')}</sl-button
         >
         <sl-color-picker
             id="color-picker"
@@ -180,7 +181,7 @@ function networkContextMenuTemplate(this: NetworkComponent): TemplateResult {
         ></sl-color-picker>
         ${this.selectedObject?.data('gateways')?.size > 1
             ? html`
-                  Default Gateway:
+                  ${msg('Default Gateway')}:
                   <sl-select
                       @sl-change=${(e: SlChangeEvent) => {
                           const gateway = (e.target as SlSelect).value;
@@ -197,7 +198,7 @@ function networkContextMenuTemplate(this: NetworkComponent): TemplateResult {
                   </sl-select>
               `
             : this.selectedObject?.data('gateways')?.size > 0
-            ? html` Default Gateway: ${this.selectedObject?.data('currentDefaultGateway')} `
+            ? html` ${msg('Default Gateway')}: ${this.selectedObject?.data('currentDefaultGateway')} `
             : ''}
     `;
 }
@@ -210,7 +211,7 @@ function nodeContextDialogTemplate(this: NetworkComponent) {
     return html`
         <sl-dialog
             id="nodeContextDialog"
-            label=${'Details of the ports ' + node?.data('name')}
+            label=${msg('Details of the ports ') + node?.data('name')}
             @sl-hide=${() => this.requestUpdate()}
         >
             ${ports?.size > 0
@@ -218,8 +219,8 @@ function nodeContextDialogTemplate(this: NetworkComponent) {
                       <table>
                           <tr>
                               <th>Index</th>
-                              ${columns.includes('Name') ? html`<th>Name</th>` : ''}
-                              ${columns.includes('Connection Type') ? html`<th>Connection Type</th>` : ''}
+                              ${columns.includes('Name') ? html`<th>${msg('Name')}</th>` : ''}
+                              ${columns.includes('Connection Type') ? html`<th>${msg('Connection Type')}</th>` : ''}
                               ${columns.includes('MAC') ? html`<th>MAC</th>` : ''}
                               ${columns.includes('IPv4') ? html`<th>IPv4</th>` : ''}
                               ${columns.includes('IPv6') ? html`<th>IPv6</th>` : ''}
@@ -251,8 +252,8 @@ function nodeContextDialogTemplate(this: NetworkComponent) {
                                                     value=${port[1].get('Connection Type')}
                                                     ?disabled=${isPortConnected.bind(this)(node, port[0])}
                                                 >
-                                                    <sl-option value="ethernet">Ethernet</sl-option>
-                                                    <sl-option value="wireless">Wireless</sl-option>
+                                                    <sl-option value="ethernet">${msg('Ethernet')}</sl-option>
+                                                    <sl-option value="wireless">${msg('Wireless')}</sl-option>
                                                 </sl-select>
                                             </td>`
                                           : ''}
@@ -300,10 +301,10 @@ function nodeContextDialogTemplate(this: NetworkComponent) {
                           })}
                       </table>
                   `
-                : html`<p>No port available.</p>`}
+                : html`<p>${msg('No port available.')}</p>`}
             <sl-button @click="${addPort.bind(this, node)}">
                 <span slot="prefix">${biPlusSquare}</span>
-                Add Port</sl-button
+                ${msg('Add Port')}</sl-button
             >
         </sl-dialog>
     `;
@@ -334,7 +335,7 @@ function edgeContextDialogTemplate(this: NetworkComponent) {
     return html`
         <sl-dialog
             id="edgeContextDialog"
-            label=${'Details of the connection between ' + source.data('name') + ' and ' + target.data('name')}
+            label=${msg('Details of the connection between ') + source.data('name') + msg(' and ') + target.data('name')}
             @sl-hide=${() => {
                 this.requestUpdate();
             }}
@@ -353,7 +354,7 @@ function edgeContextDialogTemplate(this: NetworkComponent) {
                 <div class="contextmenu__edgedisplay__edge">
                     <sl-select
                         style="align-self: flex-start"
-                        placeholder="Source Port"
+                        placeholder="${msg('Source Port')}"
                         @sl-change=${(e: SlChangeEvent) => {
                             const port = parseInt((e.target as SlSelect).value as string);
                             if (Number.isNaN(port)) {
@@ -397,7 +398,7 @@ function edgeContextDialogTemplate(this: NetworkComponent) {
                     <hr style=${`border-top: 3px dashed ${edge.data('color')}`} />
                     <sl-select
                         style="align-self: flex-end"
-                        placeholder="Target Port"
+                        placeholder="${msg('Target Port')}"
                         @sl-change=${(e: SlChangeEvent) => {
                             const port = parseInt((e.target as SlSelect).value as string);
                             if (Number.isNaN(port)) {
@@ -461,7 +462,7 @@ function networkContextDialogTemplate(this: NetworkComponent) {
     return html`
         <sl-dialog
             id="networkContextDialog"
-            label=${'Details of the network ' + network?.data('id')}
+            label=${msg('Details of the network ') + network?.data('id')}
             @sl-hide=${() => this.requestUpdate()}
         >
             <sl-input
@@ -475,7 +476,7 @@ function networkContextDialogTemplate(this: NetworkComponent) {
                     if (Ipv4Address.validateAddress(value, this.ipv4Database) == null) {
                         (e.target as SlInput).classList.add('danger');
                         (e.target as SlInput).classList.remove('success');
-                        (e.target as SlInput).setAttribute('help-text', 'IPv4 address is invalid.');
+                        (e.target as SlInput).setAttribute('help-text', msg('IPv4 address is invalid.'));
                         return;
                     } else {
                         (e.target as SlInput).classList.remove('danger');
@@ -492,13 +493,13 @@ function networkContextDialogTemplate(this: NetworkComponent) {
                     } else {
                         (e.target as SlInput).classList.add('danger');
                         (e.target as SlInput).classList.remove('success');
-                        (e.target as SlInput).setAttribute('help-text', 'Invalid net id.');
+                        (e.target as SlInput).setAttribute('help-text', msg('Invalid net id.'));
                     }
                 }}
             ></sl-input>
             <sl-input
                 type="text"
-                placeholder="Network Mask"
+                placeholder="${msg('Network Mask')}"
                 id="netmask"
                 value=${network?.data('netmask')}
                 @sl-input=${(e: SlChangeEvent) => {
@@ -508,7 +509,7 @@ function networkContextDialogTemplate(this: NetworkComponent) {
                     if (Ipv4Address.validateAddress(value, this.ipv4Database) == null) {
                         (e.target as SlInput).classList.add('danger');
                         (e.target as SlInput).classList.remove('success');
-                        (e.target as SlInput).setAttribute('help-text', 'IPv4 address is invalid.');
+                        (e.target as SlInput).setAttribute('help-text', msg('IPv4 address is invalid.'));
                         return;
                     } else {
                         (e.target as SlInput).classList.remove('danger');
@@ -535,7 +536,7 @@ function networkContextDialogTemplate(this: NetworkComponent) {
                     } else {
                         (e.target as SlInput).classList.add('danger');
                         (e.target as SlInput).classList.remove('success');
-                        (e.target as SlInput).setAttribute('help-text', 'Invalid netmask.');
+                        (e.target as SlInput).setAttribute('help-text', msg('Invalid netmask.'));
                     }
                 }}
             ></sl-input>
@@ -543,7 +544,7 @@ function networkContextDialogTemplate(this: NetworkComponent) {
                 type="number"
                 max="32"
                 min="0"
-                placeholder="Bitmask"
+                placeholder="${msg('Bitmask')}"
                 id="bitmask"
                 value=${network?.data('bitmask')}
                 @sl-change=${(e: SlChangeEvent) => {
@@ -573,7 +574,7 @@ function networkContextDialogTemplate(this: NetworkComponent) {
                     } else {
                         (e.target as SlInput).classList.add('danger');
                         (e.target as SlInput).classList.remove('success');
-                        (e.target as SlInput).setAttribute('help-text', 'Invalid bitmask.');
+                        (e.target as SlInput).setAttribute('help-text', msg('Invalid bitmask.'));
                     }
                 }}
             ></sl-input>
@@ -601,7 +602,7 @@ function handleMacAddressChangeGenerator(this: NetworkComponent, index: string) 
         } else {
             (e.target as SlInput).classList.add('danger');
             (e.target as SlInput).classList.remove('success');
-            (e.target as SlInput).setAttribute('help-text', 'MAC address is invalid.');
+            (e.target as SlInput).setAttribute('help-text', msg('MAC address is invalid.'));
         }
     };
 }
@@ -622,7 +623,7 @@ function handleIPv4AddressChangeGenerator(this: NetworkComponent, index: string)
             if (subnet != null && Net.mode == 'NET_BASED' && !ipv4.matchesNetworkCidr(subnet)) {
                 (e.target as SlInput).classList.add('danger');
                 (e.target as SlInput).classList.remove('success');
-                (e.target as SlInput).setAttribute('help-text', "Inserted IPv4 doesn't match the subnet mask.");
+                (e.target as SlInput).setAttribute('help-text', msg("Inserted IPv4 doesn't match the subnet mask."));
                 return;
             }
 
@@ -642,7 +643,7 @@ function handleIPv4AddressChangeGenerator(this: NetworkComponent, index: string)
                     (e.target as SlInput).classList.remove('success');
                     (e.target as SlInput).setAttribute(
                         'help-text',
-                        "Inserted IPv4 for gateway doesn't match the subnet mask or the network is not configured."
+                        msg("Inserted IPv4 for gateway doesn't match the subnet mask or the network is not configured.")
                     );
                     return;
                 }
@@ -663,7 +664,7 @@ function handleIPv4AddressChangeGenerator(this: NetworkComponent, index: string)
         } else {
             (e.target as SlInput).classList.add('danger');
             (e.target as SlInput).classList.remove('success');
-            (e.target as SlInput).setAttribute('help-text', 'IPv4 address is invalid.');
+            (e.target as SlInput).setAttribute('help-text', msg('IPv4 address is invalid.'));
         }
     };
 }
@@ -688,7 +689,7 @@ function handleIPv6AddressChangeGenerator(this: NetworkComponent, index: string)
         } else {
             (e.target as SlInput).classList.add('danger');
             (e.target as SlInput).classList.remove('success');
-            (e.target as SlInput).setAttribute('help-text', 'IPv6 address is invalid.');
+            (e.target as SlInput).setAttribute('help-text', msg('IPv6 address is invalid.'));
         }
     };
 }
@@ -800,8 +801,8 @@ function configurePorts(this: NetworkComponent, edge: GraphEdge, inPort: number,
         AlertHelper.toastAlert(
             'danger',
             'exclamation-triangle',
-            'The connection type of assigned ports are not compatible!',
-            'Please re-assign your ports or dismiss this connection.'
+            msg('The connection type of assigned ports are not compatible!'),
+            msg('Please re-assign your ports or dismiss this connection.')
         );
         return null;
     } else {
@@ -852,9 +853,9 @@ function nodeRoutingTableTemplate(this: NetworkComponent): TemplateResult {
     return html`
         <div id="contextMenu" class="contextmenu" @contextmenu=${(e: Event) => e.preventDefault()} style="display:none">
             <sl-tab-group>
-                ${arpTable ? html`<sl-tab slot="nav" panel="arp">Arp Table</sl-tab>` : ''}
-                ${routingTable ? html`<sl-tab slot="nav" panel="routing">Routing Table</sl-tab>` : ''}
-                ${macAddressTable ? html`<sl-tab slot="nav" panel="mac">Mac Address Table</sl-tab>` : ''}
+                ${arpTable ? html`<sl-tab slot="nav" panel="arp">${msg('Arp Table')}</sl-tab>` : ''}
+                ${routingTable ? html`<sl-tab slot="nav" panel="routing">${msg('Routing Table')}</sl-tab>` : ''}
+                ${macAddressTable ? html`<sl-tab slot="nav" panel="mac">${msg('Mac Address Table')}</sl-tab>` : ''}
                 ${arpTable
                     ? html`
                           <sl-tab-panel name="arp">
@@ -880,8 +881,8 @@ function nodeRoutingTableTemplate(this: NetworkComponent): TemplateResult {
                           <sl-tab-panel name="routing">
                               <table>
                                   <tr>
-                                      <th>Net</th>
-                                      <th>Gateway</th>
+                                      <th>${msg('Net')}</th>
+                                      <th>${msg('Gateway')}</th>
                                   </tr>
                                   ${Array.from(routingTable.entries()).map((entry) => {
                                       return html`
