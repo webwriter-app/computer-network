@@ -69,17 +69,42 @@ import { styleMap } from 'lit/directives/style-map.js';
 import LOCALIZE from "../localization/generated";
 import { localized, msg } from '@lit/localize';
 
+/**
+ * @summary Visualization of network topologies. Can represent different kinds of networks.
+ *
+ * @tag ww-network
+ * @tagname ww-network
+ *
+ * @attr {boolean} [automate=false] - Enables automation-related UI for subnetting.
+ * @attr {'small'|'medium'} [screen='medium'] - Size forwarded to Shoelace controls.
+ *
+ * @prop {any} [selectedObject] - The currently selected Cytoscape element (node or edge).
+ * @prop {Array<Component>} [componets=[]] - Serialized node list.
+ * @prop {Array<Connection>} [connections=[]] - Serialized edges between components.
+ * @prop {Array<Network>} [networks=[]] - Serialized logical networks.
+ *
+ * @csspart options - Sidebar container for import/export and controllers.
+ */
 @localized()
 @customElement('ww-network')
 export class NetworkComponent extends LitElementWw {
+    /** @internal Localization bundle. */
     public localize = LOCALIZE;
 
+    /** @internal Reference to the Cytoscape container element. */
     @query('#cy')
     accessor _cy: any;
 
+    /** @internal Cytoscape instance. */
     _graph: any;
+
+    /** @internal ID of the component type currently selected in the toolbox. */
     currentComponentToAdd: string = '';
+
+    /** @internal Current color for color-picking mode. */
     currentColor: string = 'white';
+
+    /** @internal Preset color palette for node styling. */
     colors = [
         'Plum',
         '#BAADD1',
@@ -98,37 +123,73 @@ export class NetworkComponent extends LitElementWw {
         '#D4B6A0',
         '#C29C8D',
     ];
+
+    /** @internal Indicates whether Cytoscape has been initialized and is available. */
     networkAvailable: Boolean = false;
-    _edgeHandles: any; //controller for edgehandles extension
+
+    /** @internal Controller handle for Cytoscape edgehandles extension. */
+    _edgeHandles: any;
+
+    /** @internal Whether edge draw mode is active. */
     drawModeOn: boolean = false;
-    _menu: any; //controller for menu extension
-    _cdnd: any; //controller for drag-and-drop compound nodes extension
+
+    /** @internal Controller handle for Cytoscape context menu extension. */
+    _menu: any;
+
+    /** @internal Controller handle for Cytoscape drag-and-drop compound nodes extension. */
+    _cdnd: any;
+
+    /** @internal Whether color reset mode is active. */
     resetColorModeOn: boolean = false;
-    ipv4Database: Map<string, string> = new Map<string, string>(); //(address, nodeId)
+
+    /** @internal IPv4 address registry (address -> node id). Used during simulation/setup. */
+    ipv4Database: Map<string, string> = new Map<string, string>();
+
+    /** @internal MAC address registry (address -> node id). Used to guarantee uniqueness. */
     macDatabase: Map<string, string> = new Map<string, string>();
+
+    /** @internal IPv6 address registry (address -> node id). */
     ipv6Database: Map<string, string> = new Map<string, string>();
 
+    /** @internal Stateful packet simulation controller. */
     @state()
     accessor packetSimulator: PacketSimulator = new PacketSimulator(this);
 
+    /** @internal Stateful subnetting controller. */
     @state()
     accessor subnettingController: SubnettingController = new SubnettingController(this);
 
+    /**
+     * Enables automation-related UI.
+     */
     @property({ type: Boolean, reflect: true })
     accessor automate: boolean = false;
 
+    /**
+     * Controls the default size of Shoelace controls within this widget.
+     */
     @property({ type: String, reflect: true })
-    accessor screen: 'small' | 'medium' = 'medium'; //small/medium
+    accessor screen: 'small' | 'medium' = 'medium';
 
+    /**
+     * The currently selected Cytoscape element (node or edge).
+     */
     @property({ type: Object })
     accessor selectedObject: any;
 
+    /** @internal Toolbox button container in the shadow root. */
     @query('#toolboxButtons')
     accessor toolboxButtons!: HTMLElement;
 
+    /** @internal Custom context menu root in the shadow root. */
     @query('#contextMenu')
     accessor contextMenu!: HTMLElement;
 
+    /**
+     * @internal
+     * Edge endpoint metadata captured from the selected edge. Used by the context menu to
+     * display and adjust connection type and port numbers.
+     */
     @state()
     accessor selectedPorts: {
         source: {
@@ -144,33 +205,57 @@ export class NetworkComponent extends LitElementWw {
         target: { connectionType: null, port: 0 },
     };
 
+    /**
+     * @internal
+     * Mutex state to keep exclusive drag-and-drop modes ('subnetting' or 'gateway') mutually exclusive.
+     * null means no drag-and-drop mode is active.
+     */
     @state()
     accessor mutexDragAndDrop: string | null = null;
 
+    /**
+     * Serialized components (nodes). Used to populate the canvas and for export.
+     */
     @property({ type: Array, reflect: true, attribute: true })
     accessor componets: Array<Component> = [];
 
+    /**
+     * Serialized connections (edges) between components.
+     */
     @property({ type: Array, reflect: true, attribute: true })
     accessor connections: Array<Connection> = [];
 
+    /**
+     * Serialized logical networks for subnetting and validation.
+     */
     @property({ type: Array, reflect: true, attribute: true })
     accessor networks: Array<Network> = [];
 
+    /** @internal Current widget mode. 'edit' enables graph editing, 'simulate' locks nodes and runs simulations. */
     @state()
     accessor mode: 'edit' | 'simulate' = 'edit';
 
+    /** @internal Current subnetting mode. Managed by SubnettingController/Net utilities. */
     @state()
     accessor subnettingMode: SubnettingMode = 'MANUAL';
 
-    /* Previously Static Variables */
     net_mode: SubnettingMode = 'MANUAL';
 
+    /**
+     * Component styles composed from network canvas, toolbox, context menu, and simulation menu stylesheets.
+     */
     public static get styles() {
         return [networkStyles, toolboxStyles, contextMenuStyles, simulationMenuStyles];
     }
 
+    /**
+     * Shadow root options.
+     */
     static shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true };
 
+    /**
+     * Scoped element registry for Shoelace components used in the template.
+     */
     public static get scopedElements() {
         return {
             'sl-button': SlButton,
@@ -191,10 +276,20 @@ export class NetworkComponent extends LitElementWw {
         };
     }
 
+    /**
+     * Returns true when the host has contentEditable enabled ('' or 'true'), enabling authoring controls.
+     * @internal
+     */
     public isEditable(): boolean {
         return this.contentEditable === 'true' || this.contentEditable === '';
     }
 
+    /**
+     * Lit lifecycle hook: invoked after the component's DOM is first rendered.
+     *
+     * @param _changedProperties Map of changed properties since the last update.
+     * @internal
+     */
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         super.firstUpdated(_changedProperties);
         initNetwork(this);
@@ -258,11 +353,21 @@ export class NetworkComponent extends LitElementWw {
         window.addEventListener('scroll', this.onScroll);
     }
 
+    /**
+     * Lit lifecycle hook: cleanup when the element is disconnected.
+     * Removes the scroll listener added in firstUpdated.
+     * @internal
+     */
     disconnectedCallback() {
         super.disconnectedCallback();
         window.removeEventListener('scroll', this.onScroll);
     }
 
+    /**
+     * @internal
+     * Workaround for Cytoscape's cached container bounds. Forces a resize to ensure input coordinates
+     * are mapped correctly after the page scrolls.
+     */
     private onScroll = () => {
         // Cytoscape caches container bounds which become outdated after scrolling.
         // Calling resize() forces Cytoscape to update its internal bounds and correctly map mouse input.
@@ -270,17 +375,19 @@ export class NetworkComponent extends LitElementWw {
     }
 
     /**
-   * Whether the editor is in fullscreen mode.
-   * @private
-   */
+     * Whether the editor is in fullscreen mode.
+     * Uses the Fullscreen API to determine if the element itself is the fullscreen element.
+     * @private
+     */
     private get isFullscreen(): boolean {
         return this.ownerDocument.fullscreenElement === this;
     }
 
     /**
-   * Handles the fullscreen toggle event.
-   * @private
-   */
+     * Toggles fullscreen mode using the Fullscreen API and requests a re-render afterwards.
+     * Safely catches errors when entering fullscreen is not allowed.
+     * @private
+     */
     private async handleFullscreenToggle() {
         if (this.isFullscreen) {
             await this.ownerDocument.exitFullscreen();
@@ -295,6 +402,9 @@ export class NetworkComponent extends LitElementWw {
         }
     }
 
+    /**
+     * Renders the network canvas, mode switch, toolbox, context menu and simulation menu.
+     */
     public render(): TemplateResult {
         return html`
             ${this.isEditable() ? this.asideTemplate() : null}
@@ -351,6 +461,11 @@ export class NetworkComponent extends LitElementWw {
         `;
     }
 
+    /**
+     * Renders the floating toolbox used in 'edit' mode.
+     * Contains quick actions to add hosts, network devices, edges, and networks.
+     * @internal
+     */
     private toolboxTemplate(): TemplateResult {
         return html`
             <div class="toolbox" style=${this.mode == 'edit' ? 'display: flex;' : 'display: none;'}>
@@ -476,10 +591,20 @@ export class NetworkComponent extends LitElementWw {
         `;
     }
 
+    /**
+     * Toggles the visibility (collapsed/expanded) of the toolbox by switching the 'closed' CSS class.
+     * @internal
+     */
     private openToolbox(): void {
         this.toolboxButtons.classList.toggle('closed');
     }
 
+    /**
+     * Factory returning actions to add host components to the graph.
+     * - computer(): Adds a wired computer with one ethernet interface and a unique MAC address.
+     * - mobile(): Adds a wireless mobile device with one wireless interface and a unique MAC address.
+     * @internal
+     */
     private addHost() {
         return {
             computer: () => {
@@ -513,6 +638,11 @@ export class NetworkComponent extends LitElementWw {
         };
     }
 
+    /**
+     * Factory returning actions to add network devices to the graph:
+     * - router(), accessPoint(), repeater(), hub(), bridge(), switch()
+     * @internal
+     */
     private addNetworkDevice() {
         return {
             router: () => {
@@ -565,6 +695,10 @@ export class NetworkComponent extends LitElementWw {
 
     private addEdge() {}
 
+    /**
+     * Adds a logical network node with default CIDR settings.
+     * @internal
+     */
     private addNetwork() {
         GraphNodeFactory.addNode(this, {
             componentType: 'net',
@@ -576,6 +710,12 @@ export class NetworkComponent extends LitElementWw {
         });
     }
 
+    /**
+     * Renders the authoring sidebar.
+     * @internal
+     *
+     * @csspart options - Wrapper around authoring controls.
+     */
     private asideTemplate(): TemplateResult {
         return html`
             <aside part="options" style="display: none">
@@ -888,6 +1028,12 @@ export class NetworkComponent extends LitElementWw {
         `;
     }
 
+    /**
+     * Highlights the selected component group in the sidebar and switches to the appropriate tab panel.
+     * @internal
+     *
+     * @param e Click event from a component button within the authoring sidebar.
+     */
     private clickOnComponentButton(e: Event): void {
         this.currentComponentToAdd = (e.target as HTMLElement).getAttribute('id');
         let nodeToHighLight: string = '';
@@ -929,6 +1075,10 @@ export class NetworkComponent extends LitElementWw {
         }
     }
 
+    /**
+     * Lit lifecycle hook: reacts to property changes to keep UI/graph state in sync.
+     * @internal
+     */
     updated(changedProperties: Map<string, unknown>) {
         if (changedProperties.has('contentEditable')) {
             // new value is
@@ -937,7 +1087,7 @@ export class NetworkComponent extends LitElementWw {
                 if (this.networkAvailable) this._graph.elements().toggleClass('deletable', true);
                 ['host', 'connector', 'edge', 'net', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
                     if (this.renderRoot.querySelector('#' + buttonId))
-                        (this.renderRoot.querySelector('#' + buttonId) as HTMLButtonElement).disabled = false;
+                        (this.renderRoot.querySelector('#' + buttonId) as HsTMLButtonElement).disabled = false;
                 });
             } else {
                 if (this.networkAvailable) this._graph.elements().toggleClass('deletable', false);

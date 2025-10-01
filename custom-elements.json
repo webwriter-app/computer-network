@@ -1,0 +1,218 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/index.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "NetworkComponent",
+          "cssParts": [
+            {
+              "description": "Sidebar container for import/export and controllers.",
+              "name": "options"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "automate",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Enables automation-related UI.",
+              "attribute": "automate",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "screen",
+              "type": {
+                "text": "'small' | 'medium'"
+              },
+              "default": "'medium'",
+              "description": "Controls the default size of Shoelace controls within this widget.",
+              "attribute": "screen",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "selectedObject",
+              "type": {
+                "text": "any"
+              },
+              "description": "The currently selected Cytoscape element (node or edge).",
+              "attribute": "selectedObject"
+            },
+            {
+              "kind": "field",
+              "name": "componets",
+              "type": {
+                "text": "Array<Component>"
+              },
+              "default": "[]",
+              "description": "Serialized node list.",
+              "attribute": "componets",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "connections",
+              "type": {
+                "text": "Array<Connection>"
+              },
+              "default": "[]",
+              "description": "Serialized edges between components.",
+              "attribute": "connections",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "networks",
+              "type": {
+                "text": "Array<Network>"
+              },
+              "default": "[]",
+              "description": "Serialized logical networks.",
+              "attribute": "networks",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "net_mode",
+              "type": {
+                "text": "SubnettingMode"
+              },
+              "default": "'MANUAL'"
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ ...LitElement.shadowRootOptions, delegatesFocus: true }",
+              "description": "Shadow root options."
+            },
+            {
+              "kind": "field",
+              "name": "scopedElements",
+              "privacy": "public",
+              "static": true,
+              "description": "Scoped element registry for Shoelace components used in the template.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "isFullscreen",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "Whether the editor is in fullscreen mode.\nUses the Fullscreen API to determine if the element itself is the fullscreen element.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "handleFullscreenToggle",
+              "privacy": "private",
+              "description": "Toggles fullscreen mode using the Fullscreen API and requests a re-render afterwards.\nSafely catches errors when entering fullscreen is not allowed."
+            },
+            {
+              "kind": "method",
+              "name": "addEdge",
+              "privacy": "private"
+            }
+          ],
+          "attributes": [
+            {
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Enables automation-related UI.",
+              "name": "automate",
+              "default": "false",
+              "fieldName": "automate"
+            },
+            {
+              "type": {
+                "text": "'small' | 'medium'"
+              },
+              "description": "Controls the default size of Shoelace controls within this widget.",
+              "name": "screen",
+              "default": "'medium'",
+              "fieldName": "screen"
+            },
+            {
+              "name": "selectedObject",
+              "type": {
+                "text": "any"
+              },
+              "description": "The currently selected Cytoscape element (node or edge).",
+              "fieldName": "selectedObject"
+            },
+            {
+              "name": "componets",
+              "type": {
+                "text": "Array<Component>"
+              },
+              "default": "[]",
+              "description": "Serialized node list.",
+              "fieldName": "componets"
+            },
+            {
+              "name": "connections",
+              "type": {
+                "text": "Array<Connection>"
+              },
+              "default": "[]",
+              "description": "Serialized edges between components.",
+              "fieldName": "connections"
+            },
+            {
+              "name": "networks",
+              "type": {
+                "text": "Array<Network>"
+              },
+              "default": "[]",
+              "description": "Serialized logical networks.",
+              "fieldName": "networks"
+            }
+          ],
+          "superclass": {
+            "name": "LitElementWw",
+            "package": "@webwriter/lit"
+          },
+          "tagName": "ww-network",
+          "customElement": true,
+          "summary": "Visualization of network topologies. Can represent different kinds of networks.",
+          "modulePath": "src/index.ts",
+          "definitionPath": "src/index.ts"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NetworkComponent",
+          "declaration": {
+            "name": "NetworkComponent",
+            "module": "src/index.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "ww-network",
+          "declaration": {
+            "name": "NetworkComponent",
+            "module": "src/index.ts"
+          }
+        }
+      ]
+    }
+  ]
+}
