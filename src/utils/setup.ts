@@ -50,7 +50,7 @@ export type Connection = {
 
 export type Network = {
     id: string;
-    componets: string[];
+    components: string[];
     gateways: string[];
     name: string;
     netmask: string;
@@ -66,7 +66,7 @@ export type Network = {
 };
 
 export function load(this: NetworkComponent) {
-    const components = this.componets;
+    const components = this.components;
     const connections = this.connections;
     const networks = this.networks;
 
@@ -241,7 +241,7 @@ export function load(this: NetworkComponent) {
             return;
         }
 
-        n.componets.forEach((c) => {
+        n.components.forEach((c) => {
             const component = this._graph.$id(c);
             component.move({
                 parent: net.id(),
@@ -276,7 +276,7 @@ export function load(this: NetworkComponent) {
                 gateway.toggleClass('gateway-node', true);
 
                 const connection = this.connections.find(
-                    (c) => (c.to === g && n.componets.includes(c.from)) || (c.from === g && n.componets.includes(c.to))
+                    (c) => (c.to === g && n.components.includes(c.from)) || (c.from === g && n.components.includes(c.to))
                 );
                 if (!connection) {
                     net.data('gateways').set(gateway.id(), null); // add gateway to the net, with undefined port
@@ -366,8 +366,8 @@ export function setupListeners(this: NetworkComponent) {
         const data = event.target.data();
 
         this.networks.forEach((n) => {
-            if (n.componets.includes(data.id)) {
-                n.componets.splice(n.componets.indexOf(data.id), 1);
+            if (n.components.includes(data.id)) {
+                n.components.splice(n.components.indexOf(data.id), 1);
             }
         });
 
@@ -375,7 +375,7 @@ export function setupListeners(this: NetworkComponent) {
             const netId = data.parent;
             const network = this.networks.find((n) => n.id === netId);
             if (network) {
-                network.componets.push(data.id);
+                network.components.push(data.id);
             }
         }
 
@@ -403,14 +403,14 @@ export function setupListeners(this: NetworkComponent) {
         }
 
         if (target.isNode() && data.name) {
-            const component = this.componets.find((c) => c.id === data.id);
+            const component = this.components.find((c) => c.id === data.id);
 
             if (!component) return;
 
             component.x = position.x;
             component.y = position.y;
-            this.componets[this.componets.indexOf(component)] = component;
-            this.componets = [...this.componets];
+            this.components[this.components.indexOf(component)] = component;
+            this.components = [...this.components];
             return;
         }
     });
@@ -464,8 +464,8 @@ function handleNodeAdd(this: NetworkComponent, event: EventObject) {
         portLinks: portLinks,
     };
 
-    this.componets.push(c);
-    this.componets = [...this.componets];
+    this.components.push(c);
+    this.components = [...this.components];
 }
 
 function handleEdgeAdd(this: NetworkComponent, event: EventObject) {
@@ -494,7 +494,7 @@ function handleNetworkAdd(this: NetworkComponent, event: EventObject) {
 
     this.networks.push({
         id: data.id,
-        componets: [],
+        components: [],
         gateways: [],
         name: data.name,
         netmask: data.netmask,
@@ -513,16 +513,16 @@ function handleNodeRemove(this: NetworkComponent, event: EventObject) {
     const target = event.target;
     const data = target.data();
 
-    const c = this.componets.find((c) => c.id === data.id);
+    const c = this.components.find((c) => c.id === data.id);
 
     if (!c) return;
 
-    this.componets.splice(this.componets.indexOf(c), 1);
-    this.componets = [...this.componets];
+    this.components.splice(this.components.indexOf(c), 1);
+    this.components = [...this.components];
 
     this.networks.forEach((n) => {
-        if (n.componets.includes(data.id)) {
-            n.componets.splice(n.componets.indexOf(data.id), 1);
+        if (n.components.includes(data.id)) {
+            n.components.splice(n.components.indexOf(data.id), 1);
         }
     });
     this.networks = [...this.networks];
@@ -552,8 +552,8 @@ function handleNetworkRemove(this: NetworkComponent, event: EventObject) {
     this.networks = [...this.networks];
 
     this.networks.forEach((n) => {
-        if (n.componets.includes(data.id)) {
-            n.componets.splice(n.componets.indexOf(data.id), 1);
+        if (n.components.includes(data.id)) {
+            n.components.splice(n.components.indexOf(data.id), 1);
         }
     });
     this.networks = [...this.networks];
@@ -563,12 +563,12 @@ function handleNodeDataChange(this: NetworkComponent, event: EventObject) {
     const target = event.target;
     const data = target.data();
 
-    const nodeIndex = this.componets.findIndex((c) => c.id === data.id);
+    const nodeIndex = this.components.findIndex((c) => c.id === data.id);
 
     if (nodeIndex === -1) return;
 
-    this.componets[nodeIndex].name = data.name;
-    this.componets[nodeIndex].color = data.color;
+    this.components[nodeIndex].name = data.name;
+    this.components[nodeIndex].color = data.color;
 
     const portData: Map<string, Map<string, any>> = data.portData;
     const portLinksData: Map<string, string> = data.portLinkMapping;
@@ -590,11 +590,11 @@ function handleNodeDataChange(this: NetworkComponent, event: EventObject) {
         portLinks.push(link || '');
     });
 
-    this.componets[nodeIndex].ports = ports;
-    this.componets[nodeIndex].portLinks = portLinks;
-    this.componets[nodeIndex].defaultGateway = data.defaultGateway;
+    this.components[nodeIndex].ports = ports;
+    this.components[nodeIndex].portLinks = portLinks;
+    this.components[nodeIndex].defaultGateway = data.defaultGateway;
 
-    this.componets = [...this.componets];
+    this.components = [...this.components];
 
     console.log('Node Data Change', target, data);
 }

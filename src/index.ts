@@ -79,7 +79,7 @@ import { localized, msg } from '@lit/localize';
  * @attr {'small'|'medium'} [screen='medium'] - Size forwarded to Shoelace controls.
  *
  * @prop {any} [selectedObject] - The currently selected Cytoscape element (node or edge).
- * @prop {Array<Component>} [componets=[]] - Serialized node list.
+ * @prop {Array<Component>} [components=[]] - Serialized node list.
  * @prop {Array<Connection>} [connections=[]] - Serialized edges between components.
  * @prop {Array<Network>} [networks=[]] - Serialized logical networks.
  *
@@ -217,7 +217,7 @@ export class NetworkComponent extends LitElementWw {
      * Serialized components (nodes). Used to populate the canvas and for export.
      */
     @property({ type: Array, reflect: true, attribute: true })
-    accessor componets: Array<Component> = [];
+    accessor components: Array<Component> = [];
 
     /**
      * Serialized connections (edges) between components.
@@ -415,7 +415,7 @@ export class NetworkComponent extends LitElementWw {
                         @sl-change=${(event: Event) => {
                             const mode = (event.target as HTMLSelectElement).value as 'edit' | 'simulate';
                             if (mode === 'edit') {
-                                const components = [...this.componets];
+                                const components = [...this.components];
                                 const connections = [...this.connections];
                                 const networks = [...this.networks];
 
@@ -426,7 +426,7 @@ export class NetworkComponent extends LitElementWw {
 
                                 this._graph.elements().remove();
 
-                                this.componets = components;
+                                this.components = components;
                                 this.connections = connections;
                                 this.networks = networks;
 

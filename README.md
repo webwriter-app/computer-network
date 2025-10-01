@@ -44,7 +44,7 @@ npm install @webwriter/network
 | `automate` (`automate`) | `boolean` | Enables automation-related UI. | `false` | ✓ |
 | `screen` (`screen`) | `'small' \| 'medium'` | Controls the default size of Shoelace controls within this widget. | `'medium'` | ✓ |
 | `selectedObject` (`selectedObject`) | `any` | The currently selected Cytoscape element (node or edge). | - | ✗ |
-| `componets` (`componets`) | `Array<Component>` | Serialized node list. | `[]` | ✓ |
+| `components` (`components`) | `Array<Component>` | Serialized node list. | `[]` | ✓ |
 | `connections` (`connections`) | `Array<Connection>` | Serialized edges between components. | `[]` | ✓ |
 | `networks` (`networks`) | `Array<Network>` | Serialized logical networks. | `[]` | ✓ |
 | `net_mode` | `SubnettingMode` | - | `'MANUAL'` | ✗ |

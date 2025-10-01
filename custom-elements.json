@@ -50,13 +50,13 @@
             },
             {
               "kind": "field",
-              "name": "componets",
+              "name": "components",
               "type": {
                 "text": "Array<Component>"
               },
               "default": "[]",
               "description": "Serialized node list.",
-              "attribute": "componets",
+              "attribute": "components",
               "reflects": true
             },
             {
@@ -157,13 +157,13 @@
               "fieldName": "selectedObject"
             },
             {
-              "name": "componets",
+              "name": "components",
               "type": {
                 "text": "Array<Component>"
               },
               "default": "[]",
               "description": "Serialized node list.",
-              "fieldName": "componets"
+              "fieldName": "components"
             },
             {
               "name": "connections",
