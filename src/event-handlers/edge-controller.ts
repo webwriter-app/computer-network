@@ -62,12 +62,12 @@ export class EdgeController {
         return true;
     }
 
-    static newUnconfiguredEdge(network: NetworkComponent, source: PhysicalNode, target: PhysicalNode): any {
+    static newUnconfiguredEdge(_network: NetworkComponent, source: PhysicalNode, target: PhysicalNode): any {
         let unconfiguredEdge = new GraphEdge('#70e6af', source, target);
         return { group: 'edges', data: unconfiguredEdge, classes: unconfiguredEdge.cssClass };
     }
 
-    static removeConnection(edge: GraphEdge, graph) {
+    static removeConnection(edge: GraphEdge, graph: any) {
         if (edge.inPort != undefined && edge.inPort != null && !Number.isNaN(edge.inPort)) {
             if (graph.$('#' + edge.from.id).data() instanceof PhysicalNode)
                 graph

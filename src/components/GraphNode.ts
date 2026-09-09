@@ -1,6 +1,6 @@
 export abstract class GraphNode {
-    id: string;
-    name: string;
+    id!: string;
+    name!: string;
     color: string;
     cssClass: string[] = [];
 

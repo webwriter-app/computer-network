@@ -1,8 +1,8 @@
 import { AddressingHelper } from "./AdressingHelper";
 
 export class RoutingData {
-    destination: string;
-    gateway: string | "on-link";
+    destination!: string;
+    gateway!: string;
     netmask: string;
     bitmask: number;
     interfaceName: string;

@@ -32,7 +32,7 @@ export class MacAddress extends Address {
     }
 
 
-    static override validateAddress(mac: string, database: Map<string, string>): MacAddress {
+    static override validateAddress(mac: string, database: Map<string, string>): MacAddress | null {
         if (database.has(mac) || mac=="" || mac==undefined || mac==null) {
             return null;
         }

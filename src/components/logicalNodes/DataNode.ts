@@ -1,7 +1,7 @@
 import { LogicalNode } from './LogicalNode';
 
 export abstract class Data extends LogicalNode {
-    layer2header;
+    layer2header: any;
 
     constructor(color: string) {
         super(color);

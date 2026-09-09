@@ -1,6 +1,7 @@
 import SlDetails from '@shoelace-style/shoelace/dist/components/details/details.component.js';
 import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.component.js';
 import { html } from 'lit';
+import { NodeSingular, EdgeSingular } from 'cytoscape';
 import { NetworkComponent } from '..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { Ipv6Address } from '../adressing/Ipv6Address';
@@ -36,21 +37,21 @@ export class ImportExportController {
 
     static exportFile(network: NetworkComponent): void {
         if (!network.networkAvailable) return;
-        let data = {};
-        let physicalNodes = [];
-        let logicalNodes = [];
-        let edges = [];
+        let data: Record<string, any> = {};
+        let physicalNodes: any[] = [];
+        let logicalNodes: any[] = [];
+        let edges: any[] = [];
 
-        network._graph.nodes('.physical-node').forEach((e) => {
-            let i = {};
+        network._graph.nodes('.physical-node').forEach((e: NodeSingular) => {
+            let i: Record<string, any> = {};
             i['dataExport'] = e.data();
             i['dataExport']['cssClass'] = e.classes() as string[];
-            let portData = [];
-            let portLink = [];
-            let portNet = [];
-            let nets = [];
+            let portData: any[] = [];
+            let portLink: any[] = [];
+            let portNet: any[] = [];
+            let nets: any[] = [];
             (e.data() as PhysicalNode).portData.forEach((values, port) => {
-                let newData = {};
+                let newData: Record<string, any> = {};
                 newData['Name'] = values.get('Name');
                 newData['Connection Type'] = values.get('Connection Type');
                 newData['MAC'] = values.get('MAC');
@@ -61,7 +62,7 @@ export class ImportExportController {
                 portData.push(newData);
             });
             (e.data() as PhysicalNode).portLinkMapping.forEach((data, port) => {
-                let newData = {};
+                let newData: Record<string, any> = {};
                 newData['index'] = port;
                 newData['linkId'] = data;
                 portLink.push(newData);
@@ -71,15 +72,15 @@ export class ImportExportController {
                 let gateway: Router = e.data();
                 if (gateway.portNetMapping.size != 0) {
                     gateway.portNetMapping.forEach((net, port) => {
-                        let newData = {};
+                        let newData: Record<string, any> = {};
                         newData['index'] = port;
                         newData['netId'] = net.id;
                         portNet.push(newData);
                     });
                 }
                 if (gateway.nets.length != 0) {
-                    gateway.nets.forEach((net) => {
-                        let newData = {};
+                    gateway.nets.forEach((net: any) => {
+                        let newData: Record<string, any> = {};
                         newData['netId'] = net.id;
                         nets.push(newData);
                     });
@@ -97,14 +98,14 @@ export class ImportExportController {
             i['nets'] = nets;
             physicalNodes.push(i);
         });
-        network._graph.nodes('.net-node').forEach((e) => {
-            let i = {};
-            let gateways = [];
+        network._graph.nodes('.net-node').forEach((e: NodeSingular) => {
+            let i: Record<string, any> = {};
+            let gateways: any[] = [];
             i['dataExport'] = e.data();
             i['dataExport']['cssClass'] = e.classes() as string[];
             i['position'] = e.position();
-            e.data('gateways').forEach((port, gatewayNodeId) => {
-                let e = {};
+            e.data('gateways').forEach((port: any, gatewayNodeId: any) => {
+                let e: Record<string, any> = {};
                 e['port'] = port;
                 e['gatewayNodeId'] = gatewayNodeId;
                 gateways.push(e);
@@ -112,8 +113,8 @@ export class ImportExportController {
             i['gateways'] = gateways;
             logicalNodes.push(i);
         });
-        network._graph.edges().forEach((e) => {
-            let i = {};
+        network._graph.edges().forEach((e: EdgeSingular) => {
+            let i: Record<string, any> = {};
             i['dataExport'] = e.data();
             i['dataExport']['cssClass'] = e.classes() as string[];
             edges.push(i);
@@ -121,15 +122,15 @@ export class ImportExportController {
 
         if (network.packetSimulator.inited) {
             data['inited'] = true;
-            let switchableTables = [];
-            network._graph.nodes('.switchable-decorated').forEach((e) => {
-                let i = {};
+            let switchableTables: any[] = [];
+            network._graph.nodes('.switchable-decorated').forEach((e: NodeSingular) => {
+                let i: Record<string, any> = {};
                 let switchable: SwitchableDecorator = e.data();
                 i['id'] = switchable.id;
-                let table = [];
+                let table: any[] = [];
                 if (switchable.macAddressTable.size > 0) {
                     switchable.macAddressTable.forEach((port, mac) => {
-                        let row = {};
+                        let row: Record<string, any> = {};
                         row['port'] = port;
                         row['mac'] = mac;
                         table.push(row);
@@ -139,15 +140,15 @@ export class ImportExportController {
                 switchableTables.push(i);
             });
 
-            let routableTables = [];
-            network._graph.nodes('.routable-decorated').forEach((e) => {
-                let i = {};
+            let routableTables: any[] = [];
+            network._graph.nodes('.routable-decorated').forEach((e: NodeSingular) => {
+                let i: Record<string, any> = {};
                 let routable: RoutableDecorator = e.data();
                 i['id'] = routable.id;
-                let arpTable = [];
+                let arpTable: any[] = [];
                 if (routable.arpTableIpMac.size > 0) {
                     routable.arpTableIpMac.forEach((mac, ip) => {
-                        let row = {};
+                        let row: Record<string, any> = {};
                         row['ip'] = ip;
                         row['mac'] = mac;
                         arpTable.push(row);
@@ -155,10 +156,10 @@ export class ImportExportController {
                 }
                 i['arpTable'] = arpTable;
 
-                let routingTable = [];
+                let routingTable: any[] = [];
                 if (routable.routingTable.size > 0) {
                     routable.routingTable.forEach((routingData) => {
-                        let row = {};
+                        let row: Record<string, any> = {};
                         row['destination'] = routingData.destination;
                         row['gateway'] = routingData.gateway;
                         row['interfaceName'] = routingData.interfaceName;
@@ -186,7 +187,7 @@ export class ImportExportController {
         ImportExportController.download(url, 'network-graph-' + Date.now() + '.json');
     }
 
-    static download(path, filename): void {
+    static download(path: string, filename: string): void {
         // Create a new link
         const anchor = document.createElement('a');
         anchor.href = path;
@@ -204,7 +205,7 @@ export class ImportExportController {
 
     static importFile(network: NetworkComponent): void {
         const fileInput = network.renderRoot.querySelector('#import-file') as HTMLInputElement;
-        const selectedFile = fileInput.files[0];
+        const selectedFile = fileInput.files![0];
         ImportExportController.importSpecificFile(selectedFile, network);
     }
 
@@ -215,11 +216,11 @@ export class ImportExportController {
             network.macDatabase = new Map();
             network.ipv6Database = new Map();
 
-            let json;
+            let json: any;
             if (typeof ImportExportController.reader.result === 'string') {
                 json = JSON.parse(ImportExportController.reader.result);
             }
-            json['logical-nodes'].forEach((net) => {
+            json['logical-nodes'].forEach((net: any) => {
                 let ad: string = net['dataExport'].hasOwnProperty('networkAddress')
                     ? net['dataExport']['networkAddress']['address']
                     : null;
@@ -233,7 +234,7 @@ export class ImportExportController {
                 );
                 data.cssClass = net['dataExport']['cssClass'];
                 if (net['gateways'].length != 0) {
-                    net['gateways'].forEach((p) => {
+                    net['gateways'].forEach((p: any) => {
                         data.gateways.set(p['gatewayNodeId'], p['port']);
                     });
                 }
@@ -258,8 +259,8 @@ export class ImportExportController {
                 }
             });
 
-            json['physical-nodes'].forEach((element) => {
-                let data: PhysicalNode;
+            json['physical-nodes'].forEach((element: any) => {
+                let data!: PhysicalNode;
                 let cssClasses: string[] = element['dataExport']['cssClass'];
                 let nameMap: Map<number, string> = new Map();
                 let connectionMap: Map<number, ConnectionType> = new Map();
@@ -267,21 +268,21 @@ export class ImportExportController {
                 let ipv4Map: Map<number, Ipv4Address> = new Map();
                 let ipv6Map: Map<number, Ipv6Address> = new Map();
 
-                element['portData'].forEach((p) => {
+                element['portData'].forEach((p: any) => {
                     nameMap.set(p['index'], p['Name']);
                     connectionMap.set(p['index'], p['Connection Type']);
                     if (p.hasOwnProperty('MAC')) {
-                        let mac: MacAddress = MacAddress.validateAddress(p['MAC']['address'], network.macDatabase);
+                        let mac: MacAddress = MacAddress.validateAddress(p['MAC']['address'], network.macDatabase)!;
                         macMap.set(p['index'], mac);
                         MacAddress.addAddressToDatabase(mac, network.macDatabase, element['dataExport']['id']);
                     }
                     if (p.hasOwnProperty('IPv4')) {
-                        let ip4: Ipv4Address = Ipv4Address.validateAddress(p['IPv4']['address'], network.ipv4Database);
+                        let ip4: Ipv4Address = Ipv4Address.validateAddress(p['IPv4']['address'], network.ipv4Database)!;
                         ipv4Map.set(p['index'], ip4);
                         Ipv4Address.addAddressToDatabase(ip4, network.ipv4Database, element['dataExport']['id']);
                     }
                     if (p.hasOwnProperty('IPv6')) {
-                        let ip6: Ipv6Address = Ipv6Address.validateAddress(p['IPv6']['address'], network.ipv6Database);
+                        let ip6: Ipv6Address = Ipv6Address.validateAddress(p['IPv6']['address'], network.ipv6Database)!;
                         ipv6Map.set(p['index'], ip6);
                         Ipv6Address.addAddressToDatabase(ip6, network.ipv6Database, element['dataExport']['id']);
                     }
@@ -352,7 +353,7 @@ export class ImportExportController {
                     );
                 }
 
-                element['portLink'].forEach((p) => {
+                element['portLink'].forEach((p: any) => {
                     data.portLinkMapping.set(p['index'], p['linkId']);
                 });
 
@@ -360,13 +361,13 @@ export class ImportExportController {
                 data.defaultGateway = element['dataExport']['defaultGateway'];
 
                 if (data instanceof Router && cssClasses.includes('gateway-node')) {
-                    element['portNet'].forEach((p) => {
+                    element['portNet'].forEach((p: any) => {
                         (data as Router).portNetMapping.set(
                             p['index'],
                             network._graph.$('#' + p['netId']).data() as Net
                         );
                     });
-                    element['nets'].forEach((p) => {
+                    element['nets'].forEach((p: any) => {
                         (data as Router).nets.push(network._graph.$('#' + p['netId']).data() as Net);
                     });
                 }
@@ -391,7 +392,7 @@ export class ImportExportController {
                 }
             });
 
-            json['edges'].forEach((edge) => {
+            json['edges'].forEach((edge: any) => {
                 let graphEdge: GraphEdge = new GraphEdge(
                     edge['dataExport']['color'],
                     network._graph.$('#' + edge['dataExport']['source']).data() as PhysicalNode,
@@ -417,7 +418,7 @@ export class ImportExportController {
             }
 
             if (json.hasOwnProperty('switchable')) {
-                json['switchable'].forEach((element) => {
+                json['switchable'].forEach((element: any) => {
                     let rows: any[] = element['table'];
                     let map: Map<string, number> = (network._graph.$('#' + element['id']).data() as SwitchableDecorator)
                         .macAddressTable;
@@ -431,7 +432,7 @@ export class ImportExportController {
                 });
             }
             if (json.hasOwnProperty('routable')) {
-                json['routable'].forEach((element) => {
+                json['routable'].forEach((element: any) => {
                     let routingRows: any[] = element['routingTable'];
                     let routingMap: Map<string, RoutingData> = (
                         network._graph.$('#' + element['id']).data() as RoutableDecorator
@@ -620,8 +621,8 @@ export class ImportExportController {
     }
 
     static exampleTemplate(network: NetworkComponent) {
-        let cidrExamples = [];
-        let simulationExamples = [];
+        let cidrExamples: any[] = [];
+        let simulationExamples: any[] = [];
 
         ImportExportController.cidrs.forEach((value, name) => {
             cidrExamples.push(html`

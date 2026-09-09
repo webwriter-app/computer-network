@@ -18,7 +18,7 @@ export abstract class Address {
      * @param database
      * @returns of type Address if passed address string is valid (valid format + not preexisted in database) | null
      */
-    static validateAddress(address: string, database: Map<string, string>): Address | null {
+    static validateAddress(_address: string, _database: Map<string, string>): Address | null {
         return null;
     }
 

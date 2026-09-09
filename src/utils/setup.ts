@@ -80,9 +80,9 @@ export function load(this: NetworkComponent) {
         c.ports.forEach((p, index) => {
             portNames.set(index + 1, p.name);
             portConnectionTypes.set(index + 1, p.type as ConnectionType);
-            portMacs.set(index + 1, MacAddress.validateAddress(p.mac, this.macDatabase));
-            portIpv4s.set(index + 1, Ipv4Address.validateAddress(p.ip4 || '', this.ipv4Database));
-            portIpv6s.set(index + 1, Ipv6Address.validateAddress(p.ip6 || '', this.ipv6Database));
+            portMacs.set(index + 1, MacAddress.validateAddress(p.mac, this.macDatabase)!);
+            portIpv4s.set(index + 1, Ipv4Address.validateAddress(p.ip4 || '', this.ipv4Database)!);
+            portIpv6s.set(index + 1, Ipv6Address.validateAddress(p.ip6 || '', this.ipv6Database)!);
         });
 
         switch (c.type) {
@@ -152,7 +152,7 @@ export function load(this: NetworkComponent) {
             c.ports
                 .map((p: Port) => MacAddress.validateAddress(p.mac, this.macDatabase))
                 .forEach((mac) => {
-                    MacAddress.addAddressToDatabase(mac, this.macDatabase, component.id);
+                    MacAddress.addAddressToDatabase(mac!, this.macDatabase, component.id);
                 });
         }
         if (component.layer >= 3) {
@@ -160,12 +160,12 @@ export function load(this: NetworkComponent) {
                 .map((p: Port) => Ipv4Address.validateAddress(p.ip4 || '', this.ipv4Database))
                 .forEach((ip4) => {
                     console.log('ip4', ip4);
-                    Ipv4Address.addAddressToDatabase(ip4, this.ipv4Database, component.id);
+                    Ipv4Address.addAddressToDatabase(ip4!, this.ipv4Database, component.id);
                 });
             c.ports
                 .map((p: Port) => Ipv6Address.validateAddress(p.ip6 || '', this.ipv6Database))
                 .forEach((ip6) => {
-                    Ipv6Address.addAddressToDatabase(ip6, this.ipv6Database, component.id);
+                    Ipv6Address.addAddressToDatabase(ip6!, this.ipv6Database, component.id);
                 });
         }
 
@@ -225,9 +225,9 @@ export function load(this: NetworkComponent) {
         let color: string = n.color;
 
         let newNet = Net.createNet(color, netid, netmask, bitmask, this.ipv4Database, this);
-        newNet.id = n.id;
         let net: any;
         if (newNet != null) {
+            newNet.id = n.id;
             net = this._graph.add({
                 group: 'nodes',
                 data: newNet,
@@ -628,7 +628,7 @@ function handleNetworkDataChange(this: NetworkComponent, event: EventObject) {
     this.networks[networkIndex].bitmask = data.bitmask;
 
     let gateways: string[] = [];
-    data.gateways.forEach((v: any, k: any) => {
+    data.gateways.forEach((_v: any, k: any) => {
         gateways.push(k);
     });
     this.networks[networkIndex].gateways = gateways;

@@ -170,7 +170,7 @@ export class DialogFactory {
         sourceNode.portData
             .entries()
             .next()
-            .value[1].forEach((_, columnName) => (sourceTable += `<td>` + columnName + `</td>`));
+            .value![1].forEach((_, columnName) => (sourceTable += `<td>` + columnName + `</td>`));
         sourceTable += `</tr>`;
 
         sourceNode.portData.forEach((data, port) => {
@@ -204,7 +204,7 @@ export class DialogFactory {
         targetNode.portData
             .entries()
             .next()
-            .value[1].forEach((_, columnName) => (targetTable += `<td>` + columnName + `</td>`));
+            .value![1].forEach((_, columnName) => (targetTable += `<td>` + columnName + `</td>`));
         targetTable += `</tr>`;
 
         targetNode.portData.forEach((data, index) => {
@@ -309,7 +309,7 @@ export class DialogFactory {
         physicalNode.portData
             .entries()
             .next()
-            .value[1].forEach((_, columnName) => (table += `<td>` + columnName + `</td>`));
+            .value![1].forEach((_, columnName) => (table += `<td>` + columnName + `</td>`));
         table += `</tr>`;
 
         physicalNode.portData.forEach((data, index) => {
@@ -362,7 +362,7 @@ export class DialogFactory {
                 let nameInput = network.renderRoot.querySelector('#' + id + '-' + index + '-' + 'Name') as SlInput;
                 let newName = nameInput.value.trim() != '' ? nameInput.value.trim() : nameInput.placeholder;
                 if (newName != '') {
-                    physicalNode.portData.get(index).set('Name', newName);
+                    physicalNode.portData.get(index)!.set('Name', newName);
                     changed = true;
                 }
 
@@ -372,10 +372,10 @@ export class DialogFactory {
                     let validatedMac = newMac != '' ? MacAddress.validateAddress(newMac, network.macDatabase) : null;
                     if (validatedMac != null) {
                         MacAddress.removeAddressFromDatabase(
-                            physicalNode.portData.get(index).get('MAC'),
+                            physicalNode.portData.get(index)!.get('MAC'),
                             network.macDatabase
                         );
-                        physicalNode.portData.get(index).set('MAC', validatedMac);
+                        physicalNode.portData.get(index)!.set('MAC', validatedMac);
                         MacAddress.addAddressToDatabase(validatedMac, network.macDatabase, physicalNode.id);
                         changed = true;
                     } else if (newMac != '') {
@@ -422,7 +422,7 @@ export class DialogFactory {
                         }
                         //if this physical node is a gateway of some networks
                         if (isGateway) {
-                            let affectedNetwork: Net = (physicalNode as Router).portNetMapping.get(index);
+                            let affectedNetwork: Net = (physicalNode as Router).portNetMapping.get(index)!;
                             switch (network.subnettingMode) {
                                 case 'HOST_BASED':
                                     if (validatedIpv4 != null && validatedIpv4 != undefined)
@@ -456,10 +456,10 @@ export class DialogFactory {
 
                         if (!keepOldIp) {
                             Ipv4Address.removeAddressFromDatabase(
-                                physicalNode.portData.get(index).get('IPv4'),
+                                physicalNode.portData.get(index)!.get('IPv4'),
                                 network.ipv4Database
                             );
-                            physicalNode.portData.get(index).set('IPv4', validatedIpv4);
+                            physicalNode.portData.get(index)!.set('IPv4', validatedIpv4);
                             Ipv4Address.addAddressToDatabase(validatedIpv4, network.ipv4Database, physicalNode.id);
                             changed = true;
                         }
@@ -471,10 +471,10 @@ export class DialogFactory {
                         newIpv6 != '' ? Ipv6Address.validateAddress(newIpv6, network.ipv6Database) : null;
                     if (validatedIpv6 != null) {
                         Ipv6Address.removeAddressFromDatabase(
-                            physicalNode.portData.get(index).get('IPv6'),
+                            physicalNode.portData.get(index)!.get('IPv6'),
                             network.ipv6Database
                         );
-                        physicalNode.portData.get(index).set('IPv6', validatedIpv6);
+                        physicalNode.portData.get(index)!.set('IPv6', validatedIpv6);
                         Ipv6Address.addAddressToDatabase(validatedIpv6, network.ipv6Database, physicalNode.id);
                         changed = true;
                     } else if (newIpv6 != '') {
@@ -533,7 +533,7 @@ export class DialogFactory {
             gateways.forEach((port, gatewayId) => {
                 if (port != null) {
                     let router: Router = network._graph.$('#' + gatewayId).data();
-                    let data = router.portData.get(port);
+                    let data = router.portData.get(port)!;
                     table += `<tr>`;
                     table += `<td>` + router.name + `</td>`;
                     table += `<td>` + data.get('Name') + `</td>`;
@@ -593,7 +593,7 @@ export class DialogFactory {
             gateways.forEach((port, gatewayId) => {
                 if (port != null) {
                     let router: Router = network._graph.$('#' + gatewayId).data();
-                    let data = router.portData.get(port);
+                    let data = router.portData.get(port)!;
                     table += `<tr>`;
                     table += `<td>` + router.name + `</td>`;
                     table += `<td>` + port + `</td>`;
@@ -676,7 +676,7 @@ export class DialogFactory {
         dialog.show();
     }
 
-    static showHelpText(network: NetworkComponent): TemplateResult {
+    static showHelpText(_network: NetworkComponent): TemplateResult {
         return html`
     <sl-tab-group>
         <sl-tab slot="nav" panel="node">${msg('Add/ Configure graph components')}</sl-tab>

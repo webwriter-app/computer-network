@@ -17,7 +17,7 @@ export class Ipv4Address extends Address {
 
     static getLoopBackAddress(): Ipv4Address {
         //the octets are set as null cause there's no computation needed for loopback address
-        return new Ipv4Address("127.0.0.1", null, null, null);
+        return new Ipv4Address("127.0.0.1", null!, null!, null!);
     }
 
     /**
@@ -27,11 +27,11 @@ export class Ipv4Address extends Address {
      * @param bitmask only needed if the passed Address is of a net
      * @returns Ipv4 address from passed address string | null if the passed address string is not valid
      */
-    static override validateAddress(ip: string, database: Map<string, string>, bitmask?: number): Ipv4Address {
+    static override validateAddress(ip: string, database: Map<string, string>, bitmask?: number): Ipv4Address | null {
         let isNetworkId: boolean = (bitmask != null && !Number.isNaN(bitmask) && bitmask != undefined);
 
         if (ip == null || ip == undefined || ip == "" || database.has(ip)) return null;
-        if (isNetworkId && (bitmask < 0 || bitmask > 32)) return null;
+        if (isNetworkId && (bitmask! < 0 || bitmask! > 32)) return null;
 
         if (ip == "127.0.0.1") if (!isNetworkId) { return this.getLoopBackAddress(); } else { return null; }
 
@@ -53,7 +53,7 @@ export class Ipv4Address extends Address {
 
         let result: Ipv4Address = new Ipv4Address(ip, stringArray, binArray, decimalArray);
 
-        if (isNetworkId && parseInt(binArray.join('').slice(bitmask)) * 10 != 0 && bitmask < 32) return null;
+        if (isNetworkId && parseInt(binArray.join('').slice(bitmask)) * 10 != 0 && bitmask! < 32) return null;
 
         return result;
     }
@@ -65,7 +65,7 @@ export class Ipv4Address extends Address {
      * @param net the current network that host's in
      * @returns current ipv4 if it matches network CIDR, else a random new address that matches network CIDR (except for reserved addresses of net)
      */
-    static generateNewIpGivenNet(database: Map<string, string>, oldIp: Ipv4Address, net: Net): Ipv4Address {
+    static generateNewIpGivenNet(database: Map<string, string>, oldIp: Ipv4Address, net: Net): Ipv4Address | null {
 
         if (net.cssClass.includes('unconfigured-net')) return null;
 

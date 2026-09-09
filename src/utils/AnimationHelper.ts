@@ -1,7 +1,7 @@
 import { NetworkComponent } from "..";
 
 export class AnimationHelper {
-    static delay(time) {
+    static delay(time: number) {
         return new Promise(resolve => setTimeout(resolve, time));
     }
 

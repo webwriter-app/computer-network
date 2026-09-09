@@ -43,11 +43,11 @@ export abstract class DataHandlingDecorator implements PhysicalNode {
         return this.component.getIpAddresses();
     }
 
-    handleDataIn(dataNode: any, previousNode: any, network: NetworkComponent): void {
+    handleDataIn(_dataNode: any, _previousNode: any, _network: NetworkComponent): void {
         return;
     }
 
-    sendData(dataNode: any, network: NetworkComponent): void {
+    sendData(_dataNode: any, _network: NetworkComponent): void {
         return;
     }
 
@@ -66,7 +66,7 @@ export abstract class DataHandlingDecorator implements PhysicalNode {
         return portIn;
     }
 
-    flood(dataNode: any, previousId: string, port: number, network: NetworkComponent): void {
+    flood(dataNode: any, previousId: string | null, port: number | null, network: NetworkComponent): void {
         dataNode = dataNode.remove();
 
         this.portLinkMapping.forEach((linkId, portIn) => {

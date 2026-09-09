@@ -33,23 +33,23 @@ export class Host extends PhysicalNode {
         for (let index = 1; index <= numberOfInterfaces; index++) {
             let name = names.get(index);
             if (name != undefined && name != null && name != '') {
-                this.portData.get(index).set('Name', name);
+                this.portData.get(index)!.set('Name', name);
             } else {
-                this.portData.get(index).set('Name', portConnectionTypes.get(index) + index);
+                this.portData.get(index)!.set('Name', (portConnectionTypes.get(index) ?? '') + index);
             }
         }
 
         portConnectionTypes.forEach((connectionType, port) => {
-            this.portData.get(port).set('Connection Type', connectionType);
+            this.portData.get(port)!.set('Connection Type', connectionType);
         });
         portMacMapping.forEach((macAddress, port) => {
-            this.portData.get(port).set('MAC', macAddress);
+            this.portData.get(port)!.set('MAC', macAddress);
         });
         portIpv4Mapping.forEach((ip4, port) => {
-            this.portData.get(port).set('IPv4', ip4);
+            this.portData.get(port)!.set('IPv4', ip4);
         });
         portIpv6Mapping.forEach((ip6, port) => {
-            this.portData.get(port).set('IPv6', ip6);
+            this.portData.get(port)!.set('IPv6', ip6);
         });
 
         this.cssClass.push('host-node');

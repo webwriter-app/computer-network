@@ -11,24 +11,24 @@ export abstract class Connector extends PhysicalNode {
         color: string,
         layer: number,
         numberOfInterfacesOrPorts: number,
-        names: Map<number, string>,
-        portConnectionTypes: Map<number, ConnectionType>,
+        names: Map<number, string> | null,
+        portConnectionTypes: Map<number, ConnectionType> | null,
         connectionType?: ConnectionType
     ) {
         super(color, layer, numberOfInterfacesOrPorts);
 
         if (this.layer > 2) {
             for (let index = 1; index <= numberOfInterfacesOrPorts; index++) {
-                let name = names.get(index);
+                let name = names?.get(index);
                 if (name != undefined && name != null && name != '') {
-                    this.portData.get(index).set('Name', name);
+                    this.portData.get(index)!.set('Name', name);
                 } else {
                     this.portData
-                        .get(index)
+                        .get(index)!
                         .set(
                             'Name',
                             portConnectionTypes != null
-                                ? portConnectionTypes.get(index) + index
+                                ? (portConnectionTypes.get(index) ?? '') + index
                                 : connectionType != null
                                 ? connectionType + index
                                 : index
@@ -44,7 +44,7 @@ export abstract class Connector extends PhysicalNode {
         } else if (portConnectionTypes != null) {
             portConnectionTypes.forEach((connectionType, port) => {
                 if (port <= this.numberOfInterfacesOrPorts)
-                    this.portData.get(port).set('Connection Type', connectionType);
+                    this.portData.get(port)!.set('Connection Type', connectionType);
             });
         }
         this.cssClass.push('connector-node');
@@ -83,13 +83,13 @@ export class Router extends Connector {
         }
 
         portMacMapping.forEach((macAddress, port) => {
-            this.portData.get(port).set('MAC', macAddress);
+            this.portData.get(port)!.set('MAC', macAddress);
         });
         portIpv4Mapping.forEach((ip4, port) => {
-            this.portData.get(port).set('IPv4', ip4);
+            this.portData.get(port)!.set('IPv4', ip4);
         });
         portIpv6Mapping.forEach((ip6, port) => {
-            this.portData.get(port).set('IPv6', ip6);
+            this.portData.get(port)!.set('IPv6', ip6);
         });
 
         this.cssClass.push('router-node');
@@ -161,7 +161,7 @@ export class Switch extends Connector {
             this.name = 'Switch';
         }
         portMacMapping.forEach((macAddress, port) => {
-            this.portData.get(port).set('MAC', macAddress);
+            this.portData.get(port)!.set('MAC', macAddress);
         });
         this.cssClass.push('switch-node');
         this.backgroundPath = iconToDataURI(iSwitch);
@@ -191,7 +191,7 @@ export class Bridge extends Connector {
         }
 
         portMacMapping.forEach((macAddress, port) => {
-            if (port <= this.numberOfInterfacesOrPorts) this.portData.get(port).set('MAC', macAddress);
+            if (port <= this.numberOfInterfacesOrPorts) this.portData.get(port)!.set('MAC', macAddress);
         });
 
         this.cssClass.push('bridge-node');
@@ -233,7 +233,7 @@ export class AccessPoint extends Connector {
             this.name = msg('Access Point');
         }
         portMacMapping.forEach((macAddress, port) => {
-            this.portData.get(port).set('MAC', macAddress);
+            this.portData.get(port)!.set('MAC', macAddress);
         });
 
         this.cssClass.push('access-point-node');

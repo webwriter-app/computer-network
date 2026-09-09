@@ -333,14 +333,14 @@ export class NetworkComponent extends LitElementWw {
             this.contextMenu.style.top = event.renderedPosition.y + 'px';
         });
 
-        this._graph.on('tap', (event: EventObject) => {
+        this._graph.on('tap', (_event: EventObject) => {
             const t = this.selectedObject;
             this.selectedObject = null;
             this.selectedObject = t;
             this.contextMenu.style.display = 'none';
         });
 
-        this._graph.on('drag', (event: EventObject) => {
+        this._graph.on('drag', (_event: EventObject) => {
             const t = this.selectedObject;
             this.selectedObject = null;
             this.selectedObject = t;
@@ -692,8 +692,6 @@ export class NetworkComponent extends LitElementWw {
         };
     }
 
-    private addEdge() {}
-
     /**
      * Adds a logical network node with default CIDR settings.
      * @internal
@@ -889,7 +887,7 @@ export class NetworkComponent extends LitElementWw {
                                 size=${this.screen}
                                 id="current-subnet-mode"
                                 @sl-change="${(event: SlChangeEvent) => {
-                                    Net.setMode((event.target as SlSelect).value, this);
+                                    Net.setMode((event.target as SlSelect).value as SubnettingMode, this);
                                 }}"
                                 value="MANUAL"
                             >
@@ -899,12 +897,12 @@ export class NetworkComponent extends LitElementWw {
                             </sl-select>
                         </sl-menu-label>
                         <sl-menu-item
-                            @click="${(event) => this.subnettingController.toggleDragAndDropSubnetting(event, this)}"
+                            @click="${(event: Event) => this.subnettingController.toggleDragAndDropSubnetting(event, this)}"
                             style="font-size: max(0.1cqw, 12px) !important;"
                             >${msg("Activate Draw-and-drop")}</sl-menu-item
                         >
                         <sl-menu-item
-                            @click="${(event) => this.subnettingController.toggleAssigningGateway(event, this)}"
+                            @click="${(event: Event) => this.subnettingController.toggleAssigningGateway(event, this)}"
                             style="font-size: max(0.1cqw, 12px) !important;"
                             >${msg("Drag to assign gateway")}</sl-menu-item
                         >
@@ -927,7 +925,7 @@ export class NetworkComponent extends LitElementWw {
                                 style="display: inline-block;"
                                 class="blue-button"
                                 id="setSourceBtn"
-                                @click="${(event) => this.packetSimulator.setSource(event, this)}"
+                                @click="${(event: Event) => this.packetSimulator.setSource(event, this)}"
                                 >${msg("Choose sender")}</sl-button
                             >
                             <sl-select
@@ -935,8 +933,8 @@ export class NetworkComponent extends LitElementWw {
                                 id="ip-source-select"
                                 hoist
                                 style="display: inline-block; margin-left: 7.5px;"
-                                @sl-change="${(event) => {
-                                    this.packetSimulator.sourceIp = event.target.value;
+                                @sl-change="${(event: SlChangeEvent) => {
+                                    this.packetSimulator.sourceIp = (event.target as SlInput).value;
                                 }}"
                                 value="127.0.0.1"
                             >
@@ -949,7 +947,7 @@ export class NetworkComponent extends LitElementWw {
                                 style="display: inline-block;"
                                 class="blue-button"
                                 id="setTargetBtn"
-                                @click="${(event) => this.packetSimulator.setTarget(event, this)}"
+                                @click="${(event: Event) => this.packetSimulator.setTarget(event, this)}"
                                 >${msg("Choose receiver")}</sl-button
                             >
                             <sl-select
@@ -957,8 +955,8 @@ export class NetworkComponent extends LitElementWw {
                                 id="ip-target-select"
                                 hoist
                                 style="display: inline-block;"
-                                @sl-change="${(event) => {
-                                    this.packetSimulator.targetIp = event.target.value;
+                                @sl-change="${(event: SlChangeEvent) => {
+                                    this.packetSimulator.targetIp = (event.target as SlInput).value;
                                 }}"
                                 value="127.0.0.1"
                             >
@@ -968,16 +966,17 @@ export class NetworkComponent extends LitElementWw {
                         <sl-menu-item
                             ><sl-input
                                 class="label-on-left"
-                                @sl-change="${(event) => (this.packetSimulator.duration = event.target.value * 1000)}"
+                                @sl-change="${(event: SlChangeEvent) => (this.packetSimulator.duration = +(event.target as SlInput).value * 1000)}"
                                 label=${msg("Speed")}
                                 type="number"
                                 min="1"
                             ></sl-input
                         ></sl-menu-item>
                         <sl-menu-item
-                            @click="${(event) => {
-                                event.target.checked = !event.target.checked;
-                                this.packetSimulator.focus = event.target.checked;
+                            @click="${(event: Event) => {
+                                const target = event.target as HTMLInputElement;
+                                target.checked = !target.checked;
+                                this.packetSimulator.focus = target.checked;
                             }}"
                             >${msg("Focus on animated nodes")}</sl-menu-item
                         >
@@ -1034,7 +1033,7 @@ export class NetworkComponent extends LitElementWw {
      * @param e Click event from a component button within the authoring sidebar.
      */
     private clickOnComponentButton(e: Event): void {
-        this.currentComponentToAdd = (e.target as HTMLElement).getAttribute('id');
+        this.currentComponentToAdd = (e.target as HTMLElement).getAttribute('id') ?? '';
         let nodeToHighLight: string = '';
         let panelToActive: string = '';
         switch (this.currentComponentToAdd) {
@@ -1055,6 +1054,7 @@ export class NetworkComponent extends LitElementWw {
             case 'net':
                 nodeToHighLight = 'net';
                 panelToActive = 'logical';
+                break;
             default:
                 nodeToHighLight = this.currentComponentToAdd;
                 break;

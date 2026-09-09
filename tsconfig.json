@@ -24,7 +24,8 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
-      "@t/*": ["src/types/*"]
+      "@t/*": ["src/types/*"],
+      "@webwriter/lit": ["src/types/webwriter-lit.d.ts"]
     }
   },
   "include": [

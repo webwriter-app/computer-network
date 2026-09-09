@@ -454,7 +454,6 @@ function edgeContextDialogTemplate(this: NetworkComponent) {
 
 function networkContextDialogTemplate(this: NetworkComponent) {
     const network: any = this.selectedObject;
-    const subnet: any = network.data('subnet');
 
     return html`
         <sl-dialog
@@ -785,9 +784,9 @@ function updatePortLink(this: NetworkComponent) {
     );
 }
 
-function configurePorts(this: NetworkComponent, edge: GraphEdge, inPort: number, outPort: number): GraphEdge {
-    let inPortData: Map<string, any> = edge.from.portData.get(inPort);
-    let outPortData: Map<string, any> = edge.to.portData.get(outPort);
+function configurePorts(this: NetworkComponent, edge: GraphEdge, inPort: number, outPort: number): GraphEdge | null {
+    let inPortData: Map<string, any> = edge.from.portData.get(inPort)!;
+    let outPortData: Map<string, any> = edge.to.portData.get(outPort)!;
 
     if (inPortData.get('Connection Type') == 'wireless' && outPortData.get('Connection Type') == 'wireless') {
         edge.cssClass.push('wireless-edge');
@@ -861,7 +860,7 @@ function nodeRoutingTableTemplate(this: NetworkComponent): TemplateResult {
                                       <th>IP</th>
                                       <th>MAC</th>
                                   </tr>
-                                  ${Array.from(arpTable.entries()).map((entry) => {
+                                  ${Array.from(arpTable.entries()).map((entry: any) => {
                                       return html`
                                           <tr>
                                               <td>${entry[0]}</td>
@@ -881,7 +880,7 @@ function nodeRoutingTableTemplate(this: NetworkComponent): TemplateResult {
                                       <th>${msg('Net')}</th>
                                       <th>${msg('Gateway')}</th>
                                   </tr>
-                                  ${Array.from(routingTable.entries()).map((entry) => {
+                                  ${Array.from(routingTable.entries()).map((entry: any) => {
                                       return html`
                                           <tr>
                                               <td>${entry[0]}</td>
@@ -901,7 +900,7 @@ function nodeRoutingTableTemplate(this: NetworkComponent): TemplateResult {
                                       <th>MAC</th>
                                       <th>Port</th>
                                   </tr>
-                                  ${Array.from(macAddressTable.entries()).map((entry) => {
+                                  ${Array.from(macAddressTable.entries()).map((entry: any) => {
                                       return html`
                                           <tr>
                                               <td>${entry[0]}</td>

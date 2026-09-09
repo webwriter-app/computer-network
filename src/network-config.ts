@@ -4,7 +4,7 @@ import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles';
 import 'cytoscape-context-menus/cytoscape-context-menus';
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop/cytoscape-compound-drag-and-drop';
 import nodeHtmlLabel from 'cytoscape-node-html-label/dist/cytoscape-node-html-label.min';
-import { EventObject, NodeSingular } from 'cytoscape';
+import { EventObject, NodeSingular, EdgeSingular } from 'cytoscape';
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
@@ -79,10 +79,10 @@ export function initNetwork(network: NetworkComponent): void {
                 'source-text-rotation': 'autorotate',
                 'target-text-offset': 70,
                 'target-text-rotation': 'autorotate',
-                'source-label': function (edge) {
+                'source-label': function (edge: EdgeSingular) {
                     let source: PhysicalNode = edge.data('from');
                     let port: number = edge.data('inPort');
-                    let portData: Map<string, any> = source.portData.get(port);
+                    let portData: Map<string, any> = source.portData.get(port)!;
                     let label = '';
                     //TOEXTEND:hide IPv6 since the widget doesn't support IPv6 atm
                     portData.forEach(
@@ -96,10 +96,10 @@ export function initNetwork(network: NetworkComponent): void {
                     );
                     return label + "\n\n\u2060"; // Add invisible lines to make label lower
                 },
-                'target-label': function (edge) {
+                'target-label': function (edge: EdgeSingular) {
                     let target: PhysicalNode = edge.data('to');
                     let port: number = edge.data('outPort');
-                    let portData: Map<string, any> = target.portData.get(port);
+                    let portData: Map<string, any> = target.portData.get(port)!;
                     let label = '';
                     portData.forEach(
                         (value, key) =>
@@ -174,12 +174,12 @@ export function initNetwork(network: NetworkComponent): void {
             selector: '.gateway-node',
             style: {
                 'background-fill': 'linear-gradient',
-                'background-gradient-stop-colors': function (gateway) {
-                    let colors = [];
+                'background-gradient-stop-colors': function (gateway: NodeSingular) {
+                    let colors: any[] = [];
                     let nets = gateway.data('nets');
                     if (nets.length == 0) colors = ['grey'];
 
-                    gateway.data('nets').forEach((net) => {
+                    gateway.data('nets').forEach((net: any) => {
                         colors.push(net.color);
                     });
                     return colors.join(' ');
@@ -259,7 +259,7 @@ export function initNetwork(network: NetworkComponent): void {
         boxSelectionEnabled: false,
         autounselectify: true,
 
-        style: style,
+        style: style as any,
 
         layout: {
             name: 'grid',
@@ -378,11 +378,11 @@ export function initNetwork(network: NetworkComponent): void {
 
     // options for edgehandles
     let edgehandlesOptions = {
-        canConnect: function (sourceNode, targetNode) {
+        canConnect: function (sourceNode: any, targetNode: any) {
             // whether an edge can be created between source and target
             return EdgeController.canConnect(sourceNode, targetNode);
         },
-        edgeParams: function (sourceNode: NodeSingular, targetNode: NodeSingular) {
+        edgeParams: function (sourceNode: any, targetNode: any) {
             return EdgeController.newUnconfiguredEdge(network, sourceNode.data(), targetNode.data());
         },
         preview: true, // whether to show added edges preview before releasing selection
@@ -403,11 +403,11 @@ export function initNetwork(network: NetworkComponent): void {
 
     //options for drap-and-drop compound nodes - no handle on drag out of compound
     const subnettingOptions = {
-        grabbedNode: (node) => {
+        grabbedNode: (node: any) => {
             return node.connectedEdges().length == 0;
         }, // nodes valid to grab and drop into net: ones that don't have any link
-        dropTarget: (dropTarget, grabbedNode) => {
-            grabbedNode.on('cdnddrop', (event, target, sibling) => {
+        dropTarget: (dropTarget: any, grabbedNode: any) => {
+            grabbedNode.on('cdnddrop', (_event: EventObject, target: NodeSingular, sibling: NodeSingular) => {
                 let parent = target != null ? target : sibling;
                 if (parent.data() instanceof Net) {
                     if (network.subnettingMode == 'NET_BASED') {
@@ -438,10 +438,10 @@ export function initNetwork(network: NetworkComponent): void {
             if (dropTarget.hasClass('unconfigured-net') && network.subnettingMode == 'NET_BASED') return false;
             return dropTarget.data() instanceof Net;
         }, // filter function to specify which parent nodes are valid drop targets
-        dropSibling: (dropSibling, grabbedNode) => {
+        dropSibling: (dropSibling: any, _grabbedNode: any) => {
             return dropSibling.data() instanceof Net;
         }, // filter function to specify which orphan nodes are valid drop siblings
-        newParentNode: (grabbedNode, dropSibling) => {
+        newParentNode: (_grabbedNode: any, dropSibling: any) => {
             if (dropSibling.data() instanceof Net) return dropSibling;
         }, // specifies element json for parent nodes added by dropping an orphan node on another orphan (a drop sibling). You can chose to return the dropSibling in which case it becomes the parent node and will be preserved after all its children are removed.
         boundingBoxOptions: {

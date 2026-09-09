@@ -20,7 +20,7 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         if (this.macAddressTable.has(senderMac)) return;
 
         let port = this.getPortIn(previousId, network);
-        this.macAddressTable.set(senderMac, port);
+        this.macAddressTable.set(senderMac, port!);
 
         //TableHelper.addRow('mac-address-table-' + this.id, "ArpTable", network, [port, senderMac]);
         TableHelper.reloadTable('mac-address-table-' + this.id, 'MacAddressTable', this.macAddressTable, network);
@@ -30,7 +30,7 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         let receiverMac = (dataNode.data() as Data).layer2header.macReceiver;
         if (this.macAddressTable.has(receiverMac)) {
             let edge: GraphEdge = network._graph
-                .$('#' + this.portLinkMapping.get(this.macAddressTable.get(receiverMac)))
+                .$('#' + this.portLinkMapping.get(this.macAddressTable.get(receiverMac)!))
                 .data();
             let nextHopId: string = edge.target == this.id ? edge.source : edge.target;
             let nextHop = network._graph.$('#' + nextHopId);
@@ -44,6 +44,6 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         let data: Data = dataNode.data();
         this.learn(data, previousNode.id(), network);
         if (!this.forward(previousNode, dataNode, network))
-            this.flood(dataNode, previousNode.id(), this.macAddressTable.get(data.layer2header.macSender), network);
+            this.flood(dataNode, previousNode.id(), this.macAddressTable.get(data.layer2header.macSender) ?? null, network);
     }
 }

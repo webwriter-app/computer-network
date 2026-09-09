@@ -9,10 +9,10 @@ import { PhysicalNode } from '../physicalNodes/PhysicalNode';
 import { LogicalNode } from './LogicalNode';
 
 export class Net extends LogicalNode {
-    bitmask: number;
-    networkAddress: Ipv4Address;
-    netmask: string;
-    binaryNetmask: string;
+    bitmask!: number;
+    networkAddress!: Ipv4Address;
+    netmask!: string;
+    binaryNetmask!: string;
 
     parent?: string;
 
@@ -21,17 +21,22 @@ export class Net extends LogicalNode {
 
     //this is updated on drag-and-drop
     gateways: Map<string, number> = new Map(); //(routerId, portIndex)
-    currentDefaultGateway: [string, number];
+    currentDefaultGateway!: [string, number];
 
     constructor(
         color: string,
         netAd: string,
-        netmask: string,
-        bitmask: number,
+        netmask: string | null,
+        bitmask: number | null,
         database: Map<string, string>,
         id?: string
     ) {
         super(color);
+
+        this.bitmask = bitmask!;
+        this.netmask = netmask!;
+        this.binaryNetmask = '';
+        this.networkAddress = null!;
 
         if (id != null && id != undefined && id != '') {
             this.id = id;
@@ -80,7 +85,7 @@ export class Net extends LogicalNode {
             return;
         }
 
-        this.networkAddress = networkId != null ? networkId : null;
+        this.networkAddress = networkId;
         this.name =
             this.networkAddress != null && this.bitmask != undefined
                 ? this.networkAddress.address + ' /' + this.bitmask
@@ -104,7 +109,7 @@ export class Net extends LogicalNode {
         bitmask: number,
         database: Map<string, string>,
         network: NetworkComponent
-    ): Net {
+    ): Net | null {
         let bitmaskValid: boolean = !(
             bitmask == null ||
             bitmask == undefined ||
@@ -279,7 +284,7 @@ export class Net extends LogicalNode {
         });
         gateways.forEach((gateway) => {
             let port = this.gateways.get(gateway.id);
-            let ip4 = gateway.portData.get(port).get('IPv4');
+            let ip4 = gateway.portData.get(port!)!.get('IPv4');
             console.log(this, gateway, port, ip4);
             if (!ip4.matchesNetworkCidr(this)) {
                 unmatchedPairs.set(ip4.address, ['gateway', gateway.name]);
@@ -290,8 +295,8 @@ export class Net extends LogicalNode {
         network._graph
             .$('.host-node')
             .orphans()
-            .forEach((host) => {
-                host.data().portData.forEach((data) => {
+            .forEach((host: any) => {
+                host.data().portData.forEach((data: any) => {
                     let ip4 = data.get('IPv4');
                     if (ip4.matchesNetworkCidr(this) && ip4.address != '127.0.0.1') {
                         shouldContains.set(ip4.address, host.data('name'));
@@ -350,17 +355,17 @@ export class Net extends LogicalNode {
     }
 
     private setNetInfo(
-        networkAddress: Ipv4Address,
-        bitmask: number,
-        netmask: string,
-        binaryNetmask: string,
+        networkAddress: Ipv4Address | null,
+        bitmask: number | null,
+        netmask: string | null,
+        binaryNetmask: string | null,
         unconfig: boolean,
         name?: string
     ) {
-        this.bitmask = bitmask;
-        this.networkAddress = networkAddress;
-        this.netmask = netmask;
-        this.binaryNetmask = binaryNetmask;
+        this.bitmask = bitmask!;
+        this.networkAddress = networkAddress!;
+        this.netmask = netmask!;
+        this.binaryNetmask = binaryNetmask!;
         this.name = name != null ? (this.name = name) : this.networkAddress.address + ' /' + this.bitmask;
         if (!unconfig) {
             while (this.cssClass.includes('unconfigured-net')) {
@@ -372,9 +377,9 @@ export class Net extends LogicalNode {
     }
 
     handleChangesOnNewNetInfo(
-        newNetId: string,
-        newnetmask: string,
-        newBitmask: number,
+        newNetId: string | null,
+        newnetmask: string | null,
+        newBitmask: number | null,
         network: NetworkComponent
     ): boolean {
         let bitmaskValid: boolean = !(
@@ -391,7 +396,7 @@ export class Net extends LogicalNode {
             !AddressingHelper.validateNetMask(newnetmask)
         );
 
-        let networkToFree: [string, number] = !this.cssClass.includes('unconfigured-net')
+        let networkToFree: [string, number] | null = !this.cssClass.includes('unconfigured-net')
             ? [this.networkAddress.address, this.bitmask]
             : null;
 
@@ -400,7 +405,7 @@ export class Net extends LogicalNode {
         //if bitmask valid, calculate equivalent net mask
         if (bitmaskValid) {
             let derivedDecimalMask: number[] = AddressingHelper.binaryToDecimalOctets(
-                ''.padStart(newBitmask, '1').padEnd(32, '0')
+                ''.padStart(newBitmask!, '1').padEnd(32, '0')
             );
             //if the input netmask is valid and doesn't match our bitmask
             if (netmaskValid && derivedDecimalMask.join('.') != newnetmask) {
@@ -419,14 +424,14 @@ export class Net extends LogicalNode {
             newnetmask = derivedDecimalMask.join('.');
         } else if (netmaskValid) {
             //if bitmask not valid --> calculate bitmask from netmask
-            newBitmask = (AddressingHelper.decimalStringWithDotToBinary(newnetmask).match(new RegExp('1', 'g')) || [])
+            newBitmask = (AddressingHelper.decimalStringWithDotToBinary(newnetmask!).match(new RegExp('1', 'g')) || [])
                 .length;
         }
 
         if (
             this.networkAddress != null &&
             newNetId == this.networkAddress.address &&
-            (this.bitmask == undefined || this.bitmask == null || this.bitmask >= newBitmask)
+            (this.bitmask == undefined || this.bitmask == null || this.bitmask >= newBitmask!)
         ) {
             network.ipv4Database.delete(
                 AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask)
@@ -435,33 +440,33 @@ export class Net extends LogicalNode {
                 this.networkAddress,
                 newBitmask,
                 newnetmask,
-                AddressingHelper.decimalStringWithDotToBinary(newnetmask),
+                AddressingHelper.decimalStringWithDotToBinary(newnetmask!),
                 false
             );
             network.ipv4Database.set(
                 AddressingHelper.getBroadcastAddress(this.networkAddress.address, this.bitmask),
-                null
+                null!
             );
             AlertHelper.toastAlert('success', 'check2-circle', msg('Your changes have been saved.'), '');
             return true;
         }
 
-        let networkId = Ipv4Address.validateAddress(newNetId, network.ipv4Database, newBitmask);
+        let networkId = Ipv4Address.validateAddress(newNetId!, network.ipv4Database, newBitmask!);
 
         if (networkId == null) return false;
 
         switch (network.subnettingMode) {
             case 'HOST_BASED':
                 if (
-                    this.bitmask >= newBitmask &&
-                    this.networkAddress.binaryOctets.join('').slice(0, newBitmask) ==
-                        networkId.binaryOctets.join('').slice(0, newBitmask)
+                    this.bitmask >= newBitmask! &&
+                    this.networkAddress.binaryOctets.join('').slice(0, newBitmask!) ==
+                        networkId.binaryOctets.join('').slice(0, newBitmask!)
                 ) {
                     this.setNetInfo(
                         networkId,
                         newBitmask,
                         newnetmask,
-                        AddressingHelper.decimalStringWithDotToBinary(newnetmask),
+                        AddressingHelper.decimalStringWithDotToBinary(newnetmask!),
                         false
                     );
                 } else {
@@ -480,23 +485,23 @@ export class Net extends LogicalNode {
                     networkId,
                     newBitmask,
                     newnetmask,
-                    AddressingHelper.decimalStringWithDotToBinary(newnetmask),
+                    AddressingHelper.decimalStringWithDotToBinary(newnetmask!),
                     false
                 );
 
                 network._graph
                     .$('#' + this.id)
                     .children()
-                    .forEach((node) => {
+                    .forEach((node: any) => {
                         let nodeData = node.data();
                         if (nodeData instanceof PhysicalNode && nodeData.layer > 2) {
-                            nodeData.portData.forEach((data) => {
+                            nodeData.portData.forEach((data: any) => {
                                 let ip4 = data.get('IPv4');
                                 if (ip4 != null && !ip4.matchesNetworkCidr(this)) {
                                     Ipv4Address.removeAddressFromDatabase(ip4, network.ipv4Database);
                                     let newIpv4 = Ipv4Address.generateNewIpGivenNet(network.ipv4Database, ip4, this);
                                     data.set('IPv4', newIpv4);
-                                    Ipv4Address.addAddressToDatabase(newIpv4, network.ipv4Database, nodeData.id);
+                                    Ipv4Address.addAddressToDatabase(newIpv4!, network.ipv4Database, nodeData.id);
                                 }
                             });
                         } else if (nodeData instanceof Net) {
@@ -509,7 +514,7 @@ export class Net extends LogicalNode {
                                         nodeData.bitmask
                                     )
                                 );
-                                nodeData.networkAddress = null; //delete the subnet Address
+                                nodeData.networkAddress = null!; //delete the subnet Address
                                 node.toggleClass('unconfigured-net', true);
                                 nodeData.cssClass.push('unconfigured-net');
                                 nodeData.name = '';
@@ -523,7 +528,7 @@ export class Net extends LogicalNode {
                         Ipv4Address.removeAddressFromDatabase(ip4, network.ipv4Database);
                         let newIp4 = Ipv4Address.generateNewIpGivenNet(network.ipv4Database, ip4, this);
                         gateway.data('portData').get(port).set('IPv4', newIp4);
-                        Ipv4Address.addAddressToDatabase(newIp4, network.ipv4Database, gateway.id());
+                        Ipv4Address.addAddressToDatabase(newIp4!, network.ipv4Database, gateway.id());
                     }
                 });
                 break;
@@ -532,7 +537,7 @@ export class Net extends LogicalNode {
                     networkId,
                     newBitmask,
                     newnetmask,
-                    AddressingHelper.decimalStringWithDotToBinary(newnetmask),
+                    AddressingHelper.decimalStringWithDotToBinary(newnetmask!),
                     false
                 );
                 break;

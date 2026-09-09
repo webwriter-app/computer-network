@@ -1,4 +1,4 @@
-import { NodeSingular } from 'cytoscape';
+import { NodeSingular, EventObject } from 'cytoscape';
 import { NetworkComponent } from '..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { GraphNode } from '../components/GraphNode';
@@ -11,7 +11,7 @@ import { msg } from '@lit/localize';
 
 export class SubnettingController {
     assignGatewayOn = false;
-    mutexDragAndDrop!: string;
+    mutexDragAndDrop!: string | null;
 
     private component: NetworkComponent;
 
@@ -19,41 +19,43 @@ export class SubnettingController {
         this.component = component;
     }
 
-    toggleDragAndDropSubnetting(event: any, network: NetworkComponent) {
+    toggleDragAndDropSubnetting(event: Event, network: NetworkComponent) {
         if (this.mutexDragAndDrop == 'gateway') return;
+        const target = event.target as HTMLInputElement;
         //if subnetting option is not active
-        if (!event.target.checked) {
-            event.target.checked = true;
+        if (!target.checked) {
+            target.checked = true;
             this.mutexDragAndDrop = 'subnetting';
             network.mutexDragAndDrop = 'subnetting';
             network._cdnd.enable();
         } else {
-            event.target.checked = false;
+            target.checked = false;
             network._cdnd.disable();
             this.mutexDragAndDrop = null;
             network.mutexDragAndDrop = null;
         }
     }
 
-    toggleAssigningGateway(event: any, network: NetworkComponent) {
+    toggleAssigningGateway(event: Event, network: NetworkComponent) {
         if (this.mutexDragAndDrop == 'subnetting') return;
-        if (!event.target.checked) {
-            event.target.checked = true;
+        const target = event.target as HTMLInputElement;
+        if (!target.checked) {
+            target.checked = true;
             this.mutexDragAndDrop = 'gateway';
             network.mutexDragAndDrop = 'gateway';
         } else {
-            event.target.checked = false;
+            target.checked = false;
             this.mutexDragAndDrop = null;
             network.mutexDragAndDrop = null;
         }
-        this.assignGatewayOn = event.target.checked;
+        this.assignGatewayOn = target.checked;
     }
 
-    addGateway(event: any, network: NetworkComponent): void {
+    addGateway(event: EventObject, network: NetworkComponent): void {
         var router = event.target;
         if (!(router.data() instanceof Router)) return;
         var mouse = event.position;
-        network._graph.$('.net-node').forEach((net) => {
+        network._graph.$('.net-node').forEach((net: any) => {
             var pos = net.boundingBox();
             //drag router onto the edge of a net
             if (
@@ -80,18 +82,18 @@ export class SubnettingController {
         });
     }
 
-    onDragInACompound(grabbedNode, compound, database: Map<string, string>): void {
+    onDragInACompound(grabbedNode: any, compound: any, database: Map<string, string>): void {
         let net: Net = compound.data();
         let node: PhysicalNode = grabbedNode.data();
 
         //reset the IP address of a host based on the network ID
         if (this.component.subnettingMode == 'NET_BASED') {
             if (node instanceof PhysicalNode && node.layer > 2) {
-                node.portData.forEach((data) => {
+                node.portData.forEach((data: any) => {
                     let ip4 = data.get('IPv4');
                     if (ip4 != null && !ip4.matchesNetworkCidr(net)) {
                         Ipv4Address.removeAddressFromDatabase(ip4, database);
-                        let newIpv4 = Ipv4Address.generateNewIpGivenNet(database, ip4, net);
+                        let newIpv4 = Ipv4Address.generateNewIpGivenNet(database, ip4, net)!;
                         data.set('IPv4', newIpv4);
                         Ipv4Address.addAddressToDatabase(newIpv4, database, node.id);
                     }
@@ -111,7 +113,7 @@ export class SubnettingController {
                 if (!net.isSupernetOf(node)) {
                     database.delete(node.networkAddress.address); //delete the net from database
                     database.delete(AddressingHelper.getBroadcastAddress(node.networkAddress.address, node.bitmask));
-                    node.networkAddress = null; //delete the net Address
+                    node.networkAddress = null!; //delete the net Address
                     grabbedNode.addClass('unconfigured-net'); //seems redundant? no direct mapping between cssClass and classes of cytopscape?
                     node.cssClass.push('unconfigured-net');
                     node.name = '';
@@ -120,7 +122,7 @@ export class SubnettingController {
         } //reset the Network ID based on new element
         else if (this.component.subnettingMode == 'HOST_BASED') {
             if (node instanceof PhysicalNode && node.layer > 2) {
-                node.portData.forEach((data) => {
+                node.portData.forEach((data: any) => {
                     let ip4 = data.get('IPv4');
                     if (ip4 != null && ip4 != undefined)
                         Net.calculateCIDRGivenNewHost(net, ip4, database, this.component);
@@ -156,7 +158,7 @@ export class SubnettingController {
         let alert = '';
         let unconfig = false;
 
-        nets.forEach((networkNode) => {
+        nets.forEach((networkNode: any) => {
             if (networkNode.hasClass('unconfigured-net')) {
                 unconfig = true;
             } else {
@@ -164,11 +166,11 @@ export class SubnettingController {
                 let hosts: GraphNode[] = [];
                 let gateways: Router[] = [];
                 //check if each net is correctly assigned locally
-                networkNode.children().forEach((node) => hosts.push(node.data()));
+                networkNode.children().forEach((node: any) => hosts.push(node.data()));
                 nw.gateways.forEach((_port, id) => gateways.push(network._graph.$('#' + id).data() as Router));
                 if (!nw.validateNetLocally(hosts, gateways, network, noAlert)) allCorrect = false;
 
-                nets.forEach((net) => {
+                nets.forEach((net: any) => {
                     let isSupernet: boolean = (nw as Net).isSupernetOf(net.data());
                     let contains: boolean = networkNode.children().contains(net);
                     if (isSupernet && !contains) {
@@ -193,6 +195,7 @@ export class SubnettingController {
         if (noAlert) return false;
         if (alert != '')
             AlertHelper.toastAlert('warning', 'exclamation-triangle', msg('Cross validation between Nets: '), alert);
+        return allCorrect;
     }
 
     setUpGateway(gateway: NodeSingular, host: NodeSingular, gatewayPort: number, database: Map<string, string>): void {
@@ -233,7 +236,7 @@ export class SubnettingController {
                         );
                     } else if (ip4 != null && !ip4.matchesNetworkCidr(net.data() as Net)) {
                         Ipv4Address.removeAddressFromDatabase(ip4, database);
-                        let newIp4 = Ipv4Address.generateNewIpGivenNet(database, ip4, net.data() as Net);
+                        let newIp4 = Ipv4Address.generateNewIpGivenNet(database, ip4, net.data() as Net)!;
                         gateway.data('portData').get(gatewayPort).set('IPv4', newIp4);
                         Ipv4Address.addAddressToDatabase(newIp4, database, gateway.id());
                     }

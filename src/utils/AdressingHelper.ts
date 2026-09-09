@@ -12,7 +12,7 @@ export class AddressingHelper {
 
     static binaryToDecimalOctets(binary: string): number[] {
         if (binary.length != 32 || !/^[01]+$/.test(binary)) {
-            return null;
+            return null!;
         }
         return [parseInt(binary.slice(0, 8), 2), parseInt(binary.slice(8, 16), 2),
         parseInt(binary.slice(16, 24), 2), parseInt(binary.slice(24, 32), 2)];
@@ -22,7 +22,7 @@ export class AddressingHelper {
         let decimalOctets: string[] = decimal.split('.');
         let bin = "";
         if (decimalOctets.length != 4) {
-            return null;
+            return null!;
         }
         else {
             decimalOctets.forEach(octet => bin += (+octet).toString(2).padStart(8, "0"));
@@ -59,7 +59,7 @@ export class AddressingHelper {
     }
 
     static replaceAt(origin: string, index: number, replacement: string): string {
-        if (index > origin.length || index<0 || replacement.length!=1) return null;
+        if (index > origin.length || index<0 || replacement.length!=1) return null!;
         if (index == 0) return replacement + origin.substring(1);
         return origin.substring(0, index-1) + replacement + origin.substring(index);
     }

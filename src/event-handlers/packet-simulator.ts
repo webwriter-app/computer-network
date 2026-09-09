@@ -1,4 +1,5 @@
 import { SlButton, SlDetails, SlIcon, SlSelect } from '@shoelace-style/shoelace';
+import { EventObject } from 'cytoscape';
 import { NetworkComponent } from '..';
 import { DataHandlingDecorator } from '../components/dataDecorators/DataHandlingDecorator';
 import { RoutableDecorator } from '../components/dataDecorators/Routable';
@@ -29,11 +30,7 @@ export class PacketSimulator {
 
     inited: boolean = false;
 
-    private component: NetworkComponent;
-
-    constructor(component: NetworkComponent) {
-        this.component = component;
-    }
+    constructor(_component: NetworkComponent) {}
 
     pauseOrResumeSession(network: NetworkComponent) {
         if (this.isPaused) {
@@ -54,14 +51,14 @@ export class PacketSimulator {
         }
     }
 
-    setSource(buttonEvent, network: NetworkComponent) {
-        let sourceButton = buttonEvent.target;
+    setSource(buttonEvent: Event, network: NetworkComponent) {
+        let sourceButton = buttonEvent.target as SlButton;
         sourceButton.loading = true;
         let targetButton = network.renderRoot.querySelector('#setTargetBtn') as SlButton;
         targetButton.disabled = true;
 
         const self = this;
-        network._graph.one('tap', 'node', function (event) {
+        network._graph.one('tap', 'node', function (event: EventObject) {
             self.sourceEndPoint = event.target.id();
             const endpoint = network._graph.$('#' + self.sourceEndPoint);
             self.sourceIp = endpoint.data().portData.get(1).get('IPv4').address;
@@ -94,14 +91,14 @@ export class PacketSimulator {
         });
     }
 
-    setTarget(buttonEvent, network: NetworkComponent) {
-        let targetButton = buttonEvent.target;
+    setTarget(buttonEvent: Event, network: NetworkComponent) {
+        let targetButton = buttonEvent.target as SlButton;
         targetButton.loading = true;
         let sourceButton = network.renderRoot.querySelector('#setSourceBtn') as SlButton;
         sourceButton.disabled = true;
 
         const self = this;
-        network._graph.one('tap', 'node', function (event) {
+        network._graph.one('tap', 'node', function (event: EventObject) {
             self.targetEndPoint = event.target.id();
             const endpoint = network._graph.$('#' + self.targetEndPoint);
             self.targetIp = endpoint.data().portData.get(1).get('IPv4').address;
@@ -143,7 +140,7 @@ export class PacketSimulator {
             );
             return;
         }
-        let addedNodeAfterInit = network._graph.filter(function (element) {
+        let addedNodeAfterInit = network._graph.filter(function (element: any) {
             return element.hasClass('physical-node') && !element.hasClass('decorated-node');
         });
         if (addedNodeAfterInit.size() > 0) {
@@ -158,7 +155,7 @@ export class PacketSimulator {
                 return;
             }
             //decorate all new added nodes after init
-            addedNodeAfterInit.forEach((node) => {
+            addedNodeAfterInit.forEach((node: any) => {
                 let nodeData: PhysicalNode = node.data() as PhysicalNode;
 
                 if (node.hasClass('host-node') || node.hasClass('router-node')) {
@@ -241,20 +238,20 @@ export class PacketSimulator {
         if (this.inited) {
             (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = '';
             //init tables again
-            network._graph.nodes('.routable-decorated').forEach((node) => {
+            network._graph.nodes('.routable-decorated').forEach((node: any) => {
                 let nodeData: RoutableDecorator = node.data() as RoutableDecorator;
                 TableHelper.initTable(nodeData.id, 'ArpTable', network);
                 TableHelper.initTable(nodeData.id, 'RoutingTable', network);
             });
 
-            network._graph.nodes('.switchable-decorated').forEach((node) => {
+            network._graph.nodes('.switchable-decorated').forEach((node: any) => {
                 let nodeData: SwitchableDecorator = node.data() as SwitchableDecorator;
                 TableHelper.initTable(nodeData.id, 'MacAddressTable', network);
             });
         }
 
         //decorate all physical nodes
-        network._graph.nodes('.physical-node').forEach((node) => {
+        network._graph.nodes('.physical-node').forEach((node: any) => {
             let nodeData: PhysicalNode = node.data() as PhysicalNode;
             if (!node.hasClass('decorated-node') && node.hasClass('physical-node')) {
                 if (node.hasClass('host-node') || node.hasClass('router-node')) {
@@ -283,7 +280,7 @@ export class PacketSimulator {
     }
 
     routeDiscovery(network: NetworkComponent) {
-        network._graph.nodes('.gateway-node').forEach((node) => {
+        network._graph.nodes('.gateway-node').forEach((node: any) => {
             const routingData: {
                 address: string;
                 nextHop: string;
@@ -301,7 +298,7 @@ export class PacketSimulator {
                     const gatewayData = gatewayNode.data();
                     const nets = gatewayData.portNetMapping;
 
-                    nets.forEach((net, key) => {
+                    nets.forEach((net: any, _key: any) => {
                         if (routingData.find((data) => data.address == net.networkAddress.address) == undefined) {
                             routingData.push({
                                 address: net.networkAddress.address,
@@ -362,18 +359,18 @@ export class PacketSimulator {
         });
     }
 
-    findNextHopThenSend(portIn: number, sourceNode: any, dataNode: any, network: NetworkComponent): void {
+    findNextHopThenSend(portIn: number | null, sourceNode: any, dataNode: any, network: NetworkComponent): void {
         let source: DataHandlingDecorator = sourceNode.data();
         let macReceiver: string = dataNode.data().layer2header.macReceiver;
 
         if (source instanceof SwitchableDecorator) {
-            let port: number = source.macAddressTable.get(macReceiver);
+            let port: number = source.macAddressTable.get(macReceiver)!;
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
             let nextHopId: string = link.source == source.id ? link.target : link.source;
             let nextHop: any = network._graph.$('#' + nextHopId);
             this.directSend(sourceNode, nextHop, dataNode, network);
         } else if (source instanceof RoutableDecorator) {
-            let port: number = source.findPortToSend((source as RoutableDecorator).arpTableMacIp.get(macReceiver));
+            let port: number = source.findPortToSend((source as RoutableDecorator).arpTableMacIp.get(macReceiver)!)!;
             let link: GraphEdge = network._graph.$('#' + source.portLinkMapping.get(port)).data();
             console.log('source is routable', port, link);
             let nextHopId: string = link.source == source.id ? link.target : link.source;
@@ -412,7 +409,7 @@ export class PacketSimulator {
 
         //change viewport to contain both source and target in view
         if (this.focus) {
-            let eles;
+            let eles: any;
             this.elementsInAnimation.forEach((e) => {
                 if (eles == undefined) {
                     eles = e;
@@ -454,12 +451,12 @@ export class PacketSimulator {
     stopSession(network: NetworkComponent) {
         (network.renderRoot.querySelector('#tables-for-packet-simulator') as SlDetails).innerHTML = '';
 
-        network._graph.nodes('.switchable-decorated').forEach((node) => {
+        network._graph.nodes('.switchable-decorated').forEach((node: any) => {
             let nodeData: SwitchableDecorator = node.data();
             nodeData.macAddressTable = new Map();
         });
 
-        network._graph.nodes('.routable-decorated').forEach((node) => {
+        network._graph.nodes('.routable-decorated').forEach((node: any) => {
             let nodeData: RoutableDecorator = node.data();
             nodeData.routingTable = new Map();
             nodeData.arpTableIpMac = new Map();
@@ -473,7 +470,7 @@ export class PacketSimulator {
         });
 
         this.currentAnimations = new Map();
-        network._graph.nodes('.data-node').forEach((node) => node.remove());
+        network._graph.nodes('.data-node').forEach((node: any) => node.remove());
     }
 }
 export type TableType = 'RoutingTable' | 'ArpTable' | 'MacAddressTable';

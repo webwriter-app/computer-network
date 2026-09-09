@@ -8,8 +8,8 @@ export class GraphEdge {
     cssClass: string[] = [];
     from: PhysicalNode;
     to: PhysicalNode;
-    inPort: number;
-    outPort: number;
+    inPort!: number;
+    outPort!: number;
     source: string;
     target: string;
 
@@ -30,9 +30,9 @@ export class GraphEdge {
         this.target = this.to.id;
     }
 
-    static addPorts(edge: GraphEdge, inPort: number, outPort: number): GraphEdge {
-        let inPortData: Map<string, any> = edge.from.portData.get(inPort);
-        let outPortData: Map<string, any> = edge.to.portData.get(outPort);
+    static addPorts(edge: GraphEdge, inPort: number, outPort: number): GraphEdge | null {
+        let inPortData: Map<string, any> | undefined = edge.from.portData.get(inPort);
+        let outPortData: Map<string, any> | undefined = edge.to.portData.get(outPort);
 
         if (inPortData == undefined || outPortData == undefined) return null;
 

@@ -5,8 +5,7 @@ export abstract class PhysicalNode extends GraphNode {
     layer: number;
     numberOfInterfacesOrPorts: number;
     portData: Map<number, Map<string, any>> = new Map(); //update on changing data on edges
-    backgroundPath: string;
-    name: string;
+    backgroundPath!: string;
     portLinkMapping: Map<number, string> = new Map(); //updates on drawing edges (port-index, edge.id)
     parent?: string;
 
@@ -23,7 +22,7 @@ export abstract class PhysicalNode extends GraphNode {
 
         for (let i = 1; i <= numberOfInterfacesOrPorts; i++) {
             this.portData.set(i, new Map<string, any>());
-            this.portLinkMapping.set(i, null); //init port-link
+            this.portLinkMapping.set(i, ''); //init port-link
         }
     }
 
