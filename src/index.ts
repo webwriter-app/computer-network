@@ -1086,7 +1086,7 @@ export class NetworkComponent extends LitElementWw {
                 if (this.networkAvailable) this._graph.elements().toggleClass('deletable', true);
                 ['host', 'connector', 'edge', 'net', 'addCompBtn', 'drawBtn'].forEach((buttonId) => {
                     if (this.renderRoot.querySelector('#' + buttonId))
-                        (this.renderRoot.querySelector('#' + buttonId) as HsTMLButtonElement).disabled = false;
+                        (this.renderRoot.querySelector('#' + buttonId) as HTMLButtonElement).disabled = false;
                 });
             } else {
                 if (this.networkAvailable) this._graph.elements().toggleClass('deletable', false);

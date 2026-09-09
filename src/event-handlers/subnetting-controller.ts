@@ -1,3 +1,4 @@
+import { NodeSingular } from 'cytoscape';
 import { NetworkComponent } from '..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { GraphNode } from '../components/GraphNode';
@@ -222,7 +223,7 @@ export class SubnettingController {
                     net.classes(net.data('cssClass'));
                     break;
                 case 'NET_BASED':
-                    if (net.hasClass('unconfigured-net')) {
+                    if ((net as unknown as NodeSingular).hasClass('unconfigured-net')) {
                         gateway.data('portData').get(gatewayPort).set('IPv4', Ipv4Address.getLoopBackAddress());
                         AlertHelper.toastAlert(
                             'warning',

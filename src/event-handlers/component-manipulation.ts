@@ -39,8 +39,8 @@ interface NetData {
 }
 
 export class GraphNodeFactory {
-    static addNode(network: NetworkComponent, data: PhysicalNodeData | NetNodeData): void {
-        if (data.componentType == '' || data.componentType == null) {
+    static addNode(network: NetworkComponent, data?: PhysicalNodeData | NetNodeData): void {
+        if (data == null || data.componentType == '' || data.componentType == null) {
             return;
         }
 

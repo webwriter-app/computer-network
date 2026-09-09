@@ -11,7 +11,6 @@ import { Net } from '../components/logicalNodes/Net';
 import { Router } from '../components/physicalNodes/Connector';
 import { PhysicalNode } from '../components/physicalNodes/PhysicalNode';
 import { AlertHelper } from '../utils/AlertHelper';
-import { SubnettingController } from './subnetting-controller';
 import { msg } from '@lit/localize';
 
 export class DialogFactory {
@@ -268,13 +267,13 @@ export class DialogFactory {
                 dialog.hide();
             } //set new format-display for this connection if no error appears
 
-            SubnettingController.setUpGateway(
+            network.subnettingController.setUpGateway(
                 network._graph.$('#' + sourceNode.id),
                 network._graph.$('#' + targetNode.id),
                 inPort,
                 network.ipv4Database
             );
-            SubnettingController.setUpGateway(
+            network.subnettingController.setUpGateway(
                 network._graph.$('#' + targetNode.id),
                 network._graph.$('#' + sourceNode.id),
                 outPort,
@@ -400,10 +399,10 @@ export class DialogFactory {
                         let keepOldIp: boolean = false;
                         //if this physical node is in a network
                         if (subnet != null && subnet != undefined) {
-                            switch (Net.mode) {
+                            switch (network.subnettingMode) {
                                 case 'HOST_BASED':
                                     if (validatedIpv4 != null && validatedIpv4 != undefined)
-                                        Net.calculateCIDRGivenNewHost(subnet, validatedIpv4, network.ipv4Database);
+                                        Net.calculateCIDRGivenNewHost(subnet, validatedIpv4, network.ipv4Database, network);
                                     node.parent().classes(subnet.cssClass);
                                     break;
                                 case 'NET_BASED':
@@ -424,13 +423,14 @@ export class DialogFactory {
                         //if this physical node is a gateway of some networks
                         if (isGateway) {
                             let affectedNetwork: Net = (physicalNode as Router).portNetMapping.get(index);
-                            switch (Net.mode) {
+                            switch (network.subnettingMode) {
                                 case 'HOST_BASED':
                                     if (validatedIpv4 != null && validatedIpv4 != undefined)
                                         Net.calculateCIDRGivenNewHost(
                                             affectedNetwork,
                                             validatedIpv4,
-                                            network.ipv4Database
+                                            network.ipv4Database,
+                                            network
                                         );
                                     network._graph.$('#' + affectedNetwork.id).classes(affectedNetwork.cssClass);
                                     break;

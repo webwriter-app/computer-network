@@ -1,4 +1,5 @@
 import { SlIcon } from '@shoelace-style/shoelace';
+import { NodeSingular } from 'cytoscape';
 import { NetworkComponent } from '..';
 import { GraphEdge } from '../components/GraphEdge';
 import { PhysicalNode } from '../components/physicalNodes/PhysicalNode';

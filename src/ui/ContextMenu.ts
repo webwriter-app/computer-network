@@ -16,7 +16,6 @@ import { EdgeController } from '../event-handlers/edge-controller';
 
 import { styleMap } from 'lit/directives/style-map.js';
 import { GraphEdge } from '../components/GraphEdge';
-import { SubnettingController } from '../event-handlers/subnetting-controller';
 import { AlertHelper } from '../utils/AlertHelper';
 import { AddressingHelper } from '../utils/AdressingHelper';
 import { msg } from '@lit/localize';
@@ -614,11 +613,11 @@ function handleIPv4AddressChangeGenerator(this: NetworkComponent, index: string)
         const ipv4 = Ipv4Address.validateAddress(v, this.ipv4Database);
 
         if (ipv4 != null) {
-            if (subnet != null && Net.mode == 'HOST_BASED') {
-                Net.calculateCIDRGivenNewHost(subnet, ipv4, this.ipv4Database);
+            if (subnet != null && this.subnettingMode == 'HOST_BASED') {
+                Net.calculateCIDRGivenNewHost(subnet, ipv4, this.ipv4Database, this);
                 this.selectedObject.parent().classes(subnet.cssClass);
             }
-            if (subnet != null && Net.mode == 'NET_BASED' && !ipv4.matchesNetworkCidr(subnet)) {
+            if (subnet != null && this.subnettingMode == 'NET_BASED' && !ipv4.matchesNetworkCidr(subnet)) {
                 (e.target as SlInput).classList.add('danger');
                 (e.target as SlInput).classList.remove('success');
                 (e.target as SlInput).setAttribute('help-text', msg("Inserted IPv4 doesn't match the subnet mask."));
@@ -631,12 +630,12 @@ function handleIPv4AddressChangeGenerator(this: NetworkComponent, index: string)
                     parseInt(index)
                 );
 
-                if (Net.mode == 'HOST_BASED' && affectedNetwork) {
-                    Net.calculateCIDRGivenNewHost(affectedNetwork, ipv4, this.ipv4Database);
+                if (this.subnettingMode == 'HOST_BASED' && affectedNetwork) {
+                    Net.calculateCIDRGivenNewHost(affectedNetwork, ipv4, this.ipv4Database, this);
                     this._graph.$('#' + affectedNetwork.id).classes(affectedNetwork.cssClass);
                 }
 
-                if (Net.mode == 'NET_BASED' && affectedNetwork && !ipv4.matchesNetworkCidr(affectedNetwork)) {
+                if (this.subnettingMode == 'NET_BASED' && affectedNetwork && !ipv4.matchesNetworkCidr(affectedNetwork)) {
                     (e.target as SlInput).classList.add('danger');
                     (e.target as SlInput).classList.remove('success');
                     (e.target as SlInput).setAttribute(
@@ -772,13 +771,13 @@ function updatePortLink(this: NetworkComponent) {
         edge.addClass(newData.cssClass);
     } //set new format-display for this connection if no error appears
 
-    SubnettingController.setUpGateway(
+    this.subnettingController.setUpGateway(
         this._graph.$('#' + sourceNode.id),
         this._graph.$('#' + targetNode.id),
         inPort,
         this.ipv4Database
     );
-    SubnettingController.setUpGateway(
+    this.subnettingController.setUpGateway(
         this._graph.$('#' + targetNode.id),
         this._graph.$('#' + sourceNode.id),
         outPort,

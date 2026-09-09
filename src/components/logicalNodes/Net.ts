@@ -16,6 +16,9 @@ export class Net extends LogicalNode {
 
     parent?: string;
 
+    //counter for generating unique default net ids (net0, net1, ...)
+    static counter: number = 0;
+
     //this is updated on drag-and-drop
     gateways: Map<string, number> = new Map(); //(routerId, portIndex)
     currentDefaultGateway: [string, number];
@@ -170,7 +173,7 @@ export class Net extends LogicalNode {
             count = 30;
             candidateId = ip.binaryOctets.join('').slice(0, count).padEnd(32, '0');
         }
-        this.testPossibleNetAddresses(count, candidateId, net, database);
+        this.testPossibleNetAddresses(count, candidateId, net, database, network);
     }
 
     private static testPossibleNetAddresses(
@@ -246,11 +249,11 @@ export class Net extends LogicalNode {
             count = newPrefix.length;
             candidateId = newPrefix.padEnd(32, '0');
         } else {
-            let count = subnet.bitmask - 1;
+            count = subnet.bitmask - 1;
             let subnetPrefix = subnet.networkAddress.binaryOctets.join('').slice(0, subnet.bitmask);
             candidateId = AddressingHelper.replaceAt(subnetPrefix, count, '0').padEnd(32, '0');
         }
-        Net.testPossibleNetAddresses(count, candidateId, supernet, database);
+        Net.testPossibleNetAddresses(count, candidateId, supernet, database, network);
     }
 
     validateNetLocally(hosts: GraphNode[], gateways: Router[], network: NetworkComponent, noAlert: boolean): boolean {

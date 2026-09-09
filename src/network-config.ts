@@ -4,7 +4,7 @@ import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles';
 import 'cytoscape-context-menus/cytoscape-context-menus';
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop/cytoscape-compound-drag-and-drop';
 import nodeHtmlLabel from 'cytoscape-node-html-label/dist/cytoscape-node-html-label.min';
-import { EventObject } from 'cytoscape';
+import { EventObject, NodeSingular } from 'cytoscape';
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
@@ -410,7 +410,7 @@ export function initNetwork(network: NetworkComponent): void {
             grabbedNode.on('cdnddrop', (event, target, sibling) => {
                 let parent = target != null ? target : sibling;
                 if (parent.data() instanceof Net) {
-                    if (Net.mode == 'NET_BASED') {
+                    if (network.subnettingMode == 'NET_BASED') {
                         //the subnet must be configured to drag hosts into (net_mode)
                         let bitmask: number = parent.data().bitmask;
                         if (bitmask != null && bitmask != undefined && !Number.isNaN(bitmask)) {
@@ -435,7 +435,7 @@ export function initNetwork(network: NetworkComponent): void {
                 }
             });
 
-            if (dropTarget.hasClass('unconfigured-net') && Net.mode == 'NET_BASED') return false;
+            if (dropTarget.hasClass('unconfigured-net') && network.subnettingMode == 'NET_BASED') return false;
             return dropTarget.data() instanceof Net;
         }, // filter function to specify which parent nodes are valid drop targets
         dropSibling: (dropSibling, grabbedNode) => {
