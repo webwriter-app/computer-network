@@ -3,7 +3,6 @@ import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.com
 import SlInput from '@shoelace-style/shoelace/dist/components/input/input.component.js';
 import SlSelect from '@shoelace-style/shoelace/dist/components/select/select.component.js';
 import { SlChangeEvent } from '@shoelace-style/shoelace';
-import { names } from 'konva/types/Node';
 import { html, TemplateResult } from 'lit';
 import { NetworkComponent } from 'src';
 import { Ipv4Address } from '../adressing/Ipv4Address';
