@@ -1,11 +1,10 @@
-import { ComputerNetwork, NetworkComponent } from '../..';
+import { NetworkComponent } from '..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { GraphNode } from '../components/GraphNode';
 import { Net } from '../components/logicalNodes/Net';
 import { Router } from '../components/physicalNodes/Connector';
 import { PhysicalNode } from '../components/physicalNodes/PhysicalNode';
 import { AlertHelper } from '../utils/AlertHelper';
-import NodeSingular from 'cytoscape';
 import { AddressingHelper } from '../utils/AdressingHelper';
 import { msg } from '@lit/localize';
 
@@ -19,7 +18,7 @@ export class SubnettingController {
         this.component = component;
     }
 
-    toggleDragAndDropSubnetting(event: any, network: ComputerNetwork) {
+    toggleDragAndDropSubnetting(event: any, network: NetworkComponent) {
         if (this.mutexDragAndDrop == 'gateway') return;
         //if subnetting option is not active
         if (!event.target.checked) {
@@ -35,7 +34,7 @@ export class SubnettingController {
         }
     }
 
-    toggleAssigningGateway(event: any, network: ComputerNetwork) {
+    toggleAssigningGateway(event: any, network: NetworkComponent) {
         if (this.mutexDragAndDrop == 'subnetting') return;
         if (!event.target.checked) {
             event.target.checked = true;
@@ -49,7 +48,7 @@ export class SubnettingController {
         this.assignGatewayOn = event.target.checked;
     }
 
-    addGateway(event: any, network: ComputerNetwork): void {
+    addGateway(event: any, network: NetworkComponent): void {
         var router = event.target;
         if (!(router.data() instanceof Router)) return;
         var mouse = event.position;
@@ -150,7 +149,7 @@ export class SubnettingController {
     }
 
     //TODO: automatically run this before the packet simulation
-    validateAllNets(noAlert: boolean, network: ComputerNetwork): boolean {
+    validateAllNets(noAlert: boolean, network: NetworkComponent): boolean {
         let nets = network._graph.$('.net-node');
         let allCorrect = true;
         let alert = '';

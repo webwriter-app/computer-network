@@ -9,9 +9,6 @@ import { iconToDataURI, biPcDisplayHorizontal, biPhone } from '../styles/icons';
 import { ConnectionType } from '../components/physicalNodes/PhysicalNode';
 import { GraphEdge } from '../components/GraphEdge';
 import { EdgeController } from '../event-handlers/edge-controller';
-import { SubnettingController } from '../event-handlers/subnetting-controller';
-import { eventNames } from 'process';
-import { GraphNodeFactory } from '../event-handlers/component-manipulation';
 import { Net } from '../components/logicalNodes/Net';
 import { Frame, Packet } from '../components/logicalNodes/DataNode';
 

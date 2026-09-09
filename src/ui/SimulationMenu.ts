@@ -4,7 +4,6 @@ import { NetworkComponent } from '../';
 // import SlButtonGroup from '@shoelace-style/shoelace/dist/components/button-group/button-group.component.js';
 // import SlButton from '@shoelace-style/shoelace/dist/components/button/button.component.js';
 // import SlSelect from '@shoelace-style/shoelace/dist/components/select/select.component.js';
-import { PacketSimulator } from '../event-handlers/packet-simulator';
 import { msg } from '@lit/localize';
 
 export function simulationMenuTemplate(this: NetworkComponent) {

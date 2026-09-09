@@ -1,5 +1,4 @@
-import { ComputerNetwork } from '../../..';
-import { PacketSimulator } from '../../event-handlers/packet-simulator';
+import { NetworkComponent } from '../..';
 import { TableHelper } from '../../utils/TableHelper';
 import { GraphEdge } from '../GraphEdge';
 import { Data } from '../logicalNodes/DataNode';
@@ -9,13 +8,13 @@ import { DataHandlingDecorator } from './DataHandlingDecorator';
 export class SwitchableDecorator extends DataHandlingDecorator {
     macAddressTable: Map<string, number> = new Map(); //(mac, port)
 
-    constructor(component: PhysicalNode, network: ComputerNetwork) {
+    constructor(component: PhysicalNode, network: NetworkComponent) {
         super(component);
         this.cssClass.push('switchable-decorated');
         TableHelper.initTable(this.id, 'MacAddressTable', network);
     }
 
-    learn(data: Data, previousId: String, network: ComputerNetwork): void {
+    learn(data: Data, previousId: String, network: NetworkComponent): void {
         let senderMac: string = data.layer2header.macSender;
 
         if (this.macAddressTable.has(senderMac)) return;
@@ -27,7 +26,7 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         TableHelper.reloadTable('mac-address-table-' + this.id, 'MacAddressTable', this.macAddressTable, network);
     }
 
-    forward(_previousNode: any, dataNode: any, network: ComputerNetwork): boolean {
+    forward(_previousNode: any, dataNode: any, network: NetworkComponent): boolean {
         let receiverMac = (dataNode.data() as Data).layer2header.macReceiver;
         if (this.macAddressTable.has(receiverMac)) {
             let edge: GraphEdge = network._graph
@@ -41,7 +40,7 @@ export class SwitchableDecorator extends DataHandlingDecorator {
         return false;
     }
 
-    handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork): void {
+    handleDataIn(dataNode: any, previousNode: any, network: NetworkComponent): void {
         let data: Data = dataNode.data();
         this.learn(data, previousNode.id(), network);
         if (!this.forward(previousNode, dataNode, network))

@@ -1,25 +1,20 @@
 import { NetworkComponent } from './index';
 import cytoscape from 'cytoscape/dist/cytoscape.esm.min';
 import edgehandles from 'cytoscape-edgehandles/cytoscape-edgehandles';
-import contextMenus from 'cytoscape-context-menus/cytoscape-context-menus';
+import 'cytoscape-context-menus/cytoscape-context-menus';
 import compoundDragAndDrop from 'cytoscape-compound-drag-and-drop/cytoscape-compound-drag-and-drop';
 import nodeHtmlLabel from 'cytoscape-node-html-label/dist/cytoscape-node-html-label.min';
-import NodeSingular, { EventObject } from 'cytoscape';
+import { EventObject } from 'cytoscape';
 
 // import CSS as well
 import 'cytoscape-context-menus/cytoscape-context-menus.css';
-import { DialogFactory } from './event-handlers/dialog-content';
 import { EdgeController } from './event-handlers/edge-controller';
 
 import { AlertHelper } from './utils/AlertHelper';
-import { SubnettingController } from './event-handlers/subnetting-controller';
 import { Address } from './adressing/Address';
-import { GraphEdge } from './components/GraphEdge';
 import { Net } from './components/logicalNodes/Net';
 import { PhysicalNode } from './components/physicalNodes/PhysicalNode';
 import { GraphNodeFactory } from './event-handlers/component-manipulation';
-import { Data } from './components/logicalNodes/DataNode';
-import { PacketSimulator } from './event-handlers/packet-simulator';
 
 // register extension
 // cytoscape.use(contextMenus);

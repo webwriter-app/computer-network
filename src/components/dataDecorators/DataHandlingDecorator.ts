@@ -1,4 +1,4 @@
-import { NetworkComponent } from '../../..';
+import { NetworkComponent } from '../..';
 import { Ipv4Address } from '../../adressing/Ipv4Address';
 import { GraphEdge } from '../GraphEdge';
 import { Packet, Frame } from '../logicalNodes/DataNode';

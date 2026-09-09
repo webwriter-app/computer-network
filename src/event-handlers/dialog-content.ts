@@ -1,6 +1,6 @@
 import { SlInput, SlDialog, SlButton, SlTabGroup, SlTabPanel, SlSelect } from '@shoelace-style/shoelace';
 import { html, TemplateResult } from 'lit';
-import { ComputerNetwork } from '../..';
+import { NetworkComponent } from '..';
 import { Address } from '../adressing/Address';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { Ipv6Address } from '../adressing/Ipv6Address';
@@ -15,7 +15,7 @@ import { SubnettingController } from './subnetting-controller';
 import { msg } from '@lit/localize';
 
 export class DialogFactory {
-    static generateInputsDetailsForNode(network: ComputerNetwork): void {
+    static generateInputsDetailsForNode(network: NetworkComponent): void {
         let currentComponentToAdd = network.currentComponentToAdd;
 
         if (currentComponentToAdd == '') {
@@ -134,7 +134,7 @@ export class DialogFactory {
     }
 
     static generateInputsDetailsForEdge(
-        network: ComputerNetwork,
+        network: NetworkComponent,
         edge: any,
         sourceNode: PhysicalNode,
         targetNode: PhysicalNode
@@ -291,7 +291,7 @@ export class DialogFactory {
     static handleChangesInDialogForPhysicalNode(
         id: string,
         node: any,
-        network: ComputerNetwork,
+        network: NetworkComponent,
         isGateway: boolean,
         subnet?: Net
     ) {
@@ -500,7 +500,7 @@ export class DialogFactory {
         dialog.show();
     }
 
-    static handleChangesInDialogForNet(id: string, node: any, network: ComputerNetwork) {
+    static handleChangesInDialogForNet(id: string, node: any, network: NetworkComponent) {
         let dialog: SlDialog = new SlDialog();
         dialog.label = 'Details of this network:';
 
@@ -580,7 +580,7 @@ export class DialogFactory {
         dialog.show();
     }
 
-    static handleChangeDefaultGateway(subnet: Net, id: string, node: any, network: ComputerNetwork) {
+    static handleChangeDefaultGateway(subnet: Net, id: string, node: any, network: NetworkComponent) {
         let dialog: SlDialog = new SlDialog();
         dialog.label = 'Details of available gateways';
         let gateways: Map<string, number> = subnet.gateways; //gateway-node-id, port
@@ -655,7 +655,7 @@ export class DialogFactory {
         dialog.show();
     }
 
-    static showDataHeaders(data: Data, network: ComputerNetwork): void {
+    static showDataHeaders(data: Data, network: NetworkComponent): void {
         let dialog = new SlDialog();
         dialog.label = data.id;
 
@@ -676,7 +676,7 @@ export class DialogFactory {
         dialog.show();
     }
 
-    static showHelpText(network: ComputerNetwork): TemplateResult {
+    static showHelpText(network: NetworkComponent): TemplateResult {
         return html`
     <sl-tab-group>
         <sl-tab slot="nav" panel="node">${msg('Add/ Configure graph components')}</sl-tab>

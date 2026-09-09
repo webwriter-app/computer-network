@@ -1,13 +1,12 @@
 import { SlIcon } from '@shoelace-style/shoelace';
-import { ComputerNetwork } from '../..';
+import { NetworkComponent } from '..';
 import { GraphEdge } from '../components/GraphEdge';
 import { PhysicalNode } from '../components/physicalNodes/PhysicalNode';
 import { AlertHelper } from '../utils/AlertHelper';
-import NodeSingular from 'cytoscape';
 import { msg } from '@lit/localize';
 
 export class EdgeController {
-    static toggleDrawMode(network: ComputerNetwork): void {
+    static toggleDrawMode(network: NetworkComponent): void {
         if (!network.drawModeOn) {
             // if (network.currentComponentToAdd != "edge") {
             //     return;
@@ -62,7 +61,7 @@ export class EdgeController {
         return true;
     }
 
-    static newUnconfiguredEdge(network: ComputerNetwork, source: PhysicalNode, target: PhysicalNode): any {
+    static newUnconfiguredEdge(network: NetworkComponent, source: PhysicalNode, target: PhysicalNode): any {
         let unconfiguredEdge = new GraphEdge('#70e6af', source, target);
         return { group: 'edges', data: unconfiguredEdge, classes: unconfiguredEdge.cssClass };
     }

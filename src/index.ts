@@ -1,4 +1,4 @@
-import { css, html, LitElement, PropertyValueMap, TemplateResult } from 'lit';
+import { html, LitElement, PropertyValueMap, TemplateResult } from 'lit';
 import { LitElementWw } from '@webwriter/lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 
@@ -29,7 +29,6 @@ import {
     biPhone,
     biRouter,
     biShare,
-    biTrash,
     faPlus,
     iBridge,
     iHub,

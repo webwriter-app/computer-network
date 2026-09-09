@@ -1,5 +1,5 @@
 import { SlButton, SlDetails, SlIcon, SlSelect } from '@shoelace-style/shoelace';
-import { NetworkComponent } from '../..';
+import { NetworkComponent } from '..';
 import { DataHandlingDecorator } from '../components/dataDecorators/DataHandlingDecorator';
 import { RoutableDecorator } from '../components/dataDecorators/Routable';
 import { SimpleDecorator } from '../components/dataDecorators/SimpleDecorator';

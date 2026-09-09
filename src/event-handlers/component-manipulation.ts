@@ -1,5 +1,5 @@
 import { SlInput, SlButton } from '@shoelace-style/shoelace';
-import { NetworkComponent } from '../..';
+import { NetworkComponent } from '..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { Ipv6Address } from '../adressing/Ipv6Address';
 import { MacAddress } from '../adressing/MacAddress';

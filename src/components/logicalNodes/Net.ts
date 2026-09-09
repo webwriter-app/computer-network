@@ -1,5 +1,5 @@
 import { msg } from '@lit/localize';
-import { ComputerNetwork } from '../../..';
+import { NetworkComponent } from '../..';
 import { Ipv4Address } from '../../adressing/Ipv4Address';
 import { AddressingHelper } from '../../utils/AdressingHelper';
 import { AlertHelper } from '../../utils/AlertHelper';
@@ -100,7 +100,7 @@ export class Net extends LogicalNode {
         netmask: string,
         bitmask: number,
         database: Map<string, string>,
-        network: ComputerNetwork
+        network: NetworkComponent
     ): Net {
         let bitmaskValid: boolean = !(
             bitmask == null ||
@@ -139,7 +139,7 @@ export class Net extends LogicalNode {
         return new Net(color, netAd, netmaskValid ? netmask : null, bitmaskValid ? bitmask : null, database);
     }
 
-    static setMode(mode: SubnettingMode, network: ComputerNetwork): void {
+    static setMode(mode: SubnettingMode, network: NetworkComponent): void {
         network.subnettingMode = mode;
     }
 
@@ -154,7 +154,7 @@ export class Net extends LogicalNode {
         net: Net,
         ip: Ipv4Address,
         database: Map<string, string>,
-        network: ComputerNetwork
+        network: NetworkComponent
     ): void {
         if (network.subnettingMode != 'HOST_BASED' || ip.matchesNetworkCidr(net)) {
             return;
@@ -178,7 +178,7 @@ export class Net extends LogicalNode {
         candidateId: string,
         net: Net,
         database: Map<string, string>,
-        network: ComputerNetwork
+        network: NetworkComponent
     ): void {
         if (network.subnettingMode != 'HOST_BASED') return;
         if (net.networkAddress != null && net.networkAddress != undefined) {
@@ -228,7 +228,7 @@ export class Net extends LogicalNode {
         supernet: Net,
         subnet: Net,
         database: Map<string, string>,
-        network: ComputerNetwork
+        network: NetworkComponent
     ): void {
         if (
             network.subnettingMode != 'HOST_BASED' ||
@@ -253,7 +253,7 @@ export class Net extends LogicalNode {
         Net.testPossibleNetAddresses(count, candidateId, supernet, database);
     }
 
-    validateNetLocally(hosts: GraphNode[], gateways: Router[], network: ComputerNetwork, noAlert: boolean): boolean {
+    validateNetLocally(hosts: GraphNode[], gateways: Router[], network: NetworkComponent, noAlert: boolean): boolean {
         if (this.cssClass.includes('unconfigured-net')) return false;
         let allCorrect: boolean = true;
         let unmatchedPairs: Map<string, [string, string]> = new Map(); //("host", [type of host, name])
@@ -372,7 +372,7 @@ export class Net extends LogicalNode {
         newNetId: string,
         newnetmask: string,
         newBitmask: number,
-        network: ComputerNetwork
+        network: NetworkComponent
     ): boolean {
         let bitmaskValid: boolean = !(
             newBitmask == null ||

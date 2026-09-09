@@ -1,4 +1,4 @@
-import { ComputerNetwork } from "../..";
+import { NetworkComponent } from "..";
 
 export class AnimationHelper {
     static delay(time) {
@@ -6,7 +6,7 @@ export class AnimationHelper {
     }
 
 
-    static blinkingThenRemoveNode(nodeCssClass: string, nodeId: string, network: ComputerNetwork) {
+    static blinkingThenRemoveNode(nodeCssClass: string, nodeId: string, network: NetworkComponent) {
         let node = network._graph.$('#' + nodeId);
         AnimationHelper.delay(400).then(() => {
             node.toggleClass(nodeCssClass, false);

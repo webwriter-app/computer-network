@@ -1,19 +1,17 @@
 import SlDetails from '@shoelace-style/shoelace/dist/components/details/details.component.js';
 import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.component.js';
 import { html } from 'lit';
-import { ComputerNetwork } from '../..';
+import { NetworkComponent } from '..';
 import { Ipv4Address } from '../adressing/Ipv4Address';
 import { Ipv6Address } from '../adressing/Ipv6Address';
 import { MacAddress } from '../adressing/MacAddress';
 import { RoutableDecorator } from '../components/dataDecorators/Routable';
 import { SwitchableDecorator } from '../components/dataDecorators/Switchable';
 import { GraphEdge } from '../components/GraphEdge';
-import { Packet } from '../components/logicalNodes/DataNode';
 import { Net } from '../components/logicalNodes/Net';
 import { AccessPoint, Bridge, Hub, Repeater, Router, Switch } from '../components/physicalNodes/Connector';
 import { Host } from '../components/physicalNodes/Host';
 import { ConnectionType, PhysicalNode } from '../components/physicalNodes/PhysicalNode';
-import { PacketSimulator } from '../event-handlers/packet-simulator';
 import { initNetwork } from '../network-config';
 import { RoutingData } from '../utils/routingData';
 import { TableHelper } from '../utils/TableHelper';
@@ -36,7 +34,7 @@ class ExampleDescription {
 export class ImportExportController {
     static reader: FileReader = new FileReader();
 
-    static exportFile(network: ComputerNetwork): void {
+    static exportFile(network: NetworkComponent): void {
         if (!network.networkAvailable) return;
         let data = {};
         let physicalNodes = [];
@@ -204,13 +202,13 @@ export class ImportExportController {
         document.body.removeChild(anchor);
     }
 
-    static importFile(network: ComputerNetwork): void {
+    static importFile(network: NetworkComponent): void {
         const fileInput = network.renderRoot.querySelector('#import-file') as HTMLInputElement;
         const selectedFile = fileInput.files[0];
         ImportExportController.importSpecificFile(selectedFile, network);
     }
 
-    static importSpecificFile(selectedFile: File, network: ComputerNetwork): void {
+    static importSpecificFile(selectedFile: File, network: NetworkComponent): void {
         ImportExportController.reader.onloadend = async () => {
             initNetwork(network);
             network.ipv4Database = new Map();
@@ -609,7 +607,7 @@ export class ImportExportController {
         ],
     ]); //id, example-info
 
-    static openExample(filePath: string, network: ComputerNetwork) {
+    static openExample(filePath: string, network: NetworkComponent) {
         console.log('open Example');
         fetch(filePath).then((response) => {
             response.blob().then((blob) => {
@@ -621,7 +619,7 @@ export class ImportExportController {
         (network.renderRoot.querySelector('#example-graphs') as SlDialog).hide();
     }
 
-    static exampleTemplate(network: ComputerNetwork) {
+    static exampleTemplate(network: NetworkComponent) {
         let cidrExamples = [];
         let simulationExamples = [];
 

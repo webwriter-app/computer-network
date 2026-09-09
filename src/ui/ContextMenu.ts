@@ -19,7 +19,6 @@ import { GraphEdge } from '../components/GraphEdge';
 import { SubnettingController } from '../event-handlers/subnetting-controller';
 import { AlertHelper } from '../utils/AlertHelper';
 import { AddressingHelper } from '../utils/AdressingHelper';
-import { Host } from 'src/components/physicalNodes/Host';
 import { msg } from '@lit/localize';
 
 export function contextMenuTemplate(this: NetworkComponent): TemplateResult {

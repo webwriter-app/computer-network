@@ -1,5 +1,4 @@
-import { ComputerNetwork } from '../../..';
-import { PacketSimulator } from '../../event-handlers/packet-simulator';
+import { NetworkComponent } from '../..';
 import { GraphEdge } from '../GraphEdge';
 import { Packet, Frame } from '../logicalNodes/DataNode';
 import { PhysicalNode } from '../physicalNodes/PhysicalNode';
@@ -11,7 +10,7 @@ export class SimpleDecorator extends DataHandlingDecorator {
         this.cssClass.push('simple-decorated');
     }
 
-    handleDataIn(dataNode: any, previousNode: any, network: ComputerNetwork) {
+    handleDataIn(dataNode: any, previousNode: any, network: NetworkComponent) {
         dataNode = dataNode.remove();
         let previousId = previousNode.id();
 

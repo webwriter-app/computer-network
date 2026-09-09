@@ -1,6 +1,5 @@
 import { msg } from '@lit/localize';
-import { NetworkComponent } from '../../..';
-import { PacketSimulator } from '../../event-handlers/packet-simulator';
+import { NetworkComponent } from '../..';
 import { AddressingHelper } from '../../utils/AdressingHelper';
 import { AlertHelper } from '../../utils/AlertHelper';
 import { AnimationHelper } from '../../utils/AnimationHelper';
