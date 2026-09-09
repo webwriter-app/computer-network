@@ -40,7 +40,9 @@ export class Net extends LogicalNode {
 
         if (id != null && id != undefined && id != '') {
             this.id = id;
-            Net.counter = +id.charAt(id.length - 1);
+            //parse the full trailing number (e.g. "net10" -> 10), not just the last digit
+            let trailingNumber = id.match(/\d+$/);
+            if (trailingNumber != null) Net.counter = +trailingNumber[0];
         } else {
             this.id = 'net' + Net.counter;
         }

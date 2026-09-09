@@ -59,9 +59,8 @@ export class AddressingHelper {
     }
 
     static replaceAt(origin: string, index: number, replacement: string): string {
-        if (index > origin.length || index<0 || replacement.length!=1) return null!;
-        if (index == 0) return replacement + origin.substring(1);
-        return origin.substring(0, index-1) + replacement + origin.substring(index);
+        if (index >= origin.length || index < 0 || replacement.length != 1) return null!;
+        return origin.substring(0, index) + replacement + origin.substring(index + 1);
     }
 
     static validateNetMask(netmask: string): boolean {
