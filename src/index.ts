@@ -126,6 +126,12 @@ export class NetworkComponent extends LitElementWw {
     /** @internal Indicates whether Cytoscape has been initialized and is available. */
     networkAvailable: Boolean = false;
 
+    /** @internal Observes the host's size so we can detect fullscreen changes. */
+    private resizeObserver?: ResizeObserver;
+
+    /** @internal Last observed fullscreen state, used to detect changes from the ResizeObserver. */
+    private wasFullscreen = false;
+
     /** @internal Controller handle for Cytoscape edgehandles extension. */
     _edgeHandles: any;
 
@@ -350,6 +356,17 @@ export class NetworkComponent extends LitElementWw {
         load.bind(this)();
         setupListeners.bind(this)();
         window.addEventListener('scroll', this.onScroll);
+
+        this.wasFullscreen = this.isFullscreen;
+        this.resizeObserver = new ResizeObserver(() => {
+            this._graph?.resize();
+            const isFullscreen = this.isFullscreen;
+            if (isFullscreen !== this.wasFullscreen) {
+                this.wasFullscreen = isFullscreen;
+                this.requestUpdate();
+            }
+        });
+        this.resizeObserver.observe(this);
     }
 
     /**
@@ -360,6 +377,7 @@ export class NetworkComponent extends LitElementWw {
     disconnectedCallback() {
         super.disconnectedCallback();
         window.removeEventListener('scroll', this.onScroll);
+        this.resizeObserver?.disconnect();
     }
 
     /**
@@ -390,10 +408,12 @@ export class NetworkComponent extends LitElementWw {
     private async handleFullscreenToggle() {
         if (this.isFullscreen) {
             await this.ownerDocument.exitFullscreen();
+            this.wasFullscreen = false;
             this.requestUpdate()
         } else {
             try {
                 await this.requestFullscreen();
+                this.wasFullscreen = true;
                 this.requestUpdate()
             } catch (error) {
                 console.error("Failed to enter fullscreen mode.");
